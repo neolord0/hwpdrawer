@@ -1,13 +1,21 @@
 package kr.dogfoot.hwplib.drawer;
 
+import kr.dogfoot.hwplib.drawer.util.FontLoader;
+import kr.dogfoot.hwplib.drawer.util.FontManager;
 import kr.dogfoot.hwplib.object.HWPFile;
 import kr.dogfoot.hwplib.object.bodytext.Section;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.Paragraph;
 
 public class HWPDrawer {
     public static void draw(HWPFile hwpFile, DrawingOption option) throws Exception {
+
+        FontLoader.object().addFontPath("맑은 고딕", "font/malgun.ttf");
+        FontManager.object().hwpFile(hwpFile);
+
         HWPDrawer drawer = new HWPDrawer();
         drawer.drawFile(hwpFile, option);
+
+        FontManager.object().clear();
     }
 
     private DrawingInfo info;
@@ -29,10 +37,10 @@ public class HWPDrawer {
     }
 
     private void drawSection(Section section) throws Exception {
-        info.currentSection(section);
+        info.section(section);
 
         info.pageMaker().newPage();
-        for (Paragraph paragraph : info.currentSection()) {
+        for (Paragraph paragraph : info.section()) {
                 info.paragraphDrawer().draw(paragraph);
         }
     }

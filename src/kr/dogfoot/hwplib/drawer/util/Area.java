@@ -15,6 +15,13 @@ public class Area {
         this.bottom = bottom;
     }
 
+    public Area(Area other) {
+        this.left = other.left;
+        this.top = other.top;
+        this.right = other.right;
+        this.bottom = other.bottom;
+    }
+
     public long left() {
         return left;
     }
@@ -67,6 +74,18 @@ public class Area {
         return this;
     }
 
+    public Area moveX(long offsetX) {
+        left += offsetX;
+        right += offsetX;
+        return this;
+    }
+
+    public Area moveY(long offsetY) {
+        top += offsetY;
+        bottom += offsetY;
+        return this;
+    }
+
     public Rectangle toConvertedRectangle() {
         Rectangle rectangle = new Rectangle();
         rectangle.x = UnitConvertor.fromHWPUnit(left);
@@ -74,6 +93,19 @@ public class Area {
         rectangle.width = UnitConvertor.fromHWPUnit(width());
         rectangle.height = UnitConvertor.fromHWPUnit(height());
         return rectangle;
+    }
+
+    public String toString() {
+        StringBuffer sb = new StringBuffer();
+        sb.append("l:")
+                .append(left)
+                .append(", t:")
+                .append(top)
+                .append(", r:")
+                .append(right)
+                .append(", b:")
+                .append(bottom);
+        return sb.toString();
     }
 
 }
