@@ -8,8 +8,6 @@ import kr.dogfoot.hwplib.object.bodytext.paragraph.Paragraph;
 
 public class HWPDrawer {
     public static void draw(HWPFile hwpFile, DrawingOption option) throws Exception {
-
-        FontLoader.object().addFontPath("맑은 고딕", "font/malgun.ttf");
         FontManager.object().hwpFile(hwpFile);
 
         HWPDrawer drawer = new HWPDrawer();

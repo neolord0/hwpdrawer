@@ -1,7 +1,7 @@
 package kr.dogfoot.hwplib.drawer;
 
 import kr.dogfoot.hwplib.drawer.util.Area;
-import kr.dogfoot.hwplib.drawer.util.UnitConvertor;
+import kr.dogfoot.hwplib.drawer.util.Convertor;
 import kr.dogfoot.hwplib.object.bodytext.control.sectiondefine.PageDef;
 
 import javax.imageio.ImageIO;
@@ -15,7 +15,6 @@ public class PageMaker {
     private PageDef pageDef;
 
     private BufferedImage currentPageImage;
-    private Graphics graphics;
 
     private int currentPageNo;
 
@@ -47,20 +46,19 @@ public class PageMaker {
 
     private void createNewPage() {
         currentPageImage = new BufferedImage(
-                UnitConvertor.fromHWPUnit(pageDef.getPaperWidth()),
-                UnitConvertor.fromHWPUnit(pageDef.getPaperHeight()),
+                Convertor.fromHWPUnit(pageDef.getPaperWidth()),
+                Convertor.fromHWPUnit(pageDef.getPaperHeight()),
                 BufferedImage.TYPE_INT_RGB);
-        graphics = currentPageImage.getGraphics();
+
+        Graphics2D graphics = (Graphics2D) currentPageImage.getGraphics();
         graphics.setColor(Color.WHITE);
         graphics.fillRect(0, 0, currentPageImage.getWidth(), currentPageImage.getHeight());
 
         graphics.setColor(Color.RED);
         Rectangle rectangle = pageDrawArea.toConvertedRectangle();
         graphics.drawRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
-    }
 
-    public Graphics graphics() {
-        return graphics;
+        info.painter().graphics2D(graphics);
     }
 
     public PageDef pageDef() {

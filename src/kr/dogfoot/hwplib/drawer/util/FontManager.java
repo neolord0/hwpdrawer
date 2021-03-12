@@ -43,6 +43,7 @@ public class FontManager {
 
     private Font createCalculatingFont(CharShape charShape) {
         Font font = findOriginalFont(charShape);
+
         return font.deriveFont(Font.TRUETYPE_FONT, charShape.getBaseSize());
     }
 
@@ -64,7 +65,11 @@ public class FontManager {
         if (charShape.getProperty().isItalic()) {
             style = style | Font.ITALIC;
         }
-        return font.deriveFont(style, UnitConvertor.fontSize(charShape.getBaseSize()));
+        return font.deriveFont(style, Convertor.fontSize(fontSize(charShape)));
+    }
+
+    private int fontSize(CharShape charShape) {
+        return charShape.getBaseSize() * charShape.getRelativeSizes().getHangul() / 100;
     }
 
     private Font findOriginalFont(CharShape charShape) {

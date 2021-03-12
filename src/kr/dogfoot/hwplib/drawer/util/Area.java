@@ -88,10 +88,10 @@ public class Area {
 
     public Rectangle toConvertedRectangle() {
         Rectangle rectangle = new Rectangle();
-        rectangle.x = UnitConvertor.fromHWPUnit(left);
-        rectangle.y = UnitConvertor.fromHWPUnit(top);
-        rectangle.width = UnitConvertor.fromHWPUnit(width());
-        rectangle.height = UnitConvertor.fromHWPUnit(height());
+        rectangle.x = Convertor.fromHWPUnit(left);
+        rectangle.y = Convertor.fromHWPUnit(top);
+        rectangle.width = Convertor.fromHWPUnit(width());
+        rectangle.height = Convertor.fromHWPUnit(height());
         return rectangle;
     }
 

@@ -16,6 +16,13 @@ public class FontLoader {
 
     private FontLoader() {
         fontPathMap = new HashMap<>();
+        initialize();
+
+    }
+
+    private void initialize() {
+        addFontPath("맑은 고딕", "font/malgun.ttf");
+        addFontPath("바탕", "font/batang.ttc");
     }
 
     public Font load(String fontName) {

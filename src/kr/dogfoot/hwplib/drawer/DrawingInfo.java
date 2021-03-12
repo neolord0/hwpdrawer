@@ -1,7 +1,8 @@
 package kr.dogfoot.hwplib.drawer;
 
 import kr.dogfoot.hwplib.drawer.util.Area;
-import kr.dogfoot.hwplib.drawer.util.UnitConvertor;
+import kr.dogfoot.hwplib.drawer.util.Convertor;
+import kr.dogfoot.hwplib.drawer.painter.Painter;
 import kr.dogfoot.hwplib.object.HWPFile;
 import kr.dogfoot.hwplib.object.bodytext.Section;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlSectionDefine;
@@ -12,7 +13,6 @@ import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPChar;
 import kr.dogfoot.hwplib.object.docinfo.CharShape;
 import kr.dogfoot.hwplib.object.docinfo.ParaShape;
 
-import java.awt.*;
 import java.util.Stack;
 
 public class DrawingInfo {
@@ -34,6 +34,8 @@ public class DrawingInfo {
     private int currentCharShapeIndex;
     private CharShape currentCharShape;
 
+    private Painter painter;
+
     public DrawingInfo() {
         hwpFile = null;
         option = null;
@@ -44,6 +46,8 @@ public class DrawingInfo {
         pageMaker = new PageMaker(this);
 
         paragraphDrawer = new ParagraphDrawer(this);
+
+        painter = new Painter();
     }
 
     public HWPFile hwpFile() {
@@ -62,7 +66,7 @@ public class DrawingInfo {
 
     public DrawingInfo option(DrawingOption option) {
         this.option = option;
-        UnitConvertor.zoomRate(option.zoomRate());
+        Convertor.zoomRate(option.zoomRate());
         return this;
     }
 
@@ -184,8 +188,7 @@ public class DrawingInfo {
         return currentChar;
     }
 
-    public Graphics graphics() {
-        return pageMaker.graphics();
+    public Painter painter() {
+        return painter;
     }
-
 }

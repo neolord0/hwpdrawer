@@ -38,6 +38,6 @@ public class Point {
     }
 
     public Point toConvertedPoint() {
-        return new Point(UnitConvertor.fromHWPUnit(x), UnitConvertor.fromHWPUnit(y));
+        return new Point(Convertor.fromHWPUnit(x), Convertor.fromHWPUnit(y));
     }
 }
