@@ -2,7 +2,6 @@ package kr.dogfoot.hwplib.drawer;
 
 import kr.dogfoot.hwplib.object.docinfo.CharShape;
 import kr.dogfoot.hwplib.object.docinfo.borderfill.BorderThickness;
-import kr.dogfoot.hwplib.object.docinfo.borderfill.BorderType;
 import kr.dogfoot.hwplib.object.docinfo.charshape.BorderType2;
 import kr.dogfoot.hwplib.object.docinfo.charshape.UnderLineSort;
 
@@ -93,6 +92,6 @@ public class UnderLineDrawer {
         info.painter().setLineStyle(drawingCharShape.getProperty().getUnderLineShape().toBorderType(),
                 BorderThickness.MM0_15,
                 drawingCharShape.getUnderLineColor());
-        info.painter().drawLine(startX, y, endX, y);
+        info.painter().line(startX, y, endX, y);
     }
 }

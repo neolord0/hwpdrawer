@@ -14,11 +14,11 @@ public class Convertor {
     }
 
     public static int fromHWPUnit(long hwpUnit) {
-        return (int) (hwpUnit * 72 * 100 / 2560 / zoomRate);
+        return (int) (hwpUnit * 72 * 100 / 2540 / zoomRate);
     }
 
     public static float fontSize(int baseSize) {
-        return baseSize * 72 * 100 / 2560 / zoomRate;
+        return baseSize * 72 * 100 / 2540 / zoomRate;
     }
 
     public static Color color(Color4Byte color4Byte) {

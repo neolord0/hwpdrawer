@@ -2,11 +2,7 @@ package kr.dogfoot.hwplib.drawer;
 
 import kr.dogfoot.hwplib.object.docinfo.CharShape;
 import kr.dogfoot.hwplib.object.docinfo.borderfill.BorderThickness;
-import kr.dogfoot.hwplib.object.docinfo.borderfill.BorderType;
 import kr.dogfoot.hwplib.object.docinfo.charshape.BorderType2;
-import kr.dogfoot.hwplib.object.docinfo.charshape.UnderLineSort;
-
-import java.io.UnsupportedEncodingException;
 
 public class StrikeLineDrawer {
     private DrawingInfo info;
@@ -104,6 +100,6 @@ public class StrikeLineDrawer {
         info.painter().setLineStyle(drawingCharShape.getProperty().getStrikeLineShape().toBorderType(),
                 BorderThickness.MM0_15,
                 drawingCharShape.getStrikeLineColor());
-        info.painter().drawLine(startX, y, endX, y);
+        info.painter().line(startX, y, endX, y);
     }
 }

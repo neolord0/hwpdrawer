@@ -23,6 +23,7 @@ public class FontLoader {
     private void initialize() {
         addFontPath("맑은 고딕", "font/malgun.ttf");
         addFontPath("바탕", "font/batang.ttc");
+        addFontPath("나눔고딕", "font/NanumGothic.ttf");
     }
 
     public Font load(String fontName) {

@@ -36,10 +36,12 @@ public class HWPDrawer {
 
     private void drawSection(Section section) throws Exception {
         info.section(section);
+        info.newPage();
 
-        info.pageMaker().newPage();
         for (Paragraph paragraph : info.section()) {
-                info.paragraphDrawer().draw(paragraph);
+            info.paragraphDrawer()
+                    .initialize(paragraph, true)
+                    .draw();
         }
     }
 }

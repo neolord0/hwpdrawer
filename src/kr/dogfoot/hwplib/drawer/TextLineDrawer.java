@@ -9,14 +9,12 @@ import java.util.ArrayList;
 public class TextLineDrawer {
     private DrawingInfo info;
 
-    private long y;
-    private long currentX;
+    private ArrayList<CharDrawInfo> charDrawInfos;
 
     private long maxCharHeight;
-
+    private long baseLine;
+    private long charX;
     private CharShape drawingCharShape;
-    private ArrayList<CharDrawInfo> charDrawInfos;
-    private ArrayList<CharDrawInfo> lastWordPartChar;
 
     private UnderLineDrawer underLineDrawer;
     private StrikeLineDrawer strikeLineDrawer;
@@ -24,57 +22,39 @@ public class TextLineDrawer {
     public TextLineDrawer(DrawingInfo info) {
         this.info = info;
 
-        maxCharHeight = 0;
         charDrawInfos = new ArrayList<>();
-        lastWordPartChar = new ArrayList<>();
         underLineDrawer = new UnderLineDrawer(info);
         strikeLineDrawer = new StrikeLineDrawer(info);
     }
 
-    public void start(long startX, long y) {
-        maxCharHeight = 0;
-        this.currentX = startX;
-        this.y = y;
+    public void initialize() {
         charDrawInfos.clear();
-        addLastWordPart();
+
+        maxCharHeight = 0;
+        baseLine = 0;
+        charX = 0;
+        drawingCharShape = null;
     }
 
-    private void addLastWordPart() {
-        for(CharDrawInfo cdi : lastWordPartChar) {
-            addChar(cdi.charNormal, cdi.width,  cdi.charShape);
-        }
-        lastWordPartChar.clear();
-    }
-
-    public void addChar(HWPCharNormal charNormal, double width, CharShape charShape) {
+    public void addChar(HWPCharNormal ch, double width, CharShape charShape) {
         maxCharHeight = (charShape.getBaseSize() > maxCharHeight) ? charShape.getBaseSize() : maxCharHeight;
-        charDrawInfos.add(new CharDrawInfo(charNormal, currentX, width, charShape));
-        currentX += width + width * charShape.getCharSpaces().getHangul() / 100;
-     }
-
-    public long currentX() {
-        return currentX;
-    }
-
-    public long y() {
-        return y;
+        charDrawInfos.add(new CharDrawInfo(ch, width, charShape));
     }
 
     public long maxCharHeight() {
         return maxCharHeight;
     }
 
-    public void draw(boolean lastLine) throws UnsupportedEncodingException {
-        if (lastLine == false) {
-            splitLastWordPart();
-        }
-
+    public void draw(long startX, long startY) throws UnsupportedEncodingException {
+        charX = startX;
+        baseLine = startY + maxCharHeight;
         drawingCharShape = null;
-        long baseLine = y + maxCharHeight;
 
-        underLineDrawer.initialize(baseLine, maxCharHeight);
-        strikeLineDrawer.initialize(baseLine);
+        drawText();
+        drawUnder_StrikeLine();
+    }
 
+    private void drawText() throws UnsupportedEncodingException {
         short oldRatio = 100;
         double stretchRate = 1;
 
@@ -89,12 +69,21 @@ public class TextLineDrawer {
                 stretchRate = info.painter().setStretch(oldRatio);
             }
 
-            long y = baseLine + cdi.charShape.getBaseSize() * cdi.charShape.getCharOffsets().getHangul() / 100;
-
-            info.painter().drawString(cdi.charNormal.getCh(),
+            cdi.x(charX);
+            info.painter().string(cdi.ch.getCh(),
                     (long) (cdi.x / stretchRate),
-                    y);
+                    getY(cdi));
+            charX += cdi.width + (cdi.width * cdi.charShape.getCharSpaces().getHangul() / 100);
         }
+    }
+
+    private long getY(CharDrawInfo cdi) {
+        return baseLine + cdi.charShape.getBaseSize() * cdi.charShape.getCharOffsets().getHangul() / 100;
+    }
+
+    private void drawUnder_StrikeLine() throws UnsupportedEncodingException {
+        underLineDrawer.initialize(baseLine, maxCharHeight);
+        strikeLineDrawer.initialize(baseLine);
 
         int count = charDrawInfos.size();
         for (int index = 0; index < count; index++) {
@@ -105,39 +94,32 @@ public class TextLineDrawer {
         }
     }
 
-
-    private void splitLastWordPart() {
-        int lastSpaceIndex = getLastSpaceIndex();
-        if (lastSpaceIndex != -1) {
-            int count = charDrawInfos.size();
-            for (int index = lastSpaceIndex + 1; index < count; index++) {
-                CharDrawInfo cdi = charDrawInfos.remove(lastSpaceIndex + 1);
-                lastWordPartChar.add(cdi);
-            }
-       }
+    public boolean noChar() {
+        return charDrawInfos.size() == 0;
     }
 
-    private int getLastSpaceIndex() {
-        for(int index = charDrawInfos.size() - 1; index >= 0; index--) {
-            CharDrawInfo cdi = charDrawInfos.get(index);
-            if (cdi.charNormal.getCode() == 32) {
-                return index;
-            }
+    public String text() throws UnsupportedEncodingException {
+        StringBuffer sb = new StringBuffer();
+        for (CharDrawInfo cdi : charDrawInfos) {
+            sb.append(cdi.ch.getCh());
         }
-        return -1;
+        return sb.toString();
     }
 
     public static class CharDrawInfo {
-        public HWPCharNormal charNormal;
-        public long x;
+        public HWPCharNormal ch;
         public double width;
         public CharShape charShape;
+        public long x;
 
-        public CharDrawInfo(HWPCharNormal charNormal, long x, double width, CharShape charShape) {
-            this.charNormal = charNormal;
-            this.x = x;
+        public CharDrawInfo(HWPCharNormal ch, double width, CharShape charShape) {
+            this.ch = ch;
             this.width = width;
             this.charShape = charShape;
+        }
+
+        public void x(long x) {
+            this.x = x;
         }
     }
 }

@@ -1,5 +1,6 @@
 package kr.dogfoot.hwplib.drawer;
 
+import kr.dogfoot.hwplib.drawer.painter.PageMaker;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.Convertor;
 import kr.dogfoot.hwplib.drawer.painter.Painter;
@@ -12,7 +13,12 @@ import kr.dogfoot.hwplib.object.bodytext.paragraph.charshape.CharPositionShapeId
 import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPChar;
 import kr.dogfoot.hwplib.object.docinfo.CharShape;
 import kr.dogfoot.hwplib.object.docinfo.ParaShape;
+import kr.dogfoot.hwplib.object.docinfo.borderfill.BorderThickness;
+import kr.dogfoot.hwplib.object.docinfo.borderfill.BorderType;
+import kr.dogfoot.hwplib.object.etc.Color4Byte;
 
+import java.awt.*;
+import java.io.IOException;
 import java.util.Stack;
 
 public class DrawingInfo {
@@ -34,6 +40,8 @@ public class DrawingInfo {
     private int currentCharShapeIndex;
     private CharShape currentCharShape;
 
+    private long paragraphStartY;
+
     private Painter painter;
 
     public DrawingInfo() {
@@ -48,6 +56,8 @@ public class DrawingInfo {
         paragraphDrawer = new ParagraphDrawer(this);
 
         painter = new Painter();
+
+        paragraphStartY = 0;
     }
 
     public HWPFile hwpFile() {
@@ -66,6 +76,7 @@ public class DrawingInfo {
 
     public DrawingInfo option(DrawingOption option) {
         this.option = option;
+        this.painter.option(option);
         Convertor.zoomRate(option.zoomRate());
         return this;
     }
@@ -78,6 +89,14 @@ public class DrawingInfo {
         this.section = section;
 
         setPageDef();
+    }
+
+    public void newPage() throws IOException {
+        pageMaker.newPage();
+        painter.setLineStyle(BorderType.Solid, BorderThickness.MM0_15, new Color4Byte(255,0, 0));
+        painter.rectangle(pageMaker.pageDrawArea());
+
+        paragraphStartY = 0;
     }
 
     private void setPageDef() throws Exception {
@@ -96,18 +115,34 @@ public class DrawingInfo {
         pageMaker.pageDef(sectionDefine.getPageDef());
     }
 
-    public void startParagraph(Paragraph paragraph) {
+    public Area startParagraph(Paragraph paragraph, boolean pageParagraph) {
         paragraphStack.push(paragraph);
         currentCharIndex = 0;
         currentCharPosition = 0;
         currentChar = null;
 
-        currentCharShapeIndex = -1;
-        currentCharShape = null;
+        currentCharShapeIndex = 0;
+        setCurrentCharShape();
+
+        if (pageParagraph) {
+            return pageParagraphDrawArea();
+        }
+
+        return null;
     }
 
-    public void endParagraph() {
+    public Area pageParagraphDrawArea() {
+        Area area = new Area(pageMaker.pageDrawArea())
+                .applyMargin(currentParaShape().getLeftMargin(),
+                        paragraphStartY + currentParaShape().getTopParaSpace(),
+                        currentParaShape().getRightMargin(),
+                        0);
+        return area;
+    }
+
+    public void endParagraph(long paragraphHeight, boolean pageParagraph) {
         paragraphStack.pop();
+        this.paragraphStartY += paragraphHeight;
     }
 
     public Paragraph currentParagraph() {
@@ -131,15 +166,6 @@ public class DrawingInfo {
 
     public Area pageDrawArea() {
         return pageMaker.pageDrawArea();
-    }
-
-    public Area paragraphDrawArea() {
-        Area area = new Area(pageMaker.pageDrawArea())
-                .applyMargin(currentParaShape().getLeftMargin(),
-                        currentParaShape().getTopParaSpace() + pageMaker.paragraphStartY(),
-                        currentParaShape().getRightMargin(),
-                        0);
-        return area;
     }
 
     public boolean nextChar() {
