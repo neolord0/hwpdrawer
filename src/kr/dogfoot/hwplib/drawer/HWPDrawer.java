@@ -40,8 +40,7 @@ public class HWPDrawer {
 
         for (Paragraph paragraph : info.section()) {
             info.paragraphDrawer()
-                    .initialize(paragraph, true)
-                    .draw();
+                    .draw(paragraph, true);
         }
     }
 }
