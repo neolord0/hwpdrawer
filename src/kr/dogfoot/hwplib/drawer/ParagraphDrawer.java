@@ -41,6 +41,8 @@ public class ParagraphDrawer {
 
     public void draw(Paragraph paragraph, boolean pageParagraph) throws Exception {
         paragraphArea = info.startParagraph(paragraph, pageParagraph);
+        System.out.println("{");
+        
         initialize(pageParagraph);
 
         if (noParaText()) {
@@ -65,6 +67,7 @@ public class ParagraphDrawer {
         }
 
         info.endParagraph(lineY, pageParagraph);
+        System.out.println("}");
     }
 
     private void initialize(boolean pageParagraph) {
@@ -90,7 +93,6 @@ public class ParagraphDrawer {
             storeCharByWord(ch);
         } else {
             addWordToLine();
-            addSpaceChar();
         }
     }
 
@@ -102,11 +104,14 @@ public class ParagraphDrawer {
     private void addWordToLine() throws IOException {
         if (wordChars.size() > 0) {
             if (!isOverRight(wordWidth)) {
-                addWordAllCharsToLine(false);
+                addWordAllCharsToLine(wordChars, false);
+                addSpaceChar();
                 resetWord();
             } else {
                 spanningWord();
             }
+        } else {
+            addSpaceChar();
         }
     }
 
@@ -118,7 +123,7 @@ public class ParagraphDrawer {
         return wordsWidth + spacesWidth + paragraphArea.left();
     }
 
-    private void addWordAllCharsToLine(boolean checkOverRight) throws IOException {
+    private void addWordAllCharsToLine(ArrayList<WordChar> wordChars, boolean checkOverRight) throws IOException {
         for (WordChar wc : wordChars) {
             addCharToLine(wc.ch, wc.width, wc.charShape, checkOverRight);
         }
@@ -139,15 +144,41 @@ public class ParagraphDrawer {
     }
 
     private void spanningWord() throws IOException {
-        if (info.currentParaShape().getProperty1().getLineDivideForEnglish() == LineDivideForEnglish.ByWord
-            && info.currentParaShape().getProperty1().getLineDivideForHangul() == LineDivideForHangul.ByWord) {
+        if (!isOverRightApplyMinimumSpace(wordWidth)) {
+            addWordAllCharsToLine(wordChars, false);
+            addSpaceChar();
+            resetWord();
+
+            textLineDrawer.spaceRate(bestSpaceRate());
             drawTextAndNewLine();
-            addWordAllCharsToLine(true);
-            resetWord();
         } else {
-            splitWords();
-            resetWord();
+            if (info.currentParaShape().getProperty1().getLineDivideForEnglish() == LineDivideForEnglish.ByWord
+                    && info.currentParaShape().getProperty1().getLineDivideForHangul() == LineDivideForHangul.ByWord) {
+                drawTextAndNewLine();
+
+                addWordAllCharsToLine(wordChars, true);
+                addSpaceChar();
+                resetWord();
+            } else {
+                splitWords();
+                addSpaceChar();
+                resetWord();
+            }
         }
+    }
+
+    private boolean isOverRightApplyMinimumSpace(long width) {
+        return info.currentParaShape().getProperty1().getMinimumSpace() == 0
+                || currentTextXApplyMinimumSpace() + width > paragraphArea.right();
+    }
+
+    private long currentTextXApplyMinimumSpace() {
+        long minimumSpace = spacesWidth * (100 - info.currentParaShape().getProperty1().getMinimumSpace()) / 100;
+        return wordsWidth + minimumSpace + paragraphArea.left();
+    }
+
+    private double bestSpaceRate() {
+        return (double) (paragraphArea.width() - wordsWidth) / (double) spacesWidth;
     }
 
     private void drawTextAndNewLine() throws IOException {
@@ -223,11 +254,6 @@ public class ParagraphDrawer {
         boolean previousHangul = false;
         ArrayList<WordChar> wordCharsByLanguage = new ArrayList<>();
         long wordWidthByLanguage = 0;
-        System.out.print("{");
-        for (WordChar wc : wordChars) {
-            System.out.print(wc.ch.getCh());
-        }
-        System.out.println("}");
 
         int count = wordChars.size();
         for (int index = 0; index < count; index++) {
@@ -238,21 +264,21 @@ public class ParagraphDrawer {
                     wordCharsByLanguage.add(wc);
                     wordWidthByLanguage += wc.width;
                 }
-                System.out.print("[");
+                System.out.print("\t");
                 for (WordChar wc2 : wordCharsByLanguage) {
                     System.out.print(wc2.ch.getCh());
                 }
-                System.out.println("] " + previousHangul);
+                System.out.println("");
 
                 if (previousHangul) {
                     if (splitByHangulLetter) {
-                        addWordAllCharsToLine2(wordCharsByLanguage, true);
+                        addWordAllCharsToLine(wordCharsByLanguage, true);
                     } else {
                         addEachLanguageWordToLine(wordCharsByLanguage, wordWidthByLanguage);
                     }
                 } else {
                     if (splitByEnglishLetter) {
-                        addWordAllCharsToLine2(wordCharsByLanguage, true);
+                        addWordAllCharsToLine(wordCharsByLanguage, true);
                     } else {
                         addEachLanguageWordToLine(wordCharsByLanguage, wordWidthByLanguage);
                     }
@@ -271,17 +297,11 @@ public class ParagraphDrawer {
     private void addEachLanguageWordToLine(ArrayList<WordChar> wordChars, long wordWidth) throws IOException {
         if (wordChars.size() > 0) {
             if (!isOverRight(wordWidth)) {
-                addWordAllCharsToLine2(wordChars, false);
+                addWordAllCharsToLine(wordChars, false);
             } else {
                 drawTextAndNewLine();
-                addWordAllCharsToLine2(wordChars,true);
+                addWordAllCharsToLine(wordChars,true);
             }
-        }
-    }
-
-    private void addWordAllCharsToLine2(ArrayList<WordChar> wordChars, boolean checkOverRight) throws IOException {
-        for (WordChar wc : wordChars) {
-            addCharToLine(wc.ch, wc.width, wc.charShape, checkOverRight);
         }
     }
 

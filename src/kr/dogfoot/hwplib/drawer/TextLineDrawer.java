@@ -14,6 +14,7 @@ public class TextLineDrawer {
     private long maxCharHeight;
     private long baseLine;
     private long charX;
+    private double spaceRate;
     private CharShape drawingCharShape;
 
     private UnderLineDrawer underLineDrawer;
@@ -33,6 +34,7 @@ public class TextLineDrawer {
         maxCharHeight = 0;
         baseLine = 0;
         charX = 0;
+        spaceRate = 1.0;
         drawingCharShape = null;
     }
 
@@ -70,10 +72,15 @@ public class TextLineDrawer {
             }
 
             cdi.x(charX);
-            info.painter().string(cdi.ch.getCh(),
-                    (long) (cdi.x / stretchRate),
-                    getY(cdi));
-            charX += cdi.width + (cdi.width * cdi.charShape.getCharSpaces().getHangul() / 100);
+            if (cdi.ch.isSpace()) {
+//                System.out.println(cdi.width + " " + spaceRate + " " +((cdi.width + (cdi.width * cdi.charShape.getCharSpaces().getHangul() / 100)) * spaceRate));
+                charX += (cdi.width + (cdi.width * cdi.charShape.getCharSpaces().getHangul() / 100)) * spaceRate;
+            } else {
+                info.painter().string(cdi.ch.getCh(),
+                        (long) (cdi.x / stretchRate),
+                        getY(cdi));
+                charX += cdi.width + (cdi.width * cdi.charShape.getCharSpaces().getHangul() / 100);
+            }
         }
     }
 
@@ -104,6 +111,10 @@ public class TextLineDrawer {
             sb.append(cdi.ch.getCh());
         }
         return sb.toString();
+    }
+
+    public void spaceRate(double spaceRate) {
+        this.spaceRate = spaceRate;
     }
 
     public static class CharDrawInfo {

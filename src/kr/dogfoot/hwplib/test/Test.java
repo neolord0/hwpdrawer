@@ -16,9 +16,9 @@ public class Test {
 //        test("test/기본/여러 문단");
 //        test("test/문단모양/줄간격");
 //        test("test/문단모양/줄나눔");
-//        test("test/문단모양/줄나눔2");
-        test("test/문단모양/줄나눔3");
-//        test("test/문단모양/최소공백");
+//        test("test/문단모양/줄나눔2");.
+//        test("test/문단모양/줄나눔3");
+        test("test/문단모양/최소공백");
     }
 
     public static void test(String path) throws Exception {
@@ -33,6 +33,5 @@ public class Test {
 
         long endTime = System.currentTimeMillis();
         System.out.println(path + " : " + (endTime - startTime) + "ms");
-
     }
 }
