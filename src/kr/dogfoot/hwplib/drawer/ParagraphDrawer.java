@@ -25,6 +25,7 @@ public class ParagraphDrawer {
     private long lineY;
     private long wordsWidth;
     private long spacesWidth;
+    private boolean justNewLine;
 
     private double currentCharWidth;
     private ArrayList<WordChar> wordChars;
@@ -41,8 +42,6 @@ public class ParagraphDrawer {
 
     public void draw(Paragraph paragraph, boolean pageParagraph) throws Exception {
         paragraphArea = info.startParagraph(paragraph, pageParagraph);
-        System.out.println("{");
-        
         initialize(pageParagraph);
 
         if (noParaText()) {
@@ -67,7 +66,6 @@ public class ParagraphDrawer {
         }
 
         info.endParagraph(lineY, pageParagraph);
-        System.out.println("}");
     }
 
     private void initialize(boolean pageParagraph) {
@@ -77,6 +75,7 @@ public class ParagraphDrawer {
         lineY = 0;
         wordsWidth = 0;
         spacesWidth = 0;
+        justNewLine = false;
 
         currentCharWidth = 0;
         wordChars.clear();
@@ -103,8 +102,8 @@ public class ParagraphDrawer {
 
     private void addWordToLine() throws IOException {
         if (wordChars.size() > 0) {
-            if (!isOverRight(wordWidth)) {
-                addWordAllCharsToLine(wordChars, false);
+            if (!isOverRight(wordWidth, false)) {
+                addWordAllCharsToLine(wordChars, false, false);
                 addSpaceChar();
                 resetWord();
             } else {
@@ -115,25 +114,37 @@ public class ParagraphDrawer {
         }
     }
 
-    private boolean isOverRight(double width) {
-        return currentTextX() + width > paragraphArea.right();
+    private boolean isOverRight(double width, boolean applyMinimumSpace) {
+        if (applyMinimumSpace) {
+            return currentTextXApplyMinimumSpace() + width > paragraphArea.right();
+        } else {
+            return currentTextX() + width > paragraphArea.right();
+        }
+    }
+
+    private long currentTextXApplyMinimumSpace() {
+        long minimumSpace = spacesWidth * (100 - info.currentParaShape().getProperty1().getMinimumSpace()) / 100;
+        return wordsWidth + minimumSpace + paragraphArea.left();
     }
 
     private long currentTextX() {
         return wordsWidth + spacesWidth + paragraphArea.left();
     }
 
-    private void addWordAllCharsToLine(ArrayList<WordChar> wordChars, boolean checkOverRight) throws IOException {
+    private void addWordAllCharsToLine(ArrayList<WordChar> wordChars, boolean checkOverRight, boolean applyMinimumSpace) throws IOException {
         for (WordChar wc : wordChars) {
-            addCharToLine(wc.ch, wc.width, wc.charShape, checkOverRight);
+            addCharToLine(wc.ch, wc.width, wc.charShape, checkOverRight, applyMinimumSpace);
         }
     }
 
-    private void addCharToLine(HWPCharNormal ch, double charWidth, CharShape charShape, boolean checkOverRight) throws IOException {
-        if (checkOverRight && isOverRight(charWidth)) {
+    private void addCharToLine(HWPCharNormal ch, double charWidth, CharShape charShape, boolean checkOverRight, boolean applyMinimumSpace) throws IOException {
+        if (checkOverRight && isOverRight(charWidth, applyMinimumSpace)) {
+            if (applyMinimumSpace) {
+                textLineDrawer.spaceRate(bestSpaceRate());
+            }
             drawTextAndNewLine();
         }
-
+        justNewLine = false;
         textLineDrawer.addChar(ch, charWidth, charShape);
         wordsWidth += charWidth + (charWidth * charShape.getCharSpaces().getHangul() / 100);
     }
@@ -144,8 +155,8 @@ public class ParagraphDrawer {
     }
 
     private void spanningWord() throws IOException {
-        if (!isOverRightApplyMinimumSpace(wordWidth)) {
-            addWordAllCharsToLine(wordChars, false);
+        if (!isOverRight(wordWidth, true)) {
+            addWordAllCharsToLine(wordChars, false, false);
             addSpaceChar();
             resetWord();
 
@@ -154,9 +165,11 @@ public class ParagraphDrawer {
         } else {
             if (info.currentParaShape().getProperty1().getLineDivideForEnglish() == LineDivideForEnglish.ByWord
                     && info.currentParaShape().getProperty1().getLineDivideForHangul() == LineDivideForHangul.ByWord) {
-                drawTextAndNewLine();
+                if (textLineDrawer.noChar() == false) {
+                    drawTextAndNewLine();
+                }
 
-                addWordAllCharsToLine(wordChars, true);
+                addWordAllCharsToLine(wordChars, true, false);
                 addSpaceChar();
                 resetWord();
             } else {
@@ -167,25 +180,17 @@ public class ParagraphDrawer {
         }
     }
 
-    private boolean isOverRightApplyMinimumSpace(long width) {
-        return info.currentParaShape().getProperty1().getMinimumSpace() == 0
-                || currentTextXApplyMinimumSpace() + width > paragraphArea.right();
-    }
-
-    private long currentTextXApplyMinimumSpace() {
-        long minimumSpace = spacesWidth * (100 - info.currentParaShape().getProperty1().getMinimumSpace()) / 100;
-        return wordsWidth + minimumSpace + paragraphArea.left();
-    }
-
     private double bestSpaceRate() {
         return (double) (paragraphArea.width() - wordsWidth) / (double) spacesWidth;
     }
 
     private void drawTextAndNewLine() throws IOException {
-        long charHeight = charHeight();
-        checkNewPage(charHeight);
-        drawText();
-        newLine(charHeight);
+        if (justNewLine == false) {
+            long charHeight = charHeight();
+            checkNewPage(charHeight);
+            drawText();
+            newLine(charHeight);
+        }
     }
 
     private long charHeight() {
@@ -223,8 +228,10 @@ public class ParagraphDrawer {
 
     private void newLine(long charHeight) {
         lineY += lineHeight(charHeight);
+
         wordsWidth = 0;
         spacesWidth = 0;
+        justNewLine = true;
     }
 
     private long lineHeight(long charHeight) {
@@ -251,56 +258,55 @@ public class ParagraphDrawer {
         boolean splitByEnglishLetter = info.currentParaShape().getProperty1().getLineDivideForEnglish() != LineDivideForEnglish.ByWord;
         boolean splitByHangulLetter = info.currentParaShape().getProperty1().getLineDivideForHangul() == LineDivideForHangul.ByLetter;
 
-        boolean previousHangul = false;
-        ArrayList<WordChar> wordCharsByLanguage = new ArrayList<>();
-        long wordWidthByLanguage = 0;
+        ArrayList<WordsCharByLanguage> wordCharsByLanguages = splitByLanguage(wordChars);
+        for (WordsCharByLanguage wcl: wordCharsByLanguages) {
+            boolean splitByLetter = (wcl.hangul) ? splitByHangulLetter : splitByEnglishLetter;
+            if (splitByLetter) {
+                addWordAllCharsToLine(wcl.wordChars, true, true);
+            } else {
+                addEachLanguageWordToLine(wcl.wordChars, wcl.wordWidth);
+            }
+        }
+    }
 
+    private ArrayList<WordsCharByLanguage> splitByLanguage(ArrayList<WordChar> wordChars) {
+        if (wordChars == null || wordChars.size() == 0) {
+            return null;
+        }
+
+        ArrayList<WordsCharByLanguage> list = new ArrayList<>();
+        WordsCharByLanguage item = new WordsCharByLanguage();
+        boolean previousHangul = false;
         int count = wordChars.size();
         for (int index = 0; index < count; index++) {
             WordChar wc = wordChars.get(index);
-
-            if ((index > 0 && previousHangul != wc.ch.isHangul()) || index + 1 == count) {
-                if (index + 1 == count) {
-                    wordCharsByLanguage.add(wc);
-                    wordWidthByLanguage += wc.width;
-                }
-                System.out.print("\t");
-                for (WordChar wc2 : wordCharsByLanguage) {
-                    System.out.print(wc2.ch.getCh());
-                }
-                System.out.println("");
-
-                if (previousHangul) {
-                    if (splitByHangulLetter) {
-                        addWordAllCharsToLine(wordCharsByLanguage, true);
-                    } else {
-                        addEachLanguageWordToLine(wordCharsByLanguage, wordWidthByLanguage);
-                    }
-                } else {
-                    if (splitByEnglishLetter) {
-                        addWordAllCharsToLine(wordCharsByLanguage, true);
-                    } else {
-                        addEachLanguageWordToLine(wordCharsByLanguage, wordWidthByLanguage);
-                    }
-                }
-
-                wordCharsByLanguage.clear();
-                wordWidthByLanguage = 0;
+            if (index > 0 && previousHangul != wc.ch.isHangul()) {
+                item.hangul = previousHangul;
+                list.add(item);
+                item = new WordsCharByLanguage();
             }
 
-            wordCharsByLanguage.add(wc);
-            wordWidthByLanguage += wc.width;
+            item.wordWidth += wc.width;
+            item.wordChars.add(wc);
+
             previousHangul = wc.ch.isHangul();
         }
+
+        if (item.wordChars.size() > 0) {
+            item.hangul = previousHangul;
+            list.add(item);
+        }
+
+        return list;
     }
 
     private void addEachLanguageWordToLine(ArrayList<WordChar> wordChars, long wordWidth) throws IOException {
         if (wordChars.size() > 0) {
-            if (!isOverRight(wordWidth)) {
-                addWordAllCharsToLine(wordChars, false);
+            if (!isOverRight(wordWidth, true)) {
+                addWordAllCharsToLine(wordChars, false, false);
             } else {
                 drawTextAndNewLine();
-                addWordAllCharsToLine(wordChars,true);
+                addWordAllCharsToLine(wordChars,true, true);
             }
         }
     }
@@ -328,10 +334,18 @@ public class ParagraphDrawer {
 
     private void controlChar(HWPCharControlChar ch) throws IOException {
         if (ch.isParaBreak() || ch.isLineBreak()) {
-
             addWordToLine();
-
             drawTextAndNewLine();
+        }
+    }
+
+    private static class WordsCharByLanguage {
+        public boolean hangul;
+        public long wordWidth;
+        public ArrayList<WordChar> wordChars;
+
+        public WordsCharByLanguage() {
+            wordChars = new ArrayList<>();
         }
     }
 
