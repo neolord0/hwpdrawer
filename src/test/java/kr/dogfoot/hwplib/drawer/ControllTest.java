@@ -1,7 +1,5 @@
 package kr.dogfoot.hwplib.drawer;
 
-import kr.dogfoot.hwplib.object.HWPFile;
-import kr.dogfoot.hwplib.reader.HWPReader;
 import org.junit.Test;
 
 import java.io.File;

@@ -29,7 +29,7 @@ public class HWPTester {
     private static void comparePageImages(String path, int pageCount) {
         for (int pageNo = 1; pageNo <= pageCount; pageNo++) {
             String expectedPng = path + File.separator + "ok_page" + pageNo + ".png";
-            String actualPng = path + File.separator + "ok_page" + pageNo + ".png";
+            String actualPng = path + File.separator + "page" + pageNo + ".png";
 
             BufferedImage expectedImage = ImageComparisonUtil.readImageFromResources(expectedPng);
             BufferedImage actualImage = ImageComparisonUtil.readImageFromResources(actualPng);

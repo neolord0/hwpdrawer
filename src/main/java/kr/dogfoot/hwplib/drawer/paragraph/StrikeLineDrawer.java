@@ -1,12 +1,12 @@
-package kr.dogfoot.hwplib.drawer;
+package kr.dogfoot.hwplib.drawer.paragraph;
 
-import kr.dogfoot.hwplib.drawer.paragraph.TextLineDrawer;
+import kr.dogfoot.hwplib.drawer.HWPDrawer;
 import kr.dogfoot.hwplib.object.docinfo.CharShape;
 import kr.dogfoot.hwplib.object.docinfo.borderfill.BorderThickness;
 import kr.dogfoot.hwplib.object.docinfo.charshape.BorderType2;
 
 public class StrikeLineDrawer {
-    private DrawingInfo info;
+    private HWPDrawer drawer;
 
     private long baseLine;
 
@@ -18,8 +18,8 @@ public class StrikeLineDrawer {
     private long startX;
     private CharShape drawingCharShape;
 
-    public StrikeLineDrawer(DrawingInfo info) {
-        this.info = info;
+    public StrikeLineDrawer(HWPDrawer drawer) {
+        this.drawer = drawer;
     }
 
     public void initialize(long baseLine) {
@@ -33,18 +33,18 @@ public class StrikeLineDrawer {
         drawingCharShape = null;
     }
 
-    public void draw(TextLineDrawer.CharDrawInfo cdi, boolean endLine) {
-        if (isStartLine(cdi.charShape)) {
-            strike = cdi.charShape.getProperty().isStrikeLine();
-            lineShape = cdi.charShape.getProperty().getStrikeLineShape();
-            lineColor = cdi.charShape.getStrikeLineColor().getValue();
-            charHeight = cdi.charShape.getBaseSize();
-            startX = cdi.x;
-            drawingCharShape = cdi.charShape;
-        } else if (isEndLine(cdi.charShape)) {
-            drawStrikeLine(cdi, false);
+    public void draw(CharInfo charInfo, boolean endLine) {
+        if (isStartLine(charInfo.charShape())) {
+            strike = charInfo.charShape().getProperty().isStrikeLine();
+            lineShape = charInfo.charShape().getProperty().getStrikeLineShape();
+            lineColor = charInfo.charShape().getStrikeLineColor().getValue();
+            charHeight = charInfo.charShape().getBaseSize();
+            startX = charInfo.x();
+            drawingCharShape = charInfo.charShape();
+        } else if (isEndLine(charInfo.charShape())) {
+            drawStrikeLine(charInfo, false);
 
-            strike = cdi.charShape.getProperty().isStrikeLine();
+            strike = charInfo.charShape().getProperty().isStrikeLine();
             if (strike == false) {
                 lineShape = BorderType2.Solid;;
                 lineColor = -1;
@@ -52,15 +52,15 @@ public class StrikeLineDrawer {
                 startX = -1;
                 drawingCharShape = null;
             } else {
-                lineShape = cdi.charShape.getProperty().getStrikeLineShape();;
-                lineColor = cdi.charShape.getStrikeLineColor().getValue();
-                charHeight = cdi.charShape.getBaseSize();
-                startX = cdi.x;
-                drawingCharShape = cdi.charShape;
+                lineShape = charInfo.charShape().getProperty().getStrikeLineShape();;
+                lineColor = charInfo.charShape().getStrikeLineColor().getValue();
+                charHeight = charInfo.charShape().getBaseSize();
+                startX = charInfo.x();
+                drawingCharShape = charInfo.charShape();
             }
         }
         if (endLine == true && startX != -1) {
-            drawStrikeLine(cdi, endLine);
+            drawStrikeLine(charInfo, endLine);
         }
     }
 
@@ -94,13 +94,13 @@ public class StrikeLineDrawer {
         return false;
     }
 
-    private void drawStrikeLine(TextLineDrawer.CharDrawInfo cdi, boolean endLine) {
+    private void drawStrikeLine(CharInfo charInfo, boolean endLine) {
         long y = baseLine - (charHeight * 2 / 5);
-        long endX = (endLine == true) ?  (long) (cdi.x + cdi.width) : cdi.x;
+        long endX = (endLine == true) ?  (long) (charInfo.x() + charInfo.width()) : charInfo.x();
 
-        info.painter().setLineStyle(drawingCharShape.getProperty().getStrikeLineShape().toBorderType(),
+        drawer.painter().setLineStyle(drawingCharShape.getProperty().getStrikeLineShape().toBorderType(),
                 BorderThickness.MM0_15,
                 drawingCharShape.getStrikeLineColor());
-        info.painter().line(startX, y, endX, y);
+        drawer.painter().line(startX, y, endX, y);
     }
 }

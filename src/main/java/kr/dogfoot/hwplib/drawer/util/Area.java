@@ -1,5 +1,7 @@
 package kr.dogfoot.hwplib.drawer.util;
 
+import kr.dogfoot.hwplib.drawer.paragraph.CharInfo;
+
 import java.awt.*;
 
 public class Area {
@@ -64,8 +66,18 @@ public class Area {
         return right - left;
     }
 
+    public Area width(long width) {
+        right = left + width;
+        return this;
+    }
+
     public long height() {
         return bottom - top;
+    }
+
+    public Area height(long height) {
+        bottom = top + height;
+        return this;
     }
 
     public Area applyMargin(long left, long top, long right, long bottom) {
@@ -111,10 +123,10 @@ public class Area {
     }
 
     public boolean intersects(Area that) {
-        if(that.right < this.left || this.right < that.left)
+        if (that.right < this.left || this.right < that.left)
             return false;
 
-        if(that.bottom < this.top || this.bottom < that.top)
+        if (that.bottom < this.top || this.bottom < that.top)
             return false;
 
         return true;

@@ -1,5 +1,6 @@
 package kr.dogfoot.hwplib.drawer.util;
 
+import kr.dogfoot.hwplib.drawer.DrawingOption;
 import kr.dogfoot.hwplib.object.docinfo.borderfill.BorderThickness;
 import kr.dogfoot.hwplib.object.docinfo.borderfill.BorderType;
 import kr.dogfoot.hwplib.object.etc.Color4Byte;
@@ -7,18 +8,18 @@ import kr.dogfoot.hwplib.object.etc.Color4Byte;
 import java.awt.*;
 
 public class Convertor {
-    private static int zoomRate;
+    private static DrawingOption option;
 
-    public static void zoomRate(int zoomRate) {
-        Convertor.zoomRate = zoomRate;
+    public static void option(DrawingOption option) {
+        Convertor.option = option;
     }
 
     public static int fromHWPUnit(long hwpUnit) {
-        return (int) (hwpUnit * zoomRate / 40 / 100);
+        return (int) (hwpUnit * option.zoomRate() / 40f / 100);
     }
 
     public static float fontSize(int baseSize) {
-        return baseSize * zoomRate / 40 / 100;
+        return baseSize * option.zoomRate() / 40f / 100;
     }
 
     public static Color color(Color4Byte color4Byte) {
@@ -103,7 +104,7 @@ public class Convertor {
                 ret = 5.0f;
                 break;
         }
-        return ret * 10 * zoomRate / 100;
+        return ret * 10 * option.zoomRate() / 100;
     }
 
     private static float[] linePattern(BorderType type, float lineThickness) {

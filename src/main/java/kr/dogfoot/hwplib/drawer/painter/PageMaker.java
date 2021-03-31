@@ -1,9 +1,8 @@
 package kr.dogfoot.hwplib.drawer.painter;
 
-import kr.dogfoot.hwplib.drawer.DrawingInfo;
-import kr.dogfoot.hwplib.drawer.util.Area;
+import kr.dogfoot.hwplib.drawer.HWPDrawer;
+import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
 import kr.dogfoot.hwplib.drawer.util.Convertor;
-import kr.dogfoot.hwplib.object.bodytext.control.sectiondefine.PageDef;
 import kr.dogfoot.hwplib.object.docinfo.borderfill.BorderThickness;
 import kr.dogfoot.hwplib.object.docinfo.borderfill.BorderType;
 import kr.dogfoot.hwplib.object.etc.Color4Byte;
@@ -15,26 +14,23 @@ import java.io.File;
 import java.io.IOException;
 
 public class PageMaker {
-    private DrawingInfo info;
-    private PageDef pageDef;
-
+    private HWPDrawer drawer;
     private BufferedImage currentPageImage;
 
     private int currentPageNo;
 
-    private Area paperArea;
-    private Area pageArea;
-
-    public PageMaker(DrawingInfo info) {
-        this.info = info;
+    public PageMaker(HWPDrawer drawer) {
+        this.drawer = drawer;
     }
 
-    public void newPage() throws IOException {
+    public void newPage(DrawingInfo info) throws IOException {
         if (haveCurrentPage()) {
+
             saveCurrentPage();
         }
 
-        createNewPage();
+        createNewPage(info);
+        info.processAtNewPage();
     }
 
     private boolean haveCurrentPage() {
@@ -42,57 +38,30 @@ public class PageMaker {
     }
 
     public void saveCurrentPage() throws IOException {
+       drawer.controlDrawer()
+                .drawControlsForSquare()
+                .removeControlsForSquare();
+
         currentPageNo++;
-        File outputFile = new File(info.option().directoryToSave(), "page" + currentPageNo + ".png");
+        File outputFile = new File(drawer.option().directoryToSave(), "page" + currentPageNo + ".png");
         ImageIO.write(currentPageImage, "png", outputFile);
     }
 
-    private void createNewPage() {
+    private void createNewPage(DrawingInfo info) {
         currentPageImage = new BufferedImage(
-                Convertor.fromHWPUnit(pageDef.getPaperWidth()),
-                Convertor.fromHWPUnit(pageDef.getPaperHeight()),
+                Convertor.fromHWPUnit(info.paperArea().width()),
+                Convertor.fromHWPUnit(info.paperArea().height()),
                 BufferedImage.TYPE_INT_RGB);
 
         Graphics2D graphics = (Graphics2D) currentPageImage.getGraphics();
         graphics.setColor(Color.WHITE);
         graphics.fillRect(0, 0, currentPageImage.getWidth(), currentPageImage.getHeight());
 
-        info.painter()
+        drawer.painter()
                 .graphics2D(graphics)
                 .setLineStyle(BorderType.Solid, BorderThickness.MM0_15, new Color4Byte(255,0, 0))
-                .rectangle(pageArea(), false);
+                .rectangle(info.pageArea(), false);
 
-    }
-
-    public PageDef pageDef() {
-        return pageDef;
-    }
-
-    public void pageDef(PageDef pageDef) {
-        this.pageDef = pageDef;
-        calculateAreas();
-    }
-
-     private void calculateAreas() {
-        paperArea = new Area(0, 0, pageDef.getPaperWidth(), pageDef.getPaperHeight());
-        pageArea = new Area(paperArea)
-                .applyMargin(pageDef.getLeftMargin(),
-                        pageDef.getTopMargin(),
-                        pageDef.getRightMargin(),
-                        pageDef.getBottomMargin())
-                .applyMargin(0,
-                        pageDef.getHeaderMargin(),
-                        0,
-                        pageDef.getFooterMargin());
-
-    }
-
-    public Area paperArea() {
-        return paperArea;
-    }
-
-    public Area pageArea() {
-        return pageArea;
     }
 
     public int currentPageNo() {

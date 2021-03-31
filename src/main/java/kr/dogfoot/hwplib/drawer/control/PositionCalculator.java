@@ -1,20 +1,20 @@
 package kr.dogfoot.hwplib.drawer.control;
 
-import kr.dogfoot.hwplib.drawer.DrawingInfo;
+import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.CtrlHeaderGso;
 
 public class PositionCalculator {
+    private CtrlHeaderGso header;
     private DrawingInfo info;
 
-    private CtrlHeaderGso header;
-
-    public PositionCalculator(DrawingInfo info) {
-        this.info = info;
+    public PositionCalculator() {
     }
 
-    public Area absoluteArea(CtrlHeaderGso header) {
+    public Area absoluteArea(CtrlHeaderGso header, DrawingInfo info) {
         this.header = header;
+        this.info = info;
+
         Area area = new Area(0, 0, width(), height());
         area.moveX(xOffset(area.width()));
         area.moveY(yOffset(area.height()));
@@ -116,5 +116,4 @@ public class PositionCalculator {
         }
         return yOffset;
     }
-
 }

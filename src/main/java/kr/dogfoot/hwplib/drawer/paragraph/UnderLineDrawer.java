@@ -1,6 +1,6 @@
-package kr.dogfoot.hwplib.drawer;
+package kr.dogfoot.hwplib.drawer.paragraph;
 
-import kr.dogfoot.hwplib.drawer.paragraph.TextLineDrawer;
+import kr.dogfoot.hwplib.drawer.HWPDrawer;
 import kr.dogfoot.hwplib.object.docinfo.CharShape;
 import kr.dogfoot.hwplib.object.docinfo.borderfill.BorderThickness;
 import kr.dogfoot.hwplib.object.docinfo.charshape.BorderType2;
@@ -9,7 +9,7 @@ import kr.dogfoot.hwplib.object.docinfo.charshape.UnderLineSort;
 import java.io.UnsupportedEncodingException;
 
 public class UnderLineDrawer {
-    private DrawingInfo info;
+    private HWPDrawer drawer;
 
     private long baseLine;
     private long maxCharHeight;
@@ -20,8 +20,8 @@ public class UnderLineDrawer {
     private long startX;
     private CharShape drawingCharShape;
 
-    public UnderLineDrawer(DrawingInfo info) {
-        this.info = info;
+    public UnderLineDrawer(HWPDrawer drawer) {
+        this.drawer = drawer;
     }
 
     public void initialize(long baseLine, long maxCharHeight) {
@@ -35,31 +35,31 @@ public class UnderLineDrawer {
         drawingCharShape = null;
     }
 
-    public void draw(TextLineDrawer.CharDrawInfo cdi, boolean endLine) throws UnsupportedEncodingException {
-        if (isStartLine(cdi.charShape)) {
-            lineSort = cdi.charShape.getProperty().getUnderLineSort();
-            lineShape = cdi.charShape.getProperty().getUnderLineShape();
-            lineColor = cdi.charShape.getUnderLineColor().getValue();
-            startX = cdi.x;
-            drawingCharShape = cdi.charShape;
-        } else if (isEndLine(cdi.charShape)) {
-            drawUnderLine(cdi, false);
+    public void draw(CharInfo charInfo, boolean endLine) throws UnsupportedEncodingException {
+        if (isStartLine(charInfo.charShape())) {
+            lineSort = charInfo.charShape().getProperty().getUnderLineSort();
+            lineShape = charInfo.charShape().getProperty().getUnderLineShape();
+            lineColor = charInfo.charShape().getUnderLineColor().getValue();
+            startX = charInfo.x();
+            drawingCharShape = charInfo.charShape();
+        } else if (isEndLine(charInfo.charShape())) {
+            drawUnderLine(charInfo, false);
 
-            lineSort = cdi.charShape.getProperty().getUnderLineSort();
+            lineSort = charInfo.charShape().getProperty().getUnderLineSort();
             if (lineSort == UnderLineSort.None) {
                 lineShape = BorderType2.Solid;
                 lineColor = -1;
                 startX = -1;
                 drawingCharShape = null;
             } else {
-                lineShape = cdi.charShape.getProperty().getUnderLineShape();
-                lineColor = cdi.charShape.getUnderLineColor().getValue();
-                startX = cdi.x;
-                drawingCharShape = cdi.charShape;
+                lineShape = charInfo.charShape().getProperty().getUnderLineShape();
+                lineColor = charInfo.charShape().getUnderLineColor().getValue();
+                startX = charInfo.x();
+                drawingCharShape = charInfo.charShape();
             }
         }
         if (endLine == true && startX != -1) {
-            drawUnderLine(cdi, endLine);
+            drawUnderLine(charInfo, endLine);
         }
     }
 
@@ -84,15 +84,15 @@ public class UnderLineDrawer {
         return false;
     }
 
-    private void drawUnderLine(TextLineDrawer.CharDrawInfo cdi, boolean endLine) {
+    private void drawUnderLine(CharInfo charInfo, boolean endLine) {
         long y = (drawingCharShape.getProperty().getUnderLineSort() == UnderLineSort.Top)
                 ? baseLine - (maxCharHeight * 4 / 5)
                 : baseLine + (maxCharHeight / 5);
-        long endX = (endLine == true) ? (long) (cdi.x + cdi.width) : cdi.x;
+        long endX = (endLine == true) ? (long) (charInfo.x() + charInfo.width()) : charInfo.x();
 
-        info.painter().setLineStyle(drawingCharShape.getProperty().getUnderLineShape().toBorderType(),
+        drawer.painter().setLineStyle(drawingCharShape.getProperty().getUnderLineShape().toBorderType(),
                 BorderThickness.MM0_15,
                 drawingCharShape.getUnderLineColor());
-        info.painter().line(startX, y, endX, y);
+        drawer.painter().line(startX, y, endX, y);
     }
 }

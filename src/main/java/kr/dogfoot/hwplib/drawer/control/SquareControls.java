@@ -19,6 +19,11 @@ public class SquareControls {
         controlInfos.add(controlInfo);
     }
 
+    public void clear() {
+        controlInfos.clear();
+        squareAreas.clear();
+    }
+
     public ControlDrawer.ControlInfo[] controls() {
         return controlInfos.toArray(ControlDrawer.ControlInfo.Zero_Array);
     }
@@ -45,7 +50,7 @@ public class SquareControls {
 
     private Area[] divideArea(Area textLineArea) {
         ArrayList<Area> areas = new ArrayList<>();
-        SquareArea squareArea;
+        SquareArea squareArea = null;
         SquareArea oldSquareArea = null;
 
         int count = squareAreas.size();
@@ -63,19 +68,19 @@ public class SquareControls {
                         textLineArea.top(),
                         squareArea.left,
                         textLineArea.bottom()));
-
-                if (index == count - 1) {
-                    if (squareArea.right < textLineArea.right()) {
-                        areas.add(new Area(squareArea.right,
-                                textLineArea.top(),
-                                textLineArea.right(),
-                                textLineArea.bottom()));
-                    }
-                }
             }
 
             oldSquareArea = squareArea;
         }
+
+        if (squareArea != null &&
+                squareArea.right < textLineArea.right()) {
+            areas.add(new Area(squareArea.right,
+                    textLineArea.top(),
+                    textLineArea.right(),
+                    textLineArea.bottom()));
+        }
+
         return areas.toArray(Area.Zero_Array);
     }
 
@@ -117,6 +122,5 @@ public class SquareControls {
             left = (left < area.left()) ? left : area.left();
             right = (right > area.right()) ? right : area.right();
         }
-
     }
 }

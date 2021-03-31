@@ -1,15 +1,6 @@
 package kr.dogfoot.hwplib.drawer;
 
-import com.github.romankh3.image.comparison.ImageComparison;
-import com.github.romankh3.image.comparison.ImageComparisonUtil;
-import com.github.romankh3.image.comparison.model.ImageComparisonResult;
-import com.github.romankh3.image.comparison.model.ImageComparisonState;
-import kr.dogfoot.hwplib.object.HWPFile;
-import kr.dogfoot.hwplib.reader.HWPReader;
-import org.junit.Assert;
 import org.junit.Test;
-
-import java.awt.image.BufferedImage;
 import java.io.File;
 
 public class CharacterTest {
