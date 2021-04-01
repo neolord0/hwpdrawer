@@ -20,6 +20,8 @@ public class ParagraphDrawer {
     private static final HWPCharNormal SpaceChar = new HWPCharNormal(32);
 
     private HWPDrawer drawer;
+    private WordSplitter wordSplitter;
+
     private DrawingState state;
 
     private DrawingInfo info;
@@ -33,16 +35,15 @@ public class ParagraphDrawer {
     private ArrayList<CharInfo> charsOfWord;
     private long wordWidth;
 
-    private Queue<Area> redrawTextAreas;
-
-    private WordSplitter wordSplitter;
+    private Queue<Area> recalculatingTextAreas;
 
     public ParagraphDrawer(HWPDrawer drawer) {
         this.drawer = drawer;
-        charsOfWord = new ArrayList<>();
-        redrawTextAreas = new LinkedList<>();
-
         wordSplitter = new WordSplitter(this);
+
+        charsOfWord = new ArrayList<>();
+        recalculatingTextAreas = new LinkedList<>();
+
     }
 
     public void draw(Paragraph paragraph, DrawingInfo info) throws Exception {
@@ -52,8 +53,12 @@ public class ParagraphDrawer {
         info.startParagraph(paragraph);
         info.saveCharPosition();
         initialize();
+        resetWord();
+        state = DrawingState.Normal;
 
-        drawer.textLineDrawer().initialize();
+        drawer.textLineDrawer()
+                .initialize()
+                .addNewPart(textLineArea);
 
         drawer.controlDrawer()
                 .controlList(info.paragraph().getControlList(), info)
@@ -70,21 +75,18 @@ public class ParagraphDrawer {
         drawer.controlDrawer()
                 .drawControlsForTopBottom()
                 .removeControlsForTopBottom();
-
-        boolean newPage = info.endParagraph(paragraphHeight());
+        long paragraphHeight =  textLineArea.top() - info.paragraphArea().top();
+        boolean newPage = info.endParagraph(paragraphHeight);
         if (newPage) {
             drawer.pageMaker().newPage(info);
         }
     }
 
     private void initialize() {
-        state = DrawingState.Normal;
         textLineArea = new Area(info.paragraphArea()).height(0);
         wordsWidth = 0;
         spacesWidth = 0;
         justNewLine = true;
-        charsOfWord.clear();
-        wordWidth = 0;
     }
 
     private void processChar() throws Exception {
@@ -101,17 +103,31 @@ public class ParagraphDrawer {
                 case ControlExtend:
                     break;
             }
-            if (state == DrawingState.StartingRedraw) {
-                startRedraw();
-            } else if (state == DrawingState.EndingRedraw) {
+            if (state == DrawingState.StartingRecalculating) {
+                startRecalculating();
+                state = DrawingState.Recalculating;
+            } else if (state == DrawingState.EndingRecalculating) {
                 info.saveCharPosition();
                 state = DrawingState.Normal;
             }
         }
     }
 
-    private long paragraphHeight() {
-        return textLineArea.top() - info.paragraphArea().top();
+    private void startRecalculating() {
+        initialize(recalculatingTextAreas.poll());
+        resetWord();
+
+        drawer.textLineDrawer()
+                .initialize()
+                .addNewPart(textLineArea);
+        info.rollbackCharPosition();
+    }
+
+    private void initialize(Area area) {
+        textLineArea = area;
+        wordsWidth = 0;
+        spacesWidth = 0;
+        justNewLine = true;
     }
 
     private void normalChar(HWPCharNormal ch) throws Exception {
@@ -136,8 +152,8 @@ public class ParagraphDrawer {
 
         if (!isOverRight(wordWidth, false)) {
             addWordAllCharsToLine(charsOfWord, false, false);
-            resetWord();
             addSpaceChar();
+            resetWord();
         } else {
             if (!isOverRight(wordWidth, true)) {
                 addWordAllCharsToLine(charsOfWord, false, true);
@@ -155,13 +171,13 @@ public class ParagraphDrawer {
     private void addSpaceChar() throws UnsupportedEncodingException {
         CharInfo newCharInfo = new CharInfo(SpaceChar, info.charShape()).calculateWidth(drawer.painter());
 
-        if (state.canDraw()) {
+        if (state.canAddCharInfo()) {
             drawer.textLineDrawer().addChar(newCharInfo);
             spacesWidth += newCharInfo.widthAddingCharSpace();
         }
     }
 
-    boolean isOverRight(double width, boolean applyMinimumSpace) {
+    public boolean isOverRight(double width, boolean applyMinimumSpace) {
         return currentTextX(applyMinimumSpace) + width > textLineArea.right();
     }
 
@@ -193,7 +209,7 @@ public class ParagraphDrawer {
         }
         justNewLine = false;
 
-        if (state.canDraw()) {
+        if (state.canAddCharInfo()) {
             drawer.textLineDrawer().addChar(charInfo);
             wordsWidth += charInfo.widthAddingCharSpace();
         }
@@ -209,12 +225,12 @@ public class ParagraphDrawer {
         return (double) (textLineArea.width() - wordsWidth) / (double) spacesWidth;
     }
 
-    void drawTextAndNewLine() throws Exception {
+    public void drawTextAndNewLine() throws Exception {
         if (justNewLine == false) {
             long charHeight = charHeight();
             checkNewPage(charHeight);
-            drawText();
-            nextTextArea(charHeight);
+            drawLine();
+            nextArea(charHeight);
         }
     }
 
@@ -246,16 +262,20 @@ public class ParagraphDrawer {
         return textLineArea.top() + charHeight > info.pageArea().bottom();
     }
 
-    private void drawText() throws UnsupportedEncodingException {
+    private void drawLine() throws UnsupportedEncodingException {
         switch (state) {
             case Normal:
                 drawTextNormal();
                 break;
-            case Redrawing:
-                redrawText();
+            case Recalculating:
+                if (recalculatingTextAreas.size() == 0) {
+                    drawer.textLineDrawer().draw(info);
+                }
                 break;
         }
     }
+
+
     private void drawTextNormal() throws UnsupportedEncodingException {
         textLineArea
                 .height(drawer.textLineDrawer().maxCharHeight())
@@ -263,11 +283,11 @@ public class ParagraphDrawer {
 
         Area[] dividedAreas = drawer.controlDrawer().checkSquareTextFlow(textLineArea);
         if (dividedAreas.length == 1) {
-            drawer.textLineDrawer().draw(dividedAreas[0], info);
-            drawer.textLineDrawer().initialize();
+            drawer.textLineDrawer().draw(info);
         } else {
-            state = DrawingState.StartingRedraw;
             setRedrawTextLineArea(dividedAreas);
+
+            state = DrawingState.StartingRecalculating;
         }
     }
 
@@ -275,46 +295,37 @@ public class ParagraphDrawer {
         storedTextLineArea = textLineArea;
 
         for (Area dividedArea : dividedAreas) {
-            redrawTextAreas.offer(dividedArea);
+            recalculatingTextAreas.offer(dividedArea);
         }
     }
 
-    private void redrawText() throws UnsupportedEncodingException {
-        drawer.textLineDrawer().draw(textLineArea, info);
-        drawer.textLineDrawer().initialize();
-    }
 
-    private void nextTextArea(long charHeight) throws UnsupportedEncodingException {
+    private void nextArea(long charHeight) throws UnsupportedEncodingException {
         switch(state) {
             case Normal:
                 newLine(charHeight);
                 break;
-            case Redrawing:
-                nextRedrawTextArea(charHeight);
+            case Recalculating:
+                if (recalculatingTextAreas.size() == 0) {
+                    textLineArea = storedTextLineArea;
+                    newLine(charHeight);
+
+                    state = DrawingState.EndingRecalculating;
+                } else {
+                    initialize(recalculatingTextAreas.poll());
+
+                    drawer.textLineDrawer().addNewPart(textLineArea);
+                }
                 break;
         }
     }
 
     private void newLine(long charHeight) {
-        textLineArea.moveY(lineHeight(charHeight));
+        initialize(textLineArea.moveY(lineHeight(charHeight)));
 
-        wordsWidth = 0;
-        spacesWidth = 0;
-        justNewLine = true;
-    }
-
-    private void nextRedrawTextArea(long charHeight) {
-        if (redrawTextAreas.size() == 0) {
-            textLineArea = storedTextLineArea;
-            newLine(charHeight);
-
-            state = DrawingState.EndingRedraw;
-        } else {
-            textLineArea = redrawTextAreas.poll();
-            wordsWidth = 0;
-            spacesWidth = 0;
-            justNewLine = true;
-        }
+        drawer.textLineDrawer()
+                .initialize()
+                .addNewPart(textLineArea);
     }
 
     private long lineHeight(long charHeight) {
@@ -349,7 +360,7 @@ public class ParagraphDrawer {
             resetWord();
         } else {
             int countOfAddingBeforeNewLine = wordSplitter.split(charsOfWord);
-            if (state == DrawingState.EndingRedraw) {
+            if (state == DrawingState.EndingRecalculating) {
                 info.beforeChar(charsOfWord.size() - countOfAddingBeforeNewLine + 1);
             }
             addSpaceChar();
@@ -362,7 +373,6 @@ public class ParagraphDrawer {
                 && paraShape.getProperty1().getLineDivideForHangul() == LineDivideForHangul.ByWord;
     }
 
-
     private void controlChar(HWPCharControlChar ch) throws Exception {
         if (ch.isParaBreak() || ch.isLineBreak()) {
             addWordToLine();
@@ -372,32 +382,14 @@ public class ParagraphDrawer {
         }
     }
 
-    private void startRedraw() {
-        initializeForRedraw();
-
-        drawer.textLineDrawer().initialize();
-        info.rollbackCharPosition();
-    }
-
-    private void initializeForRedraw() {
-        state = DrawingState.Redrawing;
-        textLineArea = redrawTextAreas.poll();
-        wordsWidth = 0;
-        spacesWidth = 0;
-        justNewLine = true;
-        charsOfWord.clear();
-        wordWidth = 0;
-    }
-
     private enum DrawingState {
         Normal,
-        StartingRedraw,
-        Redrawing,
-        EndingRedraw
-        ;
+        StartingRecalculating,
+        Recalculating,
+        EndingRecalculating;
 
-        public boolean canDraw() {
-            return this == Normal || this == Redrawing;
+        public boolean canAddCharInfo() {
+            return this == Normal || this == Recalculating;
         }
     }
 }

@@ -100,7 +100,6 @@ public class ControlDrawer {
 
     public ControlDrawer drawControlsForFront() {
         for (ControlInfo controlInfo : controlInfosForFront) {
-            System.out.println("A");
             testControl(controlInfo);
         }
         return this;
