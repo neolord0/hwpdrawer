@@ -31,6 +31,11 @@ public class TextLinePart {
         }
     }
 
+    public CharInfo lastChar() {
+        int count = charInfos.size();
+        return (count == 0) ? null : charInfos.get(count - 1);
+    }
+
     public boolean lastLine() {
         return lastLine;
     }

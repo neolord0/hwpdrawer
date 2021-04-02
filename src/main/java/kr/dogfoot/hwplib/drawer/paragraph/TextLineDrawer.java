@@ -29,12 +29,15 @@ public class TextLineDrawer {
         this.drawer = drawer;
 
         parts = new ArrayList<>();
+        currentPart = null;
         underLineDrawer = new UnderLineDrawer(drawer);
         strikeLineDrawer = new StrikeLineDrawer(drawer);
     }
 
     public TextLineDrawer initialize() {
         parts.clear();
+        currentPart = null;
+
         spaceAddings = null;
         charAddings = null;
 
@@ -50,6 +53,14 @@ public class TextLineDrawer {
         TextLinePart textLinePart = new TextLinePart(new Area(textPartArea));
         parts.add(textLinePart);
         currentPart = textLinePart;
+    }
+
+    public CharInfo lastChar() {
+        return currentPart.lastChar();
+    }
+
+    public boolean lastLine() {
+        return currentPart.lastLine();
     }
 
     public void lastLine(boolean lastLine) {
@@ -71,6 +82,15 @@ public class TextLineDrawer {
 
     public void spaceRate(double spaceRate) {
         currentPart.spaceRate(spaceRate);
+    }
+
+    public Area area() {
+        return currentPart.area();
+    }
+
+    public TextLineDrawer area(Area textLineArea) {
+        currentPart.area(textLineArea);
+        return this;
     }
 
     public void draw(DrawingInfo info) throws UnsupportedEncodingException {
@@ -169,7 +189,6 @@ public class TextLineDrawer {
         return charAddings;
     }
 
-
     private void left(TextLinePart part) throws UnsupportedEncodingException {
         charX = part.area().left();
         spaceAddings = null;
@@ -183,7 +202,6 @@ public class TextLineDrawer {
         charAddings = null;
         drawInOrder(part);
     }
-
 
     private void center(TextLinePart part) throws UnsupportedEncodingException {
         charX = part.area().left() + (part.area().width() - part.textWidthWithExceptingLastSpace()) / 2;
@@ -231,6 +249,7 @@ public class TextLineDrawer {
                     spaceIndex++;
                 }
             } else {
+                System.out.println(charInfo.character().getCh() + " " + (long) (charInfo.x() / stretchRate)+ "  " + getY(charInfo));
                 drawer.painter().string(charInfo.character().getCh(),
                         (long) (charInfo.x() / stretchRate),
                         getY(charInfo));
@@ -260,4 +279,21 @@ public class TextLineDrawer {
             strikeLineDrawer.draw(charInfo, (index == count - 1));
         }
     }
+
+    public String text() {
+        StringBuilder sb = new StringBuilder();
+        for (CharInfo charInfo : currentPart.charInfos()) {
+            try {
+                sb
+                        .append(charInfo.character().getCh())
+                        .append("(")
+                        .append(charInfo.index())
+                        .append(")");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+        }
+        return sb.toString();
+    }
 }
+

@@ -32,8 +32,16 @@ public class ControllTest {
     }
      */
 
+    /*
     @Test
-    public void test_본문과의_배치_어울림() throws Exception {
-        HWPTester.test("testingHWP" + File.separator + "컨트롤" + File.separator + "본문과의 배치" + File.separator + "어울림");
+    public void test_본문과의_배치_어울림1() throws Exception {
+        HWPTester.testAndCompare("testingHWP" + File.separator + "컨트롤" + File.separator + "본문과의 배치" + File.separator + "어울림1");
+    }
+
+     */
+
+    @Test
+    public void test_본문과의_배치_어울림2() throws Exception {
+        HWPTester.test("testingHWP" + File.separator + "컨트롤" + File.separator + "본문과의 배치" + File.separator + "어울림2");
     }
 }

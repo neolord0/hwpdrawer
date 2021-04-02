@@ -13,11 +13,15 @@ public class CharInfo {
     private HWPCharNormal ch;
     private double width;
     private CharShape charShape;
+    private int index;
+    private int position;
     private long x;
 
-    public CharInfo(HWPCharNormal ch, CharShape charShape) throws UnsupportedEncodingException {
+    public CharInfo(HWPCharNormal ch, CharShape charShape, int index, int position) {
         this.ch = ch;
         this.charShape = charShape;
+        this.index = index;
+        this.position = position;
     }
 
     public CharInfo calculateWidth(Painter painter) throws UnsupportedEncodingException {
@@ -57,5 +61,13 @@ public class CharInfo {
 
     public void x(long x) {
         this.x = x;
+    }
+
+    public int index() {
+        return index;
+    }
+
+    public int position() {
+        return position;
     }
 }

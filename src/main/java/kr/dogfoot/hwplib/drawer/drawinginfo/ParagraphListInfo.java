@@ -4,8 +4,12 @@ import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.Paragraph;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.charshape.CharPositionShapeIdPair;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPChar;
+import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPCharNormal;
+import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPCharType;
 import kr.dogfoot.hwplib.object.docinfo.CharShape;
 import kr.dogfoot.hwplib.object.docinfo.ParaShape;
+
+import java.io.UnsupportedEncodingException;
 
 public class ParagraphListInfo {
     private DrawingInfo info;
@@ -138,34 +142,41 @@ public class ParagraphListInfo {
         return charIndex >= paragraph().getText().getCharList().size();
     }
 
-    public void saveCharPosition() {
-        savedCharIndex = charIndex;
-        savedCharPosition = charPosition;
-    }
-
-    public void rollbackCharPosition() {
-        charIndex = savedCharIndex;
-        charPosition = savedCharPosition;
-        setCharShape();
-    }
-
-    public void addXX(int size) {
-        rollbackCharPosition();
-        for (int index = 0; index < size; index++) {
-            nextChar();
-        }
-    }
-
     public boolean beforeChar() {
         if (paragraph.getText() != null &&
-                charIndex - 1 >= 0) {
+                charIndex - 2 >= 0) {
+            charPosition -= character.getCharSize();
+            charIndex--;
+            character = paragraph().getText().getCharList().get(charIndex - 1);
+
             charPosition -= character.getCharSize();
             setCharShape();
-            charIndex--;
-            character = paragraph().getText().getCharList().get(charIndex);
+            charPosition += character.getCharSize();
             return true;
         } else {
             return false;
+        }
+    }
+
+    public int charIndex() {
+        return charIndex;
+    }
+
+    public int charPosition() {
+        return charPosition;
+    }
+
+    public void gotoCharPosition(int charIndex, int charPosition) {
+        this.charIndex = charIndex;
+        if (charIndex == 0) {
+            character = null;
+            charShapeIndex = -1;
+            setCharShape();
+        } else {
+            character = paragraph.getText().getCharList().get(charIndex - 1);
+            this.charPosition = charPosition - character.getCharSize();
+            setCharShape();
+            this.charPosition += character.getCharSize();
         }
     }
 }

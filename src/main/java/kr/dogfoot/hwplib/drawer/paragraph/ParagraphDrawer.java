@@ -27,6 +27,8 @@ public class ParagraphDrawer {
     private DrawingInfo info;
     private Area storedTextLineArea;
     private Area textLineArea;
+    private int lineFirstCharIndex;
+    private int lineFirstCharPosition;
 
     private long wordsWidth;
     private long spacesWidth;
@@ -43,17 +45,17 @@ public class ParagraphDrawer {
 
         charsOfWord = new ArrayList<>();
         recalculatingTextAreas = new LinkedList<>();
-
     }
 
     public void draw(Paragraph paragraph, DrawingInfo info) throws Exception {
+        System.out.println("{");
         this.info = info;
         wordSplitter.info(info);
 
         info.startParagraph(paragraph);
-        info.saveCharPosition();
         initialize();
         resetWord();
+
         state = DrawingState.Normal;
 
         drawer.textLineDrawer()
@@ -80,6 +82,7 @@ public class ParagraphDrawer {
         if (newPage) {
             drawer.pageMaker().newPage(info);
         }
+        System.out.println("}");
     }
 
     private void initialize() {
@@ -87,13 +90,24 @@ public class ParagraphDrawer {
         wordsWidth = 0;
         spacesWidth = 0;
         justNewLine = true;
+        recalculatingTextAreas.clear();
+    }
+
+    private void resetWord() {
+        charsOfWord.clear();
+        wordWidth = 0;
+    }
+
+    private void setLineFirst(int index, int position) {
+        lineFirstCharIndex = index;
+        lineFirstCharPosition = position;
     }
 
     private void processChar() throws Exception {
         while (info.nextChar()) {
             switch (info.character().getType()) {
                 case Normal:
-                    normalChar((HWPCharNormal) info.character());
+                    normalChar(newCharInfo((HWPCharNormal) info.character()));
                     break;
                 case ControlChar:
                     controlChar((HWPCharControlChar) info.character());
@@ -107,10 +121,15 @@ public class ParagraphDrawer {
                 startRecalculating();
                 state = DrawingState.Recalculating;
             } else if (state == DrawingState.EndingRecalculating) {
-                info.saveCharPosition();
+                endRecalculating();
                 state = DrawingState.Normal;
             }
         }
+    }
+
+
+    private CharInfo newCharInfo(HWPCharNormal ch) throws UnsupportedEncodingException {
+        return new CharInfo(ch, info.charShape(), info.charIndex(), info.charPosition()).calculateWidth(drawer.painter());
     }
 
     private void startRecalculating() {
@@ -120,7 +139,15 @@ public class ParagraphDrawer {
         drawer.textLineDrawer()
                 .initialize()
                 .addNewPart(textLineArea);
-        info.rollbackCharPosition();
+
+        info.gotoCharPosition(lineFirstCharIndex, lineFirstCharPosition);
+//        System.out.println("start recal : " + lineFirstCharIndex + " " + lineFirstCharPosition + " ");
+    }
+
+    private void endRecalculating() {
+        drawer.textLineDrawer()
+                .initialize()
+                .addNewPart(textLineArea);
     }
 
     private void initialize(Area area) {
@@ -130,50 +157,47 @@ public class ParagraphDrawer {
         justNewLine = true;
     }
 
-    private void normalChar(HWPCharNormal ch) throws Exception {
-        if (!ch.isSpace()) {
-            storeCharOfWord(ch);
+    private void normalChar(CharInfo charInfo) throws Exception {
+        if (!charInfo.character().isSpace()) {
+            storeCharOfWord(charInfo);
         } else {
-            addWordToLine();
+            addWordToLine(charInfo);
         }
     }
 
-    private void storeCharOfWord(HWPCharNormal ch) throws UnsupportedEncodingException {
-        CharInfo newCharInfo = new CharInfo(ch, info.charShape()).calculateWidth(drawer.painter());
-        charsOfWord.add(newCharInfo);
-        wordWidth += newCharInfo.width();
+    private void storeCharOfWord(CharInfo charInfo) throws UnsupportedEncodingException {
+        charsOfWord.add(charInfo);
+        wordWidth += charInfo.width();
     }
 
-    private void addWordToLine() throws Exception {
+    private void addWordToLine(CharInfo spaceCharInfo) throws Exception {
         if (charsOfWord.size() == 0) {
-            addSpaceChar();
+            addSpaceChar(spaceCharInfo);
             return;
         }
 
         if (!isOverRight(wordWidth, false)) {
             addWordAllCharsToLine(charsOfWord, false, false);
-            addSpaceChar();
+            addSpaceChar(spaceCharInfo);
             resetWord();
         } else {
             if (!isOverRight(wordWidth, true)) {
                 addWordAllCharsToLine(charsOfWord, false, true);
-                addSpaceChar();
+                // addSpaceChar(spaceCharInfo);
                 resetWord();
 
                 drawer.textLineDrawer().spaceRate(bestSpaceRate());
                 drawTextAndNewLine();
             } else {
-                spanningWord();
+                spanningWord(spaceCharInfo);
             }
         }
     }
 
-    private void addSpaceChar() throws UnsupportedEncodingException {
-        CharInfo newCharInfo = new CharInfo(SpaceChar, info.charShape()).calculateWidth(drawer.painter());
-
-        if (state.canAddCharInfo()) {
-            drawer.textLineDrawer().addChar(newCharInfo);
-            spacesWidth += newCharInfo.widthAddingCharSpace();
+    private void addSpaceChar(CharInfo spaceCharInfo) throws UnsupportedEncodingException {
+        if (state.canAddCharInfo() && spaceCharInfo != null) {
+            drawer.textLineDrawer().addChar(spaceCharInfo);
+            spacesWidth += spaceCharInfo.widthAddingCharSpace();
         }
     }
 
@@ -208,18 +232,26 @@ public class ParagraphDrawer {
             hasNewLine = false;
         }
         justNewLine = false;
-
-        if (state.canAddCharInfo()) {
-            drawer.textLineDrawer().addChar(charInfo);
-            wordsWidth += charInfo.widthAddingCharSpace();
-        }
+        addChar(charInfo);
         return hasNewLine;
     }
 
-    private void resetWord() {
-        charsOfWord.clear();
-        wordWidth = 0;
+    private void addChar(CharInfo charInfo) throws UnsupportedEncodingException {
+        if (state.canAddCharInfo()) {
+            if (drawer.textLineDrawer().noChar() && state == DrawingState.Normal) {
+/*
+                System.out.println("linefirst : " +charInfo.character().getCh() + " " +
+                        (charInfo.index() - 1) + " " +
+                        (charInfo.position() - charInfo.character().getCharSize()));
+
+ */
+               setLineFirst((charInfo.index() - 1),  (charInfo.position() - charInfo.character().getCharSize()));
+            }
+            drawer.textLineDrawer().addChar(charInfo);
+            wordsWidth += charInfo.widthAddingCharSpace();
+        }
     }
+
 
     private double bestSpaceRate() {
         return (double) (textLineArea.width() - wordsWidth) / (double) spacesWidth;
@@ -229,7 +261,7 @@ public class ParagraphDrawer {
         if (justNewLine == false) {
             long charHeight = charHeight();
             checkNewPage(charHeight);
-            drawLine();
+            drawTextLine();
             nextArea(charHeight);
         }
     }
@@ -252,9 +284,9 @@ public class ParagraphDrawer {
                         .removeControlsForFront();
 
                 drawer.pageMaker().newPage(info);
-
                 textLineArea.top(info.pageArea().top());
             }
+
         }
     }
 
@@ -262,13 +294,15 @@ public class ParagraphDrawer {
         return textLineArea.top() + charHeight > info.pageArea().bottom();
     }
 
-    private void drawLine() throws UnsupportedEncodingException {
+    private void drawTextLine() throws UnsupportedEncodingException {
         switch (state) {
             case Normal:
                 drawTextNormal();
                 break;
             case Recalculating:
-                if (recalculatingTextAreas.size() == 0) {
+    //             System.out.println(drawer.textLineDrawer().lastLine() + " " + drawer.textLineDrawer().area() + drawer.textLineDrawer().text());
+                if (recalculatingTextAreas.size() == 0
+                    || drawer.textLineDrawer().lastLine()) {
                     drawer.textLineDrawer().draw(info);
                 }
                 break;
@@ -277,13 +311,20 @@ public class ParagraphDrawer {
 
 
     private void drawTextNormal() throws UnsupportedEncodingException {
+//        System.out.println("before draw : " + drawer.textLineDrawer().text());
+
         textLineArea
                 .height(drawer.textLineDrawer().maxCharHeight())
                 .moveY(drawer.controlDrawer().checkTopBottomTextFlow(textLineArea));
 
         Area[] dividedAreas = drawer.controlDrawer().checkSquareTextFlow(textLineArea);
         if (dividedAreas.length == 1) {
-            drawer.textLineDrawer().draw(info);
+            System.out.println("{");
+            System.out.println(dividedAreas[0] + " " +drawer.textLineDrawer().text());
+            drawer.textLineDrawer()
+                    .area(new Area(dividedAreas[0]))
+                    .draw(info);
+            System.out.println("}");
         } else {
             setRedrawTextLineArea(dividedAreas);
 
@@ -299,14 +340,14 @@ public class ParagraphDrawer {
         }
     }
 
-
     private void nextArea(long charHeight) throws UnsupportedEncodingException {
         switch(state) {
             case Normal:
                 newLine(charHeight);
                 break;
             case Recalculating:
-                if (recalculatingTextAreas.size() == 0) {
+                if (recalculatingTextAreas.size() == 0 ||
+                        drawer.textLineDrawer().lastLine()) {
                     textLineArea = storedTextLineArea;
                     newLine(charHeight);
 
@@ -349,21 +390,26 @@ public class ParagraphDrawer {
         return lineHeight;
     }
 
-    private void spanningWord() throws Exception {
+    private void spanningWord(CharInfo spaceCharInfo) throws Exception {
         if (isAllLineDivideByWord(info.paraShape())) {
             if (drawer.textLineDrawer().noChar() == false) {
                 drawTextAndNewLine();
             }
 
+            if (state == DrawingState.EndingRecalculating) {
+                if (state == DrawingState.EndingRecalculating) {
+                    info.beforeChar(charsOfWord.size() + 1);
+                }
+            }
             addWordAllCharsToLine(charsOfWord, true, false);
-            addSpaceChar();
+            addSpaceChar(spaceCharInfo);
             resetWord();
         } else {
             int countOfAddingBeforeNewLine = wordSplitter.split(charsOfWord);
             if (state == DrawingState.EndingRecalculating) {
                 info.beforeChar(charsOfWord.size() - countOfAddingBeforeNewLine + 1);
             }
-            addSpaceChar();
+            addSpaceChar(spaceCharInfo);
             resetWord();
         }
     }
@@ -375,7 +421,7 @@ public class ParagraphDrawer {
 
     private void controlChar(HWPCharControlChar ch) throws Exception {
         if (ch.isParaBreak() || ch.isLineBreak()) {
-            addWordToLine();
+            addWordToLine(null);
 
             drawer.textLineDrawer().lastLine(true);
             drawTextAndNewLine();

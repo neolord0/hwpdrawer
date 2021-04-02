@@ -165,22 +165,6 @@ public class DrawingInfo {
         return paragraphListInfo().isLastChar();
     }
 
-    public void saveCharPosition() {
-        paragraphListInfo().saveCharPosition();
-    }
-
-    public void addXX(int size) {
-        paragraphListInfo().addXX(size);
-    }
-
-    public void rollbackCharPosition() {
-        paragraphListInfo().rollbackCharPosition();;
-    }
-
-    public boolean beforeChar() {
-        return paragraphListInfo().beforeChar();
-    }
-
     public boolean beforeChar(int count) {
         for (int index = 0; index < count; index++) {
             if(!paragraphListInfo().beforeChar()) {
@@ -188,5 +172,17 @@ public class DrawingInfo {
             }
         }
         return true;
+    }
+
+    public int charIndex() {
+        return paragraphListInfo().charIndex();
+    }
+
+    public int charPosition() {
+        return paragraphListInfo().charPosition();
+    }
+
+    public void gotoCharPosition(int lineFirstCharIndex, int lineFirstCharPosition) {
+        paragraphListInfo().gotoCharPosition(lineFirstCharIndex, lineFirstCharPosition);
     }
 }
