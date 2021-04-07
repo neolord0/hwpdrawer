@@ -50,7 +50,6 @@ public class WordSplitter {
         return wordWidth;
     }
 
-
     public int split() throws Exception {
         letterCountBeforeNewLine = 0;
         hasNewLine = false;
@@ -101,7 +100,7 @@ public class WordSplitter {
 
     private void addEachLanguageWordToLine(ArrayList<CharInfo> wordChars, long wordWidth) throws Exception {
         if (wordChars.size() > 0) {
-            if (!drawer.paragraphDrawer().isOverRight(wordWidth, true)) {
+            if (!drawer.textLineDrawer().isOverRight(wordWidth, true)) {
                 addWordAllCharsToLine(wordChars, false, true);
             } else {
                 hasNewLine = true;

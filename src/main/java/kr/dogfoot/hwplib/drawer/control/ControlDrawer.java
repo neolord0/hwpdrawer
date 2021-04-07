@@ -198,11 +198,11 @@ public class ControlDrawer {
 
         TextFlowCheckResult result = squareControls.checkTextFlow(tempTextLineArea);
         if (result.dividedAreas == null) {
-            result.nextState = ParagraphDrawer.DrawingState.StartingRedrawing;
+            result.nextState = ParagraphDrawer.DrawingState.StartRedrawing;
         } else if (result.dividedAreas().length == 1 && result.dividedAreas()[0].equals(tempTextLineArea)) {
             result.nextState = ParagraphDrawer.DrawingState.Normal;
         } else {
-            result.nextState = ParagraphDrawer.DrawingState.StartingRecalculating;
+            result.nextState = ParagraphDrawer.DrawingState.StartRecalculating;
         }
         result.offsetY += offsetY;
         return result;
