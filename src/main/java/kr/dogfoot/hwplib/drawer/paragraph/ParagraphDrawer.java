@@ -18,8 +18,6 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 public class ParagraphDrawer {
-    private static final HWPCharNormal SpaceChar = new HWPCharNormal(32);
-
     private HWPDrawer drawer;
     private WordSplitter wordSplitter;
 
