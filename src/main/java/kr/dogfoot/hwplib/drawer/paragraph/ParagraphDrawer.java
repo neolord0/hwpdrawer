@@ -43,14 +43,13 @@ public class ParagraphDrawer {
 
     public ParagraphDrawer(HWPDrawer drawer) {
         this.drawer = drawer;
-        wordSplitter = new WordSplitter(this);
+        wordSplitter = new WordSplitter(drawer);
 
         charsOfWord = new ArrayList<>();
         recalculatingTextAreas = new LinkedList<>();
     }
 
     public void draw(Paragraph paragraph, DrawingInfo info) throws Exception {
-        System.out.println("{");
         this.info = info;
         wordSplitter.info(info);
 
@@ -84,7 +83,6 @@ public class ParagraphDrawer {
         if (newPage) {
             drawer.pageMaker().newPage(info);
         }
-        System.out.println("}");
     }
 
     private void initialize() {
@@ -239,7 +237,6 @@ public class ParagraphDrawer {
 
     public boolean addCharToLine(CharInfo charInfo, boolean checkOverRight, boolean applyMinimumSpace) throws Exception {
         boolean hasNewLine;
-        System.out.println(charInfo.character().getCh() + " " +  currentTextX(false) + " " + charInfo.width() + " " + textLineArea.right());
         if (checkOverRight && isOverRight(charInfo.width(), applyMinimumSpace)) {
             if (applyMinimumSpace) {
                 drawer.textLineDrawer().spaceRate(bestSpaceRate());

@@ -77,7 +77,7 @@ public class TextLineDrawer {
     }
 
     public boolean noChar() {
-        return currentPart.charInfos().size() == 0;
+        return currentPart.charInfos().isEmpty();
     }
 
     public void spaceRate(double spaceRate) {

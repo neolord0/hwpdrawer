@@ -20,28 +20,39 @@ public class ControllTest {
     public void test_본문과의_배치_앞으로_뒤로() throws Exception {
         HWPTester.test("testingHWP" + File.separator + "컨트롤" + File.separator + "본문과의 배치" + File.separator + "앞으로_뒤로");
     }
-
+*/
     @Test
     public void test_본문과의_배치_자리차지1() throws Exception {
-        HWPTester.test("testingHWP" + File.separator + "컨트롤" + File.separator + "본문과의 배치" + File.separator + "자리차지1");
+        HWPTester.testAndCompare("testingHWP" + File.separator + "컨트롤" + File.separator + "본문과의 배치" + File.separator + "자리차지1");
     }
 
     @Test
     public void test_본문과의_배치_자리차지2() throws Exception {
-        HWPTester.test("testingHWP" + File.separator + "컨트롤" + File.separator + "본문과의 배치" + File.separator + "자리차지2");
+        HWPTester.testAndCompare("testingHWP" + File.separator + "컨트롤" + File.separator + "본문과의 배치" + File.separator + "자리차지2");
     }
-     */
 
-    /*
     @Test
     public void test_본문과의_배치_어울림1() throws Exception {
         HWPTester.testAndCompare("testingHWP" + File.separator + "컨트롤" + File.separator + "본문과의 배치" + File.separator + "어울림1");
     }
 
-     */
-
     @Test
     public void test_본문과의_배치_어울림2() throws Exception {
-        HWPTester.test("testingHWP" + File.separator + "컨트롤" + File.separator + "본문과의 배치" + File.separator + "어울림2");
+        HWPTester.testAndCompare("testingHWP" + File.separator + "컨트롤" + File.separator + "본문과의 배치" + File.separator + "어울림2");
+    }
+
+    @Test
+    public void test_본문과의_배치_어울림3() throws Exception {
+        HWPTester.testAndCompare("testingHWP" + File.separator + "컨트롤" + File.separator + "본문과의 배치" + File.separator + "어울림3");
+    }
+
+    @Test
+    public void test_본문과의_배치_어울림4() throws Exception {
+        HWPTester.testAndCompare("testingHWP" + File.separator + "컨트롤" + File.separator + "본문과의 배치" + File.separator + "어울림4");
+    }
+
+    @Test
+    public void test_본문과의_배치_어울림5() throws Exception {
+        HWPTester.testAndCompare("testingHWP" + File.separator + "컨트롤" + File.separator + "본문과의 배치" + File.separator + "어울림5");
     }
 }

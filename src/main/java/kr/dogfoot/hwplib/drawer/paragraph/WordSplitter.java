@@ -1,5 +1,6 @@
 package kr.dogfoot.hwplib.drawer.paragraph;
 
+import kr.dogfoot.hwplib.drawer.HWPDrawer;
 import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
 import kr.dogfoot.hwplib.object.docinfo.parashape.LineDivideForEnglish;
 import kr.dogfoot.hwplib.object.docinfo.parashape.LineDivideForHangul;
@@ -8,13 +9,13 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
 public class WordSplitter {
-    private ParagraphDrawer paragraphDrawer;
+    private HWPDrawer drawer;
     private DrawingInfo info;
     private int letterCountBeforeNewLine;
     private boolean hasNewLine;
 
-    public WordSplitter(ParagraphDrawer paragraphDrawer) {
-        this.paragraphDrawer = paragraphDrawer;
+    public WordSplitter(HWPDrawer drawer) {
+        this.drawer = drawer;
     }
 
     public void info(DrawingInfo info) {
@@ -71,12 +72,14 @@ public class WordSplitter {
 
     private void addEachLanguageWordToLine(ArrayList<CharInfo> wordChars, long wordWidth) throws Exception {
         if (wordChars.size() > 0) {
-            if (!paragraphDrawer.isOverRight(wordWidth, true)) {
+            if (!drawer.paragraphDrawer().isOverRight(wordWidth, true)) {
                 addWordAllCharsToLine(wordChars, false, true);
             } else {
                 hasNewLine = true;
 
-                paragraphDrawer.drawTextAndNewLine();
+                if (!drawer.textLineDrawer().noChar()) {
+                    drawer.paragraphDrawer().drawTextAndNewLine();
+                }
                 addWordAllCharsToLine(wordChars,true, true);
             }
         }
@@ -84,7 +87,7 @@ public class WordSplitter {
 
     private void addWordAllCharsToLine(ArrayList<CharInfo> wordChars, boolean checkOverRight, boolean applyMinimumSpace) throws Exception {
         for (CharInfo charInfo : wordChars) {
-            if (paragraphDrawer.addCharToLine(charInfo, checkOverRight, applyMinimumSpace)) {
+            if (drawer.paragraphDrawer().addCharToLine(charInfo, checkOverRight, applyMinimumSpace)) {
                 hasNewLine = true;
             }
             if (hasNewLine == false) {

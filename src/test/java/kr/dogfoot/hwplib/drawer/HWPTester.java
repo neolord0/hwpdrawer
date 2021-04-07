@@ -36,10 +36,10 @@ public class HWPTester {
 
             ImageComparisonResult result = new ImageComparison(expectedImage, actualImage).compareImages();
             if (result.getImageComparisonState() != ImageComparisonState.MATCH) {
-                System.out.println("not match page + " + pageNo);
+                System.out.println("not match page " + pageNo);
                 ImageComparisonUtil.saveImage(new File(path + File.separator + "error" + pageNo + ".png"), result.getResult());
             } else {
-                System.out.println("match page + " + pageNo);
+                System.out.println("match page " + pageNo);
             }
 
 //            Assert.assertEquals(ImageComparisonState.MATCH, result.getImageComparisonState());
