@@ -10,7 +10,6 @@ public class TopBottomControls {
     private TreeSet<ControlDrawer.ControlInfo> controlInfos;
     private ArrayList<TopBottomArea> topBottomAreas;
 
-
     public TopBottomControls() {
         controlInfos = new TreeSet<>();
         topBottomAreas = new ArrayList<>();
@@ -44,7 +43,7 @@ public class TopBottomControls {
         topBottomAreas.clear();
     }
 
-    public long checkTopBottomTextFlow(Area textLineArea) {
+    public long checkTextFlow(Area textLineArea) {
         long yOffset = 0;
         int count = topBottomAreas.size();
         for (int index = 0; index < count; index++) {

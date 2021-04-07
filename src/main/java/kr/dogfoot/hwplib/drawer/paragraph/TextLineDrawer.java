@@ -249,7 +249,6 @@ public class TextLineDrawer {
                     spaceIndex++;
                 }
             } else {
-                System.out.println(charInfo.character().getCh() + " " + (long) (charInfo.x() / stretchRate)+ "  " + getY(charInfo));
                 drawer.painter().string(charInfo.character().getCh(),
                         (long) (charInfo.x() / stretchRate),
                         getY(charInfo));

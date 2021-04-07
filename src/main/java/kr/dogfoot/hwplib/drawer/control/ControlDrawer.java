@@ -2,6 +2,7 @@ package kr.dogfoot.hwplib.drawer.control;
 
 import kr.dogfoot.hwplib.drawer.HWPDrawer;
 import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
+import kr.dogfoot.hwplib.drawer.paragraph.ParagraphDrawer;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.control.Control;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlTable;
@@ -190,12 +191,21 @@ public class ControlDrawer {
         return sb.toString();
     }
 
-    public long checkTopBottomTextFlow(Area textLineArea) {
-        return topBottomControls.checkTopBottomTextFlow(textLineArea);
-    }
+    public TextFlowCheckResult checkTextFlow(Area textLineArea) {
+        Area tempTextLineArea = new Area(textLineArea);
+        long offsetY = topBottomControls.checkTextFlow(tempTextLineArea);
+        tempTextLineArea.moveY(offsetY);
 
-    public Area[] checkSquareTextFlow(Area textLineArea) {
-        return squareControls.checkSquareTextFlow(textLineArea);
+        TextFlowCheckResult result = squareControls.checkTextFlow(tempTextLineArea);
+        if (result.dividedAreas == null) {
+            result.nextState = ParagraphDrawer.DrawingState.StartingRedrawing;
+        } else if (result.dividedAreas().length == 1 && result.dividedAreas()[0].equals(tempTextLineArea)) {
+            result.nextState = ParagraphDrawer.DrawingState.Normal;
+        } else {
+            result.nextState = ParagraphDrawer.DrawingState.StartingRecalculating;
+        }
+        result.offsetY += offsetY;
+        return result;
     }
 
 
@@ -233,4 +243,28 @@ public class ControlDrawer {
             return absoluteArea;
         }
     }
+
+    public static class TextFlowCheckResult {
+        private Area[] dividedAreas;
+        private long offsetY;
+        private ParagraphDrawer.DrawingState nextState;
+
+        public TextFlowCheckResult(Area[] dividedAreas, long offsetY) {
+            this.dividedAreas = dividedAreas;
+            this.offsetY = offsetY;
+        }
+
+        public Area[] dividedAreas() {
+            return dividedAreas;
+        }
+
+        public long offsetY() {
+            return offsetY;
+        }
+
+        public ParagraphDrawer.DrawingState nextState() {
+            return nextState;
+        }
+    }
+
 }

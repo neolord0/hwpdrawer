@@ -4,7 +4,7 @@ import kr.dogfoot.hwplib.drawer.paragraph.CharInfo;
 
 import java.awt.*;
 
-public class Area {
+public class Area implements Comparable<Area> {
     public static Area[] Zero_Array = new Area[0];
 
     private long left;
@@ -130,5 +130,22 @@ public class Area {
             return false;
 
         return true;
+    }
+
+    public boolean equals(Area that) {
+        return this.left == that.left
+                && this.top == that.top
+                && this.right == that.right
+                && this.bottom == that.bottom;
+    }
+
+    @Override
+    public int compareTo(Area o) {
+        if(left > o.left)
+            return 1;
+        else if (left == o.left)
+            return 0;
+        else
+            return -1;
     }
 }
