@@ -14,15 +14,44 @@ public class WordSplitter {
     private int letterCountBeforeNewLine;
     private boolean hasNewLine;
 
+    private ArrayList<CharInfo> charsOfWord;
+    private long wordWidth;
+
+
     public WordSplitter(HWPDrawer drawer) {
         this.drawer = drawer;
+
+        charsOfWord = new ArrayList<>();
     }
 
     public void info(DrawingInfo info) {
         this.info = info;
     }
 
-    public int split(ArrayList<CharInfo> charsOfWord) throws Exception {
+    public void resetWord() {
+        charsOfWord.clear();
+        wordWidth = 0;
+    }
+
+    public void addCharOfWord(CharInfo charInfo) {
+        charsOfWord.add(charInfo);
+        wordWidth += charInfo.width();
+    }
+
+    public boolean noChar() {
+        return charsOfWord.isEmpty();
+    }
+
+    public ArrayList<CharInfo> charsOfWord() {
+        return charsOfWord;
+    }
+
+    public long wordWidth() {
+        return wordWidth;
+    }
+
+
+    public int split() throws Exception {
         letterCountBeforeNewLine = 0;
         hasNewLine = false;
 
@@ -95,6 +124,7 @@ public class WordSplitter {
             }
         }
     }
+
 
     private static class WordsCharByLanguage {
         public boolean hangul;
