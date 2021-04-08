@@ -279,6 +279,7 @@ public class ParagraphDrawer {
     private void drawTextLine() throws UnsupportedEncodingException {
         switch (state) {
             case Normal:
+                // todo : area() 없애기
                 drawer.textLineDrawer()
                         .area(textLineArea)
                         .draw();
@@ -346,6 +347,8 @@ public class ParagraphDrawer {
     }
 
     private void spanningWord(CharInfo spaceCharInfo) throws Exception {
+        ArrayList<CharInfo> charsOfWord = wordSplitter.charsOfWord();
+
         if (isAllLineDivideByWord(info.paraShape())) {
             if (drawer.textLineDrawer().noChar() == false) {
                 drawTextAndNewLine();
@@ -353,16 +356,16 @@ public class ParagraphDrawer {
 
             if (state == DrawingState.EndRecalculating) {
                 if (state == DrawingState.EndRecalculating) {
-                    info.beforeChar(wordSplitter.charsOfWord().size() + 1);
+                    info.beforeChar(charsOfWord.size() + 1);
                 }
             }
-            addWordAllCharsToLine(wordSplitter.charsOfWord(), true, false);
+            addWordAllCharsToLine(charsOfWord, true, false);
             addSpaceChar(spaceCharInfo);
             wordSplitter.resetWord();
         } else {
             int countOfAddingBeforeNewLine = wordSplitter.split();
             if (state == DrawingState.EndRecalculating) {
-                info.beforeChar(wordSplitter.charsOfWord().size() - countOfAddingBeforeNewLine + 1);
+                info.beforeChar(charsOfWord.size() - countOfAddingBeforeNewLine + 1);
             }
             addSpaceChar(spaceCharInfo);
             wordSplitter.resetWord();

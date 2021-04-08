@@ -17,7 +17,6 @@ public class WordSplitter {
     private ArrayList<CharInfo> charsOfWord;
     private long wordWidth;
 
-
     public WordSplitter(HWPDrawer drawer) {
         this.drawer = drawer;
 
