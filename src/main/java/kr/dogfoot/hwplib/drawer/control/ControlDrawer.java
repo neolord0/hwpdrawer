@@ -53,7 +53,7 @@ public class ControlDrawer {
                     break;
             }
 
-            if (headerGso == null) {
+            if (headerGso == null || headerGso.getProperty().isLikeWord() == true) {
                 continue;
             }
 

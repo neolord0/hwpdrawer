@@ -1,35 +1,34 @@
-package kr.dogfoot.hwplib.drawer.paragraph;
+package kr.dogfoot.hwplib.drawer.paragraph.charInfo;
 
 import kr.dogfoot.hwplib.drawer.painter.Painter;
+import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPChar;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPCharNormal;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPCharType;
 import kr.dogfoot.hwplib.object.docinfo.CharShape;
 
 import java.io.UnsupportedEncodingException;
 
-public class CharInfo {
-    public final static CharInfo[] Zero_Array = new CharInfo[0];
-
-    private HWPCharNormal ch;
+public class NormalCharInfo implements CharInfo {
+    private HWPCharNormal character;
     private double width;
     private CharShape charShape;
     private int index;
     private int position;
     private long x;
 
-    public CharInfo(HWPCharNormal ch, CharShape charShape, int index, int position) {
-        this.ch = ch;
+    public NormalCharInfo(HWPCharNormal ch, CharShape charShape, int index, int position) {
+        this.character = ch;
         this.charShape = charShape;
         this.index = index;
         this.position = position;
     }
 
-    public CharInfo calculateWidth(Painter painter) throws UnsupportedEncodingException {
-        if (ch.isSpace()) {
+    public NormalCharInfo calculateWidth(Painter painter) throws UnsupportedEncodingException {
+        if (character.isSpace()) {
             width = charShape.getBaseSize() / 2;
         } else {
-            if (ch.getType() == HWPCharType.Normal) {
-                width = painter.getCharWidth(ch.getCh(), charShape);
+            if (character.getType() == HWPCharType.Normal) {
+                width = painter.getCharWidth(character.getCh(), charShape);
             } else {
                 width = 0;
             }
@@ -39,35 +38,57 @@ public class CharInfo {
         return this;
     }
 
-    public HWPCharNormal character() {
-        return ch;
+    @Override
+    public Type type() {
+        return Type.Normal;
     }
 
+    @Override
+    public HWPChar character() {
+        return character;
+    }
+
+    @Override
     public double width() {
         return width;
     }
 
+    @Override
     public double widthAddingCharSpace() {
         return width + (width * charShape.getCharSpaces().getHangul() / 100);
     }
 
-    public CharShape charShape() {
-        return charShape;
+    @Override
+    public long height() {
+        return charShape.getBaseSize();
     }
 
+    @Override
     public long x() {
         return x;
     }
 
+    @Override
     public void x(long x) {
         this.x = x;
     }
 
+    @Override
     public int index() {
         return index;
     }
 
+    @Override
     public int position() {
         return position;
+    }
+
+    @Override
+    public CharShape charShape() {
+        return charShape;
+    }
+
+    public HWPCharNormal normalCharacter() {
+        return character;
     }
 }

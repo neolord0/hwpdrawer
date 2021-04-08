@@ -1,17 +1,19 @@
 package kr.dogfoot.hwplib.drawer.paragraph;
 
+import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfo;
+import kr.dogfoot.hwplib.drawer.paragraph.charInfo.NormalCharInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
 
 import java.util.ArrayList;
 
-public class TextLinePart {
+public class TextPart {
     private ArrayList<CharInfo> charInfos;
     private Area area;
     private boolean lastLine;
     private int spaceCount;
     private double spaceRate;
 
-    public TextLinePart(Area area) {
+    public TextPart(Area area) {
         charInfos = new ArrayList<>();
         this.area = area;
 

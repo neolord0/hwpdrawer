@@ -2,9 +2,13 @@ package kr.dogfoot.hwplib.drawer.paragraph;
 
 import kr.dogfoot.hwplib.drawer.HWPDrawer;
 import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
+import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfo;
+import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
+import kr.dogfoot.hwplib.drawer.paragraph.charInfo.NormalCharInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.docinfo.CharShape;
 import kr.dogfoot.hwplib.object.docinfo.ParaShape;
+import org.apache.commons.math3.stat.interval.NormalApproximationInterval;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -12,9 +16,9 @@ import java.util.ArrayList;
 public class TextLineDrawer {
     private HWPDrawer drawer;
 
-    private ParaShape paraShape;
-    private ArrayList<TextLinePart> parts;
-    private TextLinePart currentPart;
+    private DrawingInfo info;
+    private ArrayList<TextPart> parts;
+    private TextPart currentTextPart;
 
     private long maxCharHeight;
     private long wordsWidth;
@@ -34,13 +38,13 @@ public class TextLineDrawer {
         this.drawer = drawer;
 
         parts = new ArrayList<>();
-        currentPart = null;
+        currentTextPart = null;
         underLineDrawer = new UnderLineDrawer(drawer);
         strikeLineDrawer = new StrikeLineDrawer(drawer);
     }
 
     public TextLineDrawer initialize(DrawingInfo info) {
-        paraShape = info.paraShape();
+        this.info = info;
         reset();
         wordsWidth = 0;
         spacesWidth = 0;
@@ -50,7 +54,7 @@ public class TextLineDrawer {
 
     public TextLineDrawer reset() {
         parts.clear();
-        currentPart = null;
+        currentTextPart = null;
 
         maxCharHeight = 0;
         resetPart();
@@ -71,11 +75,10 @@ public class TextLineDrawer {
         return this;
     }
 
-
-    public void addNewPart(Area textPartArea) {
-        TextLinePart textLinePart = new TextLinePart(new Area(textPartArea));
-        parts.add(textLinePart);
-        currentPart = textLinePart;
+    public void addNewTextPart(Area textPartArea) {
+        TextPart textPart = new TextPart(new Area(textPartArea));
+        parts.add(textPart);
+        currentTextPart = textPart;
     }
 
     public boolean justNewLine() {
@@ -87,16 +90,16 @@ public class TextLineDrawer {
     }
 
     public boolean lastLine() {
-        return currentPart.lastLine();
+        return currentTextPart.lastLine();
     }
 
     public void lastLine(boolean lastLine) {
-        currentPart.lastLine(lastLine);
+        currentTextPart.lastLine(lastLine);
     }
 
     public void addChar(CharInfo charInfo) {
-        maxCharHeight = (charInfo.charShape().getBaseSize() > maxCharHeight) ? charInfo.charShape().getBaseSize() : maxCharHeight;
-        currentPart.addCharInfo(charInfo);
+        maxCharHeight = (charInfo.height() > maxCharHeight) ? (long) charInfo.height() : maxCharHeight;
+        currentTextPart.addCharInfo(charInfo);
         if (charInfo.character().isSpace()) {
             spacesWidth += charInfo.widthAddingCharSpace();
         } else {
@@ -104,51 +107,82 @@ public class TextLineDrawer {
         }
     }
     public boolean isOverRight(double width, boolean applyMinimumSpace) {
-        return currentTextX(applyMinimumSpace) + width > currentPart.area().right();
+        return currentTextX(applyMinimumSpace) + width > currentTextPart.area().right();
     }
 
     private long currentTextX(boolean applyMinimumSpace) {
         if (applyMinimumSpace) {
-            long minimumSpace = spacesWidth * (100 - paraShape.getProperty1().getMinimumSpace()) / 100;
-            return wordsWidth + minimumSpace + currentPart.area().left();
+            long minimumSpace = spacesWidth * (100 - info.paraShape().getProperty1().getMinimumSpace()) / 100;
+            return wordsWidth + minimumSpace + currentTextPart.area().left();
         } else {
-            return wordsWidth + spacesWidth + currentPart.area().left();
+            return wordsWidth + spacesWidth + currentTextPart.area().left();
         }
     }
-
 
     public long maxCharHeight() {
         return maxCharHeight;
     }
 
+    public long charHeight() {
+        if (noChar()) {
+            return info.charShape().getBaseSize();
+        } else {
+            return maxCharHeight;
+        }
+    }
+
+    public long lineHeight() {
+        long lineHeight = 0;
+
+        long charHeight = charHeight();
+        ParaShape paraShape = info.paraShape();
+        switch (paraShape.getProperty1().getLineSpaceSort()) {
+            case RatioForLetter:
+                if (paraShape.getLineSpace() == paraShape.getLineSpace2()) {
+                    lineHeight = charHeight * paraShape.getLineSpace() / 100;
+                } else {
+                    lineHeight = Math.max(charHeight, paraShape.getLineSpace2() / 2);
+                }
+                break;
+            case FixedValue:
+                lineHeight = paraShape.getLineSpace() / 2;
+                break;
+            case OnlyMargin:
+                lineHeight = charHeight + paraShape.getLineSpace() / 2;
+                break;
+        }
+        return lineHeight;
+    }
+
+
     public boolean noChar() {
-        return currentPart.charInfos().isEmpty();
+        return currentTextPart.charInfos().isEmpty();
     }
 
     public void setBestSpaceRate() {
-        currentPart.spaceRate((double) (currentPart.area().width() - wordsWidth) / (double) spacesWidth);
+        currentTextPart.spaceRate((double) (currentTextPart.area().width() - wordsWidth) / (double) spacesWidth);
     }
 
     public Area area() {
-        return currentPart.area();
+        return currentTextPart.area();
     }
 
     public TextLineDrawer area(Area textLineArea) {
-        currentPart.area(textLineArea);
+        currentTextPart.area(new Area(textLineArea));
         return this;
     }
 
     public void draw() throws UnsupportedEncodingException {
-        for (TextLinePart part : parts) {
+        for (TextPart part : parts) {
             drawPart(part);
         }
     }
 
-    private void drawPart(TextLinePart part) throws UnsupportedEncodingException {
+    private void drawPart(TextPart part) throws UnsupportedEncodingException {
         baseLine = part.area().top() + maxCharHeight;
         drawingCharShape = null;
 
-        switch(paraShape.getProperty1().getAlignment()) {
+        switch(info.paraShape().getProperty1().getAlignment()) {
             case Justify:
                 justify(part);
                 break;
@@ -171,7 +205,7 @@ public class TextLineDrawer {
         drawUnder_StrikeLine(part);
     }
 
-    private void justify(TextLinePart part) throws UnsupportedEncodingException {
+    private void justify(TextPart part) throws UnsupportedEncodingException {
         charX = part.area().left();
         if (part.lastLine() == false) {
             if (part.spaceCountWithExceptingLastSpace() != 0) {
@@ -188,7 +222,7 @@ public class TextLineDrawer {
         drawInOrder(part);
     }
 
-    private long[] spaceAddings(TextLinePart part) {
+    private long[] spaceAddings(TextPart part) {
         long extra = part.area().width() - part.textWidthWithExceptingLastSpace();
         int spaceCount = part.spaceCountWithExceptingLastSpace();
         if (spaceCount == 0) {
@@ -211,7 +245,7 @@ public class TextLineDrawer {
         return spaceAddings;
     }
 
-    private long[] charAddings(TextLinePart part) {
+    private long[] charAddings(TextPart part) {
         long extra = part.area().width() - part.textWidthWithExceptingLastSpace();
         int charCount = part.charCountWithExceptingLastSpace() - 1;
         if (charCount <= 0) {
@@ -234,42 +268,42 @@ public class TextLineDrawer {
         return charAddings;
     }
 
-    private void left(TextLinePart part) throws UnsupportedEncodingException {
+    private void left(TextPart part) throws UnsupportedEncodingException {
         charX = part.area().left();
         spaceAddings = null;
         charAddings = null;
         drawInOrder(part);
     }
 
-    private void right(TextLinePart part) throws UnsupportedEncodingException {
+    private void right(TextPart part) throws UnsupportedEncodingException {
         charX = part.area().right() - part.textWidthWithExceptingLastSpace();
         spaceAddings = null;
         charAddings = null;
         drawInOrder(part);
     }
 
-    private void center(TextLinePart part) throws UnsupportedEncodingException {
+    private void center(TextPart part) throws UnsupportedEncodingException {
         charX = part.area().left() + (part.area().width() - part.textWidthWithExceptingLastSpace()) / 2;
         spaceAddings = null;
         charAddings = null;
         drawInOrder(part);
     }
 
-    private void distribute(TextLinePart part) throws UnsupportedEncodingException {
+    private void distribute(TextPart part) throws UnsupportedEncodingException {
         charX = part.area().left();
         spaceAddings = null;
         charAddings = charAddings(part);
         drawInOrder(part);
     }
 
-    private void divide(TextLinePart part) throws UnsupportedEncodingException {
+    private void divide(TextPart part) throws UnsupportedEncodingException {
         charX = part.area().left();
         spaceAddings = spaceAddings(part);
         charAddings = null;
         drawInOrder(part);
     }
 
-    private void drawInOrder(TextLinePart part) throws UnsupportedEncodingException {
+    private void drawInOrder(TextPart part) throws UnsupportedEncodingException {
         short oldRatio = 100;
         double stretchRate = 1;
 
@@ -294,9 +328,18 @@ public class TextLineDrawer {
                     spaceIndex++;
                 }
             } else {
-                drawer.painter().string(charInfo.character().getCh(),
-                        (long) (charInfo.x() / stretchRate),
-                        getY(charInfo));
+                if (charInfo.type() == CharInfo.Type.Normal) {
+                    drawer.painter().string(((NormalCharInfo) charInfo).normalCharacter().getCh(),
+                            (long) (charInfo.x() / stretchRate),
+                            getY(charInfo));
+                } else if (charInfo.type() == CharInfo.Type.Control
+                        && ((ControlCharInfo) charInfo).control() != null) {
+                    Area area = new Area(charInfo.x(), getY(charInfo) - charInfo.height(),0,0)
+                            .width((long) charInfo.width())
+                            .height(charInfo.height());
+                    drawer.painter().rectangle(area, false);
+                }
+
                 charX += charInfo.widthAddingCharSpace();
             }
 
@@ -308,10 +351,10 @@ public class TextLineDrawer {
     }
 
     private long getY(CharInfo charInfo) {
-        return baseLine + charInfo.charShape().getBaseSize() * charInfo.charShape().getCharOffsets().getHangul() / 100;
+        return baseLine + charInfo.height() * charInfo.charShape().getCharOffsets().getHangul() / 100;
     }
 
-    private void drawUnder_StrikeLine(TextLinePart part) throws UnsupportedEncodingException {
+    private void drawUnder_StrikeLine(TextPart part) throws UnsupportedEncodingException {
         underLineDrawer.initialize(baseLine, maxCharHeight);
         strikeLineDrawer.initialize(baseLine);
 
@@ -326,15 +369,26 @@ public class TextLineDrawer {
 
     public String text() {
         StringBuilder sb = new StringBuilder();
-        for (CharInfo charInfo : currentPart.charInfos()) {
-            try {
+        for (CharInfo charInfo : currentTextPart.charInfos()) {
+            if (charInfo.type() == CharInfo.Type.Normal) {
+                NormalCharInfo normalCharInfo = (NormalCharInfo) charInfo;
+                try {
+                    sb
+                            .append(normalCharInfo.normalCharacter().getCh())
+                            .append("(")
+                            .append(charInfo.index())
+                            .append(")");
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                ControlCharInfo controlCharInfo = (ControlCharInfo) charInfo;
                 sb
-                        .append(charInfo.character().getCh())
+                        .append(controlCharInfo.control().getType())
                         .append("(")
                         .append(charInfo.index())
                         .append(")");
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
+
             }
         }
         return sb.toString();

@@ -27,10 +27,6 @@ public class ParagraphListInfo {
     private int charShapeIndex;
     private CharShape charShape;
 
-    public int savedCharIndex;
-    public int savedCharPosition;
-
-
     public ParagraphListInfo(DrawingInfo info, boolean isBodyText) {
         this.info = info;
         this.isBodyText = isBodyText;

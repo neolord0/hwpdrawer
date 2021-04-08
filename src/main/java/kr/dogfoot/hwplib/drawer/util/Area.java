@@ -1,7 +1,5 @@
 package kr.dogfoot.hwplib.drawer.util;
 
-import kr.dogfoot.hwplib.drawer.paragraph.CharInfo;
-
 import java.awt.*;
 
 public class Area implements Comparable<Area> {
