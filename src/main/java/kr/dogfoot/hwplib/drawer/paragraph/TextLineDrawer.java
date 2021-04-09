@@ -8,7 +8,6 @@ import kr.dogfoot.hwplib.drawer.paragraph.charInfo.NormalCharInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.docinfo.CharShape;
 import kr.dogfoot.hwplib.object.docinfo.ParaShape;
-import org.apache.commons.math3.stat.interval.NormalApproximationInterval;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -21,6 +20,7 @@ public class TextLineDrawer {
     private TextPart currentTextPart;
 
     private long maxCharHeight;
+    private long maxCharHeightOnlyNormalText;
     private long wordsWidth;
     private long spacesWidth;
     private boolean justNewLine;
@@ -57,6 +57,7 @@ public class TextLineDrawer {
         currentTextPart = null;
 
         maxCharHeight = 0;
+        maxCharHeightOnlyNormalText = 0;
         resetPart();
 
         baseLine = 0;
@@ -98,7 +99,12 @@ public class TextLineDrawer {
     }
 
     public void addChar(CharInfo charInfo) {
-        maxCharHeight = (charInfo.height() > maxCharHeight) ? (long) charInfo.height() : maxCharHeight;
+        maxCharHeight = (charInfo.height() > maxCharHeight) ? charInfo.height() : maxCharHeight;
+        if (charInfo.type() == CharInfo.Type.Normal) {
+            maxCharHeightOnlyNormalText = (charInfo.height() > maxCharHeightOnlyNormalText)
+                    ? charInfo.height()
+                    : maxCharHeightOnlyNormalText;
+        }
         currentTextPart.addCharInfo(charInfo);
         if (charInfo.character().isSpace()) {
             spacesWidth += charInfo.widthAddingCharSpace();
@@ -120,11 +126,7 @@ public class TextLineDrawer {
     }
 
     public long maxCharHeight() {
-        return maxCharHeight;
-    }
-
-    public long charHeight() {
-        if (noChar()) {
+        if (noNormalChar()) {
             return info.charShape().getBaseSize();
         } else {
             return maxCharHeight;
@@ -132,31 +134,33 @@ public class TextLineDrawer {
     }
 
     public long lineHeight() {
-        long lineHeight = 0;
-
-        long charHeight = charHeight();
+        long lineGap = 0;
+        long maxCharHeightOnlyNormalText2 = (noNormalChar())
+                ? info.charShape().getBaseSize()
+                : maxCharHeightOnlyNormalText;
         ParaShape paraShape = info.paraShape();
         switch (paraShape.getProperty1().getLineSpaceSort()) {
             case RatioForLetter:
                 if (paraShape.getLineSpace() == paraShape.getLineSpace2()) {
-                    lineHeight = charHeight * paraShape.getLineSpace() / 100;
+                    lineGap = maxCharHeightOnlyNormalText2 * paraShape.getLineSpace() / 100 - maxCharHeightOnlyNormalText2;
                 } else {
-                    lineHeight = Math.max(charHeight, paraShape.getLineSpace2() / 2);
+                    lineGap = Math.max(maxCharHeightOnlyNormalText, paraShape.getLineSpace2() / 2) - maxCharHeightOnlyNormalText2;
                 }
                 break;
             case FixedValue:
-                lineHeight = paraShape.getLineSpace() / 2;
+                lineGap = paraShape.getLineSpace() / 2 - maxCharHeightOnlyNormalText2;
                 break;
             case OnlyMargin:
-                lineHeight = charHeight + paraShape.getLineSpace() / 2;
+                lineGap = paraShape.getLineSpace() / 2;
                 break;
         }
-        return lineHeight;
+        System.out.println(lineGap + " " + maxCharHeight() + " " + maxCharHeightOnlyNormalText2 + " " + text());
+        return maxCharHeight() + lineGap;
     }
 
 
-    public boolean noChar() {
-        return currentTextPart.charInfos().isEmpty();
+    public boolean noNormalChar() {
+        return !currentTextPart.hasNormalChar();
     }
 
     public void setBestSpaceRate() {
@@ -334,9 +338,10 @@ public class TextLineDrawer {
                             getY(charInfo));
                 } else if (charInfo.type() == CharInfo.Type.Control
                         && ((ControlCharInfo) charInfo).control() != null) {
-                    Area area = new Area(charInfo.x(), getY(charInfo) - charInfo.height(),0,0)
+                    Area area = new Area(charInfo.x(), part.area().bottom() - maxCharHeight,0,0)
                             .width((long) charInfo.width())
-                            .height(charInfo.height());
+                            .height(charInfo.height())
+                            .moveY(50);
                     drawer.painter().rectangle(area, false);
                 }
 
@@ -351,7 +356,10 @@ public class TextLineDrawer {
     }
 
     private long getY(CharInfo charInfo) {
-        return baseLine + charInfo.height() * charInfo.charShape().getCharOffsets().getHangul() / 100;
+        return (long) (baseLine
+                - drawer.painter().textOffsetY(((NormalCharInfo) charInfo)))
+                + charInfo.height() * charInfo.charShape().getCharOffsets().getHangul() / 100;
+
     }
 
     private void drawUnder_StrikeLine(TextPart part) throws UnsupportedEncodingException {
@@ -383,16 +391,24 @@ public class TextLineDrawer {
                 }
             } else {
                 ControlCharInfo controlCharInfo = (ControlCharInfo) charInfo;
-                sb
-                        .append(controlCharInfo.control().getType())
-                        .append("(")
-                        .append(charInfo.index())
-                        .append(")");
+                if(controlCharInfo.control() == null) {
+                    sb
+                            .append(controlCharInfo.character().getCode())
+                            .append("(")
+                            .append(charInfo.index())
+                            .append(")");
+
+                } else {
+                    sb
+                            .append(controlCharInfo.control().getType())
+                            .append("(")
+                            .append(charInfo.index())
+                            .append(")");
+                }
 
             }
         }
         return sb.toString();
     }
-
 }
 

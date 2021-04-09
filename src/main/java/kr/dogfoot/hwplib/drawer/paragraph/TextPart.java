@@ -12,6 +12,7 @@ public class TextPart {
     private boolean lastLine;
     private int spaceCount;
     private double spaceRate;
+    private boolean hasNormalChar;
 
     public TextPart(Area area) {
         charInfos = new ArrayList<>();
@@ -20,6 +21,7 @@ public class TextPart {
         lastLine = false;
         spaceCount = 0;
         spaceRate = 1.0;
+        hasNormalChar = false;
     }
 
     public ArrayList<CharInfo> charInfos() {
@@ -30,6 +32,9 @@ public class TextPart {
         charInfos.add(charInfo);
         if (charInfo.character().isSpace()) {
             spaceCount++;
+        }
+        if (charInfo.type() == CharInfo.Type.Normal) {
+            hasNormalChar = true;
         }
     }
 
@@ -101,5 +106,9 @@ public class TextPart {
             }
         }
         return textCount;
+    }
+
+    public boolean hasNormalChar() {
+        return hasNormalChar;
     }
 }

@@ -15,6 +15,11 @@ public class CharacterTest {
     }
 
     @Test
+    public void test_글자모양_글자크기2() throws Exception {
+        HWPTester.testAndCompare("testingHWP" + File.separator + "글자모양" + File.separator + "글자크기2");
+    }
+
+    @Test
     public void test_글자모양_밑줄취소선() throws Exception {
         HWPTester.testAndCompare("testingHWP" + File.separator + "글자모양" + File.separator + "밑줄취소선");
     }
@@ -38,4 +43,5 @@ public class CharacterTest {
     public void test_글자모양_글자색_크기() throws Exception {
         HWPTester.testAndCompare("testingHWP" + File.separator + "글자모양" + File.separator + "글자색_크기");
     }
+
 }

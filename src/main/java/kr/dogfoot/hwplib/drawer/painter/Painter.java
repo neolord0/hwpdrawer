@@ -1,6 +1,7 @@
 package kr.dogfoot.hwplib.drawer.painter;
 
 import kr.dogfoot.hwplib.drawer.DrawingOption;
+import kr.dogfoot.hwplib.drawer.paragraph.charInfo.NormalCharInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.Convertor;
 import kr.dogfoot.hwplib.drawer.util.FontManager;
@@ -10,7 +11,11 @@ import kr.dogfoot.hwplib.object.docinfo.borderfill.BorderType;
 import kr.dogfoot.hwplib.object.etc.Color4Byte;
 
 import java.awt.*;
+import java.awt.font.FontRenderContext;
+import java.awt.font.LineMetrics;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
+import java.io.UnsupportedEncodingException;
 
 public class Painter {
     private Graphics2D graphics2D;
@@ -92,5 +97,15 @@ public class Painter {
     public Painter testBackStyle() {
         graphics2D.setColor(Color.WHITE);
         return this;
+    }
+
+    public double textOffsetY(NormalCharInfo charInfo) {
+        try {
+            LineMetrics lm = graphics2D.getFontMetrics().getLineMetrics(charInfo.normalCharacter().getCh(), graphics2D);
+            return (lm.getDescent()) * charInfo.height() / lm.getHeight();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 }

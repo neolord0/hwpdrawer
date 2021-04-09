@@ -26,7 +26,9 @@ public class HWPTester {
         comparePageImages(path, pageCount);
     }
 
+
     private static void comparePageImages(String path, int pageCount) {
+        boolean succuess = true;
         for (int pageNo = 1; pageNo <= pageCount; pageNo++) {
             String expectedPng = path + File.separator + "ok_page" + pageNo + ".png";
             String actualPng = path + File.separator + "page" + pageNo + ".png";
@@ -36,14 +38,14 @@ public class HWPTester {
 
             ImageComparisonResult result = new ImageComparison(expectedImage, actualImage).compareImages();
             if (result.getImageComparisonState() != ImageComparisonState.MATCH) {
-                System.out.println("not match page " + pageNo);
+                System.out.println("not match page " + pageNo + " " + result.getImageComparisonState());
                 ImageComparisonUtil.saveImage(new File(path + File.separator + "error" + pageNo + ".png"), result.getResult());
+                succuess = false;
             } else {
                 System.out.println("match page " + pageNo);
             }
-
-//            Assert.assertEquals(ImageComparisonState.MATCH, result.getImageComparisonState());
         }
+            Assert.assertTrue(succuess);
     }
 
     public static void test(String path) throws Exception {

@@ -265,7 +265,7 @@ public class ParagraphDrawer {
 
     private void addCharToLine(CharInfo charInfo) {
         if (drawingState.canAddChar()) {
-            if (drawer.textLineDrawer().noChar() && drawingState == DrawingState.Normal) {
+            if (drawer.textLineDrawer().noNormalChar() && drawingState == DrawingState.Normal) {
                 setLineFirst((charInfo.index() - 1),  (charInfo.position() - charInfo.character().getCharSize()));
             }
 
@@ -281,7 +281,6 @@ public class ParagraphDrawer {
     public void drawTextAndNewLine() throws Exception {
         if (!drawer.textLineDrawer().justNewLine()) {
             lineHeight = drawer.textLineDrawer().lineHeight();
-            System.out.println(lineHeight);
             checkNewPage();
             checkTextFlow();
             drawTextLine();
@@ -290,7 +289,7 @@ public class ParagraphDrawer {
     }
 
     private void checkNewPage() throws IOException {
-        if (isOverBottom(drawer.textLineDrawer().charHeight())) {
+        if (isOverBottom(drawer.textLineDrawer().maxCharHeight())) {
             if (info.isBodyText() == true) {
                 drawer.controlDrawer()
                         .drawControlsForFront()
@@ -310,7 +309,6 @@ public class ParagraphDrawer {
 
     private void checkTextFlow() {
         if (drawingState == DrawingState.Normal) {
-            System.out.println(drawer.textLineDrawer().maxCharHeight());
             currentTextLineArea
                     .height(drawer.textLineDrawer().maxCharHeight());
             ControlDrawer.TextFlowCheckResult result = drawer.controlDrawer().checkTextFlow(currentTextLineArea);
@@ -372,7 +370,7 @@ public class ParagraphDrawer {
         ArrayList<CharInfo> charsOfWord = wordSplitter.charsOfWord();
 
         if (isAllLineDivideByWord(info.paraShape())) {
-            if (drawer.textLineDrawer().noChar() == false) {
+            if (!drawer.textLineDrawer().noNormalChar()) {
                 drawTextAndNewLine();
             }
 

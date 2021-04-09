@@ -3,7 +3,6 @@ package kr.dogfoot.hwplib.drawer.paragraph;
 import kr.dogfoot.hwplib.drawer.HWPDrawer;
 import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfo;
-import kr.dogfoot.hwplib.drawer.paragraph.charInfo.NormalCharInfo;
 import kr.dogfoot.hwplib.object.docinfo.parashape.LineDivideForEnglish;
 import kr.dogfoot.hwplib.object.docinfo.parashape.LineDivideForHangul;
 
@@ -106,7 +105,7 @@ public class WordSplitter {
             } else {
                 hasNewLine = true;
 
-                if (!drawer.textLineDrawer().noChar()) {
+                if (!drawer.textLineDrawer().noNormalChar()) {
                     drawer.paragraphDrawer().drawTextAndNewLine();
                 }
                 addWordAllCharsToLine(wordChars,true, true);
