@@ -154,7 +154,6 @@ public class TextLineDrawer {
                 lineGap = paraShape.getLineSpace() / 2;
                 break;
         }
-        System.out.println(lineGap + " " + maxCharHeight() + " " + maxCharHeightOnlyNormalText2 + " " + text());
         return maxCharHeight() + lineGap;
     }
 
