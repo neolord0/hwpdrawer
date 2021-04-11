@@ -157,7 +157,6 @@ public class TextLineDrawer {
         return maxCharHeight() + lineGap;
     }
 
-
     public boolean noNormalChar() {
         return !currentTextPart.hasNormalChar();
     }
