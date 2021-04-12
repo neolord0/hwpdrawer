@@ -375,36 +375,39 @@ public class TextLineDrawer {
 
     public String text() {
         StringBuilder sb = new StringBuilder();
-        for (CharInfo charInfo : currentTextPart.charInfos()) {
-            if (charInfo.type() == CharInfo.Type.Normal) {
-                NormalCharInfo normalCharInfo = (NormalCharInfo) charInfo;
-                try {
-                    sb
-                            .append(normalCharInfo.normalCharacter().getCh())
-                            .append("(")
-                            .append(charInfo.index())
-                            .append(")");
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
-            } else {
-                ControlCharInfo controlCharInfo = (ControlCharInfo) charInfo;
-                if(controlCharInfo.control() == null) {
-                    sb
-                            .append(controlCharInfo.character().getCode())
-                            .append("(")
-                            .append(charInfo.index())
-                            .append(")");
-
+        for (TextPart textPart : parts) {
+            for (CharInfo charInfo : textPart.charInfos()) {
+                if (charInfo.type() == CharInfo.Type.Normal) {
+                    NormalCharInfo normalCharInfo = (NormalCharInfo) charInfo;
+                    try {
+                        sb
+                                .append(normalCharInfo.normalCharacter().getCh())
+                                .append("(")
+                                .append(charInfo.index())
+                                .append(")");
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                    }
                 } else {
-                    sb
-                            .append(controlCharInfo.control().getType())
-                            .append("(")
-                            .append(charInfo.index())
-                            .append(")");
-                }
+                    ControlCharInfo controlCharInfo = (ControlCharInfo) charInfo;
+                    if(controlCharInfo.control() == null) {
+                        sb
+                                .append(controlCharInfo.character().getCode())
+                                .append("(")
+                                .append(charInfo.index())
+                                .append(")");
 
+                    } else {
+                        sb
+                                .append(controlCharInfo.control().getType())
+                                .append("(")
+                                .append(charInfo.index())
+                                .append(")");
+                    }
+
+                }
             }
+            sb.append("\r\n");
         }
         return sb.toString();
     }

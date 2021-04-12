@@ -51,7 +51,6 @@ public class TopBottomControls {
             if (tbArea.intersects(textLineArea) &&
                     (index + 1 == count || topBottomAreas.get(index + 1).intersects(textLineArea) == false)) {
                 yOffset = tbArea.bottom - textLineArea.top();
-                textLineArea.moveY(yOffset);
             }
         }
         return yOffset;

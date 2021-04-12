@@ -173,7 +173,6 @@ public class ParagraphDrawer {
         return charInfo;
     }
 
-
     private void startRecalculating() {
         wordSplitter.resetWord();
 
@@ -201,7 +200,6 @@ public class ParagraphDrawer {
 
         info.gotoCharPosition(lineFirstCharIndex, lineFirstCharPosition);
     }
-
 
     private void normalChar(NormalCharInfo charInfo) throws Exception {
         if (!charInfo.character().isSpace()) {
@@ -239,7 +237,6 @@ public class ParagraphDrawer {
             drawer.textLineDrawer().addChar(spaceCharInfo);
         }
     }
-
 
     private void addWordAllCharsToLine(ArrayList<CharInfo> wordChars, boolean checkOverRight, boolean applyMinimumSpace) throws Exception {
         for (CharInfo charInfo : wordChars) {
