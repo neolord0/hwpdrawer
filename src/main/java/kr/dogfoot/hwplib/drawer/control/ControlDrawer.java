@@ -2,7 +2,6 @@ package kr.dogfoot.hwplib.drawer.control;
 
 import kr.dogfoot.hwplib.drawer.HWPDrawer;
 import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
-import kr.dogfoot.hwplib.drawer.paragraph.ParagraphDrawer;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.control.Control;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlTable;
@@ -21,9 +20,8 @@ public class ControlDrawer {
 
     private TreeSet<ControlInfo> controlInfosForFront;
     private TreeSet<ControlInfo> controlInfosForBehind;
-
-    private TopBottomControls topBottomControls;
-    private SquareControls squareControls;
+    private TreeSet<ControlInfo> controlInfosForTopBottom;
+    private TreeSet<ControlInfo> controlInfosForSquare;
 
     public ControlDrawer(HWPDrawer drawer) {
         this.drawer = drawer;
@@ -32,24 +30,23 @@ public class ControlDrawer {
 
         controlInfosForFront = new TreeSet<>();
         controlInfosForBehind = new TreeSet<>();
-        topBottomControls = new TopBottomControls();
-        squareControls = new SquareControls();
+        controlInfosForTopBottom = new TreeSet();
+        controlInfosForSquare = new TreeSet();
     }
-
 
     public ControlDrawer controlList(ArrayList<Control> controlList, DrawingInfo info) {
         if (controlList == null) {
             return this;
         }
 
-        for (Control c : controlList) {
+        for (Control control : controlList) {
             CtrlHeaderGso headerGso = null;
-            switch (c.getType()) {
+            switch (control.getType()) {
                 case Table:
-                    headerGso = ((ControlTable) c).getHeader();
+                    headerGso = ((ControlTable) control).getHeader();
                     break;
                 case Gso:
-                    headerGso = ((GsoControl) c).getHeader();
+                    headerGso = ((GsoControl) control).getHeader();
                     break;
             }
 
@@ -57,8 +54,7 @@ public class ControlDrawer {
                 continue;
             }
 
-            addControlSortedByZOrder(headerGso, c, info);
-            topBottomControls.sortTopBottomAreas();
+            addControlSortedByZOrder(headerGso, control, info);
         }
 
         return this;
@@ -71,9 +67,9 @@ public class ControlDrawer {
 
         ControlInfo controlInfo = new ControlInfo(control, headerGso, positionCalculator.absoluteArea(headerGso, info));
         if (headerGso.getProperty().getTextFlowMethod() == 0) {
-            squareControls.add(controlInfo);
+            controlInfosForSquare.add(controlInfo);
         } else if (headerGso.getProperty().getTextFlowMethod() == 1) {
-            topBottomControls.add(controlInfo);
+            controlInfosForTopBottom.add(controlInfo);
         } else if (headerGso.getProperty().getTextFlowMethod() == 2) {
             controlInfosForBehind.add(controlInfo);
         } else if (headerGso.getProperty().getTextFlowMethod() == 3) {
@@ -83,16 +79,9 @@ public class ControlDrawer {
 
     public ControlDrawer drawControlsForBehind() {
         for (ControlInfo controlInfo : controlInfosForBehind) {
-            testControl(controlInfo);
+            draw(controlInfo);
         }
         return this;
-    }
-
-    private void testControl(ControlInfo controlInfo) {
-        drawer.painter().testBackStyle();
-        drawer.painter().rectangle(controlInfo.absoluteArea, true);
-        drawer.painter().setLineStyle(BorderType.Solid, BorderThickness.MM0_12, new Color4Byte(0, 0 , 0, 0));
-        drawer.painter().rectangle(controlInfo.absoluteArea, false);
     }
 
     public void removeControlsForBehind() {
@@ -101,7 +90,7 @@ public class ControlDrawer {
 
     public ControlDrawer drawControlsForFront() {
         for (ControlInfo controlInfo : controlInfosForFront) {
-            testControl(controlInfo);
+            draw(controlInfo);
         }
         return this;
     }
@@ -111,103 +100,41 @@ public class ControlDrawer {
     }
 
     public ControlDrawer drawControlsForTopBottom() {
-        for (ControlInfo controlInfo : topBottomControls.controls()) {
-            testControl(controlInfo);
+        for (ControlInfo controlInfo : controlInfosForTopBottom) {
+            draw(controlInfo);
         }
         return this;
     }
 
     public void removeControlsForTopBottom() {
-        topBottomControls.clear();
+        controlInfosForTopBottom.clear();
     }
 
     public ControlDrawer drawControlsForSquare() {
-        for (ControlInfo controlInfo : squareControls.controls()) {
-            testControl(controlInfo);
+        for (ControlInfo controlInfo : controlInfosForSquare) {
+            draw(controlInfo);
         }
         return this;
     }
 
     public void removeControlsForSquare() {
-        squareControls.clear();
+        controlInfosForSquare.clear();
     }
 
-
-    public String toTest() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("\r\n");
-        sb.append("Square {\r\n");
-        for (ControlInfo info : squareControls.controls()) {
-            sb
-                    .append("\t")
-                    .append(info.absoluteArea)
-                    .append(" ")
-                    .append(info.headerGso.getzOrder())
-                    .append(" ")
-                    .append(info.headerGso.getProperty().getTextFlowMethod())
-                    .append("\r\n");
-        }
-        sb.append("}\r\n");
-
-        sb.append("TopBottom {\r\n");
-        for (ControlInfo info : topBottomControls.controls()) {
-            sb
-                    .append("\t")
-                    .append(info.absoluteArea)
-                    .append(" ")
-                    .append(info.headerGso.getzOrder())
-                    .append(" ")
-                    .append(info.headerGso.getProperty().getTextFlowMethod())
-                    .append("\r\n");
-        }
-        sb.append("}\r\n");
-
-        sb.append("Front {\r\n");
-        for (ControlInfo info : controlInfosForFront) {
-            sb
-                    .append("\t")
-                    .append(info.absoluteArea)
-                    .append(" ")
-                    .append(info.headerGso.getzOrder())
-                    .append(" ")
-                    .append(info.headerGso.getProperty().getTextFlowMethod())
-                    .append("\r\n");
-        }
-        sb.append("}\r\n");
-
-        sb.append("Behind {\r\n");
-        for (ControlInfo info : controlInfosForBehind) {
-            sb
-                    .append("\t")
-                    .append(info.absoluteArea)
-                    .append(" ")
-                    .append(info.headerGso.getzOrder())
-                    .append(" ")
-                    .append(info.headerGso.getProperty().getTextFlowMethod())
-                    .append("\r\n");
-        }
-        sb.append("}\r\n");
-
-        return sb.toString();
+    public TreeSet<ControlInfo> controlsForSquare() {
+        return controlInfosForSquare;
     }
 
-    public TextFlowCheckResult checkTextFlow(Area textLineArea) {
-        Area tempTextLineArea = new Area(textLineArea);
-        long offsetY = topBottomControls.checkTextFlow(tempTextLineArea);
-        tempTextLineArea.moveY(offsetY);
-
-        TextFlowCheckResult result = squareControls.checkTextFlow(tempTextLineArea);
-        if (result.dividedAreas == null) {
-            result.nextState = ParagraphDrawer.DrawingState.StartRedrawing;
-        } else if (result.dividedAreas().length == 1 && result.dividedAreas()[0].equals(tempTextLineArea)) {
-            result.nextState = ParagraphDrawer.DrawingState.Normal;
-        } else {
-            result.nextState = ParagraphDrawer.DrawingState.StartRecalculating;
-        }
-        result.offsetY += offsetY;
-        return result;
+    public TreeSet<ControlInfo> controlsForTopBottom() {
+        return controlInfosForTopBottom;
     }
 
+    private void draw(ControlInfo controlInfo) {
+        drawer.painter().testBackStyle();
+        drawer.painter().rectangle(controlInfo.absoluteArea, true);
+        drawer.painter().setLineStyle(BorderType.Solid, BorderThickness.MM0_12, new Color4Byte(0, 0 , 0, 0));
+        drawer.painter().rectangle(controlInfo.absoluteArea, false);
+    }
 
     public static class ControlInfo implements Comparable<ControlInfo> {
         public static ControlInfo[] Zero_Array = new ControlInfo[0];
@@ -243,28 +170,4 @@ public class ControlDrawer {
             return absoluteArea;
         }
     }
-
-    public static class TextFlowCheckResult {
-        private Area[] dividedAreas;
-        private long offsetY;
-        private ParagraphDrawer.DrawingState nextState;
-
-        public TextFlowCheckResult(Area[] dividedAreas, long offsetY) {
-            this.dividedAreas = dividedAreas;
-            this.offsetY = offsetY;
-        }
-
-        public Area[] dividedAreas() {
-            return dividedAreas;
-        }
-
-        public long offsetY() {
-            return offsetY;
-        }
-
-        public ParagraphDrawer.DrawingState nextState() {
-            return nextState;
-        }
-    }
-
 }

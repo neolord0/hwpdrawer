@@ -6,6 +6,7 @@ import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfo;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.NormalCharInfo;
+import kr.dogfoot.hwplib.drawer.paragraph.textflow.TextFlowCalculator;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.control.Control;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlTable;
@@ -18,6 +19,7 @@ import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPCharNormal;
 import kr.dogfoot.hwplib.object.docinfo.ParaShape;
 import kr.dogfoot.hwplib.object.docinfo.parashape.LineDivideForEnglish;
 import kr.dogfoot.hwplib.object.docinfo.parashape.LineDivideForHangul;
+import org.apache.poi.ss.formula.functions.T;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -26,6 +28,7 @@ import java.util.*;
 public class ParagraphDrawer {
     private HWPDrawer drawer;
     private WordSplitter wordSplitter;
+    private TextFlowCalculator textFlowCalculator;
 
     private DrawingState drawingState;
     private DrawingInfo info;
@@ -45,6 +48,7 @@ public class ParagraphDrawer {
     public ParagraphDrawer(HWPDrawer drawer) {
         this.drawer = drawer;
         wordSplitter = new WordSplitter(drawer);
+        textFlowCalculator = new TextFlowCalculator();
         charInfos = new HashMap<>();
 
         recalculatingTextAreas = new LinkedList<>();
@@ -60,6 +64,8 @@ public class ParagraphDrawer {
                 .controlList(info.paragraph().getControlList(), info)
                 .drawControlsForBehind()
                 .removeControlsForBehind();
+
+        textFlowCalculator.setControls(drawer.controlDrawer());
 
         if (info.noText()) {
             drawTextAndNewLine();
@@ -308,7 +314,7 @@ public class ParagraphDrawer {
         if (drawingState == DrawingState.Normal) {
             currentTextLineArea
                     .height(drawer.textLineDrawer().maxCharHeight());
-            ControlDrawer.TextFlowCheckResult result = drawer.controlDrawer().checkTextFlow(currentTextLineArea);
+            TextFlowCalculator.Result result = textFlowCalculator.calculate(currentTextLineArea);
             currentTextLineArea
                     .moveY(result.offsetY());
             drawer.textLineDrawer().area(currentTextLineArea);

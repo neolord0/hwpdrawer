@@ -1,5 +1,6 @@
-package kr.dogfoot.hwplib.drawer.control;
+package kr.dogfoot.hwplib.drawer.paragraph.textflow;
 
+import kr.dogfoot.hwplib.drawer.control.ControlDrawer;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.TextHorzArrange;
 
@@ -8,26 +9,17 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.TreeSet;
 
-public class SquareControls {
+public class ForSquare {
     private TreeSet<ControlDrawer.ControlInfo> controlInfos;
 
-    public SquareControls() {
-        controlInfos = new TreeSet<>();
+    public ForSquare() {
     }
 
-    public void add(ControlDrawer.ControlInfo controlInfo) {
-        controlInfos.add(controlInfo);
+    public void controls(TreeSet<ControlDrawer.ControlInfo> controlInfos) {
+        this.controlInfos = controlInfos;
     }
 
-    public void clear() {
-        controlInfos.clear();
-    }
-
-    public ControlDrawer.ControlInfo[] controls() {
-        return controlInfos.toArray(ControlDrawer.ControlInfo.Zero_Array);
-    }
-
-    public ControlDrawer.TextFlowCheckResult checkTextFlow(Area textLineArea) {
+    public TextFlowCalculator.Result calculate(Area textLineArea) {
         LinkedList<Area> dividedAreas = new LinkedList<>();
         ArrayList<Area> addingAreas  = new ArrayList<>();
         ArrayList<Area> removingAreas = new ArrayList<>();
@@ -74,9 +66,9 @@ public class SquareControls {
         }
         Collections.sort(dividedAreas);
         if (dividedAreas.size() == 0) {
-            return new ControlDrawer.TextFlowCheckResult(null, offsetY(textLineArea));
+            return new TextFlowCalculator.Result(null, offsetY(textLineArea));
         } else {
-            return new ControlDrawer.TextFlowCheckResult(dividedAreas.toArray(Area.Zero_Array), 0);
+            return new TextFlowCalculator.Result(dividedAreas.toArray(Area.Zero_Array), 0);
         }
     }
 

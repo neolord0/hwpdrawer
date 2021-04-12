@@ -35,7 +35,6 @@ public class ParagraphListInfo {
 
     public void startParagraph(Paragraph paragraph) {
         this.paragraph = paragraph;
-        this.isBodyText = isBodyText;
         setParaShape();
         setParagraphArea();
 

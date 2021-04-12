@@ -1,23 +1,25 @@
-package kr.dogfoot.hwplib.drawer.control;
+package kr.dogfoot.hwplib.drawer.paragraph.textflow;
 
+import kr.dogfoot.hwplib.drawer.control.ControlDrawer;
 import kr.dogfoot.hwplib.drawer.util.Area;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.TreeSet;
 
-public class TopBottomControls {
-    private TreeSet<ControlDrawer.ControlInfo> controlInfos;
+public class ForTopBottom {
     private ArrayList<TopBottomArea> topBottomAreas;
 
-    public TopBottomControls() {
-        controlInfos = new TreeSet<>();
+    public ForTopBottom() {
         topBottomAreas = new ArrayList<>();
     }
 
-    public void add(ControlDrawer.ControlInfo controlInfo) {
-        controlInfos.add(controlInfo);
-        addTopBottomArea(controlInfo.absoluteArea());
+    public void controls(TreeSet<ControlDrawer.ControlInfo> controls) {
+        topBottomAreas.clear();
+        for (ControlDrawer.ControlInfo controlInfo : controls) {
+            addTopBottomArea(controlInfo.absoluteArea());
+        }
+        Collections.sort(topBottomAreas);
     }
 
     private void addTopBottomArea(Area area) {
@@ -30,20 +32,7 @@ public class TopBottomControls {
         topBottomAreas.add(new TopBottomArea(area));
     }
 
-    public void sortTopBottomAreas() {
-        Collections.sort(topBottomAreas);
-    }
-
-    public ControlDrawer.ControlInfo[] controls() {
-        return controlInfos.toArray(ControlDrawer.ControlInfo.Zero_Array);
-    }
-
-    public void clear() {
-        controlInfos.clear();
-        topBottomAreas.clear();
-    }
-
-    public long checkTextFlow(Area textLineArea) {
+    public long calculate(Area textLineArea) {
         long yOffset = 0;
         int count = topBottomAreas.size();
         for (int index = 0; index < count; index++) {
@@ -85,6 +74,4 @@ public class TopBottomControls {
             bottom = (bottom > area.bottom()) ? bottom : area.bottom();
         }
     }
-
-
 }
