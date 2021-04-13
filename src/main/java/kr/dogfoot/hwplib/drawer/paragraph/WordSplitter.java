@@ -9,7 +9,9 @@ import kr.dogfoot.hwplib.object.docinfo.parashape.LineDivideForHangul;
 import java.util.ArrayList;
 
 public class WordSplitter {
-    private HWPDrawer drawer;
+    private ParagraphDrawer paragraphDrawer;
+    private TextLineDrawer textLineDrawer;
+
     private DrawingInfo info;
     private int letterCountBeforeNewLine;
     private boolean hasNewLine;
@@ -17,8 +19,9 @@ public class WordSplitter {
     private ArrayList<CharInfo> charsOfWord;
     private long wordWidth;
 
-    public WordSplitter(HWPDrawer drawer) {
-        this.drawer = drawer;
+    public WordSplitter(ParagraphDrawer paragraphDrawer, TextLineDrawer textLineDrawer) {
+        this.paragraphDrawer = paragraphDrawer;
+        this.textLineDrawer = textLineDrawer;
 
         charsOfWord = new ArrayList<>();
     }
@@ -100,13 +103,13 @@ public class WordSplitter {
 
     private void addEachLanguageWordToLine(ArrayList<CharInfo> wordChars, long wordWidth) throws Exception {
         if (wordChars.size() > 0) {
-            if (!drawer.textLineDrawer().isOverRight(wordWidth, true)) {
+            if (!textLineDrawer.isOverRight(wordWidth, true)) {
                 addWordAllCharsToLine(wordChars, false, true);
             } else {
                 hasNewLine = true;
 
-                if (!drawer.textLineDrawer().noNormalChar()) {
-                    drawer.paragraphDrawer().drawTextAndNewLine();
+                if (!textLineDrawer.noNormalChar()) {
+                    paragraphDrawer.drawTextAndNewLine();
                 }
                 addWordAllCharsToLine(wordChars,true, true);
             }
@@ -115,7 +118,7 @@ public class WordSplitter {
 
     private void addWordAllCharsToLine(ArrayList<CharInfo> wordChars, boolean checkOverRight, boolean applyMinimumSpace) throws Exception {
         for (CharInfo charInfo : wordChars) {
-            if (drawer.paragraphDrawer().addCharToLine(charInfo, checkOverRight, applyMinimumSpace)) {
+            if (paragraphDrawer.addCharToLine(charInfo, checkOverRight, applyMinimumSpace)) {
                 hasNewLine = true;
             }
             if (hasNewLine == false) {

@@ -1,7 +1,9 @@
 package kr.dogfoot.hwplib.drawer.paragraph.textflow;
 
-import kr.dogfoot.hwplib.drawer.control.ControlDrawer;
+import kr.dogfoot.hwplib.drawer.paragraph.control.ControlClassifier;
 import kr.dogfoot.hwplib.drawer.util.Area;
+import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.CtrlHeaderGso;
+import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.GsoHeaderProperty;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.TextHorzArrange;
 
 import java.util.ArrayList;
@@ -10,13 +12,17 @@ import java.util.LinkedList;
 import java.util.TreeSet;
 
 public class ForSquare {
-    private TreeSet<ControlDrawer.ControlInfo> controlInfos;
+    private TreeSet<SquareArea> squareAreas;
 
     public ForSquare() {
+        squareAreas = new TreeSet<>();
     }
 
-    public void controls(TreeSet<ControlDrawer.ControlInfo> controlInfos) {
-        this.controlInfos = controlInfos;
+    public void controls(TreeSet<ControlClassifier.ControlInfo> controls) {
+        for (ControlClassifier.ControlInfo controlInfo : controls) {
+            squareAreas.add(new SquareArea(controlInfo.absoluteArea(),
+                    controlInfo.headerGso()));
+        }
     }
 
     public TextFlowCalculator.Result calculate(Area textLineArea) {
@@ -26,17 +32,17 @@ public class ForSquare {
 
         boolean intersected;
         dividedAreas.add(textLineArea);
-        for (ControlDrawer.ControlInfo controlInfo : controlInfos) {
-            if (controlInfo.absoluteArea().intersects(textLineArea)) {
+        for (SquareArea squareArea : squareAreas) {
+            if (squareArea.area.intersects(textLineArea)) {
                 addingAreas.clear();
                 removingAreas.clear();
 
                 intersected = false;
                 for (Area area : dividedAreas) {
-                    if (controlInfo.absoluteArea().intersects(area)) {
+                    if (squareArea.area.intersects(area)) {
                         divideArea(area,
-                                controlInfo.absoluteArea(),
-                                controlInfo.headerGso().getProperty().getTextHorzArrange(),
+                                squareArea.area,
+                                squareArea.textHorzArrange,
                                 addingAreas);
                         removingAreas.add(area);
                         intersected = true;
@@ -45,14 +51,14 @@ public class ForSquare {
 
                 if (intersected == false) {
                     for (Area area : dividedAreas) {
-                        switch (controlInfo.headerGso().getProperty().getTextHorzArrange()) {
+                        switch (squareArea.textHorzArrange) {
                             case LeftOnly:
-                                if (!isLeft(area, controlInfo.absoluteArea())) {
+                                if (!isLeft(area, squareArea.area)) {
                                     removingAreas.add(area);
                                 }
                                 break;
                             case RightOnly:
-                                if (!isRight(area, controlInfo.absoluteArea())) {
+                                if (!isRight(area, squareArea.area)) {
                                     removingAreas.add(area);
                                 }
                                 break;
@@ -133,12 +139,39 @@ public class ForSquare {
     private long offsetY(Area textLineArea) {
         long minBottom = 0;
 
-        for (ControlDrawer.ControlInfo controlInfo : controlInfos) {
-            if (controlInfo.absoluteArea().intersects(textLineArea)) {
-                minBottom = (minBottom == 0 || minBottom > controlInfo.absoluteArea().bottom()) ?
-                        controlInfo.absoluteArea().bottom() : minBottom;
+        for (SquareArea squareArea : squareAreas) {
+            if (squareArea.area.intersects(textLineArea)) {
+                minBottom = (minBottom == 0 || minBottom > squareArea.area.bottom()) ?
+                        squareArea.area.bottom() : minBottom;
             }
         }
         return minBottom - textLineArea.bottom();
     }
+
+    public void clear() {
+        squareAreas.clear();
+    }
+
+    private static class SquareArea implements Comparable<SquareArea> {
+        public Area area;
+        public int zOrder;
+        public TextHorzArrange textHorzArrange;
+
+        public SquareArea(Area area, CtrlHeaderGso ctrlHeaderGso) {
+            this.area = area;
+            zOrder = ctrlHeaderGso.getzOrder();
+            textHorzArrange = ctrlHeaderGso.getProperty().getTextHorzArrange();
+        }
+
+        @Override
+        public int compareTo(SquareArea o) {
+            if(zOrder > o.zOrder)
+                return 1;
+            else if (zOrder == o.zOrder)
+                return 0;
+            else
+                return -1;
+        }
+    }
+
 }

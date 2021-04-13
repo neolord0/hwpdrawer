@@ -11,17 +11,31 @@ import kr.dogfoot.hwplib.object.docinfo.borderfill.BorderType;
 import kr.dogfoot.hwplib.object.etc.Color4Byte;
 
 import java.awt.*;
-import java.awt.font.FontRenderContext;
 import java.awt.font.LineMetrics;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Rectangle2D;
 import java.io.UnsupportedEncodingException;
 
 public class Painter {
+    private static Painter singleObject = new Painter();
+
+    public static Painter singleObject() {
+        return singleObject;
+    }
+
     private Graphics2D graphics2D;
     private DrawingOption option;
+    private PageMaker pageMaker;
 
-    public Painter() {
+    private Painter() {
+        pageMaker = new PageMaker(this);
+    }
+
+
+    public Painter reset() {
+        graphics2D = null;
+        option = null;
+        pageMaker.reset();
+        return this;
     }
 
     public Painter option(DrawingOption option) {
@@ -29,9 +43,17 @@ public class Painter {
         return this;
     }
 
+    public DrawingOption option() {
+        return option;
+    }
+
     public Painter graphics2D(Graphics2D graphics2D) {
         this.graphics2D = graphics2D;
         return this;
+    }
+
+    public PageMaker pageMaker() {
+        return pageMaker;
     }
 
     public Painter setDrawingFont(CharShape charShape) {
@@ -108,4 +130,5 @@ public class Painter {
         }
         return 0;
     }
+
 }

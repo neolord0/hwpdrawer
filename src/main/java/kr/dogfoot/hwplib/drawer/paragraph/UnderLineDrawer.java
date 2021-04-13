@@ -1,6 +1,7 @@
 package kr.dogfoot.hwplib.drawer.paragraph;
 
 import kr.dogfoot.hwplib.drawer.HWPDrawer;
+import kr.dogfoot.hwplib.drawer.painter.Painter;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfo;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.NormalCharInfo;
 import kr.dogfoot.hwplib.object.docinfo.CharShape;
@@ -11,8 +12,6 @@ import kr.dogfoot.hwplib.object.docinfo.charshape.UnderLineSort;
 import java.io.UnsupportedEncodingException;
 
 public class UnderLineDrawer {
-    private HWPDrawer drawer;
-
     private long baseLine;
     private long maxCharHeight;
 
@@ -22,8 +21,7 @@ public class UnderLineDrawer {
     private long startX;
     private CharShape drawingCharShape;
 
-    public UnderLineDrawer(HWPDrawer drawer) {
-        this.drawer = drawer;
+    public UnderLineDrawer() {
     }
 
     public void initialize(long baseLine, long maxCharHeight) {
@@ -92,9 +90,9 @@ public class UnderLineDrawer {
                 : baseLine + (maxCharHeight / 5);
         long endX = (endLine == true) ? (long) (charInfo.x() + charInfo.width()) : charInfo.x();
 
-        drawer.painter().setLineStyle(drawingCharShape.getProperty().getUnderLineShape().toBorderType(),
+        Painter.singleObject().setLineStyle(drawingCharShape.getProperty().getUnderLineShape().toBorderType(),
                 BorderThickness.MM0_15,
                 drawingCharShape.getUnderLineColor());
-        drawer.painter().line(startX, y, endX, y);
+        Painter.singleObject().line(startX, y, endX, y);
     }
 }

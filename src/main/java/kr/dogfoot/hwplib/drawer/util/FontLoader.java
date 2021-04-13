@@ -17,7 +17,6 @@ public class FontLoader {
     private FontLoader() {
         fontPathMap = new HashMap<>();
         initialize();
-
     }
 
     private void initialize() {

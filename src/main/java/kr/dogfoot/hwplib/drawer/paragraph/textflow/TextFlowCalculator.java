@@ -1,6 +1,6 @@
 package kr.dogfoot.hwplib.drawer.paragraph.textflow;
 
-import kr.dogfoot.hwplib.drawer.control.ControlDrawer;
+import kr.dogfoot.hwplib.drawer.paragraph.control.ControlClassifier;
 import kr.dogfoot.hwplib.drawer.paragraph.ParagraphDrawer;
 import kr.dogfoot.hwplib.drawer.util.Area;
 
@@ -13,9 +13,9 @@ public class TextFlowCalculator {
         forSquare = new ForSquare();
     }
 
-    public void setControls(ControlDrawer controlDrawer) {
-        forTopBottom.controls(controlDrawer.controlsForTopBottom());
-        forSquare.controls(controlDrawer.controlsForSquare());
+    public void setControls(ControlClassifier controlClassifier) {
+        forTopBottom.controls(controlClassifier.controlsForTopBottom());
+        forSquare.controls(controlClassifier.controlsForSquare());
     }
 
     public Result calculate(Area textLineArea) {
@@ -33,6 +33,11 @@ public class TextFlowCalculator {
         }
         result.offsetY += offsetY;
         return result;
+    }
+
+    public void clear() {
+        forTopBottom.clear();
+        forSquare.clear();
     }
 
     public static class Result {

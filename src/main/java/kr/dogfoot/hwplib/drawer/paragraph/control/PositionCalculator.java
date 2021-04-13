@@ -1,4 +1,4 @@
-package kr.dogfoot.hwplib.drawer.control;
+package kr.dogfoot.hwplib.drawer.paragraph.control;
 
 import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;

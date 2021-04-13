@@ -1,15 +1,14 @@
 package kr.dogfoot.hwplib.drawer.paragraph;
 
 import kr.dogfoot.hwplib.drawer.HWPDrawer;
+import kr.dogfoot.hwplib.drawer.painter.Painter;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfo;
-import kr.dogfoot.hwplib.drawer.paragraph.charInfo.NormalCharInfo;
 import kr.dogfoot.hwplib.object.docinfo.CharShape;
 import kr.dogfoot.hwplib.object.docinfo.borderfill.BorderThickness;
 import kr.dogfoot.hwplib.object.docinfo.charshape.BorderType2;
 
-public class StrikeLineDrawer {
-    private HWPDrawer drawer;
 
+public class StrikeLineDrawer {
     private long baseLine;
 
     private boolean strike;
@@ -20,8 +19,7 @@ public class StrikeLineDrawer {
     private long startX;
     private CharShape drawingCharShape;
 
-    public StrikeLineDrawer(HWPDrawer drawer) {
-        this.drawer = drawer;
+    public StrikeLineDrawer() {
     }
 
     public void initialize(long baseLine) {
@@ -100,9 +98,9 @@ public class StrikeLineDrawer {
         long y = baseLine - (charHeight * 2 / 5);
         long endX = (endLine == true) ?  (long) (charInfo.x() + charInfo.width()) : charInfo.x();
 
-        drawer.painter().setLineStyle(drawingCharShape.getProperty().getStrikeLineShape().toBorderType(),
+        Painter.singleObject().setLineStyle(drawingCharShape.getProperty().getStrikeLineShape().toBorderType(),
                 BorderThickness.MM0_15,
                 drawingCharShape.getStrikeLineColor());
-        drawer.painter().line(startX, y, endX, y);
+        Painter.singleObject().line(startX, y, endX, y);
     }
 }

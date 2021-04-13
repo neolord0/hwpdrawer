@@ -4,15 +4,12 @@ import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.Paragraph;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.charshape.CharPositionShapeIdPair;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPChar;
-import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPCharNormal;
-import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPCharType;
 import kr.dogfoot.hwplib.object.docinfo.CharShape;
 import kr.dogfoot.hwplib.object.docinfo.ParaShape;
 
-import java.io.UnsupportedEncodingException;
-
 public class ParagraphListInfo {
     private DrawingInfo info;
+    private Area textArea;
 
     private Paragraph paragraph;
     private boolean isBodyText;
@@ -27,10 +24,21 @@ public class ParagraphListInfo {
     private int charShapeIndex;
     private CharShape charShape;
 
-    public ParagraphListInfo(DrawingInfo info, boolean isBodyText) {
+    public ParagraphListInfo(DrawingInfo info) {
         this.info = info;
-        this.isBodyText = isBodyText;
         paragraphStartY = 0;
+        textArea = new Area(info.pageArea());
+    }
+
+    public ParagraphListInfo(DrawingInfo info, Area textArea) {
+        this.info = info;
+        paragraphStartY = 0;
+        this.textArea = textArea;
+    }
+
+    public ParagraphListInfo bodyText(boolean bodyText) {
+        this.isBodyText = bodyText;
+        return this;
     }
 
     public void startParagraph(Paragraph paragraph) {
@@ -52,15 +60,13 @@ public class ParagraphListInfo {
     }
 
     private void setParagraphArea() {
-        if (isBodyText) {
-            paragraphArea = new Area(info.pageArea())
-                    .applyMargin(paraShape().getLeftMargin(),
-                            paraShape().getTopParaSpace() + paragraphStartY,
-                            paraShape().getRightMargin(),
-                            0);
-        } else {
-            // todo : control paragraph
-        }
+        paragraphArea = new Area(textArea)
+                .applyMargin(paraShape().getLeftMargin(),
+                        paraShape().getTopParaSpace(),
+                        paraShape().getRightMargin(),
+                        0);
+
+        paragraphArea.top(paragraphArea.top() + paragraphStartY);
     }
 
     private void setCharShape() {

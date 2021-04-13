@@ -2,6 +2,7 @@ package kr.dogfoot.hwplib.drawer.paragraph;
 
 import kr.dogfoot.hwplib.drawer.HWPDrawer;
 import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
+import kr.dogfoot.hwplib.drawer.painter.Painter;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfo;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.NormalCharInfo;
@@ -13,7 +14,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
 public class TextLineDrawer {
-    private HWPDrawer drawer;
+    private UnderLineDrawer underLineDrawer;
+    private StrikeLineDrawer strikeLineDrawer;
 
     private DrawingInfo info;
     private ArrayList<TextPart> parts;
@@ -31,16 +33,11 @@ public class TextLineDrawer {
     private long[] charAddings;
     private CharShape drawingCharShape;
 
-    private UnderLineDrawer underLineDrawer;
-    private StrikeLineDrawer strikeLineDrawer;
-
-    public TextLineDrawer(HWPDrawer drawer) {
-        this.drawer = drawer;
-
+    public TextLineDrawer() {
         parts = new ArrayList<>();
         currentTextPart = null;
-        underLineDrawer = new UnderLineDrawer(drawer);
-        strikeLineDrawer = new StrikeLineDrawer(drawer);
+        underLineDrawer = new UnderLineDrawer();
+        strikeLineDrawer = new StrikeLineDrawer();
     }
 
     public TextLineDrawer initialize(DrawingInfo info) {
@@ -313,13 +310,13 @@ public class TextLineDrawer {
         int charIndex = 0;
         for (CharInfo charInfo : part.charInfos()) {
             if (drawingCharShape != charInfo.charShape()) {
-                drawer.painter().setDrawingFont(charInfo.charShape());
+                Painter.singleObject().setDrawingFont(charInfo.charShape());
                 drawingCharShape = charInfo.charShape();
             }
 
             if (oldRatio != charInfo.charShape().getRatios().getHangul()) {
                 oldRatio = charInfo.charShape().getRatios().getHangul();
-                stretchRate = drawer.painter().setStretch(oldRatio);
+                stretchRate = Painter.singleObject().setStretch(oldRatio);
             }
 
             charInfo.x(charX);
@@ -331,7 +328,7 @@ public class TextLineDrawer {
                 }
             } else {
                 if (charInfo.type() == CharInfo.Type.Normal) {
-                    drawer.painter().string(((NormalCharInfo) charInfo).normalCharacter().getCh(),
+                    Painter.singleObject().string(((NormalCharInfo) charInfo).normalCharacter().getCh(),
                             (long) (charInfo.x() / stretchRate),
                             getY(charInfo));
                 } else if (charInfo.type() == CharInfo.Type.Control
@@ -340,7 +337,7 @@ public class TextLineDrawer {
                             .width((long) charInfo.width())
                             .height(charInfo.height())
                             .moveY(50);
-                    drawer.painter().rectangle(area, false);
+                    Painter.singleObject().rectangle(area, false);
                 }
 
                 charX += charInfo.widthAddingCharSpace();
@@ -355,7 +352,7 @@ public class TextLineDrawer {
 
     private long getY(CharInfo charInfo) {
         return (long) (baseLine
-                - drawer.painter().textOffsetY(((NormalCharInfo) charInfo)))
+                - Painter.singleObject().textOffsetY(((NormalCharInfo) charInfo)))
                 + charInfo.height() * charInfo.charShape().getCharOffsets().getHangul() / 100;
 
     }

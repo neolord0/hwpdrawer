@@ -12,7 +12,6 @@ import kr.dogfoot.hwplib.object.docinfo.CharShape;
 import kr.dogfoot.hwplib.object.docinfo.ParaShape;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Stack;
 
 public class DrawingInfo {
@@ -96,15 +95,19 @@ public class DrawingInfo {
         }
     }
 
-    public void startParagraphList(boolean isTextBody) {
-        ParagraphListInfo paragraphListInfo = new ParagraphListInfo(this, isTextBody);
+    public void startBodyTextParagraphList() {
+        ParagraphListInfo paragraphListInfo = new ParagraphListInfo(this)
+                .bodyText(true);
         paragraphInfoStack.push(paragraphListInfo);
-        if (isTextBody) {
-            bodyTextParagraphListInfo = paragraphListInfo;
-        }
+        bodyTextParagraphListInfo = paragraphListInfo;
     }
 
-    public void endParagraphList() throws IOException {
+    public void startControlParagraphList(Area textArea) {
+        paragraphInfoStack.push(new ParagraphListInfo(this, textArea)
+                .bodyText(false));
+    }
+
+    public void endParagraphList() {
         paragraphInfoStack.pop();
     }
 

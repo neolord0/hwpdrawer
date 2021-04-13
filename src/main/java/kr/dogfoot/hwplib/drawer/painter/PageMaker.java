@@ -1,6 +1,7 @@
 package kr.dogfoot.hwplib.drawer.painter;
 
-import kr.dogfoot.hwplib.drawer.HWPDrawer;
+import kr.dogfoot.hwplib.drawer.control.ControlDrawer;
+import kr.dogfoot.hwplib.drawer.paragraph.control.ControlClassifier;
 import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
 import kr.dogfoot.hwplib.drawer.util.Convertor;
 import kr.dogfoot.hwplib.object.docinfo.borderfill.BorderThickness;
@@ -11,21 +12,34 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
+import java.util.TreeSet;
 
 public class PageMaker {
-    private HWPDrawer drawer;
+    private Painter painter;
     private BufferedImage currentPageImage;
-
+    private TreeSet<ControlClassifier.ControlInfo> controlsForFrontInPage;
     private int currentPageNo;
 
-    public PageMaker(HWPDrawer drawer) {
-        this.drawer = drawer;
+    public PageMaker(Painter painter) {
+        this.painter = painter;
+        controlsForFrontInPage = new TreeSet<>();
     }
 
-    public void newPage(DrawingInfo info) throws IOException {
-        if (haveCurrentPage()) {
+    public void reset() {
+        currentPageImage = null;
+        controlsForFrontInPage.clear();
+        currentPageNo = 0;
+    }
 
+    public void addFrontControls(TreeSet<ControlClassifier.ControlInfo> controlsForFront) {
+        for (ControlClassifier.ControlInfo controlInfo : controlsForFront) {
+            controlsForFrontInPage.add(controlInfo);
+        }
+    }
+
+
+    public void newPage(DrawingInfo info) throws Exception {
+        if (haveCurrentPage()) {
             saveCurrentPage();
         }
 
@@ -37,13 +51,12 @@ public class PageMaker {
         return currentPageImage != null;
     }
 
-    public void saveCurrentPage() throws IOException {
-       drawer.controlDrawer()
-                .drawControlsForSquare()
-                .removeControlsForSquare();
+    public void saveCurrentPage() throws Exception {
+        ControlDrawer.singleObject().drawControls(controlsForFrontInPage);
+        controlsForFrontInPage.clear();
 
         currentPageNo++;
-        File outputFile = new File(drawer.option().directoryToSave(), "page" + currentPageNo + ".png");
+        File outputFile = new File(painter.option().directoryToSave(), "page" + currentPageNo + ".png");
         ImageIO.write(currentPageImage, "png", outputFile);
     }
 
@@ -57,7 +70,7 @@ public class PageMaker {
         graphics.setColor(Color.WHITE);
         graphics.fillRect(0, 0, currentPageImage.getWidth(), currentPageImage.getHeight());
 
-        drawer.painter()
+        painter
                 .graphics2D(graphics)
                 .setLineStyle(BorderType.Solid, BorderThickness.MM0_15, new Color4Byte(255,0, 0))
                 .rectangle(info.pageArea(), false);
@@ -67,4 +80,5 @@ public class PageMaker {
     public int currentPageNo() {
         return currentPageNo;
     }
+
 }
