@@ -1,4 +1,4 @@
-package kr.dogfoot.hwplib.drawer.control;
+package kr.dogfoot.hwplib.drawer.painter.control;
 
 import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
 import kr.dogfoot.hwplib.drawer.painter.Painter;
@@ -9,23 +9,12 @@ import kr.dogfoot.hwplib.object.bodytext.control.gso.*;
 import java.util.TreeSet;
 
 public class ControlDrawer {
-    private static ControlDrawer singleObject = new ControlDrawer();
-
-    public static ControlDrawer singleObject() {
-        return singleObject;
-    }
-
     private GsoDrawer gsoDrawer;
     private TableDrawer tableDrawer;
 
-    public ControlDrawer() {
-        gsoDrawer = new GsoDrawer();
-        tableDrawer = new TableDrawer();
-    }
-
-    public void info(DrawingInfo info) {
-        gsoDrawer.info(info);
-        tableDrawer.info(info);
+    public ControlDrawer(Painter painter, DrawingInfo info) {
+        gsoDrawer = new GsoDrawer(painter, info);
+        tableDrawer = new TableDrawer(painter, info);
     }
 
     public void drawControls(TreeSet<ControlClassifier.ControlInfo> controls) throws Exception {

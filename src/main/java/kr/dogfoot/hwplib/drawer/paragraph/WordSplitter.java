@@ -10,25 +10,19 @@ import java.util.ArrayList;
 
 public class WordSplitter {
     private ParagraphDrawer paragraphDrawer;
-    private TextLineDrawer textLineDrawer;
-
     private DrawingInfo info;
+
     private int letterCountBeforeNewLine;
     private boolean hasNewLine;
 
     private ArrayList<CharInfo> charsOfWord;
     private long wordWidth;
 
-    public WordSplitter(ParagraphDrawer paragraphDrawer, TextLineDrawer textLineDrawer) {
+    public WordSplitter(ParagraphDrawer paragraphDrawer, DrawingInfo info) {
         this.paragraphDrawer = paragraphDrawer;
-        this.textLineDrawer = textLineDrawer;
+        this.info = info;
 
         charsOfWord = new ArrayList<>();
-    }
-
-    public WordSplitter info(DrawingInfo info) {
-        this.info = info;
-        return this;
     }
 
     public void resetWord() {
@@ -103,12 +97,12 @@ public class WordSplitter {
 
     private void addEachLanguageWordToLine(ArrayList<CharInfo> wordChars, long wordWidth) throws Exception {
         if (wordChars.size() > 0) {
-            if (!textLineDrawer.isOverRight(wordWidth, true)) {
+            if (!paragraphDrawer.isOverRight(wordWidth, true)) {
                 addWordAllCharsToLine(wordChars, false, true);
             } else {
                 hasNewLine = true;
 
-                if (!textLineDrawer.noNormalChar()) {
+                if (!paragraphDrawer.noNormalCharAtTextLine()) {
                     paragraphDrawer.drawTextAndNewLine();
                 }
                 addWordAllCharsToLine(wordChars,true, true);

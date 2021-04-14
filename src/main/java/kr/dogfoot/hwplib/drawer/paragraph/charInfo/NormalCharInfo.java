@@ -23,12 +23,12 @@ public class NormalCharInfo implements CharInfo {
         this.position = position;
     }
 
-    public NormalCharInfo calculateWidth() throws UnsupportedEncodingException {
+    public NormalCharInfo calculateWidth(Painter painter) throws UnsupportedEncodingException {
         if (character.isSpace()) {
             width = charShape.getBaseSize() / 2;
         } else {
             if (character.getType() == HWPCharType.Normal) {
-                width = Painter.singleObject().getCharWidth(character.getCh(), charShape);
+                width = painter.getCharWidth(character.getCh(), charShape);
             } else {
                 width = 0;
             }

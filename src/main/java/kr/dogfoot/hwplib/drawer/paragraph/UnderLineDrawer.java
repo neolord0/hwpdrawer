@@ -12,6 +12,8 @@ import kr.dogfoot.hwplib.object.docinfo.charshape.UnderLineSort;
 import java.io.UnsupportedEncodingException;
 
 public class UnderLineDrawer {
+    private Painter painter;
+
     private long baseLine;
     private long maxCharHeight;
 
@@ -21,7 +23,8 @@ public class UnderLineDrawer {
     private long startX;
     private CharShape drawingCharShape;
 
-    public UnderLineDrawer() {
+    public UnderLineDrawer(Painter painter) {
+        this.painter = painter;
     }
 
     public void initialize(long baseLine, long maxCharHeight) {
@@ -90,9 +93,9 @@ public class UnderLineDrawer {
                 : baseLine + (maxCharHeight / 5);
         long endX = (endLine == true) ? (long) (charInfo.x() + charInfo.width()) : charInfo.x();
 
-        Painter.singleObject().setLineStyle(drawingCharShape.getProperty().getUnderLineShape().toBorderType(),
+        painter.setLineStyle(drawingCharShape.getProperty().getUnderLineShape().toBorderType(),
                 BorderThickness.MM0_15,
                 drawingCharShape.getUnderLineColor());
-        Painter.singleObject().line(startX, y, endX, y);
+        painter.line(startX, y, endX, y);
     }
 }

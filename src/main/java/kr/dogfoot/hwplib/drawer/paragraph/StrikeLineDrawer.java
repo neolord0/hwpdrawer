@@ -9,6 +9,7 @@ import kr.dogfoot.hwplib.object.docinfo.charshape.BorderType2;
 
 
 public class StrikeLineDrawer {
+    private Painter painter;
     private long baseLine;
 
     private boolean strike;
@@ -19,7 +20,8 @@ public class StrikeLineDrawer {
     private long startX;
     private CharShape drawingCharShape;
 
-    public StrikeLineDrawer() {
+    public StrikeLineDrawer(Painter painter) {
+        this.painter = painter;
     }
 
     public void initialize(long baseLine) {
@@ -98,9 +100,9 @@ public class StrikeLineDrawer {
         long y = baseLine - (charHeight * 2 / 5);
         long endX = (endLine == true) ?  (long) (charInfo.x() + charInfo.width()) : charInfo.x();
 
-        Painter.singleObject().setLineStyle(drawingCharShape.getProperty().getStrikeLineShape().toBorderType(),
+        painter.setLineStyle(drawingCharShape.getProperty().getStrikeLineShape().toBorderType(),
                 BorderThickness.MM0_15,
                 drawingCharShape.getStrikeLineColor());
-        Painter.singleObject().line(startX, y, endX, y);
+        painter.line(startX, y, endX, y);
     }
 }

@@ -1,6 +1,6 @@
 package kr.dogfoot.hwplib.drawer.painter;
 
-import kr.dogfoot.hwplib.drawer.control.ControlDrawer;
+import kr.dogfoot.hwplib.drawer.painter.control.ControlDrawer;
 import kr.dogfoot.hwplib.drawer.paragraph.control.ControlClassifier;
 import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
 import kr.dogfoot.hwplib.drawer.util.Convertor;
@@ -17,18 +17,16 @@ import java.util.TreeSet;
 public class PageMaker {
     private Painter painter;
     private BufferedImage currentPageImage;
-    private TreeSet<ControlClassifier.ControlInfo> controlsForFrontInPage;
     private int currentPageNo;
+    private TreeSet<ControlClassifier.ControlInfo> controlsForFrontInPage;
 
     public PageMaker(Painter painter) {
         this.painter = painter;
-        controlsForFrontInPage = new TreeSet<>();
-    }
 
-    public void reset() {
         currentPageImage = null;
-        controlsForFrontInPage.clear();
         currentPageNo = 0;
+
+        controlsForFrontInPage = new TreeSet<>();
     }
 
     public void addFrontControls(TreeSet<ControlClassifier.ControlInfo> controlsForFront) {
@@ -36,7 +34,6 @@ public class PageMaker {
             controlsForFrontInPage.add(controlInfo);
         }
     }
-
 
     public void newPage(DrawingInfo info) throws Exception {
         if (haveCurrentPage()) {
@@ -52,7 +49,7 @@ public class PageMaker {
     }
 
     public void saveCurrentPage() throws Exception {
-        ControlDrawer.singleObject().drawControls(controlsForFrontInPage);
+        painter.controlDrawer().drawControls(controlsForFrontInPage);
         controlsForFrontInPage.clear();
 
         currentPageNo++;
@@ -80,5 +77,4 @@ public class PageMaker {
     public int currentPageNo() {
         return currentPageNo;
     }
-
 }

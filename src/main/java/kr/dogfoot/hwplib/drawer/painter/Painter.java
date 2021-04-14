@@ -1,6 +1,8 @@
 package kr.dogfoot.hwplib.drawer.painter;
 
 import kr.dogfoot.hwplib.drawer.DrawingOption;
+import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
+import kr.dogfoot.hwplib.drawer.painter.control.ControlDrawer;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.NormalCharInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.Convertor;
@@ -16,26 +18,15 @@ import java.awt.geom.AffineTransform;
 import java.io.UnsupportedEncodingException;
 
 public class Painter {
-    private static Painter singleObject = new Painter();
-
-    public static Painter singleObject() {
-        return singleObject;
-    }
-
     private Graphics2D graphics2D;
     private DrawingOption option;
+
     private PageMaker pageMaker;
+    private ControlDrawer controlDrawer;
 
-    private Painter() {
+    public Painter(DrawingInfo info) {
         pageMaker = new PageMaker(this);
-    }
-
-
-    public Painter reset() {
-        graphics2D = null;
-        option = null;
-        pageMaker.reset();
-        return this;
+        controlDrawer = new ControlDrawer(this, info);
     }
 
     public Painter option(DrawingOption option) {
@@ -54,6 +45,10 @@ public class Painter {
 
     public PageMaker pageMaker() {
         return pageMaker;
+    }
+
+    public ControlDrawer controlDrawer() {
+        return controlDrawer;
     }
 
     public Painter setDrawingFont(CharShape charShape) {

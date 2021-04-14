@@ -1,6 +1,6 @@
 package kr.dogfoot.hwplib.drawer;
 
-import kr.dogfoot.hwplib.drawer.control.ControlDrawer;
+import kr.dogfoot.hwplib.drawer.painter.control.ControlDrawer;
 import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
 import kr.dogfoot.hwplib.drawer.painter.Painter;
 import kr.dogfoot.hwplib.drawer.paragraph.ParagraphDrawer;
@@ -23,54 +23,50 @@ public class HWPDrawer {
 
 
     private DrawingOption option;
+    private DrawingInfo info;
+    private Painter painter;
+
 
     private HWPDrawer() {
         option = null;
+        info = null;
+        painter = null;
     }
 
     private void drawFile(HWPFile hwpFile, DrawingOption option) throws Exception {
         this.option = option;
-
         Convertor.option(option);
-        Painter.singleObject()
-                .reset()
-                .option(option);
 
-        DrawingInfo info = new DrawingInfo();
-        ControlDrawer.singleObject().info(info);
+        info = new DrawingInfo();
+        painter = new Painter(info).option(option);
 
         info
                 .hwpFile(hwpFile);
 
         for (Section section : info.hwpFile().getBodyText().getSectionList()) {
-            drawSection(section, info);
+            drawSection(section);
         }
 
-        Painter.singleObject().pageMaker().saveCurrentPage();
+        painter.pageMaker().saveCurrentPage();
     }
 
-    private void drawSection(Section section, DrawingInfo info) throws Exception {
+    private void drawSection(Section section) throws Exception {
         info.section(section);
 
-        Painter.singleObject().pageMaker().newPage(info);
+        painter.pageMaker().newPage(info);
 
-        ParagraphDrawer paragraphDrawer = new ParagraphDrawer();
+        ParagraphDrawer paragraphDrawer = new ParagraphDrawer(painter, info);
         info.startBodyTextParagraphList();
 
         for (Paragraph paragraph : info.section()) {
-            paragraphDrawer.draw(paragraph, info);
+            paragraphDrawer.draw(paragraph);
         }
 
         info.endParagraphList();
     }
 
     private int pageCount() {
-        return Painter.singleObject().pageMaker().currentPageNo();
+        return painter.pageMaker().currentPageNo();
     }
-
-    public DrawingOption option() {
-        return option;
-    }
-
 }
 

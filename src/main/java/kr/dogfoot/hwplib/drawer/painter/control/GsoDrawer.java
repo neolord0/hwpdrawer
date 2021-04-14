@@ -1,4 +1,4 @@
-package kr.dogfoot.hwplib.drawer.control;
+package kr.dogfoot.hwplib.drawer.painter.control;
 
 import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
 import kr.dogfoot.hwplib.drawer.painter.Painter;
@@ -12,12 +12,11 @@ import kr.dogfoot.hwplib.object.docinfo.borderfill.BorderType;
 import kr.dogfoot.hwplib.object.etc.Color4Byte;
 
 public class GsoDrawer {
+    private Painter painter;
     private DrawingInfo info;
 
-    public GsoDrawer() {
-    }
-
-    public void info(DrawingInfo info) {
+    public GsoDrawer(Painter painter, DrawingInfo info) {
+        this.painter = painter;
         this.info = info;
     }
 
@@ -25,10 +24,10 @@ public class GsoDrawer {
     }
 
     public void rectangle(ControlRectangle rectangle, Area area) throws Exception {
-        Painter.singleObject().testBackStyle();
-        Painter.singleObject().rectangle(area, true);
-        Painter.singleObject().setLineStyle(BorderType.Solid, BorderThickness.MM0_12, new Color4Byte(0, 0 , 0, 0));
-        Painter.singleObject().rectangle(area, false);
+        painter.testBackStyle();
+        painter.rectangle(area, true);
+        painter.setLineStyle(BorderType.Solid, BorderThickness.MM0_12, new Color4Byte(0, 0 , 0, 0));
+        painter.rectangle(area, false);
         drawText(area, rectangle.getTextBox());
     }
 
@@ -69,10 +68,10 @@ public class GsoDrawer {
 
         info.startControlParagraphList(textArea);
 
-        ParagraphDrawer paragraphDrawer = new ParagraphDrawer();
+        ParagraphDrawer paragraphDrawer = new ParagraphDrawer(painter, info);
 
         for (Paragraph paragraph : textBox.getParagraphList()) {
-            paragraphDrawer.draw(paragraph, info);
+            paragraphDrawer.draw(paragraph);
         }
 
         info.endParagraphList();
