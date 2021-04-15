@@ -2,7 +2,9 @@ package kr.dogfoot.hwplib.drawer.painter;
 
 import kr.dogfoot.hwplib.drawer.DrawingOption;
 import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
-import kr.dogfoot.hwplib.drawer.painter.control.ControlDrawer;
+import kr.dogfoot.hwplib.drawer.painter.control.ControlPainter;
+import kr.dogfoot.hwplib.drawer.util.PositionCalculator;
+import kr.dogfoot.hwplib.drawer.painter.text.TextPainter;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.NormalCharInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.Convertor;
@@ -15,23 +17,23 @@ import kr.dogfoot.hwplib.object.etc.Color4Byte;
 import java.awt.*;
 import java.awt.font.LineMetrics;
 import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
 import java.io.UnsupportedEncodingException;
 
 public class Painter {
     private Graphics2D graphics2D;
     private DrawingOption option;
 
-    private PageMaker pageMaker;
-    private ControlDrawer controlDrawer;
+    private ControlPainter controlPainter;
+    private TextPainter textPainter;
 
     public Painter(DrawingInfo info) {
-        pageMaker = new PageMaker(this);
-        controlDrawer = new ControlDrawer(this, info);
+        controlPainter = new ControlPainter(this, info);
+        textPainter = new TextPainter(this);
     }
 
-    public Painter option(DrawingOption option) {
+    public void option(DrawingOption option) {
         this.option = option;
-        return this;
     }
 
     public DrawingOption option() {
@@ -43,18 +45,28 @@ public class Painter {
         return this;
     }
 
-    public PageMaker pageMaker() {
-        return pageMaker;
+    public ControlPainter controlPainter() {
+        return controlPainter;
     }
 
-    public ControlDrawer controlDrawer() {
-        return controlDrawer;
+    public TextPainter textDrawer() {
+        return textPainter;
     }
 
     public Painter setDrawingFont(CharShape charShape) {
         graphics2D.setFont(FontManager.object().drawingFont(charShape));
         graphics2D.setColor(Convertor.color(charShape.getCharColor()));
         return this;
+    }
+
+    public double textOffsetY(NormalCharInfo charInfo) {
+        try {
+            LineMetrics lm = graphics2D.getFontMetrics().getLineMetrics(charInfo.normalCharacter().getCh(), graphics2D);
+            return (lm.getDescent()) * charInfo.height() / lm.getHeight();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 
     public double setStretch(short ratios) {
@@ -71,11 +83,6 @@ public class Painter {
     public Painter string(String s, long x, long y) {
         graphics2D.drawString(s, Convertor.fromHWPUnit(x) + option.offsetX(), Convertor.fromHWPUnit(y) + option.offsetY());
         return this;
-    }
-
-    public double getCharWidth(String ch, CharShape charShape) {
-        graphics2D.setFont(FontManager.object().calculatingFont(charShape));
-        return graphics2D.getFontMetrics().stringWidth(ch);
     }
 
     public Painter setLineStyle(BorderType type, BorderThickness thickness, Color4Byte color) {
@@ -114,16 +121,6 @@ public class Painter {
     public Painter testBackStyle() {
         graphics2D.setColor(Color.WHITE);
         return this;
-    }
-
-    public double textOffsetY(NormalCharInfo charInfo) {
-        try {
-            LineMetrics lm = graphics2D.getFontMetrics().getLineMetrics(charInfo.normalCharacter().getCh(), graphics2D);
-            return (lm.getDescent()) * charInfo.height() / lm.getHeight();
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        return 0;
     }
 
 }

@@ -1,6 +1,7 @@
 package kr.dogfoot.hwplib.drawer.paragraph.charInfo;
 
 import kr.dogfoot.hwplib.drawer.painter.Painter;
+import kr.dogfoot.hwplib.drawer.util.CharacterSizeGetter;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPChar;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPCharNormal;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPCharType;
@@ -8,27 +9,19 @@ import kr.dogfoot.hwplib.object.docinfo.CharShape;
 
 import java.io.UnsupportedEncodingException;
 
-public class NormalCharInfo implements CharInfo {
-    private HWPCharNormal character;
+public class NormalCharInfo extends CharInfo {
     private double width;
-    private CharShape charShape;
-    private int index;
-    private int position;
-    private long x;
 
-    public NormalCharInfo(HWPCharNormal ch, CharShape charShape, int index, int position) {
-        this.character = ch;
-        this.charShape = charShape;
-        this.index = index;
-        this.position = position;
+    public NormalCharInfo(HWPChar character, CharShape charShape, int index, int position) {
+        super(character, charShape, index, position);
     }
 
-    public NormalCharInfo calculateWidth(Painter painter) throws UnsupportedEncodingException {
+    public NormalCharInfo calculateWidth() throws UnsupportedEncodingException {
         if (character.isSpace()) {
             width = charShape.getBaseSize() / 2;
         } else {
             if (character.getType() == HWPCharType.Normal) {
-                width = painter.getCharWidth(character.getCh(), charShape);
+                width = CharacterSizeGetter.singleObject().getCharWidth(normalCharacter().getCh(), charShape);
             } else {
                 width = 0;
             }
@@ -44,8 +37,8 @@ public class NormalCharInfo implements CharInfo {
     }
 
     @Override
-    public HWPChar character() {
-        return character;
+    public long height() {
+        return charShape.getBaseSize();
     }
 
     @Override
@@ -53,42 +46,7 @@ public class NormalCharInfo implements CharInfo {
         return width;
     }
 
-    @Override
-    public double widthAddingCharSpace() {
-        return width + (width * charShape.getCharSpaces().getHangul() / 100);
-    }
-
-    @Override
-    public long height() {
-        return charShape.getBaseSize();
-    }
-
-    @Override
-    public long x() {
-        return x;
-    }
-
-    @Override
-    public void x(long x) {
-        this.x = x;
-    }
-
-    @Override
-    public int index() {
-        return index;
-    }
-
-    @Override
-    public int position() {
-        return position;
-    }
-
-    @Override
-    public CharShape charShape() {
-        return charShape;
-    }
-
     public HWPCharNormal normalCharacter() {
-        return character;
+        return (HWPCharNormal) character;
     }
 }

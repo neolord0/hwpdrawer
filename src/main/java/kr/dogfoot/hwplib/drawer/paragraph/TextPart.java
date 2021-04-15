@@ -1,14 +1,20 @@
 package kr.dogfoot.hwplib.drawer.paragraph;
 
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfo;
+import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.NormalCharInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
+import kr.dogfoot.hwplib.object.docinfo.parashape.Alignment;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
 public class TextPart {
-    private ArrayList<CharInfo> charInfos;
     private Area area;
+    private Alignment alignment;
+    private long maxCharHeight;
+
+    private ArrayList<CharInfo> charInfos;
     private boolean lastLine;
     private int spaceCount;
     private double spaceRate;
@@ -22,6 +28,24 @@ public class TextPart {
         spaceCount = 0;
         spaceRate = 1.0;
         hasNormalChar = false;
+    }
+
+    public Alignment alignment() {
+        return alignment;
+    }
+
+    public TextPart alignment(Alignment alignment) {
+        this.alignment = alignment;
+        return this;
+    }
+
+    public long maxCharHeight() {
+        return maxCharHeight;
+    }
+
+    public TextPart maxCharHeight(long maxCharHeight) {
+        this.maxCharHeight = maxCharHeight;
+        return this;
     }
 
     public ArrayList<CharInfo> charInfos() {
@@ -110,5 +134,42 @@ public class TextPart {
 
     public boolean hasNormalChar() {
         return hasNormalChar;
+    }
+
+    public String text() {
+        StringBuilder sb = new StringBuilder();
+
+        for (CharInfo charInfo : charInfos) {
+            if (charInfo.type() == CharInfo.Type.Normal) {
+                NormalCharInfo normalCharInfo = (NormalCharInfo) charInfo;
+                try {
+                    sb
+                            .append(normalCharInfo.normalCharacter().getCh())
+                            .append("(")
+                            .append(charInfo.index())
+                            .append(")");
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                ControlCharInfo controlCharInfo = (ControlCharInfo) charInfo;
+                if(controlCharInfo.control() == null) {
+                    sb
+                            .append(controlCharInfo.character().getCode())
+                            .append("(")
+                            .append(charInfo.index())
+                            .append(")");
+
+                } else {
+                    sb
+                            .append(controlCharInfo.control().getType())
+                            .append("(")
+                            .append(charInfo.index())
+                            .append(")");
+                }
+
+            }
+        }
+        return sb.toString();
     }
 }

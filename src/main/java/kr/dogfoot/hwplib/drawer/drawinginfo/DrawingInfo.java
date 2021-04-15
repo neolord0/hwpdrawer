@@ -1,10 +1,14 @@
 package kr.dogfoot.hwplib.drawer.drawinginfo;
 
+import kr.dogfoot.hwplib.drawer.drawinginfo.textbuffer.ControlContent;
+import kr.dogfoot.hwplib.drawer.drawinginfo.textbuffer.Page;
+import kr.dogfoot.hwplib.drawer.drawinginfo.textbuffer.ContentBuffer;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.HWPFile;
 import kr.dogfoot.hwplib.object.bodytext.Section;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlSectionDefine;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlType;
+import kr.dogfoot.hwplib.object.bodytext.control.gso.textbox.TextVerticalAlignment;
 import kr.dogfoot.hwplib.object.bodytext.control.sectiondefine.PageDef;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.Paragraph;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPChar;
@@ -20,6 +24,9 @@ public class DrawingInfo {
     private PageDef pageDef;
     private Area paperArea;
     private Area pageArea;
+
+    private Page page;
+    private ControlContent controlContent;
 
     private Stack<ParagraphListInfo> paragraphInfoStack;
     private ParagraphListInfo bodyTextParagraphListInfo;
@@ -46,10 +53,11 @@ public class DrawingInfo {
         return section;
     }
 
-    public void section(Section section) throws Exception {
+    public DrawingInfo section(Section section) throws Exception {
         this.section = section;
         setPageDef();
         calculatePaperPageArea();
+        return this;
     }
 
     private void setPageDef() throws Exception {
@@ -89,10 +97,17 @@ public class DrawingInfo {
         return pageArea;
     }
 
-    public void processAtNewPage() {
+    public DrawingInfo newPage() {
+        page = new Page(paperArea, pageArea);
+
         if (bodyTextParagraphListInfo != null) {
             bodyTextParagraphListInfo.resetParagraphStartY();
         }
+        return this;
+    }
+
+    public Page page() {
+        return page;
     }
 
     public void startBodyTextParagraphList() {
@@ -102,9 +117,26 @@ public class DrawingInfo {
         bodyTextParagraphListInfo = paragraphListInfo;
     }
 
+    public DrawingInfo newControlText(Area area, TextVerticalAlignment verticalAlignment) {
+        controlContent = new ControlContent(area, verticalAlignment);
+        return this;
+    }
+
+    public ControlContent controlContent() {
+        return controlContent;
+    }
+
     public void startControlParagraphList(Area textArea) {
         paragraphInfoStack.push(new ParagraphListInfo(this, textArea)
                 .bodyText(false));
+    }
+
+    public ContentBuffer contentBuffer() {
+        if (isBodyText()) {
+            return page;
+        } else {
+            return controlContent;
+        }
     }
 
     public void endParagraphList() {
@@ -116,6 +148,7 @@ public class DrawingInfo {
     }
 
     public boolean endParagraph(long paragraphHeight) throws IOException {
+        contentBuffer().setLastTextPartToLastLine();
         ParagraphListInfo paragraphListInfo = paragraphListInfo();
         paragraphListInfo.endParagraph(paragraphHeight);
         if (paragraphListInfo.isBodyText()) {

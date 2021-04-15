@@ -1,11 +1,8 @@
 package kr.dogfoot.hwplib.drawer.paragraph.textflow;
 
-import kr.dogfoot.hwplib.drawer.paragraph.control.ControlClassifier;
 import kr.dogfoot.hwplib.drawer.util.Area;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.TreeSet;
 
 public class ForTopBottom {
     private ArrayList<TopBottomArea> topBottomAreas;
@@ -14,15 +11,7 @@ public class ForTopBottom {
         topBottomAreas = new ArrayList<>();
     }
 
-    public void controls(TreeSet<ControlClassifier.ControlInfo> controls) {
-        topBottomAreas.clear();
-        for (ControlClassifier.ControlInfo controlInfo : controls) {
-            addTopBottomArea(controlInfo.absoluteArea());
-        }
-        Collections.sort(topBottomAreas);
-    }
-
-    private void addTopBottomArea(Area area) {
+    public void addTopBottomArea(Area area) {
         for (TopBottomArea tbArea : topBottomAreas) {
             if (tbArea.intersects(area)) {
                 tbArea.merge(area);
@@ -30,6 +19,10 @@ public class ForTopBottom {
             }
         }
         topBottomAreas.add(new TopBottomArea(area));
+    }
+
+    public void reset() {
+        topBottomAreas.clear();
     }
 
     public long calculate(Area textLineArea) {
@@ -45,9 +38,6 @@ public class ForTopBottom {
         return yOffset;
     }
 
-    public void clear() {
-        topBottomAreas.clear();
-    }
 
     private static class TopBottomArea implements Comparable<TopBottomArea> {
         long top;

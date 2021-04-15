@@ -3,6 +3,7 @@ package kr.dogfoot.hwplib.drawer.painter.control;
 import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
 import kr.dogfoot.hwplib.drawer.painter.Painter;
 import kr.dogfoot.hwplib.drawer.paragraph.ParagraphDrawer;
+import kr.dogfoot.hwplib.drawer.paragraph.TextPart;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.control.gso.*;
 import kr.dogfoot.hwplib.object.bodytext.control.gso.textbox.TextBox;
@@ -11,11 +12,11 @@ import kr.dogfoot.hwplib.object.docinfo.borderfill.BorderThickness;
 import kr.dogfoot.hwplib.object.docinfo.borderfill.BorderType;
 import kr.dogfoot.hwplib.object.etc.Color4Byte;
 
-public class GsoDrawer {
+public class GsoPainter {
     private Painter painter;
     private DrawingInfo info;
 
-    public GsoDrawer(Painter painter, DrawingInfo info) {
+    public GsoPainter(Painter painter, DrawingInfo info) {
         this.painter = painter;
         this.info = info;
     }
@@ -66,15 +67,30 @@ public class GsoDrawer {
                 textBox.getListHeader().getRightMargin(),
                 textBox.getListHeader().getBottomMargin());
 
-        info.startControlParagraphList(textArea);
+        info
+                .newControlText(textArea, textBox.getListHeader().getProperty().getTextVerticalAlignment())
+                .startControlParagraphList(textArea);
 
-        ParagraphDrawer paragraphDrawer = new ParagraphDrawer(painter, info);
+        ParagraphDrawer paragraphDrawer = new ParagraphDrawer(info);
 
         for (Paragraph paragraph : textBox.getParagraphList()) {
             paragraphDrawer.draw(paragraph);
         }
 
+        info.controlContent().adjustVerticalAlignment();
+
+        paintControlContent();
+
         info.endParagraphList();
     }
 
+    private void paintControlContent() throws Exception {
+        for (TextPart textPart : info.controlContent().textParts()) {
+            System.out.println(textPart.lastLine() + " " + textPart.text());
+        }
+        painter.controlPainter().paintControls(info.controlContent().behindControls());
+        painter.textDrawer().paintTextParts(info.controlContent().textParts());
+        painter.controlPainter().paintControls(info.controlContent().notBehindControls());
+
+    }
 }

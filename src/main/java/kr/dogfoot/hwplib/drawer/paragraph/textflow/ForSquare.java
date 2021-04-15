@@ -1,9 +1,8 @@
 package kr.dogfoot.hwplib.drawer.paragraph.textflow;
 
-import kr.dogfoot.hwplib.drawer.paragraph.control.ControlClassifier;
+import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.CtrlHeaderGso;
-import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.GsoHeaderProperty;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.TextHorzArrange;
 
 import java.util.ArrayList;
@@ -18,11 +17,9 @@ public class ForSquare {
         squareAreas = new TreeSet<>();
     }
 
-    public void controls(TreeSet<ControlClassifier.ControlInfo> controls) {
-        for (ControlClassifier.ControlInfo controlInfo : controls) {
-            squareAreas.add(new SquareArea(controlInfo.absoluteArea(),
-                    controlInfo.headerGso()));
-        }
+    public void add(ControlCharInfo controlCharInfo) {
+        squareAreas.add(new SquareArea(controlCharInfo.area(),
+                controlCharInfo.header()));
     }
 
     public TextFlowCalculator.Result calculate(Area textLineArea) {
@@ -148,7 +145,7 @@ public class ForSquare {
         return minBottom - textLineArea.bottom();
     }
 
-    public void clear() {
+    public void reset() {
         squareAreas.clear();
     }
 
@@ -173,5 +170,4 @@ public class ForSquare {
                 return -1;
         }
     }
-
 }

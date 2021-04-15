@@ -1,11 +1,13 @@
 package kr.dogfoot.hwplib.drawer.paragraph;
 
-import kr.dogfoot.hwplib.drawer.HWPDrawer;
 import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfo;
+import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
+import kr.dogfoot.hwplib.drawer.paragraph.charInfo.NormalCharInfo;
 import kr.dogfoot.hwplib.object.docinfo.parashape.LineDivideForEnglish;
 import kr.dogfoot.hwplib.object.docinfo.parashape.LineDivideForHangul;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
 public class WordSplitter {
@@ -103,7 +105,7 @@ public class WordSplitter {
                 hasNewLine = true;
 
                 if (!paragraphDrawer.noNormalCharAtTextLine()) {
-                    paragraphDrawer.drawTextAndNewLine();
+                    paragraphDrawer.saveTextLineAndNewLine();
                 }
                 addWordAllCharsToLine(wordChars,true, true);
             }
@@ -119,6 +121,42 @@ public class WordSplitter {
                 letterCountBeforeNewLine++;
             }
         }
+    }
+
+    public String test() {
+        StringBuilder sb = new StringBuilder();
+        for (CharInfo charInfo : charsOfWord) {
+            if (charInfo.type() == CharInfo.Type.Normal) {
+                NormalCharInfo normalCharInfo = (NormalCharInfo) charInfo;
+                try {
+                    sb
+                            .append(normalCharInfo.normalCharacter().getCh())
+                            .append("(")
+                            .append(charInfo.index())
+                            .append(")");
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                ControlCharInfo controlCharInfo = (ControlCharInfo) charInfo;
+                if(controlCharInfo.control() == null) {
+                    sb
+                            .append(controlCharInfo.character().getCode())
+                            .append("(")
+                            .append(charInfo.index())
+                            .append(")");
+
+                } else {
+                    sb
+                            .append(controlCharInfo.control().getType())
+                            .append("(")
+                            .append(charInfo.index())
+                            .append(")");
+                }
+
+            }
+        }
+        return sb.toString();
     }
 
     private static class WordsCharByLanguage {

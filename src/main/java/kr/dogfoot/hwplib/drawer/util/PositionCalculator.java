@@ -1,29 +1,36 @@
-package kr.dogfoot.hwplib.drawer.paragraph.control;
+package kr.dogfoot.hwplib.drawer.util;
 
+import javafx.geometry.Pos;
 import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
+import kr.dogfoot.hwplib.drawer.painter.Painter;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.CtrlHeaderGso;
 
 public class PositionCalculator {
-    private CtrlHeaderGso header;
-    private DrawingInfo info;
+    private final static PositionCalculator singleObject = new PositionCalculator();
 
-    public PositionCalculator() {
+    public static PositionCalculator singleObject() {
+        return singleObject;
     }
 
-    public Area absoluteArea(CtrlHeaderGso header, DrawingInfo info) {
-        this.header = header;
+    private DrawingInfo info;
+    private CtrlHeaderGso gsoHeader;
+
+    public Area area(CtrlHeaderGso gsoHeader, DrawingInfo info) {
         this.info = info;
+        this.gsoHeader = gsoHeader;
 
         Area area = new Area(0, 0, width(), height());
-        area.moveX(xOffset(area.width()));
-        area.moveY(yOffset(area.height()));
+        if (!gsoHeader.getProperty().isLikeWord()) {
+            area.moveX(xOffset(area.width()));
+            area.moveY(yOffset(area.height()));
+        }
         return area;
     }
 
     private long width() {
-        long width = header.getWidth();
-        switch (header.getProperty().getWidthCriterion()) {
+        long width = gsoHeader.getWidth();
+        switch (gsoHeader.getProperty().getWidthCriterion()) {
             case Paper:
                 return info.paperArea().width() * width / 10000;
             case Page:
@@ -40,8 +47,8 @@ public class PositionCalculator {
     }
 
     private long height() {
-        long height = header.getHeight();
-        switch (header.getProperty().getHeightCriterion()) {
+        long height = gsoHeader.getHeight();
+        switch (gsoHeader.getProperty().getHeightCriterion()) {
             case Paper:
                 return info.paperArea().height() * height / 10000;
             case Page:
@@ -54,7 +61,7 @@ public class PositionCalculator {
 
     private long xOffset(long width) {
         Area criterionArea = null;
-        switch (header.getProperty().getHorzRelTo()) {
+        switch (gsoHeader.getProperty().getHorzRelTo()) {
             case Paper:
                 criterionArea = info.paperArea();
                 break;
@@ -73,8 +80,8 @@ public class PositionCalculator {
         if (criterionArea == null) {
             return 0;
         }
-        long xOffset = header.getxOffset();
-        switch (header.getProperty().getHorzRelativeArrange()) {
+        long xOffset = gsoHeader.getxOffset();
+        switch (gsoHeader.getProperty().getHorzRelativeArrange()) {
             case TopOrLeft:
             case Inside:
                 return criterionArea.left() + xOffset;
@@ -89,7 +96,7 @@ public class PositionCalculator {
 
     private long yOffset(long height) {
         Area criterionArea = null;
-        switch (header.getProperty().getVertRelTo()) {
+        switch (gsoHeader.getProperty().getVertRelTo()) {
             case Paper:
                 criterionArea = info.paperArea();
                 break;
@@ -103,8 +110,8 @@ public class PositionCalculator {
         if (criterionArea == null) {
             return 0;
         }
-        long yOffset = header.getyOffset();
-        switch (header.getProperty().getVertRelativeArrange()) {
+        long yOffset = gsoHeader.getyOffset();
+        switch (gsoHeader.getProperty().getVertRelativeArrange()) {
             case TopOrLeft:
             case Inside:
                 return criterionArea.top() + yOffset;

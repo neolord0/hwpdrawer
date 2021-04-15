@@ -1,17 +1,13 @@
-package kr.dogfoot.hwplib.drawer.paragraph;
+package kr.dogfoot.hwplib.drawer.painter.text;
 
-import kr.dogfoot.hwplib.drawer.HWPDrawer;
 import kr.dogfoot.hwplib.drawer.painter.Painter;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfo;
-import kr.dogfoot.hwplib.drawer.paragraph.charInfo.NormalCharInfo;
 import kr.dogfoot.hwplib.object.docinfo.CharShape;
 import kr.dogfoot.hwplib.object.docinfo.borderfill.BorderThickness;
 import kr.dogfoot.hwplib.object.docinfo.charshape.BorderType2;
 import kr.dogfoot.hwplib.object.docinfo.charshape.UnderLineSort;
 
-import java.io.UnsupportedEncodingException;
-
-public class UnderLineDrawer {
+public class UnderLinePainter {
     private Painter painter;
 
     private long baseLine;
@@ -23,7 +19,7 @@ public class UnderLineDrawer {
     private long startX;
     private CharShape drawingCharShape;
 
-    public UnderLineDrawer(Painter painter) {
+    public UnderLinePainter(Painter painter) {
         this.painter = painter;
     }
 
@@ -38,7 +34,7 @@ public class UnderLineDrawer {
         drawingCharShape = null;
     }
 
-    public void draw(CharInfo charInfo, boolean endLine) throws UnsupportedEncodingException {
+    public void paint(CharInfo charInfo, boolean endLine) {
         if (isStartLine(charInfo.charShape())) {
             lineSort = charInfo.charShape().getProperty().getUnderLineSort();
             lineShape = charInfo.charShape().getProperty().getUnderLineShape();
@@ -46,7 +42,7 @@ public class UnderLineDrawer {
             startX = charInfo.x();
             drawingCharShape = charInfo.charShape();
         } else if (isEndLine(charInfo.charShape())) {
-            drawUnderLine(charInfo, false);
+            paintUnderLine(charInfo, false);
 
             lineSort = charInfo.charShape().getProperty().getUnderLineSort();
             if (lineSort == UnderLineSort.None) {
@@ -62,7 +58,7 @@ public class UnderLineDrawer {
             }
         }
         if (endLine == true && startX != -1) {
-            drawUnderLine(charInfo, endLine);
+            paintUnderLine(charInfo, endLine);
         }
     }
 
@@ -87,7 +83,7 @@ public class UnderLineDrawer {
         return false;
     }
 
-    private void drawUnderLine(CharInfo charInfo, boolean endLine) {
+    private void paintUnderLine(CharInfo charInfo, boolean endLine) {
         long y = (drawingCharShape.getProperty().getUnderLineSort() == UnderLineSort.Top)
                 ? baseLine - (maxCharHeight * 4 / 5)
                 : baseLine + (maxCharHeight / 5);

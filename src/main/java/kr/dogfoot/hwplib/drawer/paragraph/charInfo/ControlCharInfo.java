@@ -1,47 +1,32 @@
 package kr.dogfoot.hwplib.drawer.paragraph.charInfo;
 
+import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
+import kr.dogfoot.hwplib.drawer.util.Area;
+import kr.dogfoot.hwplib.drawer.util.PositionCalculator;
 import kr.dogfoot.hwplib.object.bodytext.control.Control;
-import kr.dogfoot.hwplib.object.bodytext.control.ControlTable;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.CtrlHeaderGso;
-import kr.dogfoot.hwplib.object.bodytext.control.gso.GsoControl;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPChar;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPCharControlExtend;
 import kr.dogfoot.hwplib.object.docinfo.CharShape;
 
-public class ControlCharInfo implements CharInfo {
-    public HWPCharControlExtend character;
-    private CharShape charShape;
-    private int index;
-    private int position;
-    private long x;
+public class ControlCharInfo extends CharInfo  implements Comparable<ControlCharInfo> {
     private Control control;
-    private long width;
-    private long height;
+    private CtrlHeaderGso gsoHeader;
+    private Area area;
 
-    public ControlCharInfo(HWPCharControlExtend character, CharShape charShape, int index, int position) {
-        this.character = character;
-        this.charShape = charShape;
-        this.index = index;
-        this.position = position;
-        x = 0;
+    public ControlCharInfo(HWPChar character, CharShape charShape, int index, int position) {
+        super(character, charShape, index, position);
         control = null;
-        width = 0;
-        height = 0;
     }
 
-    public ControlCharInfo control(Control control) {
+    public ControlCharInfo control(Control control, CtrlHeaderGso gsoHeader) {
         this.control = control;
-        CtrlHeaderGso headerGso = null;
-        switch (control.getType()) {
-            case Table:
-                headerGso = ((ControlTable) control).getHeader();
-                break;
-            case Gso:
-                headerGso = ((GsoControl) control).getHeader();
-                break;
-        }
-        width = headerGso.getWidth();
-        height = headerGso.getHeight();
+        this.gsoHeader = gsoHeader;
+        return this;
+    }
+
+    public ControlCharInfo area(DrawingInfo info) {
+        area = PositionCalculator.singleObject().area(gsoHeader, info);
         return this;
     }
 
@@ -51,55 +36,64 @@ public class ControlCharInfo implements CharInfo {
     }
 
     @Override
-    public HWPChar character() {
-        return character;
-    }
-
-    @Override
     public double width() {
-        return width;
-    }
-
-    @Override
-    public double widthAddingCharSpace() {
-        return width + (width * charShape.getCharSpaces().getHangul() / 100);
+        if (isLikeLetter()) {
+            return area.width();
+        }
+        return 0;
     }
 
     @Override
     public long height() {
-        return height;
-    }
-
-    @Override
-    public long x() {
-        return x;
-    }
-
-    @Override
-    public void x(long x) {
-        this.x = x;
-    }
-
-    @Override
-    public int index() {
-        return index;
-    }
-
-    @Override
-    public int position() {
-        return position;
-    }
-
-    @Override
-    public CharShape charShape() {
-        return charShape;
+        if (isLikeLetter()) {
+            return area.height();
+        }
+        return 0;
     }
 
     public HWPCharControlExtend controlCharacter() {
-        return character;
+        return (HWPCharControlExtend) character;
     }
 
     public Control control() {
         return control;
+    }
+
+    public CtrlHeaderGso header() {
+        return gsoHeader;
+    }
+
+    public boolean isLikeLetter() {
+        if (gsoHeader == null) {
+            return false;
+        }
+        return gsoHeader.getProperty().isLikeWord();
+    }
+
+    public short textFlowMethod() {
+        if (gsoHeader == null) {
+            return -1;
+        }
+        return gsoHeader.getProperty().getTextFlowMethod();
+    }
+
+    public int zOrder() {
+        if (gsoHeader == null) {
+            return -1;
+        }
+        return gsoHeader.getzOrder();
+    }
+
+    public Area area() {
+        return area;
+    }
+
+    public int compareTo(ControlCharInfo o) {
+        if(zOrder() > o.zOrder())
+            return 1;
+        else if (zOrder() == o.zOrder())
+            return 0;
+        else
+            return -1;
     }
 }

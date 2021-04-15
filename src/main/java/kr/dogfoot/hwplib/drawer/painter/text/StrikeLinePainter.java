@@ -1,6 +1,5 @@
-package kr.dogfoot.hwplib.drawer.paragraph;
+package kr.dogfoot.hwplib.drawer.painter.text;
 
-import kr.dogfoot.hwplib.drawer.HWPDrawer;
 import kr.dogfoot.hwplib.drawer.painter.Painter;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfo;
 import kr.dogfoot.hwplib.object.docinfo.CharShape;
@@ -8,7 +7,7 @@ import kr.dogfoot.hwplib.object.docinfo.borderfill.BorderThickness;
 import kr.dogfoot.hwplib.object.docinfo.charshape.BorderType2;
 
 
-public class StrikeLineDrawer {
+public class StrikeLinePainter {
     private Painter painter;
     private long baseLine;
 
@@ -20,7 +19,7 @@ public class StrikeLineDrawer {
     private long startX;
     private CharShape drawingCharShape;
 
-    public StrikeLineDrawer(Painter painter) {
+    public StrikeLinePainter(Painter painter) {
         this.painter = painter;
     }
 
@@ -35,7 +34,7 @@ public class StrikeLineDrawer {
         drawingCharShape = null;
     }
 
-    public void draw(CharInfo charInfo, boolean endLine) {
+    public void paint(CharInfo charInfo, boolean endLine) {
         if (isStartLine(charInfo.charShape())) {
             strike = charInfo.charShape().getProperty().isStrikeLine();
             lineShape = charInfo.charShape().getProperty().getStrikeLineShape();
@@ -44,7 +43,7 @@ public class StrikeLineDrawer {
             startX = charInfo.x();
             drawingCharShape = charInfo.charShape();
         } else if (isEndLine(charInfo.charShape())) {
-            drawStrikeLine(charInfo, false);
+            paintStrikeLine(charInfo, false);
 
             strike = charInfo.charShape().getProperty().isStrikeLine();
             if (strike == false) {
@@ -62,7 +61,7 @@ public class StrikeLineDrawer {
             }
         }
         if (endLine == true && startX != -1) {
-            drawStrikeLine(charInfo, endLine);
+            paintStrikeLine(charInfo, endLine);
         }
     }
 
@@ -96,7 +95,7 @@ public class StrikeLineDrawer {
         return false;
     }
 
-    private void drawStrikeLine(CharInfo charInfo, boolean endLine) {
+    private void paintStrikeLine(CharInfo charInfo, boolean endLine) {
         long y = baseLine - (charHeight * 2 / 5);
         long endX = (endLine == true) ?  (long) (charInfo.x() + charInfo.width()) : charInfo.x();
 

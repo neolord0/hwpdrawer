@@ -1,8 +1,7 @@
 package kr.dogfoot.hwplib.drawer;
 
-import kr.dogfoot.hwplib.drawer.painter.control.ControlDrawer;
 import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
-import kr.dogfoot.hwplib.drawer.painter.Painter;
+import kr.dogfoot.hwplib.drawer.painter.PagePainter;
 import kr.dogfoot.hwplib.drawer.paragraph.ParagraphDrawer;
 import kr.dogfoot.hwplib.drawer.util.Convertor;
 import kr.dogfoot.hwplib.drawer.util.FontManager;
@@ -24,40 +23,40 @@ public class HWPDrawer {
 
     private DrawingOption option;
     private DrawingInfo info;
-    private Painter painter;
+    private PagePainter pagePainter;
 
 
     private HWPDrawer() {
         option = null;
         info = null;
-        painter = null;
+        pagePainter = null;
     }
 
     private void drawFile(HWPFile hwpFile, DrawingOption option) throws Exception {
         this.option = option;
         Convertor.option(option);
 
-        info = new DrawingInfo();
-        painter = new Painter(info).option(option);
-
-        info
+        info = new DrawingInfo()
                 .hwpFile(hwpFile);
+
+        pagePainter = new PagePainter(info)
+                .option(option);
+
 
         for (Section section : info.hwpFile().getBodyText().getSectionList()) {
             drawSection(section);
         }
 
-        painter.pageMaker().saveCurrentPage();
+        pagePainter.saveCurrentPage();
     }
 
     private void drawSection(Section section) throws Exception {
-        info.section(section);
+        info
+                .section(section)
+                .newPage()
+                .startBodyTextParagraphList();
 
-        painter.pageMaker().newPage(info);
-
-        ParagraphDrawer paragraphDrawer = new ParagraphDrawer(painter, info);
-        info.startBodyTextParagraphList();
-
+        ParagraphDrawer paragraphDrawer = new ParagraphDrawer(pagePainter, info);
         for (Paragraph paragraph : info.section()) {
             paragraphDrawer.draw(paragraph);
         }
@@ -66,7 +65,7 @@ public class HWPDrawer {
     }
 
     private int pageCount() {
-        return painter.pageMaker().currentPageNo();
+        return pagePainter.currentPageNo();
     }
 }
 
