@@ -114,7 +114,7 @@ public class WordSplitter {
 
     private void addWordAllCharsToLine(ArrayList<CharInfo> wordChars, boolean checkOverRight, boolean applyMinimumSpace) throws Exception {
         for (CharInfo charInfo : wordChars) {
-            if (paragraphDrawer.addCharToLine(charInfo, checkOverRight, applyMinimumSpace)) {
+             if (paragraphDrawer.addCharToLine(charInfo, checkOverRight, applyMinimumSpace)) {
                 hasNewLine = true;
             }
             if (hasNewLine == false) {
@@ -126,35 +126,41 @@ public class WordSplitter {
     public String test() {
         StringBuilder sb = new StringBuilder();
         for (CharInfo charInfo : charsOfWord) {
-            if (charInfo.type() == CharInfo.Type.Normal) {
-                NormalCharInfo normalCharInfo = (NormalCharInfo) charInfo;
-                try {
-                    sb
-                            .append(normalCharInfo.normalCharacter().getCh())
-                            .append("(")
-                            .append(charInfo.index())
-                            .append(")");
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
-            } else {
-                ControlCharInfo controlCharInfo = (ControlCharInfo) charInfo;
-                if(controlCharInfo.control() == null) {
-                    sb
-                            .append(controlCharInfo.character().getCode())
-                            .append("(")
-                            .append(charInfo.index())
-                            .append(")");
+            sb.append(testCharInfo(charInfo));
+        }
+        return sb.toString();
+    }
 
-                } else {
-                    sb
-                            .append(controlCharInfo.control().getType())
-                            .append("(")
-                            .append(charInfo.index())
-                            .append(")");
-                }
-
+    private String testCharInfo( CharInfo charInfo) {
+        StringBuilder sb = new StringBuilder();
+        if (charInfo.type() == CharInfo.Type.Normal) {
+            NormalCharInfo normalCharInfo = (NormalCharInfo) charInfo;
+            try {
+                sb
+                        .append(normalCharInfo.normalCharacter().getCh())
+                        .append("(")
+                        .append(charInfo.index())
+                        .append(")");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
             }
+        } else {
+            ControlCharInfo controlCharInfo = (ControlCharInfo) charInfo;
+            if(controlCharInfo.control() == null) {
+                sb
+                        .append(controlCharInfo.character().getCode())
+                        .append("(")
+                        .append(charInfo.index())
+                        .append(")");
+
+            } else {
+                sb
+                        .append(controlCharInfo.control().getType())
+                        .append("(")
+                        .append(charInfo.index())
+                        .append(")");
+            }
+
         }
         return sb.toString();
     }

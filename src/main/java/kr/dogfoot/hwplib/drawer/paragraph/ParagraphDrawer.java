@@ -266,8 +266,12 @@ public class ParagraphDrawer {
             if (applyMinimumSpace) {
                 textLineDrawer.setBestSpaceRate();
             }
-            hasNewLine = true;
             saveTextLineAndNewLine();
+            if (drawingState == DrawingState.Normal || drawingState == DrawingState.EndRecalculating) {
+                hasNewLine = true;
+            } else {
+                hasNewLine = false;
+            }
         } else {
             hasNewLine = false;
         }
@@ -276,33 +280,35 @@ public class ParagraphDrawer {
         return hasNewLine;
     }
 
-    private void addCharToLine(CharInfo charInfo) {
+    private void addCharToLine(CharInfo charInfo) throws Exception {
         if (drawingState.canAddChar()) {
             if (noNormalCharAtTextLine() && drawingState == DrawingState.Normal) {
+                checkNewPage();
                 setLineFirst((charInfo.index() - 1),  (charInfo.position() - charInfo.character().getCharSize()));
             }
 
-            textLineDrawer.addChar(charInfo);
+            if (drawingState == DrawingState.Normal && charInfo.type() == CharInfo.Type.Control) {
+                ControlCharInfo controlCharInfo = (ControlCharInfo) charInfo;
+
+                if (controlCharInfo.isLikeLetter() == false) {
+                    if (controlCharInfo.textFlowMethod() == 0/*어울림*/) {
+                        textFlowCalculator.addForSquare(controlCharInfo);
+                    } else if (controlCharInfo.textFlowMethod() == 1/*자리차지*/) {
+                        textFlowCalculator.addForTopBottom(controlCharInfo);
+                    }
+
+                    if (controlCharInfo.textFlowMethod() == 2/*뒤로*/) {
+                        info.contentBuffer().addBehindControl(controlCharInfo);
+                    } else {
+                        info.contentBuffer().addNotBehindControl(controlCharInfo);
+                    }
+                } else {
+                    textLineDrawer.addChar(charInfo);
+                }
+            } else {
+                textLineDrawer.addChar(charInfo);
+            }
         }
-    }
-
-    private void setLineFirst(int index, int position) {
-        lineFirstCharIndex = index;
-        lineFirstCharPosition = position;
-    }
-
-    public void saveTextLineAndNewLine() throws Exception {
-        if (!textLineDrawer.justNewLine() && drawingState.canAddChar()) {
-            lineHeight = textLineDrawer.lineHeight();
-            checkNewPage();
-            checkTextFlow();
-            saveTextLine();
-            nextArea();
-
-            newLineAtRecalculating = false;
-            newLineAtNormal = false;
-        }
-
     }
 
     private void checkNewPage() throws Exception {
@@ -322,6 +328,24 @@ public class ParagraphDrawer {
         currentTextLineArea.top(info.pageArea().top());
         textLineDrawer.area(currentTextLineArea);
         textFlowCalculator.reset();
+    }
+
+    private void setLineFirst(int index, int position) {
+        lineFirstCharIndex = index;
+        lineFirstCharPosition = position;
+    }
+
+    public void saveTextLineAndNewLine() throws Exception {
+        if (!textLineDrawer.justNewLine() && drawingState.canAddChar()) {
+            lineHeight = textLineDrawer.lineHeight();
+            checkTextFlow();
+            saveTextLine();
+            nextArea();
+
+            newLineAtRecalculating = false;
+            newLineAtNormal = false;
+        }
+
     }
 
     private boolean isOverBottom(long height) {
@@ -363,7 +387,6 @@ public class ParagraphDrawer {
                     if (newLineAtRecalculating) {
                         info.contentBuffer().setLastTextPartToLastLine();
                     }
-
                     drawingState = DrawingState.EndRecalculating;
                 }
                 break;
@@ -431,19 +454,7 @@ public class ParagraphDrawer {
     }
 
     private void controlExtend(ControlCharInfo charInfo) {
-        if (charInfo.isLikeLetter() == false) {
-            if (charInfo.textFlowMethod() == 0/*어울림*/) {
-                textFlowCalculator.addForSquare(charInfo);
-            } else if (charInfo.textFlowMethod() == 1/*자리차지*/) {
-                textFlowCalculator.addForTopBottom(charInfo);
-            }
-
-            if (charInfo.textFlowMethod() == 2/*뒤로*/) {
-                info.contentBuffer().addBehindControl(charInfo);
-            } else {
-                info.contentBuffer().addNotBehindControl(charInfo);
-            }
-        } else {
+        if (charInfo.character().getCode() == 11) {
             wordSplitter.addCharOfWord(charInfo);
         }
     }

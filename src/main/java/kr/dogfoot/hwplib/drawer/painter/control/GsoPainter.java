@@ -85,9 +85,6 @@ public class GsoPainter {
     }
 
     private void paintControlContent() throws Exception {
-        for (TextPart textPart : info.controlContent().textParts()) {
-            System.out.println(textPart.lastLine() + " " + textPart.text());
-        }
         painter.controlPainter().paintControls(info.controlContent().behindControls());
         painter.textDrawer().paintTextParts(info.controlContent().textParts());
         painter.controlPainter().paintControls(info.controlContent().notBehindControls());

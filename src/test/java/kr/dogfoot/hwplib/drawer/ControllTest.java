@@ -55,6 +55,11 @@ public class ControllTest {
     }
 
     @Test
+    public void test_본문과의_배치_어울림6() throws Exception {
+        HWPTester.testAndCompare("testingHWP" + File.separator + "컨트롤" + File.separator + "본문과의 배치" + File.separator + "어울림6");
+    }
+
+    @Test
     public void test_본문과의_배치_어울림_자리차지() throws Exception {
         HWPTester.testAndCompare("testingHWP" + File.separator + "컨트롤" + File.separator + "본문과의 배치" + File.separator + "어울림_자리차지");
     }
@@ -66,11 +71,11 @@ public class ControllTest {
 
     @Test
     public void test_글상자_일반() throws Exception {
-        HWPTester.test("testingHWP" + File.separator + "컨트롤" + File.separator + "글상자" + File.separator + "일반");
+        HWPTester.testAndCompare("testingHWP" + File.separator + "컨트롤" + File.separator + "글상자" + File.separator + "일반");
     }
 
     @Test
     public void test_글상자_세로정렬() throws Exception {
-        HWPTester.test("testingHWP" + File.separator + "컨트롤" + File.separator + "글상자" + File.separator + "세로정렬");
+        HWPTester.testAndCompare("testingHWP" + File.separator + "컨트롤" + File.separator + "글상자" + File.separator + "세로정렬");
     }
 }
