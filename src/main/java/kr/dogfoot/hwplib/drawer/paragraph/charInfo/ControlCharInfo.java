@@ -12,7 +12,8 @@ import kr.dogfoot.hwplib.object.docinfo.CharShape;
 public class ControlCharInfo extends CharInfo  implements Comparable<ControlCharInfo> {
     private Control control;
     private CtrlHeaderGso gsoHeader;
-    private Area area;
+    private Area areaWithOuterMargin;
+    private Area areaWithoutOuterMargin;
 
     public ControlCharInfo(HWPChar character, CharShape charShape, int index, int position) {
         super(character, charShape, index, position);
@@ -26,7 +27,12 @@ public class ControlCharInfo extends CharInfo  implements Comparable<ControlChar
     }
 
     public ControlCharInfo area(DrawingInfo info) {
-        area = PositionCalculator.singleObject().area(gsoHeader, info);
+        areaWithoutOuterMargin = PositionCalculator.singleObject().area(gsoHeader, info);
+        areaWithOuterMargin = new Area(areaWithoutOuterMargin)
+                .expand(gsoHeader.getOutterMarginLeft(),
+                        gsoHeader.getOutterMarginTop(),
+                        gsoHeader.getOutterMarginRight(),
+                        gsoHeader.getOutterMarginBottom());
         return this;
     }
 
@@ -38,7 +44,7 @@ public class ControlCharInfo extends CharInfo  implements Comparable<ControlChar
     @Override
     public double width() {
         if (isLikeLetter()) {
-            return area.width();
+            return areaWithOuterMargin.width();
         }
         return 0;
     }
@@ -46,7 +52,7 @@ public class ControlCharInfo extends CharInfo  implements Comparable<ControlChar
     @Override
     public long height() {
         if (isLikeLetter()) {
-            return area.height();
+            return areaWithOuterMargin.height();
         }
         return 0;
     }
@@ -84,8 +90,12 @@ public class ControlCharInfo extends CharInfo  implements Comparable<ControlChar
         return gsoHeader.getzOrder();
     }
 
-    public Area area() {
-        return area;
+    public Area areaWithOuterMargin() {
+        return areaWithOuterMargin;
+    }
+
+    public Area areaWithoutOuterMargin() {
+        return areaWithoutOuterMargin;
     }
 
     public int compareTo(ControlCharInfo o) {

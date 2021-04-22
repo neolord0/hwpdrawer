@@ -86,6 +86,14 @@ public class Area implements Comparable<Area> {
         return this;
     }
 
+    public Area expand(long left, long top, long right, long bottom) {
+        this.left -= left;
+        this.top -= top;
+        this.right += right;
+        this.bottom += bottom;
+        return this;
+    }
+
     public Area moveX(long offsetX) {
         left += offsetX;
         right += offsetX;

@@ -7,13 +7,11 @@ import kr.dogfoot.hwplib.object.bodytext.control.gso.textbox.TextVerticalAlignme
 
 public class ControlContent extends ContentBuffer {
     private Area textArea;
-    private TextVerticalAlignment verticalAlignment;
     private long top;
     private long bottom;
 
-    public ControlContent(Area textArea, TextVerticalAlignment verticalAlignment) {
+    public ControlContent(Area textArea) {
         this.textArea = textArea;
-        this.verticalAlignment = verticalAlignment;
         top = -1;
         bottom = -1;
     }
@@ -21,13 +19,13 @@ public class ControlContent extends ContentBuffer {
     public void addTextPart(TextPart textPart) {
         super.addTextPart(textPart);
         if(textPart.hasNormalChar()) {
-            top = (top == -1 || textPart.area().top() < top) ? textPart.area().top() : top;
-            bottom = (bottom == -1 || textPart.area().bottom() > bottom) ? textPart.area().bottom() : bottom;
+            top = (top == -1) ? textPart.area().top() : Math.min(textPart.area().top(), top);
+            bottom = (bottom == -1) ? textPart.area().bottom() : Math.max(textPart.area().bottom(), bottom);
         }
     }
 
-    public void adjustVerticalAlignment() {
-        long offsetY = offsetY();
+    public void adjustVerticalAlignment(TextVerticalAlignment verticalAlignment) {
+        long offsetY = offsetY(verticalAlignment);
         if (offsetY != 0) {
             for (TextPart textPart : textParts) {
                 textPart.area().moveY(offsetY);
@@ -35,7 +33,7 @@ public class ControlContent extends ContentBuffer {
         }
     }
 
-    private long offsetY() {
+    private long offsetY(TextVerticalAlignment verticalAlignment) {
         long textHeight  = bottom - top;
         if (textHeight < textArea.height()) {
             switch (verticalAlignment) {
@@ -48,5 +46,15 @@ public class ControlContent extends ContentBuffer {
             }
         }
         return 0;
+    }
+
+    public ControlContent adjustArea(Area textArea) {
+        this.textArea = textArea;
+        for (TextPart textPart : textParts) {
+            textPart.area()
+                    .moveX(textArea.left())
+                    .moveY(textArea.top());
+        }
+        return this;
     }
 }

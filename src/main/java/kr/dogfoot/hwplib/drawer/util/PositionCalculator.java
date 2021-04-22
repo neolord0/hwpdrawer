@@ -5,6 +5,7 @@ import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
 import kr.dogfoot.hwplib.drawer.painter.Painter;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.CtrlHeaderGso;
+import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.VertRelTo;
 
 public class PositionCalculator {
     private final static PositionCalculator singleObject = new PositionCalculator();
@@ -22,8 +23,9 @@ public class PositionCalculator {
 
         Area area = new Area(0, 0, width(), height());
         if (!gsoHeader.getProperty().isLikeWord()) {
-            area.moveX(xOffset(area.width()));
-            area.moveY(yOffset(area.height()));
+            area
+                    .moveX(xOffset(area.width()) + gsoHeader.getOutterMarginLeft())
+                    .moveY(yOffset(area.height()) + gsoHeader.getOutterMarginTop());
         }
         return area;
     }
@@ -107,10 +109,14 @@ public class PositionCalculator {
                 criterionArea = info.paragraphArea();
                 break;
         }
+
         if (criterionArea == null) {
             return 0;
         }
         long yOffset = gsoHeader.getyOffset();
+        if (gsoHeader.getProperty().getVertRelTo() == VertRelTo.Para) {
+            yOffset = Math.max(0, yOffset);
+        }
         switch (gsoHeader.getProperty().getVertRelativeArrange()) {
             case TopOrLeft:
             case Inside:

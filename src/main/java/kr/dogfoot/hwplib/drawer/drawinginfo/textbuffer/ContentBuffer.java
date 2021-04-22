@@ -11,10 +11,13 @@ public class ContentBuffer {
     protected TreeSet<ControlCharInfo> behindControls;
     protected TreeSet<ControlCharInfo> notBehindControls;
 
+    private long height;
+
     public ContentBuffer() {
         textParts = new ArrayList<>();
         behindControls = new TreeSet<>();
         notBehindControls = new TreeSet<>();
+        height = 0;
     }
 
     public void addTextPart(TextPart textPart) {
@@ -47,4 +50,11 @@ public class ContentBuffer {
         return notBehindControls;
     }
 
+    public long height() {
+        return height;
+    }
+
+    public void height(long height) {
+        this.height = height;
+    }
 }

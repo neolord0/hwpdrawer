@@ -67,11 +67,9 @@ public class TextLineDrawer {
     }
 
     public void addChar(CharInfo charInfo) {
-        maxCharHeight = (charInfo.height() > maxCharHeight) ? charInfo.height() : maxCharHeight;
+        maxCharHeight = Math.max(charInfo.height(), maxCharHeight);
         if (charInfo.type() == CharInfo.Type.Normal) {
-            maxCharHeightOnlyNormalText = (charInfo.height() > maxCharHeightOnlyNormalText)
-                    ? charInfo.height()
-                    : maxCharHeightOnlyNormalText;
+            maxCharHeightOnlyNormalText = Math.max(charInfo.height(), maxCharHeightOnlyNormalText);
         }
         currentTextPart.addCharInfo(charInfo);
         if (charInfo.character().isSpace()) {
@@ -143,14 +141,19 @@ public class TextLineDrawer {
         return this;
     }
 
-    public void saveToContentBuffer() {
+    public boolean saveToContentBuffer() {
+        boolean saved = false;
         for (TextPart part : parts) {
-            part
-                    .maxCharHeight(maxCharHeight)
-                    .alignment(info.paraShape().getProperty1().getAlignment());
-            info.contentBuffer().addTextPart(part);
+            if (part.hasNormalChar()) {
+                part
+                        .maxCharHeight(maxCharHeight)
+                        .alignment(info.paraShape().getProperty1().getAlignment());
+                info.contentBuffer().addTextPart(part);
+                saved = true;
+            }
         }
         parts.clear();
+        return saved;
     }
 
     public String text() {

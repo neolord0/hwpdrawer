@@ -117,8 +117,8 @@ public class DrawingInfo {
         bodyTextParagraphListInfo = paragraphListInfo;
     }
 
-    public DrawingInfo newControlText(Area area, TextVerticalAlignment verticalAlignment) {
-        controlContent = new ControlContent(area, verticalAlignment);
+    public DrawingInfo newControlText(Area area) {
+        controlContent = new ControlContent(area);
         return this;
     }
 
@@ -140,6 +140,7 @@ public class DrawingInfo {
     }
 
     public void endParagraphList() {
+        contentBuffer().height(paragraphListInfo().paragraphStartY());
         paragraphInfoStack.pop();
     }
 

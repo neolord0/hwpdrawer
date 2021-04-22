@@ -45,7 +45,7 @@ public class HWPTester {
                 System.out.println("match page " + pageNo);
             }
         }
-            Assert.assertTrue(succuess);
+        Assert.assertTrue(succuess);
     }
 
     public static void test(String path) throws Exception {

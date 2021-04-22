@@ -57,6 +57,7 @@ public class PagePainter {
     }
 
     private void paintPage() throws Exception {
+
         painter.controlPainter().paintControls(info.page().behindControls());
         painter.textDrawer().paintTextParts(info.page().textParts());
         painter.controlPainter().paintControls(info.page().notBehindControls());

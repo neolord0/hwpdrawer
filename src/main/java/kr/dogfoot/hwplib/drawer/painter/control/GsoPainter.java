@@ -21,54 +21,54 @@ public class GsoPainter {
         this.info = info;
     }
 
-    public void line(ControlLine line, Area area) {
+    public void line(ControlLine line, Area areaWithoutOuterMargin) {
     }
 
-    public void rectangle(ControlRectangle rectangle, Area area) throws Exception {
+    public void rectangle(ControlRectangle rectangle, Area areaWithoutOuterMargin) throws Exception {
         painter.testBackStyle();
-        painter.rectangle(area, true);
+        painter.rectangle(areaWithoutOuterMargin, true);
+        drawText(areaWithoutOuterMargin, rectangle.getTextBox());
         painter.setLineStyle(BorderType.Solid, BorderThickness.MM0_12, new Color4Byte(0, 0 , 0, 0));
-        painter.rectangle(area, false);
-        drawText(area, rectangle.getTextBox());
+        painter.rectangle(areaWithoutOuterMargin, false);
     }
 
-    public void ellipse(ControlEllipse ellipse, Area area) {
+    public void ellipse(ControlEllipse ellipse, Area areaWithoutOuterMargin) {
     }
 
-    public void arc(ControlArc arc, Area area) {
+    public void arc(ControlArc arc, Area areaWithoutOuterMargin) {
     }
 
-    public void polygon(ControlPolygon polygon, Area area) {
+    public void polygon(ControlPolygon polygon, Area areaWithoutOuterMargin) {
     }
 
-    public void curve(ControlCurve curve, Area area) {
+    public void curve(ControlCurve curve, Area areaWithoutOuterMargin) {
     }
 
-    public void picture(ControlPicture picture, Area area) {
+    public void picture(ControlPicture picture, Area areaWithoutOuterMargin) {
     }
 
-    public void ole(ControlOLE ole, Area area) {
+    public void ole(ControlOLE ole, Area areaWithoutOuterMargin) {
     }
 
-    public void container(ControlContainer container, Area area) {
+    public void container(ControlContainer container, Area areaWithoutOuterMargin) {
     }
 
-    public void objectLinkLine(ControlObjectLinkLine objectLinkLine, Area area) {
+    public void objectLinkLine(ControlObjectLinkLine objectLinkLine, Area areaWithoutOuterMargin) {
     }
 
-    private void drawText(Area area, TextBox textBox) throws Exception {
+    private void drawText(Area areaWithoutOuterMargin, TextBox textBox) throws Exception {
         if (textBox == null) {
             return;
         }
 
-        Area textArea = new Area(area).applyMargin(
+        Area textArea = new Area(areaWithoutOuterMargin).applyMargin(
                 textBox.getListHeader().getLeftMargin(),
                 textBox.getListHeader().getTopMargin(),
                 textBox.getListHeader().getRightMargin(),
                 textBox.getListHeader().getBottomMargin());
 
         info
-                .newControlText(textArea, textBox.getListHeader().getProperty().getTextVerticalAlignment())
+                .newControlText(textArea)
                 .startControlParagraphList(textArea);
 
         ParagraphDrawer paragraphDrawer = new ParagraphDrawer(info);
@@ -77,7 +77,8 @@ public class GsoPainter {
             paragraphDrawer.draw(paragraph);
         }
 
-        info.controlContent().adjustVerticalAlignment();
+        info.controlContent()
+                .adjustVerticalAlignment(textBox.getListHeader().getProperty().getTextVerticalAlignment());
 
         paintControlContent();
 

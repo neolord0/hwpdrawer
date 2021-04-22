@@ -3,6 +3,7 @@ package kr.dogfoot.hwplib.drawer.paragraph.textflow;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
 import kr.dogfoot.hwplib.drawer.paragraph.ParagraphDrawer;
 import kr.dogfoot.hwplib.drawer.util.Area;
+import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.VertRelTo;
 
 public class TextFlowCalculator {
     private ForTopBottom forTopBottom;
@@ -14,7 +15,7 @@ public class TextFlowCalculator {
     }
 
     public void addForTopBottom(ControlCharInfo controlCharInfo) {
-        forTopBottom.addTopBottomArea(controlCharInfo.area());
+        forTopBottom.addTopBottomArea(controlCharInfo.areaWithOuterMargin(), controlCharInfo.header().getProperty().getVertRelTo());
     }
 
     public void addForSquare(ControlCharInfo controlCharInfo) {
@@ -28,8 +29,8 @@ public class TextFlowCalculator {
 
     public Result calculate(Area textLineArea) {
         Area tempTextLineArea = new Area(textLineArea);
-        long offsetY = forTopBottom.calculate(tempTextLineArea);
-        tempTextLineArea.moveY(offsetY);
+        ForTopBottom.Result resultForTopBottom = forTopBottom.calculate(tempTextLineArea);
+        tempTextLineArea.moveY(resultForTopBottom.yOffset());
 
         Result result = forSquare.calculate(tempTextLineArea);
         if (result.dividedAreas == null) {
@@ -39,7 +40,10 @@ public class TextFlowCalculator {
         } else {
             result.nextState = ParagraphDrawer.DrawingState.StartRecalculating;
         }
-        result.offsetY += offsetY;
+        result.offsetY += resultForTopBottom.yOffset();
+        if (resultForTopBottom.yOffset() > 0 && resultForTopBottom.vertRelTo() == VertRelTo.Para) {
+            result.cancelNewLine = true;
+        }
         return result;
     }
 
@@ -47,10 +51,13 @@ public class TextFlowCalculator {
         private Area[] dividedAreas;
         private long offsetY;
         private ParagraphDrawer.DrawingState nextState;
+        private boolean cancelNewLine;
 
         public Result(Area[] dividedAreas, long offsetY) {
             this.dividedAreas = dividedAreas;
             this.offsetY = offsetY;
+            nextState = ParagraphDrawer.DrawingState.Normal;
+            cancelNewLine = false;
         }
 
         public Area[] dividedAreas() {
@@ -63,6 +70,10 @@ public class TextFlowCalculator {
 
         public ParagraphDrawer.DrawingState nextState() {
             return nextState;
+        }
+
+        public boolean cancelNewLine() {
+            return cancelNewLine;
         }
     }
 }

@@ -29,6 +29,7 @@ public class ParagraphDrawer {
     private TextLineDrawer textLineDrawer;
     private WordSplitter wordSplitter;
     private TextFlowCalculator textFlowCalculator;
+    private boolean cancelNewLine;
 
     private DrawingState drawingState;
     private boolean newLineAtRecalculating;
@@ -80,15 +81,15 @@ public class ParagraphDrawer {
         drawingState = DrawingState.Normal;
         newLineAtRecalculating = false;
         newLineAtNormal = false;
-
         if (info.noText()) {
             saveTextLineAndNewLine();
         } else {
             processChar();
         }
-
-        long paragraphHeight =  currentTextLineArea.top() - info.paragraphArea().top();
-
+        long paragraphHeight = currentTextLineArea.top() - info.paragraphArea().top();
+        if (paragraph.getHeader().isLastInList()) {
+            paragraphHeight -= (lineHeight - textLineDrawer.maxCharHeight());
+        }
         boolean newPage = info.endParagraph(paragraphHeight);
         if (newPage) {
             saveAndNewPage();
@@ -337,6 +338,7 @@ public class ParagraphDrawer {
 
     public void saveTextLineAndNewLine() throws Exception {
         if (!textLineDrawer.justNewLine() && drawingState.canAddChar()) {
+            cancelNewLine = false;
             lineHeight = textLineDrawer.lineHeight();
             checkTextFlow();
             saveTextLine();
@@ -345,7 +347,6 @@ public class ParagraphDrawer {
             newLineAtRecalculating = false;
             newLineAtNormal = false;
         }
-
     }
 
     private boolean isOverBottom(long height) {
@@ -359,8 +360,9 @@ public class ParagraphDrawer {
             TextFlowCalculator.Result result = textFlowCalculator.calculate(currentTextLineArea);
             currentTextLineArea
                     .moveY(result.offsetY());
-            textLineDrawer.area(currentTextLineArea);
+            cancelNewLine = result.cancelNewLine();
 
+            textLineDrawer.area(currentTextLineArea);
             drawingState = result.nextState();
 
             if (drawingState == DrawingState.StartRecalculating) {
@@ -393,12 +395,13 @@ public class ParagraphDrawer {
         }
     }
 
-
     private void nextArea() {
         switch(drawingState) {
             case Normal:
             case StartRedrawing:
-                currentTextLineArea.moveY(lineHeight);
+                if (!cancelNewLine) {
+                    currentTextLineArea.moveY(lineHeight);
+                }
                 textLineDrawer
                         .reset()
                         .addNewTextPart(currentTextLineArea);

@@ -191,11 +191,9 @@ public class TextPainter {
                             (long) (charInfo.x() / stretchRate),
                             getY(charInfo));
                 } else if (charInfo.type() == CharInfo.Type.Control
-                        && ((ControlCharInfo) charInfo).control() != null) {
-                    Area area = new Area(charInfo.x(), part.area().bottom() - part.maxCharHeight(),0,0)
-                            .width((long) charInfo.width())
-                            .height(charInfo.height())
-                            .moveY(50);
+                        && ((ControlCharInfo) charInfo).control() != null
+                        && ((ControlCharInfo) charInfo).isLikeLetter()) {
+                    Area area = controlArea(part, (ControlCharInfo) charInfo);
                     painter.rectangle(area, false);
                 }
 
@@ -209,11 +207,17 @@ public class TextPainter {
         }
     }
 
+    private Area controlArea(TextPart part, ControlCharInfo controlCharInfo) {
+        Area area = new Area(0, 0, controlCharInfo.areaWithoutOuterMargin().width(),controlCharInfo.areaWithoutOuterMargin().height())
+                .moveX(controlCharInfo.x() - (controlCharInfo.areaWithOuterMargin().left() - controlCharInfo.areaWithoutOuterMargin().left()))
+                .moveY(part.area().bottom() - controlCharInfo.areaWithoutOuterMargin().width() - (controlCharInfo.areaWithOuterMargin().bottom() - controlCharInfo.areaWithoutOuterMargin().bottom()));
+        return area;
+    }
+
     private long getY(CharInfo charInfo) {
         return (long) (baseLine
                 - painter.textOffsetY(((NormalCharInfo) charInfo)))
                 + charInfo.height() * charInfo.charShape().getCharOffsets().getHangul() / 100;
-
     }
 
     private void paintUnder_StrikeLine(TextPart part) throws UnsupportedEncodingException {

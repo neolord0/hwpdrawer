@@ -24,7 +24,6 @@ public class ParagraphListInfo {
     private int charShapeIndex;
     private CharShape charShape;
 
-
     public ParagraphListInfo(DrawingInfo info) {
         this.info = info;
         paragraphStartY = 0;

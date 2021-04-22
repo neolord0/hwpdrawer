@@ -18,7 +18,7 @@ public class ForSquare {
     }
 
     public void add(ControlCharInfo controlCharInfo) {
-        squareAreas.add(new SquareArea(controlCharInfo.area(),
+        squareAreas.add(new SquareArea(controlCharInfo.areaWithOuterMargin(),
                 controlCharInfo.header()));
     }
 
@@ -134,12 +134,11 @@ public class ForSquare {
     }
 
     private long offsetY(Area textLineArea) {
-        long minBottom = 0;
+        long minBottom = -1;
 
         for (SquareArea squareArea : squareAreas) {
             if (squareArea.area.intersects(textLineArea)) {
-                minBottom = (minBottom == 0 || minBottom > squareArea.area.bottom()) ?
-                        squareArea.area.bottom() : minBottom;
+                minBottom = (minBottom == -1) ? squareArea.area.bottom() : Math.min(squareArea.area.bottom(), minBottom);
             }
         }
         return minBottom - textLineArea.bottom();
