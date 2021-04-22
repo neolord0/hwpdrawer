@@ -34,13 +34,14 @@ public class TablePainter {
             for (Cell cell : row.getCellList()) {
                 ListHeaderForCell lh = cell.getListHeader();
                 cellContent[lh.getColIndex()][lh.getRowIndex()] = drawCell(lh.getWidth(), cell);
+                long calculatedHeight = cellContent[lh.getColIndex()][lh.getRowIndex()].height() + lh.getTopMargin() + lh.getBottomMargin();
 
                 cellPositionCalculator
                         .addColumnInfo(lh.getColIndex(), lh.getColSpan(), lh.getWidth())
                         .addRowInfo(
                                 lh.getRowIndex(),
                                 lh.getRowSpan(),
-                                Math.max(cellContent[lh.getColIndex()][lh.getRowIndex()].height() + lh.getTopMargin() + lh.getBottomMargin(), lh.getHeight()));
+                                Math.max(calculatedHeight, lh.getHeight()));
             }
         }
 

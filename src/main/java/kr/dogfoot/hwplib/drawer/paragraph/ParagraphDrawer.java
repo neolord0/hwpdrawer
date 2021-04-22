@@ -360,7 +360,7 @@ public class ParagraphDrawer {
             TextFlowCalculator.Result result = textFlowCalculator.calculate(currentTextLineArea);
             currentTextLineArea
                     .moveY(result.offsetY());
-            cancelNewLine = result.cancelNewLine();
+            cancelNewLine = result.cancelNewLine() && textLineDrawer.noNormalChar();
 
             textLineDrawer.area(currentTextLineArea);
             drawingState = result.nextState();

@@ -1,5 +1,7 @@
 package kr.dogfoot.hwplib.drawer.painter.control;
 
+import kr.dogfoot.hwplib.object.bodytext.control.table.Row;
+
 import java.util.ArrayList;
 
 public class CellPositionCalculator {
@@ -20,6 +22,9 @@ public class CellPositionCalculator {
 
         rowInfos.clear();
         rowHeights = new long[rowCount];
+        for (int index = 0; index < rowCount; index++) {
+            rowHeights[index] = -1;
+        }
    }
 
 
@@ -29,17 +34,40 @@ public class CellPositionCalculator {
     }
 
     public void calculate() {
-        for (RowInfo rowInfo : rowInfos) {
-            if (rowInfo.span == 1) {
-                set(rowInfo.index, rowInfo.height);
-            }
-        }
-        for (RowInfo rowInfo : rowInfos) {
-            if (rowInfo.span > 1) {
-                if (rowInfo.height > height(rowInfo.index, rowInfo.span)) {
-                    set(rowInfo.index + rowInfo.span - 1, rowInfo.height - height(rowInfo.index, rowInfo.span - 1));
+        ArrayList<RowInfo> deletings = new ArrayList<>();
+        while(rowInfos.size() > 0) {
+            for (RowInfo rowInfo : rowInfos) {
+                int emptyIndex = emptyIndex(rowInfo);
+                if (emptyIndex >= 0) {
+                    set(emptyIndex, rowInfo.height - height(rowInfo.index, rowInfo.span));
+                    deletings.add(rowInfo);
+                } else if (emptyIndex == -1) {
+                    if (rowInfo.height > height(rowInfo.index, rowInfo.span)) {
+                        set(rowInfo.index + rowInfo.span - 1, rowInfo.height - height(rowInfo.index, rowInfo.span - 1));
+                    }
+                    deletings.add(rowInfo);
                 }
             }
+            rowInfos.removeAll(deletings);
+            deletings.clear();
+        }
+    }
+
+    private int emptyIndex(RowInfo rowInfo) {
+        int count = 0;
+        int emptyIndex = -1;
+        for (int index = rowInfo.index; index < rowInfo.index + rowInfo.span; index++) {
+            if (rowHeights[index] == -1) {
+                count++;
+                emptyIndex = index;
+            }
+        }
+        if (count == 0) {
+            return -1;
+        } else if (count > 1){
+            return -2;
+        } else {
+            return emptyIndex;
         }
     }
 
@@ -53,7 +81,9 @@ public class CellPositionCalculator {
     public long height(int rowIndex, int rowSpan) {
         long height = 0;
         for (int index = rowIndex ; index < rowIndex + rowSpan; index++) {
-            height += rowHeights[index];
+            if (rowHeights[index] != -1) {
+                height += rowHeights[index];
+            }
         }
         return height;
     }
