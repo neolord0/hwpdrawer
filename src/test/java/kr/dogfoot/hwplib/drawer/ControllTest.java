@@ -6,8 +6,13 @@ import java.io.File;
 
 public class ControllTest {
     @Test
-    public void test_위치() throws Exception {
-        HWPTester.testAndCompare("testingHWP" + File.separator + "컨트롤" + File.separator + "위치");
+    public void test_위치1() throws Exception {
+        HWPTester.testAndCompare("testingHWP" + File.separator + "컨트롤" + File.separator + "위치1");
+    }
+
+    @Test
+    public void test_위치2() throws Exception {
+        HWPTester.testAndCompare("testingHWP" + File.separator + "컨트롤" + File.separator + "위치2");
     }
 
     @Test

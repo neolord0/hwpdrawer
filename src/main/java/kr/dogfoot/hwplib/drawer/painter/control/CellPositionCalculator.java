@@ -1,7 +1,5 @@
 package kr.dogfoot.hwplib.drawer.painter.control;
 
-import kr.dogfoot.hwplib.object.bodytext.control.table.Row;
-
 import java.util.ArrayList;
 
 public class CellPositionCalculator {

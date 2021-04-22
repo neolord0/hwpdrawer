@@ -15,7 +15,6 @@ import java.io.IOException;
 
 public class PagePainter {
     private DrawingInfo info;
-    private DrawingOption option;
 
     private Painter painter;
     private int currentPageNo;
