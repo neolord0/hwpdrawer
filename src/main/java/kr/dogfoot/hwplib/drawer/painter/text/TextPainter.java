@@ -30,13 +30,13 @@ public class TextPainter {
         strikeLinePainter = new StrikeLinePainter(painter);
     }
 
-    public void paintTextParts(ArrayList<TextPart> parts) throws UnsupportedEncodingException {
+    public void paintTextParts(ArrayList<TextPart> parts) throws Exception {
         for (TextPart part : parts) {
             paintTextPart(part);
         }
     }
 
-    private void paintTextPart(TextPart part) throws UnsupportedEncodingException {
+    private void paintTextPart(TextPart part) throws Exception {
         baseLine = part.area().top() + part.maxCharHeight();
         drawingCharShape = null;
 
@@ -63,7 +63,7 @@ public class TextPainter {
         paintUnder_StrikeLine(part);
     }
 
-    private void justify(TextPart part) throws UnsupportedEncodingException {
+    private void justify(TextPart part) throws Exception {
         charX = part.area().left();
         if (part.lastLine() == false) {
             if (part.spaceCountWithExceptingLastSpace() != 0) {
@@ -126,42 +126,42 @@ public class TextPainter {
         return charAddings;
     }
 
-    private void left(TextPart part) throws UnsupportedEncodingException {
+    private void left(TextPart part) throws Exception {
         charX = part.area().left();
         spaceAddings = null;
         charAddings = null;
         paintInOrder(part);
     }
 
-    private void right(TextPart part) throws UnsupportedEncodingException {
+    private void right(TextPart part) throws Exception {
         charX = part.area().right() - part.textWidthWithExceptingLastSpace();
         spaceAddings = null;
         charAddings = null;
         paintInOrder(part);
     }
 
-    private void center(TextPart part) throws UnsupportedEncodingException {
+    private void center(TextPart part) throws Exception {
         charX = part.area().left() + (part.area().width() - part.textWidthWithExceptingLastSpace()) / 2;
         spaceAddings = null;
         charAddings = null;
         paintInOrder(part);
     }
 
-    private void distribute(TextPart part) throws UnsupportedEncodingException {
+    private void distribute(TextPart part) throws Exception {
         charX = part.area().left();
         spaceAddings = null;
         charAddings = charAddings(part);
         paintInOrder(part);
     }
 
-    private void divide(TextPart part) throws UnsupportedEncodingException {
+    private void divide(TextPart part) throws Exception {
         charX = part.area().left();
         spaceAddings = spaceAddings(part);
         charAddings = null;
         paintInOrder(part);
     }
 
-    private void paintInOrder(TextPart part) throws UnsupportedEncodingException {
+    private void paintInOrder(TextPart part) throws Exception {
         short oldRatio = 100;
         double stretchRate = 1;
 
@@ -194,7 +194,8 @@ public class TextPainter {
                         && ((ControlCharInfo) charInfo).control() != null
                         && ((ControlCharInfo) charInfo).isLikeLetter()) {
                     Area area = controlArea(part, (ControlCharInfo) charInfo);
-                    painter.rectangle(area, false);
+
+                    painter.controlPainter().paint((ControlCharInfo) charInfo, area);
                 }
 
                 charX += charInfo.widthAddingCharSpace();
@@ -208,9 +209,9 @@ public class TextPainter {
     }
 
     private Area controlArea(TextPart part, ControlCharInfo controlCharInfo) {
-        Area area = new Area(0, 0, controlCharInfo.areaWithoutOuterMargin().width(),controlCharInfo.areaWithoutOuterMargin().height())
+        Area area = new Area(0, 0, controlCharInfo.areaWithoutOuterMargin().width(), controlCharInfo.areaWithoutOuterMargin().height())
                 .moveX(controlCharInfo.x() - (controlCharInfo.areaWithOuterMargin().left() - controlCharInfo.areaWithoutOuterMargin().left()))
-                .moveY(part.area().bottom() - controlCharInfo.areaWithoutOuterMargin().width() - (controlCharInfo.areaWithOuterMargin().bottom() - controlCharInfo.areaWithoutOuterMargin().bottom()));
+                .moveY(part.area().bottom() - controlCharInfo.areaWithoutOuterMargin().height() - (controlCharInfo.areaWithOuterMargin().bottom() - controlCharInfo.areaWithoutOuterMargin().bottom()));
         return area;
     }
 

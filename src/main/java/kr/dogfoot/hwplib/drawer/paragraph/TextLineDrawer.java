@@ -2,6 +2,7 @@ package kr.dogfoot.hwplib.drawer.paragraph;
 
 import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfo;
+import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.docinfo.ParaShape;
 
@@ -14,7 +15,7 @@ public class TextLineDrawer {
     private TextPart currentTextPart;
 
     private long maxCharHeight;
-    private long maxCharHeightOnlyNormalText;
+    private long maxBaseSize;
     private long wordsWidth;
     private long spacesWidth;
     private boolean justNewLine;
@@ -39,7 +40,7 @@ public class TextLineDrawer {
         currentTextPart = null;
 
         maxCharHeight = 0;
-        maxCharHeightOnlyNormalText = 0;
+        maxBaseSize = 0;
         resetPart();
 
         return this;
@@ -58,6 +59,9 @@ public class TextLineDrawer {
         currentTextPart = textPart;
     }
 
+    public TextPart currentTextPart() {
+        return currentTextPart;
+    }
     public boolean justNewLine() {
         return justNewLine;
     }
@@ -68,9 +72,8 @@ public class TextLineDrawer {
 
     public void addChar(CharInfo charInfo) {
         maxCharHeight = Math.max(charInfo.height(), maxCharHeight);
-        if (charInfo.type() == CharInfo.Type.Normal) {
-            maxCharHeightOnlyNormalText = Math.max(charInfo.height(), maxCharHeightOnlyNormalText);
-        }
+        maxBaseSize = Math.max(charInfo.charShape().getBaseSize(), maxBaseSize);
+
         currentTextPart.addCharInfo(charInfo);
         if (charInfo.character().isSpace()) {
             spacesWidth += charInfo.widthAddingCharSpace();
@@ -102,20 +105,20 @@ public class TextLineDrawer {
 
     public long lineHeight() {
         long lineGap = 0;
-        long maxCharHeightOnlyNormalText2 = (noNormalChar())
+        long maxBasSize2 = (noNormalChar())
                 ? info.charShape().getBaseSize()
-                : maxCharHeightOnlyNormalText;
+                : maxBaseSize;
         ParaShape paraShape = info.paraShape();
         switch (paraShape.getProperty1().getLineSpaceSort()) {
             case RatioForLetter:
                 if (paraShape.getLineSpace() == paraShape.getLineSpace2()) {
-                    lineGap = maxCharHeightOnlyNormalText2 * paraShape.getLineSpace() / 100 - maxCharHeightOnlyNormalText2;
+                    lineGap = maxBasSize2 * paraShape.getLineSpace() / 100 - maxBasSize2;
                 } else {
-                    lineGap = Math.max(maxCharHeightOnlyNormalText, paraShape.getLineSpace2() / 2) - maxCharHeightOnlyNormalText2;
+                    lineGap = Math.max(maxBasSize2, paraShape.getLineSpace2() / 2) - maxBasSize2;
                 }
                 break;
             case FixedValue:
-                lineGap = paraShape.getLineSpace() / 2 - maxCharHeightOnlyNormalText2;
+                lineGap = paraShape.getLineSpace() / 2 - maxBasSize2;
                 break;
             case OnlyMargin:
                 lineGap = paraShape.getLineSpace() / 2;
@@ -160,7 +163,7 @@ public class TextLineDrawer {
         StringBuilder sb = new StringBuilder();
         for (TextPart textPart : parts) {
             sb.append(textPart.text());
-            sb.append("\r\n");
+            sb.append(":");
         }
         return sb.toString();
     }

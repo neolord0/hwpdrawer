@@ -61,9 +61,9 @@ public class ParagraphListInfo {
 
     private void setParagraphArea() {
         paragraphArea = new Area(textArea)
-                .applyMargin(paraShape().getLeftMargin(),
-                        paraShape().getTopParaSpace(),
-                        paraShape().getRightMargin(),
+                .applyMargin(paraShape().getLeftMargin() / 2,
+                        paraShape().getTopParaSpace() / 2,
+                        paraShape().getRightMargin() / 2,
                         0);
 
         paragraphArea.top(paragraphArea.top() + paragraphStartY);
@@ -90,7 +90,7 @@ public class ParagraphListInfo {
     }
 
     public void endParagraph(long paragraphHeight) {
-        paragraphStartY += paragraphHeight + paraShape().getBottomParaSpace();
+        paragraphStartY += paragraphHeight + paraShape().getBottomParaSpace() / 2;
     }
 
     public Paragraph paragraph() {

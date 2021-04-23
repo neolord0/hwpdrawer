@@ -23,6 +23,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.*;
 
 public class ParagraphDrawer {
+    public static final long NewPageGap = 0;
     private PagePainter pagePainter;
     private DrawingInfo info;
 
@@ -34,6 +35,7 @@ public class ParagraphDrawer {
     private DrawingState drawingState;
     private boolean newLineAtRecalculating;
     private boolean newLineAtNormal;
+    private boolean firstLine;
 
     private Map<Integer, CharInfo> charInfos;
 
@@ -75,7 +77,6 @@ public class ParagraphDrawer {
 
     public void draw(Paragraph paragraph) throws Exception {
         info.startParagraph(paragraph);
-
         initialize();
 
         drawingState = DrawingState.Normal;
@@ -92,6 +93,7 @@ public class ParagraphDrawer {
         }
         boolean newPage = info.endParagraph(paragraphHeight);
         if (newPage) {
+            System.out.println("CC");
             saveAndNewPage();
         }
     }
@@ -104,9 +106,16 @@ public class ParagraphDrawer {
 
         currentTextLineArea = new Area(info.paragraphArea()).height(0);
         textLineDrawer
-                .initialize()
-                .addNewTextPart(currentTextLineArea);
+                .initialize();
 
+        if (info.paraShape().getIndent() > 0) {
+            textLineDrawer
+                .addNewTextPart(currentTextLineArea.left(currentTextLineArea.left() + info.paraShape().getIndent() / 2));
+        } else {
+            textLineDrawer
+                    .addNewTextPart(currentTextLineArea);
+        }
+        firstLine = true;
         controlExtendCharIndex = 0;
 
         recalculatingTextAreas.clear();
@@ -204,6 +213,10 @@ public class ParagraphDrawer {
 
     private void endRecalculating() {
         currentTextLineArea = storedTextLineArea.moveY(lineHeight);
+        if (firstLine == true) {
+            currentTextLineArea.left(currentTextLineArea.left() - info.paraShape().getIndent() / 2);
+            firstLine = false;
+        }
         textLineDrawer
                 .reset()
                 .addNewTextPart(currentTextLineArea);
@@ -313,8 +326,8 @@ public class ParagraphDrawer {
     }
 
     private void checkNewPage() throws Exception {
-        if (isOverBottom(textLineDrawer.maxCharHeight())) {
-            if (info.isBodyText() == true) {
+        if (info.isBodyText()) {
+            if (isOverBottom(textLineDrawer.maxCharHeight())) {
                 saveAndNewPage();
             }
         }
@@ -322,13 +335,14 @@ public class ParagraphDrawer {
 
     private void saveAndNewPage() throws Exception {
         if (info.isBodyText()) {
+            System.out.println("save and newpage");
             pagePainter.saveCurrentPage();
             info.newPage();
-        }
 
-        currentTextLineArea.top(info.pageArea().top());
-        textLineDrawer.area(currentTextLineArea);
-        textFlowCalculator.reset();
+            currentTextLineArea = new Area(info.paragraphArea());
+            textLineDrawer.area(currentTextLineArea);
+            textFlowCalculator.reset();
+        }
     }
 
     private void setLineFirst(int index, int position) {
@@ -341,6 +355,7 @@ public class ParagraphDrawer {
             cancelNewLine = false;
             lineHeight = textLineDrawer.lineHeight();
             checkTextFlow();
+            checkNewPage();
             saveTextLine();
             nextArea();
 
@@ -350,11 +365,11 @@ public class ParagraphDrawer {
     }
 
     private boolean isOverBottom(long height) {
-        return currentTextLineArea.top() + height > info.pageArea().bottom();
+        return info.pageArea().bottom() - (currentTextLineArea.top() + height) < NewPageGap;
     }
 
     private void checkTextFlow() {
-        if (drawingState == DrawingState.Normal) {
+        if (drawingState == DrawingState.Normal && info.noText() == false) {
             currentTextLineArea
                     .height(textLineDrawer.maxCharHeight());
             TextFlowCalculator.Result result = textFlowCalculator.calculate(currentTextLineArea);
@@ -377,7 +392,14 @@ public class ParagraphDrawer {
     private void saveTextLine() {
         switch (drawingState) {
             case Normal:
+                if (info.isBodyText()) {
+                    System.out.println(textLineDrawer.text());
+                }
                 textLineDrawer.saveToContentBuffer();
+                if (firstLine == true) {
+                    currentTextLineArea.left(currentTextLineArea.left() - info.paraShape().getIndent() / 2);
+                    firstLine = false;
+                }
                 if (newLineAtNormal) {
                     info.contentBuffer().setLastTextPartToLastLine();
                 }

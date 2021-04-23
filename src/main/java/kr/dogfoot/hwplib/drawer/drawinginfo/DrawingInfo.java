@@ -3,6 +3,7 @@ package kr.dogfoot.hwplib.drawer.drawinginfo;
 import kr.dogfoot.hwplib.drawer.drawinginfo.textbuffer.ControlContent;
 import kr.dogfoot.hwplib.drawer.drawinginfo.textbuffer.Page;
 import kr.dogfoot.hwplib.drawer.drawinginfo.textbuffer.ContentBuffer;
+import kr.dogfoot.hwplib.drawer.paragraph.ParagraphDrawer;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.HWPFile;
 import kr.dogfoot.hwplib.object.bodytext.Section;
@@ -159,7 +160,7 @@ public class DrawingInfo {
     }
 
     private boolean checkNewPage(ParagraphListInfo paragraphListInfo) throws IOException {
-        return paragraphListInfo.paragraphStartY() > pageArea().height();
+        return pageArea().height() - paragraphListInfo.paragraphStartY() < ParagraphDrawer.NewPageGap;
     }
 
     public ParagraphListInfo paragraphListInfo() {

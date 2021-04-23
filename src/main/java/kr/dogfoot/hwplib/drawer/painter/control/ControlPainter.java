@@ -5,6 +5,7 @@ import kr.dogfoot.hwplib.drawer.painter.Painter;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlTable;
 import kr.dogfoot.hwplib.object.bodytext.control.gso.*;
+import kr.dogfoot.hwplib.drawer.util.Area;
 
 import java.util.TreeSet;
 
@@ -27,44 +28,51 @@ public class ControlPainter {
         if (controlCharInfo.control() == null) {
             return;
         }
+        paint(controlCharInfo, controlCharInfo.areaWithoutOuterMargin());
+    }
+
+    public void paint(ControlCharInfo controlCharInfo, Area area) throws Exception {
+        if (controlCharInfo.control() == null) {
+            return;
+        }
         switch (controlCharInfo.control().getType()) {
             case Gso:
                 GsoControl gso = (GsoControl) controlCharInfo.control();
-                switch(gso.getGsoType()) {
+                switch (gso.getGsoType()) {
                     case Line:
-                        gsoPainter.line((ControlLine) gso, controlCharInfo.areaWithoutOuterMargin());
+                        gsoPainter.line((ControlLine) gso, area);
                         break;
                     case Rectangle:
-                        gsoPainter.rectangle((ControlRectangle) gso, controlCharInfo.areaWithoutOuterMargin());
+                        gsoPainter.rectangle((ControlRectangle) gso, area);
                         break;
                     case Ellipse:
-                        gsoPainter.ellipse((ControlEllipse) gso, controlCharInfo.areaWithoutOuterMargin());
+                        gsoPainter.ellipse((ControlEllipse) gso, area);
                         break;
                     case Arc:
-                        gsoPainter.arc((ControlArc) gso, controlCharInfo.areaWithoutOuterMargin());
+                        gsoPainter.arc((ControlArc) gso, area);
                         break;
                     case Polygon:
-                        gsoPainter.polygon((ControlPolygon) gso, controlCharInfo.areaWithoutOuterMargin());
+                        gsoPainter.polygon((ControlPolygon) gso, area);
                         break;
                     case Curve:
-                        gsoPainter.curve((ControlCurve) gso, controlCharInfo.areaWithoutOuterMargin());
+                        gsoPainter.curve((ControlCurve) gso, area);
                         break;
                     case Picture:
-                        gsoPainter.picture((ControlPicture) gso, controlCharInfo.areaWithoutOuterMargin());
+                        gsoPainter.picture((ControlPicture) gso, area);
                         break;
                     case OLE:
-                        gsoPainter.ole((ControlOLE) gso, controlCharInfo.areaWithoutOuterMargin());
+                        gsoPainter.ole((ControlOLE) gso, area);
                         break;
                     case Container:
-                        gsoPainter.container((ControlContainer) gso, controlCharInfo.areaWithoutOuterMargin());
+                        gsoPainter.container((ControlContainer) gso, area);
                         break;
                     case ObjectLinkLine:
-                        gsoPainter.objectLinkLine((ControlObjectLinkLine) gso, controlCharInfo.areaWithoutOuterMargin());
+                        gsoPainter.objectLinkLine((ControlObjectLinkLine) gso, area);
                         break;
                 }
                 break;
             case Table:
-                tablePainter.paint((ControlTable) controlCharInfo.control(), controlCharInfo.areaWithoutOuterMargin());
+                tablePainter.paint((ControlTable) controlCharInfo.control(), area);
                 break;
         }
     }

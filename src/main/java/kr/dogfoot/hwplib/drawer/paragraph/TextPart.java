@@ -57,7 +57,8 @@ public class TextPart {
         if (charInfo.character().isSpace()) {
             spaceCount++;
         }
-        if (charInfo.type() == CharInfo.Type.Normal) {
+        if (charInfo.type() == CharInfo.Type.Normal
+            || (charInfo.type() == CharInfo.Type.Control && ((ControlCharInfo) charInfo).isLikeLetter())) {
             hasNormalChar = true;
         }
     }
@@ -144,10 +145,7 @@ public class TextPart {
                 NormalCharInfo normalCharInfo = (NormalCharInfo) charInfo;
                 try {
                     sb
-                            .append(normalCharInfo.normalCharacter().getCh())
-                            .append("(")
-                            .append(charInfo.index())
-                            .append(")");
+                            .append(normalCharInfo.normalCharacter().getCh());
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 }
@@ -155,17 +153,11 @@ public class TextPart {
                 ControlCharInfo controlCharInfo = (ControlCharInfo) charInfo;
                 if(controlCharInfo.control() == null) {
                     sb
-                            .append(controlCharInfo.character().getCode())
-                            .append("(")
-                            .append(charInfo.index())
-                            .append(")");
+                            .append(controlCharInfo.character().getCode());
 
                 } else {
                     sb
-                            .append(controlCharInfo.control().getType())
-                            .append("(")
-                            .append(charInfo.index())
-                            .append(")");
+                            .append(controlCharInfo.control().getType());
                 }
 
             }
