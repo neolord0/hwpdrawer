@@ -46,8 +46,12 @@ public class ParagraphTest {
     }
 
     @Test
-    public void test_문단모양_들여쓰기내어쓰기() throws Exception {
-        HWPTester.testAndCompare("testingHWP" + File.separator + "문단모양" + File.separator + "들여쓰기내어쓰기");
+    public void test_문단모양_들여쓰기내어쓰기1() throws Exception {
+        HWPTester.testAndCompare("testingHWP" + File.separator + "문단모양" + File.separator + "들여쓰기내어쓰기1");
     }
 
+    @Test
+    public void test_문단모양_들여쓰기내어쓰기2() throws Exception {
+        HWPTester.testAndCompare("testingHWP" + File.separator + "문단모양" + File.separator + "들여쓰기내어쓰기2");
+    }
 }

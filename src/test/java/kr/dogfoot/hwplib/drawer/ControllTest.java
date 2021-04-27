@@ -7,12 +7,17 @@ import java.io.File;
 public class ControllTest {
     @Test
     public void test_위치1() throws Exception {
-        HWPTester.testAndCompare("testingHWP" + File.separator + "컨트롤" + File.separator + "위치1");
+        HWPTester.testAndCompare("testingHWP" + File.separator + "컨트롤" + File.separator + "위치" + File.separator + "1");
     }
 
     @Test
     public void test_위치2() throws Exception {
-        HWPTester.testAndCompare("testingHWP" + File.separator + "컨트롤" + File.separator + "위치2");
+        HWPTester.testAndCompare("testingHWP" + File.separator + "컨트롤" + File.separator + "위치" + File.separator + "2");
+    }
+
+    @Test
+    public void test_위치3() throws Exception {
+        HWPTester.testAndCompare("testingHWP" + File.separator + "컨트롤" + File.separator + "위치" + File.separator + "3");
     }
 
     @Test

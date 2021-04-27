@@ -82,7 +82,7 @@ public class ParagraphDrawer {
         drawingState = DrawingState.Normal;
         newLineAtRecalculating = false;
         newLineAtNormal = false;
-        if (info.noText()) {
+        if (info.noText() ) {
             saveTextLineAndNewLine();
         } else {
             processChar();
@@ -93,7 +93,6 @@ public class ParagraphDrawer {
         }
         boolean newPage = info.endParagraph(paragraphHeight);
         if (newPage) {
-            System.out.println("CC");
             saveAndNewPage();
         }
     }
@@ -105,16 +104,14 @@ public class ParagraphDrawer {
                 .resetWord();
 
         currentTextLineArea = new Area(info.paragraphArea()).height(0);
-        textLineDrawer
-                .initialize();
 
         if (info.paraShape().getIndent() > 0) {
-            textLineDrawer
-                .addNewTextPart(currentTextLineArea.left(currentTextLineArea.left() + info.paraShape().getIndent() / 2));
-        } else {
-            textLineDrawer
-                    .addNewTextPart(currentTextLineArea);
+            currentTextLineArea.left(currentTextLineArea.left() + info.paraShape().getIndent() / 2);
         }
+
+        textLineDrawer
+            .initialize()
+            .addNewTextPart(currentTextLineArea);
         firstLine = true;
         controlExtendCharIndex = 0;
 
@@ -296,7 +293,7 @@ public class ParagraphDrawer {
 
     private void addCharToLine(CharInfo charInfo) throws Exception {
         if (drawingState.canAddChar()) {
-            if (noNormalCharAtTextLine() && drawingState == DrawingState.Normal) {
+            if (noDrawingCharacterAtTextLine() && drawingState == DrawingState.Normal) {
                 checkNewPage();
                 setLineFirst((charInfo.index() - 1),  (charInfo.position() - charInfo.character().getCharSize()));
             }
@@ -335,12 +332,14 @@ public class ParagraphDrawer {
 
     private void saveAndNewPage() throws Exception {
         if (info.isBodyText()) {
-            System.out.println("save and newpage");
             pagePainter.saveCurrentPage();
             info.newPage();
 
-            currentTextLineArea = new Area(info.paragraphArea());
-            textLineDrawer.area(currentTextLineArea);
+            currentTextLineArea.top(info.pageArea().top());
+
+            textLineDrawer
+                    .addNewTextPart(currentTextLineArea);
+            wordSplitter.adjustControlAreaAtNewPage();
             textFlowCalculator.reset();
         }
     }
@@ -354,10 +353,18 @@ public class ParagraphDrawer {
         if (!textLineDrawer.justNewLine() && drawingState.canAddChar()) {
             cancelNewLine = false;
             lineHeight = textLineDrawer.lineHeight();
+
             checkTextFlow();
             checkNewPage();
-            saveTextLine();
-            nextArea();
+
+            if (textLineDrawer.noDrawingCharacter() && info.checkHidingEmptyLineAfterNewPage()) {
+                info.descendCountOfHidingEmptyLineAfterNewPage();
+            } else {
+                info.resetCountOfHidingEmptyLineAfterNewPage();
+
+                saveTextLine();
+                nextArea();
+            }
 
             newLineAtRecalculating = false;
             newLineAtNormal = false;
@@ -375,7 +382,7 @@ public class ParagraphDrawer {
             TextFlowCalculator.Result result = textFlowCalculator.calculate(currentTextLineArea);
             currentTextLineArea
                     .moveY(result.offsetY());
-            cancelNewLine = result.cancelNewLine() && textLineDrawer.noNormalChar();
+            cancelNewLine = result.cancelNewLine() && textLineDrawer.noDrawingCharacter();
 
             textLineDrawer.area(currentTextLineArea);
             drawingState = result.nextState();
@@ -392,9 +399,6 @@ public class ParagraphDrawer {
     private void saveTextLine() {
         switch (drawingState) {
             case Normal:
-                if (info.isBodyText()) {
-                    System.out.println(textLineDrawer.text());
-                }
                 textLineDrawer.saveToContentBuffer();
                 if (firstLine == true) {
                     currentTextLineArea.left(currentTextLineArea.left() - info.paraShape().getIndent() / 2);
@@ -441,7 +445,7 @@ public class ParagraphDrawer {
         ArrayList<CharInfo> charsOfWord = wordSplitter.charsOfWord();
 
         if (isAllLineDivideByWord(info.paraShape())) {
-            if (!noNormalCharAtTextLine()) {
+            if (!noDrawingCharacterAtTextLine()) {
                 saveTextLineAndNewLine();
             }
 
@@ -488,8 +492,8 @@ public class ParagraphDrawer {
         return textLineDrawer.isOverRight(width, applyMinimumSpace);
     }
 
-    public boolean noNormalCharAtTextLine() {
-        return textLineDrawer.noNormalChar();
+    public boolean noDrawingCharacterAtTextLine() {
+        return textLineDrawer.noDrawingCharacter();
     }
 
     public enum DrawingState {

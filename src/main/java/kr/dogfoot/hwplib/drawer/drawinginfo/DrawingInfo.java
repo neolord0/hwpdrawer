@@ -22,10 +22,12 @@ import java.util.Stack;
 public class DrawingInfo {
     private HWPFile hwpFile;
     private Section section;
-    private PageDef pageDef;
+    private ControlSectionDefine sectionDefine;
     private Area paperArea;
     private Area pageArea;
 
+    private int pageNo;
+    private int countOfHidingEmptyLineAfterNewPage;
     private Page page;
     private ControlContent controlContent;
 
@@ -35,10 +37,11 @@ public class DrawingInfo {
     public DrawingInfo() {
         hwpFile = null;
         section = null;
-        pageDef = null;
+        sectionDefine = null;
 
         paragraphInfoStack = new Stack<>();
         bodyTextParagraphListInfo = null;
+        pageNo = 0;
     }
 
     public HWPFile hwpFile() {
@@ -56,12 +59,12 @@ public class DrawingInfo {
 
     public DrawingInfo section(Section section) throws Exception {
         this.section = section;
-        setPageDef();
+        setSectionDefine();
         calculatePaperPageArea();
         return this;
     }
 
-    private void setPageDef() throws Exception {
+    private void setSectionDefine() throws Exception {
         Paragraph firstPara = section.getParagraph(0);
         if (firstPara == null) {
             throw new Exception("섹션에는 하나 이상의 문단이 있어야 함.");
@@ -73,21 +76,24 @@ public class DrawingInfo {
             }
         }
 
-        ControlSectionDefine sectionDefine = (ControlSectionDefine) firstPara.getControlList().get(0);
-        pageDef = sectionDefine.getPageDef();
+        sectionDefine = (ControlSectionDefine) firstPara.getControlList().get(0);
+    }
+
+    private PageDef pageDef() {
+        return sectionDefine.getPageDef();
     }
 
     private void calculatePaperPageArea() {
-        paperArea = new Area(0, 0, pageDef.getPaperWidth(), pageDef.getPaperHeight());
+        paperArea = new Area(0, 0, pageDef().getPaperWidth(), pageDef().getPaperHeight());
         pageArea = new Area(paperArea)
-                .applyMargin(pageDef.getLeftMargin(),
-                        pageDef.getTopMargin(),
-                        pageDef.getRightMargin(),
-                        pageDef.getBottomMargin())
+                .applyMargin(pageDef().getLeftMargin(),
+                        pageDef().getTopMargin(),
+                        pageDef().getRightMargin(),
+                        pageDef().getBottomMargin())
                 .applyMargin(0,
-                        pageDef.getHeaderMargin(),
+                        pageDef().getHeaderMargin(),
                         0,
-                        pageDef.getFooterMargin());
+                        pageDef().getFooterMargin());
     }
 
     public Area paperArea() {
@@ -99,12 +105,31 @@ public class DrawingInfo {
     }
 
     public DrawingInfo newPage() {
+        pageNo++;
+        if (pageNo > 1 && sectionDefine.getHeader().getProperty().isHideEmptyLine()) {
+            countOfHidingEmptyLineAfterNewPage = 2;
+        } else {
+            countOfHidingEmptyLineAfterNewPage = 0;
+        }
+
         page = new Page(paperArea, pageArea);
 
         if (bodyTextParagraphListInfo != null) {
             bodyTextParagraphListInfo.resetParagraphStartY();
         }
         return this;
+    }
+
+    public boolean checkHidingEmptyLineAfterNewPage() {
+        return countOfHidingEmptyLineAfterNewPage > 0;
+    }
+
+    public void descendCountOfHidingEmptyLineAfterNewPage() {
+        countOfHidingEmptyLineAfterNewPage--;
+    }
+
+    public void resetCountOfHidingEmptyLineAfterNewPage() {
+        countOfHidingEmptyLineAfterNewPage = 0;
     }
 
     public Page page() {
@@ -188,7 +213,7 @@ public class DrawingInfo {
     }
 
     public boolean noText() {
-        return paragraph().getText() == null;
+        return paragraph().getText() == null || paragraph().getText().getCharList().size() == 0;
     }
 
     public boolean nextChar() {

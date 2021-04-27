@@ -104,7 +104,7 @@ public class WordSplitter {
             } else {
                 hasNewLine = true;
 
-                if (!paragraphDrawer.noNormalCharAtTextLine()) {
+                if (!paragraphDrawer.noDrawingCharacterAtTextLine()) {
                     paragraphDrawer.saveTextLineAndNewLine();
                 }
                 addWordAllCharsToLine(wordChars,true, true);
@@ -163,6 +163,14 @@ public class WordSplitter {
 
         }
         return sb.toString();
+    }
+
+    public void adjustControlAreaAtNewPage() {
+        for (CharInfo charInfo : charsOfWord) {
+            if (charInfo.type() == CharInfo.Type.Control) {
+                ((ControlCharInfo) charInfo).area(info);
+            }
+        }
     }
 
     private static class WordsCharByLanguage {

@@ -18,7 +18,7 @@ public class ControlContent extends ContentBuffer {
 
     public void addTextPart(TextPart textPart) {
         super.addTextPart(textPart);
-        if (textPart.hasNormalChar()) {
+        if (textPart.hasDrawingCharacter()) {
             top = (top == -1) ? textPart.area().top() : Math.min(textPart.area().top(), top);
             bottom = (bottom == -1) ? textPart.area().bottom() : Math.max(textPart.area().bottom(), bottom);
         }

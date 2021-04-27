@@ -2,7 +2,6 @@ package kr.dogfoot.hwplib.drawer.paragraph;
 
 import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfo;
-import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.docinfo.ParaShape;
 
@@ -96,7 +95,7 @@ public class TextLineDrawer {
     }
 
     public long maxCharHeight() {
-        if (noNormalChar()) {
+        if (noDrawingCharacter()) {
             return info.charShape().getBaseSize();
         } else {
             return maxCharHeight;
@@ -105,7 +104,7 @@ public class TextLineDrawer {
 
     public long lineHeight() {
         long lineGap = 0;
-        long maxBasSize2 = (noNormalChar())
+        long maxBasSize2 = (noDrawingCharacter())
                 ? info.charShape().getBaseSize()
                 : maxBaseSize;
         ParaShape paraShape = info.paraShape();
@@ -127,8 +126,8 @@ public class TextLineDrawer {
         return maxCharHeight() + lineGap;
     }
 
-    public boolean noNormalChar() {
-        return !currentTextPart.hasNormalChar();
+    public boolean noDrawingCharacter() {
+        return !currentTextPart.hasDrawingCharacter();
     }
 
     public void setBestSpaceRate() {
@@ -147,7 +146,7 @@ public class TextLineDrawer {
     public boolean saveToContentBuffer() {
         boolean saved = false;
         for (TextPart part : parts) {
-            if (part.hasNormalChar()) {
+            if (part.hasDrawingCharacter()) {
                 part
                         .maxCharHeight(maxCharHeight)
                         .alignment(info.paraShape().getProperty1().getAlignment());

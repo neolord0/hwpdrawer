@@ -18,7 +18,7 @@ public class TextPart {
     private boolean lastLine;
     private int spaceCount;
     private double spaceRate;
-    private boolean hasNormalChar;
+    private boolean hasDrawingCharacter;
 
     public TextPart(Area area) {
         charInfos = new ArrayList<>();
@@ -27,7 +27,7 @@ public class TextPart {
         lastLine = false;
         spaceCount = 0;
         spaceRate = 1.0;
-        hasNormalChar = false;
+        hasDrawingCharacter = false;
     }
 
     public Alignment alignment() {
@@ -59,7 +59,7 @@ public class TextPart {
         }
         if (charInfo.type() == CharInfo.Type.Normal
             || (charInfo.type() == CharInfo.Type.Control && ((ControlCharInfo) charInfo).isLikeLetter())) {
-            hasNormalChar = true;
+            hasDrawingCharacter = true;
         }
     }
 
@@ -133,8 +133,8 @@ public class TextPart {
         return textCount;
     }
 
-    public boolean hasNormalChar() {
-        return hasNormalChar;
+    public boolean hasDrawingCharacter() {
+        return hasDrawingCharacter;
     }
 
     public String text() {
