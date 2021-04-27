@@ -3,7 +3,6 @@ package kr.dogfoot.hwplib.drawer.painter;
 import kr.dogfoot.hwplib.drawer.DrawingOption;
 import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
 import kr.dogfoot.hwplib.drawer.painter.control.ControlPainter;
-import kr.dogfoot.hwplib.drawer.util.PositionCalculator;
 import kr.dogfoot.hwplib.drawer.painter.text.TextPainter;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.NormalCharInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
@@ -17,7 +16,6 @@ import kr.dogfoot.hwplib.object.etc.Color4Byte;
 import java.awt.*;
 import java.awt.font.LineMetrics;
 import java.awt.geom.AffineTransform;
-import java.awt.image.BufferedImage;
 import java.io.UnsupportedEncodingException;
 
 public class Painter {
@@ -122,5 +120,4 @@ public class Painter {
         graphics2D.setColor(Color.WHITE);
         return this;
     }
-
 }

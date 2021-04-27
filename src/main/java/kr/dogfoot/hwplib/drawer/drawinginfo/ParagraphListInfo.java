@@ -118,10 +118,6 @@ public class ParagraphListInfo {
         return paragraphArea;
     }
 
-    public long paragraphStartY() {
-        return paragraphStartY;
-    }
-
     public void resetParagraphStartY() {
         paragraphStartY = 0;
         setParagraphArea();

@@ -100,8 +100,8 @@ public class ParagraphDrawer {
         }
 
         textLineDrawer
-            .initialize()
-            .addNewTextPart(currentTextLineArea);
+                .initialize()
+                .addNewTextPart(currentTextLineArea);
         firstLine = true;
         height = 0;
 
@@ -249,7 +249,7 @@ public class ParagraphDrawer {
         if (drawingState.canAddChar()) {
             if (textLineDrawer.noDrawingCharacter() && drawingState == DrawingState.Normal) {
                 checkNewPage();
-                setLineFirst((charInfo.index() - 1),  (charInfo.position() - charInfo.character().getCharSize()));
+                setLineFirst((charInfo.index() - 1), (charInfo.position() - charInfo.character().getCharSize()));
             }
 
             if (drawingState == DrawingState.Normal && charInfo.type() == CharInfo.Type.Control) {
@@ -368,7 +368,7 @@ public class ParagraphDrawer {
     }
 
     private void nextArea() {
-        switch(drawingState) {
+        switch (drawingState) {
             case Normal:
             case StartRedrawing:
                 if (firstLine == true) {

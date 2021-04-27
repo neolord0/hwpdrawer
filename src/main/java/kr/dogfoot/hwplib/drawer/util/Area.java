@@ -147,7 +147,7 @@ public class Area implements Comparable<Area> {
 
     @Override
     public int compareTo(Area o) {
-        if(left > o.left)
+        if (left > o.left)
             return 1;
         else if (left == o.left)
             return 0;

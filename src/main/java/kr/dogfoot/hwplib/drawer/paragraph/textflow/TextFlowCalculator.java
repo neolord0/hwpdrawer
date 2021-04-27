@@ -1,7 +1,7 @@
 package kr.dogfoot.hwplib.drawer.paragraph.textflow;
 
-import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
 import kr.dogfoot.hwplib.drawer.paragraph.ParagraphDrawer;
+import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.VertRelTo;
 

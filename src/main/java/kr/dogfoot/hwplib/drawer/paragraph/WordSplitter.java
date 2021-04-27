@@ -58,7 +58,7 @@ public class WordSplitter {
         boolean splitByEnglishLetter = info.paraShape().getProperty1().getLineDivideForEnglish() != LineDivideForEnglish.ByWord;
         boolean splitByHangulLetter = info.paraShape().getProperty1().getLineDivideForHangul() == LineDivideForHangul.ByLetter;
         ArrayList<WordsCharByLanguage> wordCharsByLanguages = splitByLanguage(charsOfWord);
-        for (WordsCharByLanguage wcl: wordCharsByLanguages) {
+        for (WordsCharByLanguage wcl : wordCharsByLanguages) {
             boolean splitByLetter = (wcl.hangul) ? splitByHangulLetter : splitByEnglishLetter;
             if (splitByLetter) {
                 addWordAllCharsToLine(wcl.wordChars, true, true);
@@ -109,14 +109,14 @@ public class WordSplitter {
                 if (!textLineDrawer.noDrawingCharacter()) {
                     paragraphDrawer.saveTextLineAndNewLine();
                 }
-                addWordAllCharsToLine(wordChars,true, true);
+                addWordAllCharsToLine(wordChars, true, true);
             }
         }
     }
 
     private void addWordAllCharsToLine(ArrayList<CharInfo> wordChars, boolean checkOverRight, boolean applyMinimumSpace) throws Exception {
         for (CharInfo charInfo : wordChars) {
-             if (paragraphDrawer.addCharToLine(charInfo, checkOverRight, applyMinimumSpace)) {
+            if (paragraphDrawer.addCharToLine(charInfo, checkOverRight, applyMinimumSpace)) {
                 hasNewLine = true;
             }
             if (hasNewLine == false) {
@@ -133,7 +133,7 @@ public class WordSplitter {
         return sb.toString();
     }
 
-    private String testCharInfo( CharInfo charInfo) {
+    private String testCharInfo(CharInfo charInfo) {
         StringBuilder sb = new StringBuilder();
         if (charInfo.type() == CharInfo.Type.Normal) {
             NormalCharInfo normalCharInfo = (NormalCharInfo) charInfo;
@@ -148,7 +148,7 @@ public class WordSplitter {
             }
         } else {
             ControlCharInfo controlCharInfo = (ControlCharInfo) charInfo;
-            if(controlCharInfo.control() == null) {
+            if (controlCharInfo.control() == null) {
                 sb
                         .append(controlCharInfo.character().getCode())
                         .append("(")

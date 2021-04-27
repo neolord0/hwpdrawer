@@ -47,13 +47,15 @@ public class StrikeLinePainter {
 
             strike = charInfo.charShape().getProperty().isStrikeLine();
             if (strike == false) {
-                lineShape = BorderType2.Solid;;
+                lineShape = BorderType2.Solid;
+                ;
                 lineColor = -1;
                 charHeight = -1;
                 startX = -1;
                 drawingCharShape = null;
             } else {
-                lineShape = charInfo.charShape().getProperty().getStrikeLineShape();;
+                lineShape = charInfo.charShape().getProperty().getStrikeLineShape();
+                ;
                 lineColor = charInfo.charShape().getStrikeLineColor().getValue();
                 charHeight = charInfo.charShape().getBaseSize();
                 startX = charInfo.x();
@@ -68,17 +70,17 @@ public class StrikeLinePainter {
     private boolean isStartLine(CharShape charShape) {
         if ((changeLineStyle(charShape)
                 || changeCharHeight(charShape))
-            && startX == -1) {
+                && startX == -1) {
             return true;
         }
         return false;
     }
 
     private boolean changeLineStyle(CharShape charShape) {
-         return charShape.getProperty().isStrikeLine() != strike
+        return charShape.getProperty().isStrikeLine() != strike
                 || (charShape.getProperty().isStrikeLine() == true &&
-                        (charShape.getProperty().getStrikeLineShape() != lineShape
-                                || charShape.getStrikeLineColor().getValue() != lineColor));
+                (charShape.getProperty().getStrikeLineShape() != lineShape
+                        || charShape.getStrikeLineColor().getValue() != lineColor));
     }
 
     private boolean changeCharHeight(CharShape charShape) {
@@ -89,7 +91,7 @@ public class StrikeLinePainter {
     private boolean isEndLine(CharShape charShape) {
         if ((changeLineStyle(charShape)
                 || changeCharHeight(charShape))
-            && startX != -1) {
+                && startX != -1) {
             return true;
         }
         return false;
@@ -97,7 +99,7 @@ public class StrikeLinePainter {
 
     private void paintStrikeLine(CharInfo charInfo, boolean endLine) {
         long y = baseLine - (charHeight * 2 / 5);
-        long endX = (endLine == true) ?  (long) (charInfo.x() + charInfo.width()) : charInfo.x();
+        long endX = (endLine == true) ? (long) (charInfo.x() + charInfo.width()) : charInfo.x();
 
         painter.setLineStyle(drawingCharShape.getProperty().getStrikeLineShape().toBorderType(),
                 BorderThickness.MM0_15,

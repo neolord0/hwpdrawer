@@ -1,6 +1,5 @@
 package kr.dogfoot.hwplib.drawer.paragraph.charInfo;
 
-import kr.dogfoot.hwplib.drawer.painter.Painter;
 import kr.dogfoot.hwplib.drawer.util.CharacterSizeGetter;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPChar;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPCharNormal;

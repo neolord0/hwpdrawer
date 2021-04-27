@@ -14,7 +14,7 @@ public class CellPositionCalculator {
         rowHeights = null;
     }
 
-    public void reset(int columnCount,int rowCount) {
+    public void reset(int columnCount, int rowCount) {
         cellXs = new long[columnCount + 1];
         cellXs[0] = 0;
 
@@ -23,7 +23,7 @@ public class CellPositionCalculator {
         for (int index = 0; index < rowCount; index++) {
             rowHeights[index] = -1;
         }
-   }
+    }
 
 
     public CellPositionCalculator addRowInfo(int rowIndex, int rowSpan, long height) {
@@ -33,7 +33,7 @@ public class CellPositionCalculator {
 
     public void calculate() {
         ArrayList<RowInfo> deletings = new ArrayList<>();
-        while(rowInfos.size() > 0) {
+        while (rowInfos.size() > 0) {
             for (RowInfo rowInfo : rowInfos) {
                 int emptyIndex = emptyIndex(rowInfo);
                 if (emptyIndex >= 0) {
@@ -62,7 +62,7 @@ public class CellPositionCalculator {
         }
         if (count == 0) {
             return -1;
-        } else if (count > 1){
+        } else if (count > 1) {
             return -2;
         } else {
             return emptyIndex;
@@ -78,7 +78,7 @@ public class CellPositionCalculator {
 
     public long height(int rowIndex, int rowSpan) {
         long height = 0;
-        for (int index = rowIndex ; index < rowIndex + rowSpan; index++) {
+        for (int index = rowIndex; index < rowIndex + rowSpan; index++) {
             if (rowHeights[index] != -1) {
                 height += rowHeights[index];
             }

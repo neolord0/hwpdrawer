@@ -72,8 +72,8 @@ public class UnderLinePainter {
     private boolean changeLineStyle(CharShape charShape) {
         return charShape.getProperty().getUnderLineSort() != lineSort
                 || (charShape.getProperty().getUnderLineSort() != UnderLineSort.None
-                        && (charShape.getProperty().getUnderLineShape() != lineShape
-                                || charShape.getUnderLineColor().getValue() != lineColor));
+                && (charShape.getProperty().getUnderLineShape() != lineShape
+                || charShape.getUnderLineColor().getValue() != lineColor));
     }
 
     private boolean isEndLine(CharShape charShape) {

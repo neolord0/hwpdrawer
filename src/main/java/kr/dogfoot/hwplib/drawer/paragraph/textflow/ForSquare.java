@@ -24,7 +24,7 @@ public class ForSquare {
 
     public TextFlowCalculator.Result calculate(Area textLineArea) {
         LinkedList<Area> dividedAreas = new LinkedList<>();
-        ArrayList<Area> addingAreas  = new ArrayList<>();
+        ArrayList<Area> addingAreas = new ArrayList<>();
         ArrayList<Area> removingAreas = new ArrayList<>();
 
         boolean intersected;
@@ -161,7 +161,7 @@ public class ForSquare {
 
         @Override
         public int compareTo(SquareArea o) {
-            if(zOrder > o.zOrder)
+            if (zOrder > o.zOrder)
                 return 1;
             else if (zOrder == o.zOrder)
                 return 0;

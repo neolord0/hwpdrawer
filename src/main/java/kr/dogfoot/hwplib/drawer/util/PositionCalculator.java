@@ -1,9 +1,6 @@
 package kr.dogfoot.hwplib.drawer.util;
 
-import javafx.geometry.Pos;
 import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
-import kr.dogfoot.hwplib.drawer.painter.Painter;
-import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.CtrlHeaderGso;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.VertRelTo;
 

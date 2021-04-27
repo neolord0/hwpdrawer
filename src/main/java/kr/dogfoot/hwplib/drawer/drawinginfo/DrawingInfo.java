@@ -1,9 +1,8 @@
 package kr.dogfoot.hwplib.drawer.drawinginfo;
 
+import kr.dogfoot.hwplib.drawer.drawinginfo.contentbuffer.ContentBuffer;
 import kr.dogfoot.hwplib.drawer.drawinginfo.contentbuffer.ControlContent;
 import kr.dogfoot.hwplib.drawer.drawinginfo.contentbuffer.Page;
-import kr.dogfoot.hwplib.drawer.drawinginfo.contentbuffer.ContentBuffer;
-import kr.dogfoot.hwplib.drawer.paragraph.ParagraphDrawer;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.HWPFile;
 import kr.dogfoot.hwplib.object.bodytext.Section;
@@ -181,10 +180,6 @@ public class DrawingInfo {
         paragraphListInfo.endParagraph(endY, height);
     }
 
-    private boolean checkNewPage(ParagraphListInfo paragraphListInfo) throws IOException {
-        return pageArea().height() - paragraphListInfo.paragraphStartY() < 0;
-    }
-
     public ParagraphListInfo paragraphListInfo() {
         return paragraphInfoStack.peek();
     }
@@ -223,7 +218,7 @@ public class DrawingInfo {
 
     public boolean beforeChar(int count) {
         for (int index = 0; index < count; index++) {
-            if(!paragraphListInfo().beforeChar()) {
+            if (!paragraphListInfo().beforeChar()) {
                 return false;
             }
         }

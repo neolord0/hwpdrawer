@@ -29,6 +29,7 @@ public class ControllTest {
     public void test_본문과의_배치_앞으로_뒤로() throws Exception {
         HWPTester.testAndCompare("testingHWP" + File.separator + "컨트롤" + File.separator + "본문과의 배치" + File.separator + "앞으로_뒤로");
     }
+
     @Test
     public void test_본문과의_배치_자리차지1() throws Exception {
         HWPTester.testAndCompare("testingHWP" + File.separator + "컨트롤" + File.separator + "본문과의 배치" + File.separator + "자리차지1");

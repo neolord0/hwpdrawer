@@ -1,8 +1,6 @@
 package kr.dogfoot.hwplib.drawer.paragraph.charInfo;
 
 import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPChar;
-import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPCharControlExtend;
-import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPCharNormal;
 import kr.dogfoot.hwplib.object.docinfo.CharShape;
 
 public abstract class CharInfo {

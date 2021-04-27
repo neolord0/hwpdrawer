@@ -58,7 +58,7 @@ public class TextPart {
             spaceCount++;
         }
         if (charInfo.type() == CharInfo.Type.Normal
-            || (charInfo.type() == CharInfo.Type.Control && ((ControlCharInfo) charInfo).isLikeLetter())) {
+                || (charInfo.type() == CharInfo.Type.Control && ((ControlCharInfo) charInfo).isLikeLetter())) {
             hasDrawingCharacter = true;
         }
     }
@@ -137,7 +137,7 @@ public class TextPart {
         return hasDrawingCharacter;
     }
 
-    public String text() {
+    public String test() {
         StringBuilder sb = new StringBuilder();
 
         for (CharInfo charInfo : charInfos) {
@@ -151,7 +151,7 @@ public class TextPart {
                 }
             } else {
                 ControlCharInfo controlCharInfo = (ControlCharInfo) charInfo;
-                if(controlCharInfo.control() == null) {
+                if (controlCharInfo.control() == null) {
                     sb
                             .append(controlCharInfo.character().getCode());
 

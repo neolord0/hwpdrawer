@@ -34,7 +34,7 @@ public class PagePainter {
         BufferedImage pageImage = createPageImage();
         painter
                 .graphics2D((Graphics2D) pageImage.getGraphics())
-                .setLineStyle(BorderType.Solid, BorderThickness.MM0_15, new Color4Byte(255,0, 0))
+                .setLineStyle(BorderType.Solid, BorderThickness.MM0_15, new Color4Byte(255, 0, 0))
                 .rectangle(info.page().pageArea(), false);
 
         paintPage();
@@ -71,5 +71,4 @@ public class PagePainter {
     public int currentPageNo() {
         return currentPageNo;
     }
-
 }

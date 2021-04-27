@@ -34,7 +34,7 @@ public class TablePainter {
             for (Cell cell : row.getCellList()) {
                 ListHeaderForCell lh = cell.getListHeader();
                 cellContent[lh.getColIndex()][lh.getRowIndex()] = drawCell(lh.getWidth(), cell);
-                long calculatedHeight = cellContent[lh.getColIndex()][lh.getRowIndex()].height()  + lh.getTopMargin() + lh.getBottomMargin();
+                long calculatedHeight = cellContent[lh.getColIndex()][lh.getRowIndex()].height() + lh.getTopMargin() + lh.getBottomMargin();
 
                 cellPositionCalculator
                         .addColumnInfo(lh.getColIndex(), lh.getColSpan(), lh.getWidth())

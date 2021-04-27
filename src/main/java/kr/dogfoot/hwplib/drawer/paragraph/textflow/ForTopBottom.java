@@ -57,7 +57,7 @@ public class ForTopBottom {
         }
 
         public int compareTo(TopBottomArea o) {
-            if(top > o.top)
+            if (top > o.top)
                 return 1;
             else if (top == o.top)
                 return 0;
@@ -66,7 +66,7 @@ public class ForTopBottom {
         }
 
         public boolean intersects(Area area) {
-            if(area.bottom() < this.top || this.bottom < area.top())
+            if (area.bottom() < this.top || this.bottom < area.top())
                 return false;
             return true;
         }

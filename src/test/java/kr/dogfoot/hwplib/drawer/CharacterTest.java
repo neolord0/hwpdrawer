@@ -1,6 +1,7 @@
 package kr.dogfoot.hwplib.drawer;
 
 import org.junit.Test;
+
 import java.io.File;
 
 public class CharacterTest {
@@ -43,5 +44,4 @@ public class CharacterTest {
     public void test_글자모양_글자색_크기() throws Exception {
         HWPTester.testAndCompare("testingHWP" + File.separator + "글자모양" + File.separator + "글자색_크기");
     }
-
 }

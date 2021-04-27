@@ -36,9 +36,9 @@ public class FontLoader {
         if (fontPath != null) {
             Font font = null;
             try {
-                font=Font.createFont(Font.TRUETYPE_FONT,
+                font = Font.createFont(Font.TRUETYPE_FONT,
                         new FileInputStream(fontPath));
-            } catch(Exception e) {
+            } catch (Exception e) {
                 System.out.println(e);
                 return null;
             }

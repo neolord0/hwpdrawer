@@ -155,10 +155,10 @@ public class TextLineDrawer {
         return saved;
     }
 
-    public String text() {
+    public String test() {
         StringBuilder sb = new StringBuilder();
         for (TextPart textPart : parts) {
-            sb.append(textPart.text());
+            sb.append(textPart.test());
             sb.append(":");
         }
         return sb.toString();

@@ -11,8 +11,8 @@ import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPChar;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPCharControlExtend;
 import kr.dogfoot.hwplib.object.docinfo.CharShape;
 
-public class ControlCharInfo extends CharInfo  implements Comparable<ControlCharInfo> {
-    public static ControlCharInfo create(HWPCharControlExtend character,Control control, DrawingInfo info) {
+public class ControlCharInfo extends CharInfo implements Comparable<ControlCharInfo> {
+    public static ControlCharInfo create(HWPCharControlExtend character, Control control, DrawingInfo info) {
         ControlCharInfo charInfo = new ControlCharInfo(character, info.charShape(), info.charIndex(), info.charPosition());
         if (character.getCode() == 11) {
             CtrlHeaderGso gsoHeader = null;
@@ -123,7 +123,7 @@ public class ControlCharInfo extends CharInfo  implements Comparable<ControlChar
     }
 
     public int compareTo(ControlCharInfo o) {
-        if(zOrder() > o.zOrder())
+        if (zOrder() > o.zOrder())
             return 1;
         else if (zOrder() == o.zOrder())
             return 0;

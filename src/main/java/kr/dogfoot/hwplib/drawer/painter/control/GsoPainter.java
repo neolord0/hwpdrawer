@@ -27,7 +27,7 @@ public class GsoPainter {
         painter.testBackStyle();
         painter.rectangle(areaWithoutOuterMargin, true);
         drawText(areaWithoutOuterMargin, rectangle.getTextBox());
-        painter.setLineStyle(BorderType.Solid, BorderThickness.MM0_12, new Color4Byte(0, 0 , 0, 0));
+        painter.setLineStyle(BorderType.Solid, BorderThickness.MM0_12, new Color4Byte(0, 0, 0, 0));
         painter.rectangle(areaWithoutOuterMargin, false);
     }
 
@@ -82,13 +82,11 @@ public class GsoPainter {
                 .adjustVerticalAlignment(textBox.getListHeader().getProperty().getTextVerticalAlignment());
 
         paintControlContent();
-
     }
 
     private void paintControlContent() throws Exception {
         painter.controlPainter().paintControls(info.controlContent().behindControls());
         painter.textDrawer().paintTextParts(info.controlContent().textParts());
         painter.controlPainter().paintControls(info.controlContent().notBehindControls());
-
     }
 }

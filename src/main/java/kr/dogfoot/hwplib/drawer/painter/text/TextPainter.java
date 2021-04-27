@@ -8,7 +8,6 @@ import kr.dogfoot.hwplib.drawer.paragraph.charInfo.NormalCharInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.docinfo.CharShape;
 
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
 public class TextPainter {
@@ -40,7 +39,7 @@ public class TextPainter {
         baseLine = part.area().top() + part.maxCharHeight();
         drawingCharShape = null;
 
-        switch(part.alignment()) {
+        switch (part.alignment()) {
             case Justify:
                 justify(part);
                 break;
@@ -221,7 +220,7 @@ public class TextPainter {
                 + charInfo.height() * charInfo.charShape().getCharOffsets().getHangul() / 100;
     }
 
-    private void paintUnder_StrikeLine(TextPart part) throws UnsupportedEncodingException {
+    private void paintUnder_StrikeLine(TextPart part) {
         underLinePainter.initialize(baseLine, part.maxCharHeight());
         strikeLinePainter.initialize(baseLine);
 
