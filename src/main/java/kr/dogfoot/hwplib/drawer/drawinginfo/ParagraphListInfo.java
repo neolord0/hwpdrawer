@@ -14,6 +14,9 @@ public class ParagraphListInfo {
     private Paragraph paragraph;
     private boolean isBodyText;
     private ParaShape paraShape;
+
+    private long height;
+
     private long paragraphStartY;
     private Area paragraphArea;
 
@@ -25,14 +28,15 @@ public class ParagraphListInfo {
     private CharShape charShape;
 
     public ParagraphListInfo(DrawingInfo info) {
-        this.info = info;
-        paragraphStartY = 0;
-        textArea = new Area(info.pageArea());
+        this(info, new Area(info.pageArea()));
     }
 
     public ParagraphListInfo(DrawingInfo info, Area textArea) {
         this.info = info;
+
+        height = 0;
         paragraphStartY = 0;
+
         this.textArea = textArea;
     }
 
@@ -89,8 +93,9 @@ public class ParagraphListInfo {
         return charShapeIndex;
     }
 
-    public void endParagraph(long paragraphHeight) {
-        paragraphStartY += paragraphHeight + paraShape().getBottomParaSpace() / 2;
+    public void endParagraph(long endY, long height) {
+        paragraphStartY += endY + paraShape().getBottomParaSpace() / 2;
+        this.height += height;
     }
 
     public Paragraph paragraph() {
@@ -103,6 +108,10 @@ public class ParagraphListInfo {
 
     public ParaShape paraShape() {
         return paraShape;
+    }
+
+    public long height() {
+        return height;
     }
 
     public Area paragraphArea() {
@@ -137,10 +146,6 @@ public class ParagraphListInfo {
 
     public HWPChar character() {
         return character;
-    }
-
-    public boolean isLastChar() {
-        return charIndex >= paragraph().getText().getCharList().size();
     }
 
     public boolean beforeChar() {

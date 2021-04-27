@@ -1,12 +1,10 @@
 package kr.dogfoot.hwplib.drawer.util;
 
-import kr.dogfoot.hwplib.drawer.paragraph.charInfo.NormalCharInfo;
 import kr.dogfoot.hwplib.object.docinfo.CharShape;
 
 import java.awt.*;
-import java.awt.font.LineMetrics;
 import java.awt.image.BufferedImage;
-import java.io.UnsupportedEncodingException;
+
 
 public class CharacterSizeGetter {
     private final static CharacterSizeGetter singleObject = new CharacterSizeGetter();

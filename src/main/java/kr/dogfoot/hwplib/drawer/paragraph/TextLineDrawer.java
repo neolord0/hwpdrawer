@@ -58,9 +58,6 @@ public class TextLineDrawer {
         currentTextPart = textPart;
     }
 
-    public TextPart currentTextPart() {
-        return currentTextPart;
-    }
     public boolean justNewLine() {
         return justNewLine;
     }

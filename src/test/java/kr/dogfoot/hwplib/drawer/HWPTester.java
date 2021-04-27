@@ -29,7 +29,8 @@ public class HWPTester {
 
     private static void comparePageImages(String path, int pageCount) {
         boolean succuess = true;
-        for (int pageNo = 1; pageNo <= pageCount; pageNo++) {
+        int pageNo;
+        for (pageNo = 1; pageNo <= pageCount; pageNo++) {
             String expectedPng = path + File.separator + "ok_page" + pageNo + ".png";
             String actualPng = path + File.separator + "page" + pageNo + ".png";
 
@@ -45,7 +46,9 @@ public class HWPTester {
                 System.out.println("match page " + pageNo);
             }
         }
-        Assert.assertTrue(succuess);
+
+        String fakeExpectedPng = path + File.separator + "ok_page" + (pageCount + 1) + ".png";
+        Assert.assertTrue(succuess && !(new File(fakeExpectedPng).exists()));
     }
 
     public static void test(String path) throws Exception {

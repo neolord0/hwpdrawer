@@ -4,12 +4,36 @@ import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.PositionCalculator;
 import kr.dogfoot.hwplib.object.bodytext.control.Control;
+import kr.dogfoot.hwplib.object.bodytext.control.ControlTable;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.CtrlHeaderGso;
+import kr.dogfoot.hwplib.object.bodytext.control.gso.GsoControl;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPChar;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPCharControlExtend;
 import kr.dogfoot.hwplib.object.docinfo.CharShape;
 
 public class ControlCharInfo extends CharInfo  implements Comparable<ControlCharInfo> {
+    public static ControlCharInfo create(HWPCharControlExtend character,Control control, DrawingInfo info) {
+        ControlCharInfo charInfo = new ControlCharInfo(character, info.charShape(), info.charIndex(), info.charPosition());
+        if (character.getCode() == 11) {
+            CtrlHeaderGso gsoHeader = null;
+            switch (control.getType()) {
+                case Table:
+                    gsoHeader = ((ControlTable) control).getHeader();
+                    break;
+                case Gso:
+                    gsoHeader = ((GsoControl) control).getHeader();
+                    break;
+            }
+            if (gsoHeader != null) {
+                charInfo
+                        .control(control, gsoHeader)
+                        .area(info);
+            }
+        }
+        return charInfo;
+
+    }
+
     private Control control;
     private CtrlHeaderGso gsoHeader;
     private Area areaWithOuterMargin;

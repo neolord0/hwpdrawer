@@ -76,12 +76,13 @@ public class GsoPainter {
             paragraphDrawer.draw(paragraph);
         }
 
+        info.endParagraphList();
+
         info.controlContent()
                 .adjustVerticalAlignment(textBox.getListHeader().getProperty().getTextVerticalAlignment());
 
         paintControlContent();
 
-        info.endParagraphList();
     }
 
     private void paintControlContent() throws Exception {

@@ -1,15 +1,14 @@
 package kr.dogfoot.hwplib.drawer.drawinginfo;
 
-import kr.dogfoot.hwplib.drawer.drawinginfo.textbuffer.ControlContent;
-import kr.dogfoot.hwplib.drawer.drawinginfo.textbuffer.Page;
-import kr.dogfoot.hwplib.drawer.drawinginfo.textbuffer.ContentBuffer;
+import kr.dogfoot.hwplib.drawer.drawinginfo.contentbuffer.ControlContent;
+import kr.dogfoot.hwplib.drawer.drawinginfo.contentbuffer.Page;
+import kr.dogfoot.hwplib.drawer.drawinginfo.contentbuffer.ContentBuffer;
 import kr.dogfoot.hwplib.drawer.paragraph.ParagraphDrawer;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.HWPFile;
 import kr.dogfoot.hwplib.object.bodytext.Section;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlSectionDefine;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlType;
-import kr.dogfoot.hwplib.object.bodytext.control.gso.textbox.TextVerticalAlignment;
 import kr.dogfoot.hwplib.object.bodytext.control.sectiondefine.PageDef;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.Paragraph;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPChar;
@@ -166,7 +165,9 @@ public class DrawingInfo {
     }
 
     public void endParagraphList() {
-        contentBuffer().height(paragraphListInfo().paragraphStartY());
+        if (!isBodyText()) {
+            controlContent.height(paragraphListInfo().height());
+        }
         paragraphInfoStack.pop();
     }
 
@@ -174,18 +175,14 @@ public class DrawingInfo {
         paragraphListInfo().startParagraph(paragraph);
     }
 
-    public boolean endParagraph(long paragraphHeight) throws IOException {
+    public void endParagraph(long endY, long height) throws IOException {
         contentBuffer().setLastTextPartToLastLine();
         ParagraphListInfo paragraphListInfo = paragraphListInfo();
-        paragraphListInfo.endParagraph(paragraphHeight);
-        if (paragraphListInfo.isBodyText()) {
-            return checkNewPage(paragraphListInfo);
-        }
-        return false;
+        paragraphListInfo.endParagraph(endY, height);
     }
 
     private boolean checkNewPage(ParagraphListInfo paragraphListInfo) throws IOException {
-        return pageArea().height() - paragraphListInfo.paragraphStartY() < ParagraphDrawer.NewPageGap;
+        return pageArea().height() - paragraphListInfo.paragraphStartY() < 0;
     }
 
     public ParagraphListInfo paragraphListInfo() {
@@ -222,10 +219,6 @@ public class DrawingInfo {
 
     public HWPChar character() {
         return paragraphListInfo().character();
-    }
-
-    public boolean isLastChar() {
-        return paragraphListInfo().isLastChar();
     }
 
     public boolean beforeChar(int count) {

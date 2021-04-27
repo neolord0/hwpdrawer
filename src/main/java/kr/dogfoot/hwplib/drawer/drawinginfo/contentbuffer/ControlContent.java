@@ -1,4 +1,4 @@
-package kr.dogfoot.hwplib.drawer.drawinginfo.textbuffer;
+package kr.dogfoot.hwplib.drawer.drawinginfo.contentbuffer;
 
 import kr.dogfoot.hwplib.drawer.paragraph.TextPart;
 import kr.dogfoot.hwplib.drawer.util.Area;
@@ -7,21 +7,11 @@ import kr.dogfoot.hwplib.object.bodytext.control.gso.textbox.TextVerticalAlignme
 
 public class ControlContent extends ContentBuffer {
     private Area textArea;
-    private long top;
-    private long bottom;
+    private long height;
 
     public ControlContent(Area textArea) {
         this.textArea = textArea;
-        top = -1;
-        bottom = -1;
-    }
-
-    public void addTextPart(TextPart textPart) {
-        super.addTextPart(textPart);
-        if (textPart.hasDrawingCharacter()) {
-            top = (top == -1) ? textPart.area().top() : Math.min(textPart.area().top(), top);
-            bottom = (bottom == -1) ? textPart.area().bottom() : Math.max(textPart.area().bottom(), bottom);
-        }
+        height = 0;
     }
 
     public void adjustVerticalAlignment(TextVerticalAlignment verticalAlignment) {
@@ -34,15 +24,14 @@ public class ControlContent extends ContentBuffer {
     }
 
     private long offsetY(TextVerticalAlignment verticalAlignment) {
-        long textHeight  = bottom - top;
-        if (textHeight < textArea.height()) {
+        if (height < textArea.height()) {
             switch (verticalAlignment) {
                 case Top:
                     return 0;
                 case Center:
-                    return (textArea.height() - textHeight) / 2;
+                    return (textArea.height() - height) / 2;
                 case Bottom:
-                    return textArea.height() - textHeight;
+                    return textArea.height() - height;
             }
         }
         return 0;
@@ -56,5 +45,13 @@ public class ControlContent extends ContentBuffer {
                     .moveY(textArea.top());
         }
         return this;
+    }
+
+    public long height() {
+        return height;
+    }
+
+    public void height(long height) {
+        this.height = height;
     }
 }

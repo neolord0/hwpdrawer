@@ -1,7 +1,7 @@
 package kr.dogfoot.hwplib.drawer.painter.control;
 
 import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
-import kr.dogfoot.hwplib.drawer.drawinginfo.textbuffer.ControlContent;
+import kr.dogfoot.hwplib.drawer.drawinginfo.contentbuffer.ControlContent;
 import kr.dogfoot.hwplib.drawer.painter.Painter;
 import kr.dogfoot.hwplib.drawer.paragraph.ParagraphDrawer;
 import kr.dogfoot.hwplib.drawer.util.Area;
@@ -34,7 +34,7 @@ public class TablePainter {
             for (Cell cell : row.getCellList()) {
                 ListHeaderForCell lh = cell.getListHeader();
                 cellContent[lh.getColIndex()][lh.getRowIndex()] = drawCell(lh.getWidth(), cell);
-                long calculatedHeight = cellContent[lh.getColIndex()][lh.getRowIndex()].height() + lh.getTopMargin() + lh.getBottomMargin();
+                long calculatedHeight = cellContent[lh.getColIndex()][lh.getRowIndex()].height()  + lh.getTopMargin() + lh.getBottomMargin();
 
                 cellPositionCalculator
                         .addColumnInfo(lh.getColIndex(), lh.getColSpan(), lh.getWidth())
