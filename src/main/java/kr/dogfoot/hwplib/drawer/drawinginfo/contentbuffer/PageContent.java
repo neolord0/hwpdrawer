@@ -2,11 +2,13 @@ package kr.dogfoot.hwplib.drawer.drawinginfo.contentbuffer;
 
 import kr.dogfoot.hwplib.drawer.util.Area;
 
-public class Page extends ContentBuffer {
+public class PageContent extends OutputContent {
+    private int pageNo;
     private Area paperArea;
     private Area pageArea;
 
-    public Page(Area paperArea, Area pageArea) {
+    public PageContent(int pageNo, Area paperArea, Area pageArea) {
+        this.pageNo = pageNo;
         this.paperArea = paperArea;
         this.pageArea = pageArea;
     }
@@ -17,5 +19,10 @@ public class Page extends ContentBuffer {
 
     public Area pageArea() {
         return pageArea;
+    }
+
+    @Override
+    public Type type() {
+        return Type.Page;
     }
 }

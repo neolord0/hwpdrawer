@@ -1,20 +1,31 @@
 package kr.dogfoot.hwplib.drawer.drawinginfo;
 
-import kr.dogfoot.hwplib.drawer.drawinginfo.contentbuffer.ContentBuffer;
+import kr.dogfoot.hwplib.drawer.drawinginfo.contentbuffer.OutputContent;
 import kr.dogfoot.hwplib.drawer.drawinginfo.contentbuffer.ControlContent;
-import kr.dogfoot.hwplib.drawer.drawinginfo.contentbuffer.Page;
+import kr.dogfoot.hwplib.drawer.drawinginfo.contentbuffer.PageContent;
+import kr.dogfoot.hwplib.drawer.paragraph.TextPart;
+import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.HWPFile;
+import kr.dogfoot.hwplib.object.bindata.EmbeddedBinaryData;
 import kr.dogfoot.hwplib.object.bodytext.Section;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlSectionDefine;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlType;
 import kr.dogfoot.hwplib.object.bodytext.control.sectiondefine.PageDef;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.Paragraph;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPChar;
+import kr.dogfoot.hwplib.object.docinfo.BinData;
+import kr.dogfoot.hwplib.object.docinfo.BorderFill;
 import kr.dogfoot.hwplib.object.docinfo.CharShape;
 import kr.dogfoot.hwplib.object.docinfo.ParaShape;
 
+import javax.imageio.ImageIO;
+import javax.sound.sampled.Line;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
 import java.util.Stack;
 
 public class DrawingInfo {
@@ -24,22 +35,21 @@ public class DrawingInfo {
     private Area paperArea;
     private Area pageArea;
 
+    private HashMap<Integer, BufferedImage> imageMap;
+
     private int pageNo;
     private int countOfHidingEmptyLineAfterNewPage;
-    private Page page;
-    private ControlContent controlContent;
 
-    private Stack<ParagraphListInfo> paragraphInfoStack;
     private ParagraphListInfo bodyTextParagraphListInfo;
+    private PageContent pageContent;
+
+    private Stack<ParagraphListInfo> paragraphListInfoStack;
+    private Stack<OutputContent> outputContentStack;
 
     public DrawingInfo() {
-        hwpFile = null;
-        section = null;
-        sectionDefine = null;
-
-        paragraphInfoStack = new Stack<>();
-        bodyTextParagraphListInfo = null;
-        pageNo = 0;
+        imageMap = new HashMap<>();
+        paragraphListInfoStack = new Stack<>();
+        outputContentStack = new Stack<>();
     }
 
     public HWPFile hwpFile() {
@@ -50,6 +60,50 @@ public class DrawingInfo {
         this.hwpFile = hwpFile;
         return this;
     }
+
+
+    public BorderFill getBorderFill(int borderFillId) {
+        return hwpFile.getDocInfo().getBorderFillList().get(borderFillId - 1);
+    }
+
+    public BufferedImage getImage(int binItemID) {
+        BinData binData = hwpFile.getDocInfo().getBinDataList().get(binItemID - 1);
+
+        if (binData.getBinDataID() > 0) {
+            BufferedImage image = imageMap.get(binData.getBinDataID());
+            if (image != null) {
+                return image;
+            }
+
+            EmbeddedBinaryData embeddedBinaryData = embeddedBinaryData(binData.getBinDataID());
+            if (embeddedBinaryData == null || embeddedBinaryData.getData() == null) {
+                return null;
+            }
+
+            try {
+                InputStream is = new ByteArrayInputStream(embeddedBinaryData.getData());
+                image = ImageIO.read(is);
+
+                imageMap.put(binData.getBinDataID(), image);
+            } catch (IOException e) {
+                e.printStackTrace();
+                image = null;
+            }
+            return image;
+        }
+        return null;
+    }
+
+    private EmbeddedBinaryData embeddedBinaryData(int binDataID) {
+        String name = "BIN" + String.format("%04X", binDataID);
+        for (EmbeddedBinaryData embeddedBinaryData  : hwpFile.getBinData().getEmbeddedBinaryDataList()) {
+            if (embeddedBinaryData.getName().startsWith(name)) {
+                return embeddedBinaryData;
+            }
+        }
+        return null;
+    }
+
 
     public Section section() {
         return section;
@@ -77,21 +131,18 @@ public class DrawingInfo {
         sectionDefine = (ControlSectionDefine) firstPara.getControlList().get(0);
     }
 
-    private PageDef pageDef() {
-        return sectionDefine.getPageDef();
-    }
-
     private void calculatePaperPageArea() {
-        paperArea = new Area(0, 0, pageDef().getPaperWidth(), pageDef().getPaperHeight());
+        PageDef pageDef = sectionDefine.getPageDef();
+        paperArea = new Area(0, 0, pageDef.getPaperWidth(), pageDef.getPaperHeight());
         pageArea = new Area(paperArea)
-                .applyMargin(pageDef().getLeftMargin(),
-                        pageDef().getTopMargin(),
-                        pageDef().getRightMargin(),
-                        pageDef().getBottomMargin())
+                .applyMargin(pageDef.getLeftMargin(),
+                        pageDef.getTopMargin(),
+                        pageDef.getRightMargin(),
+                        pageDef.getBottomMargin())
                 .applyMargin(0,
-                        pageDef().getHeaderMargin(),
+                        pageDef.getHeaderMargin(),
                         0,
-                        pageDef().getFooterMargin());
+                        pageDef.getFooterMargin());
     }
 
     public Area paperArea() {
@@ -102,7 +153,20 @@ public class DrawingInfo {
         return pageArea;
     }
 
-    public DrawingInfo newPage() {
+    public DrawingInfo startBodyTextParagraphList() {
+        ParagraphListInfo paragraphListInfo = new ParagraphListInfo(this)
+                .bodyText(true);
+        bodyTextParagraphListInfo = paragraphListInfo;
+
+        paragraphListInfoStack.push(paragraphListInfo);
+        return this;
+    }
+
+    public void endBodyTextParagraphList() {
+        paragraphListInfoStack.pop();
+    }
+
+    public void newPage() {
         pageNo++;
         if (pageNo > 1 && sectionDefine.getHeader().getProperty().isHideEmptyLine()) {
             countOfHidingEmptyLineAfterNewPage = 2;
@@ -110,12 +174,17 @@ public class DrawingInfo {
             countOfHidingEmptyLineAfterNewPage = 0;
         }
 
-        page = new Page(paperArea, pageArea);
+        pageContent = new PageContent(pageNo, paperArea, pageArea);
 
-        if (bodyTextParagraphListInfo != null) {
+        if (bodyTextParagraphListInfo.paragraph() != null) {
             bodyTextParagraphListInfo.resetParagraphStartY();
         }
-        return this;
+
+        outputContentStack.add(pageContent);
+    }
+
+    public int pageNo() {
+        return pageNo;
     }
 
     public boolean checkHidingEmptyLineAfterNewPage() {
@@ -130,44 +199,31 @@ public class DrawingInfo {
         countOfHidingEmptyLineAfterNewPage = 0;
     }
 
-    public Page page() {
-        return page;
+    public PageContent pageContent() {
+        return pageContent;
     }
 
-    public void startBodyTextParagraphList() {
-        ParagraphListInfo paragraphListInfo = new ParagraphListInfo(this)
-                .bodyText(true);
-        paragraphInfoStack.push(paragraphListInfo);
-        bodyTextParagraphListInfo = paragraphListInfo;
+    public void startContentContentAndParagraphList(Area controlArea, Area textArea) {
+        ControlContent controlContent = new ControlContent(controlArea, textArea);
+
+        outputContent().addChildControlContents(controlContent);
+        outputContentStack.push(controlContent);
+
+        ParagraphListInfo paragraphListInfo = new ParagraphListInfo(this, textArea)
+                .bodyText(false);
+        paragraphListInfoStack.push(paragraphListInfo);
     }
 
-    public DrawingInfo newControlText(Area area) {
-        controlContent = new ControlContent(area);
-        return this;
-    }
+    public ControlContent endControlContentAndParagraphList() {
+        ControlContent controlContent = (ControlContent) outputContentStack.pop();
+        ParagraphListInfo paragraphListInfo = paragraphListInfoStack.pop();
 
-    public ControlContent controlContent() {
+        controlContent.height(paragraphListInfo.height());
         return controlContent;
     }
 
-    public void startControlParagraphList(Area textArea) {
-        paragraphInfoStack.push(new ParagraphListInfo(this, textArea)
-                .bodyText(false));
-    }
-
-    public ContentBuffer contentBuffer() {
-        if (isBodyText()) {
-            return page;
-        } else {
-            return controlContent;
-        }
-    }
-
-    public void endParagraphList() {
-        if (!isBodyText()) {
-            controlContent.height(paragraphListInfo().height());
-        }
-        paragraphInfoStack.pop();
+    public OutputContent outputContent() {
+        return outputContentStack.peek();
     }
 
     public void startParagraph(Paragraph paragraph) {
@@ -175,13 +231,13 @@ public class DrawingInfo {
     }
 
     public void endParagraph(long endY, long height) throws IOException {
-        contentBuffer().setLastTextPartToLastLine();
+        outputContent().setLastTextPartToLastLine();
         ParagraphListInfo paragraphListInfo = paragraphListInfo();
         paragraphListInfo.endParagraph(endY, height);
     }
 
     public ParagraphListInfo paragraphListInfo() {
-        return paragraphInfoStack.peek();
+        return paragraphListInfoStack.peek();
     }
 
     public boolean isBodyText() {
@@ -236,4 +292,5 @@ public class DrawingInfo {
     public void gotoCharPosition(int lineFirstCharIndex, int lineFirstCharPosition) {
         paragraphListInfo().gotoCharPosition(lineFirstCharIndex, lineFirstCharPosition);
     }
+
 }

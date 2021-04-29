@@ -35,7 +35,7 @@ public class PagePainter {
         painter
                 .graphics2D((Graphics2D) pageImage.getGraphics())
                 .setLineStyle(BorderType.Solid, BorderThickness.MM0_15, new Color4Byte(255, 0, 0))
-                .rectangle(info.page().pageArea(), false);
+                .rectangle(info.pageContent().pageArea(), false);
 
         paintPage();
 
@@ -44,8 +44,8 @@ public class PagePainter {
 
     private BufferedImage createPageImage() {
         BufferedImage pageImage = new BufferedImage(
-                Convertor.fromHWPUnit(info.page().paperArea().width()),
-                Convertor.fromHWPUnit(info.page().paperArea().height()),
+                Convertor.fromHWPUnit(info.pageContent().paperArea().width()),
+                Convertor.fromHWPUnit(info.pageContent().paperArea().height()),
                 BufferedImage.TYPE_INT_RGB);
 
         Graphics2D graphics = (Graphics2D) pageImage.getGraphics();
@@ -56,10 +56,9 @@ public class PagePainter {
     }
 
     private void paintPage() throws Exception {
-
-        painter.controlPainter().paintControls(info.page().behindControls());
-        painter.textDrawer().paintTextParts(info.page().textParts());
-        painter.controlPainter().paintControls(info.page().notBehindControls());
+        painter.controlPainter().paintControls(info.pageContent().behindControls());
+        painter.textPainter().paintTextParts(info.pageContent().textParts());
+        painter.controlPainter().paintControls(info.pageContent().nonBehindControls());
     }
 
     private void savePngFile(BufferedImage pageImage) throws IOException {

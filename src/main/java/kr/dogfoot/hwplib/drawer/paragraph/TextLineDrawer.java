@@ -1,6 +1,7 @@
 package kr.dogfoot.hwplib.drawer.paragraph;
 
 import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
+import kr.dogfoot.hwplib.drawer.drawinginfo.contentbuffer.ControlContent;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.docinfo.ParaShape;
@@ -147,7 +148,7 @@ public class TextLineDrawer {
                 part
                         .maxCharHeight(maxCharHeight)
                         .alignment(info.paraShape().getProperty1().getAlignment());
-                info.contentBuffer().addTextPart(part);
+                info.outputContent().addTextPart(part);
                 saved = true;
             }
         }

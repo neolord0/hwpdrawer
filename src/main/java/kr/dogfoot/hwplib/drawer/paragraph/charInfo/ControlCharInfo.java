@@ -1,17 +1,19 @@
 package kr.dogfoot.hwplib.drawer.paragraph.charInfo;
 
 import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
+import kr.dogfoot.hwplib.drawer.drawinginfo.contentbuffer.ControlContent;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.PositionCalculator;
 import kr.dogfoot.hwplib.object.bodytext.control.Control;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlTable;
+import kr.dogfoot.hwplib.object.bodytext.control.ControlType;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.CtrlHeaderGso;
 import kr.dogfoot.hwplib.object.bodytext.control.gso.GsoControl;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPChar;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPCharControlExtend;
 import kr.dogfoot.hwplib.object.docinfo.CharShape;
 
-public class ControlCharInfo extends CharInfo implements Comparable<ControlCharInfo> {
+public class ControlCharInfo extends CharInfo implements Comparable<ControlCharInfo>  {
     public static ControlCharInfo create(HWPCharControlExtend character, Control control, DrawingInfo info) {
         ControlCharInfo charInfo = new ControlCharInfo(character, info.charShape(), info.charIndex(), info.charPosition());
         if (character.getCode() == 11) {
@@ -40,6 +42,7 @@ public class ControlCharInfo extends CharInfo implements Comparable<ControlCharI
     private Area areaWithoutOuterMargin;
 
     public ControlCharInfo(HWPChar character, CharShape charShape, int index, int position) {
+
         super(character, charShape, index, position);
         control = null;
     }
@@ -122,6 +125,7 @@ public class ControlCharInfo extends CharInfo implements Comparable<ControlCharI
         return areaWithoutOuterMargin;
     }
 
+    @Override
     public int compareTo(ControlCharInfo o) {
         if (zOrder() > o.zOrder())
             return 1;

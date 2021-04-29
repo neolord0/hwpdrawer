@@ -4,15 +4,18 @@ import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
 import kr.dogfoot.hwplib.drawer.drawinginfo.contentbuffer.ControlContent;
 import kr.dogfoot.hwplib.drawer.painter.Painter;
 import kr.dogfoot.hwplib.drawer.paragraph.ParagraphDrawer;
+import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlTable;
 import kr.dogfoot.hwplib.object.bodytext.control.table.Cell;
 import kr.dogfoot.hwplib.object.bodytext.control.table.ListHeaderForCell;
 import kr.dogfoot.hwplib.object.bodytext.control.table.Row;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.Paragraph;
+import kr.dogfoot.hwplib.object.docinfo.BorderFill;
 import kr.dogfoot.hwplib.object.docinfo.borderfill.BorderThickness;
 import kr.dogfoot.hwplib.object.docinfo.borderfill.BorderType;
 import kr.dogfoot.hwplib.object.etc.Color4Byte;
+import kr.dogfoot.hwplib.tool.blankfilemaker.BorderFillAdder;
 
 public class TablePainter {
     private Painter painter;
@@ -56,38 +59,45 @@ public class TablePainter {
                         .moveX(cellPositionCalculator.x(lh.getColIndex()) + areaWithoutOuterMargin.left())
                         .moveY(cellPositionCalculator.y(lh.getRowIndex()) + areaWithoutOuterMargin.top());
 
+                BorderFill borderFill = info.getBorderFill(lh.getBorderFillId());
+                painter.backgroundPainter().paint(borderFill.getFillInfo(), cellArea);
                 painter.setLineStyle(BorderType.Solid, BorderThickness.MM0_12, new Color4Byte(0, 0, 0, 0));
                 painter.rectangle(cellArea, false);
-
                 paintContent(cellContent[lh.getColIndex()][lh.getRowIndex()], cellArea, cell);
+
             }
         }
     }
 
     public ControlContent drawCell(long width, Cell cell) throws Exception {
-        Area textArea = new Area(0, 0, width, 0).applyMargin(
-                cell.getListHeader().getLeftMargin(), 0,
-                cell.getListHeader().getRightMargin(), 0);
+        Area fakeCellArea = new Area(0, 0, width,  0);
+        Area fakeTextArea = new Area(fakeCellArea)
+                .applyMargin(cell.getListHeader().getLeftMargin(), 0, cell.getListHeader().getRightMargin(), 0)
+                .moveX(-cell.getListHeader().getLeftMargin());
 
-        info.newControlText(textArea)
-                .startControlParagraphList(textArea);
+        info.startContentContentAndParagraphList(fakeCellArea, fakeTextArea);
 
         ParagraphDrawer paragraphDrawer = new ParagraphDrawer(info);
         for (Paragraph paragraph : cell.getParagraphList()) {
             paragraphDrawer.draw(paragraph);
         }
 
-        info.endParagraphList();
-
-        return info.controlContent();
+        return info.endControlContentAndParagraphList();
     }
 
     private void paintContent(ControlContent controlContent, Area cellArea, Cell cell) throws Exception {
+        Area textArea = new Area(cellArea).applyMargin(
+                cell.getListHeader().getLeftMargin(),
+                cell.getListHeader().getTopMargin(),
+                cell.getListHeader().getRightMargin(),
+                cell.getListHeader().getBottomMargin());
+
         controlContent
-                .adjustArea(cellArea)
+                .adjustArea(cellArea, textArea)
                 .adjustVerticalAlignment(cell.getListHeader().getProperty().getTextVerticalAlignment());
+
         painter.controlPainter().paintControls(controlContent.behindControls());
-        painter.textDrawer().paintTextParts(controlContent.textParts());
-        painter.controlPainter().paintControls(controlContent.notBehindControls());
+        painter.textPainter().paintTextParts(controlContent.textParts());
+        painter.controlPainter().paintControls(controlContent.nonBehindControls());
     }
 }

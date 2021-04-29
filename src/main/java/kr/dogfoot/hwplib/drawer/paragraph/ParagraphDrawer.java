@@ -156,7 +156,7 @@ public class ParagraphDrawer {
         ControlCharInfo charInfo = (ControlCharInfo) charInfoBuffer.get(info.charIndex());
         if (charInfo == null) {
             Control control = info.paragraph().getControlList().get(controlExtendCharIndex);
-
+            
             charInfo = ControlCharInfo.create(ch, control, info);
             charInfoBuffer.put(info.charIndex(), charInfo);
             controlExtendCharIndex++;
@@ -270,11 +270,7 @@ public class ParagraphDrawer {
                 textFlowCalculator.addForTopBottom(controlCharInfo);
             }
 
-            if (controlCharInfo.textFlowMethod() == 2/*뒤로*/) {
-                info.contentBuffer().addBehindControl(controlCharInfo);
-            } else {
-                info.contentBuffer().addNotBehindControl(controlCharInfo);
-            }
+            info.outputContent().addControl(controlCharInfo);
         } else {
             textLineDrawer.addChar(controlCharInfo);
         }
@@ -288,8 +284,15 @@ public class ParagraphDrawer {
 
             currentTextLineArea.top(info.pageArea().top());
 
-            textLineDrawer
-                    .addNewTextPart(currentTextLineArea);
+            if (textLineDrawer.noDrawingCharacter()) {
+                textLineDrawer
+                        .addNewTextPart(currentTextLineArea);
+            } else {
+                textLineDrawer.area(currentTextLineArea);
+                saveTextLine();
+                nextArea();
+            }
+
             wordSplitter.adjustControlAreaAtNewPage();
             textFlowCalculator.reset();
         }
@@ -352,14 +355,14 @@ public class ParagraphDrawer {
             case Normal:
                 textLineDrawer.saveToContentBuffer();
                 if (newLineAtNormal) {
-                    info.contentBuffer().setLastTextPartToLastLine();
+                    info.outputContent().setLastTextPartToLastLine();
                 }
                 break;
             case Recalculating:
                 if (recalculatingTextAreas.size() == 0 || newLineAtRecalculating) {
                     textLineDrawer.saveToContentBuffer();
                     if (newLineAtRecalculating) {
-                        info.contentBuffer().setLastTextPartToLastLine();
+                        info.outputContent().setLastTextPartToLastLine();
                     }
                     drawingState = DrawingState.EndRecalculating;
                 }

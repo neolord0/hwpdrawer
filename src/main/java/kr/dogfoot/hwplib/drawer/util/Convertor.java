@@ -1,6 +1,7 @@
 package kr.dogfoot.hwplib.drawer.util;
 
 import kr.dogfoot.hwplib.drawer.DrawingOption;
+import kr.dogfoot.hwplib.object.bodytext.control.gso.shapecomponent.lineinfo.LineType;
 import kr.dogfoot.hwplib.object.docinfo.borderfill.BorderThickness;
 import kr.dogfoot.hwplib.object.docinfo.borderfill.BorderType;
 import kr.dogfoot.hwplib.object.etc.Color4Byte;
@@ -123,6 +124,49 @@ public class Convertor {
                 return new float[]{2.0f * lineThickness, 4.0f * lineThickness};
         }
         return new float[]{10.0f * lineThickness};
+    }
+
+    public static Stroke stroke(LineType type, int thickness) {
+        float lineThickness = lineThickness(thickness);
+        switch (type) {
+            case Solid:
+                return new BasicStroke(lineThickness);
+            case Dash:
+            case Dot:
+            case DashDot:
+            case DashDotDot:
+            case LongDash:
+            case CircleDot:
+                return new BasicStroke(lineThickness, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, linePattern(type, lineThickness), 0);
+            case Double:
+            case ThinBold:
+            case BoldThin:
+            case ThinBoldThin:
+                break;
+        }
+        return new BasicStroke(lineThickness);
+    }
+
+    private static float lineThickness(int thickness) {
+        return thickness * 0.05f * option.zoomRate() / 100;
+    }
+
+    private static float[] linePattern(LineType type, float thickness) {
+        switch (type) {
+            case Dash:
+                return new float[]{8.0f * thickness, 4.0f * thickness};
+            case Dot:
+                return new float[]{2.0f * thickness, 4.0f * thickness};
+            case DashDot:
+                return new float[]{14.0f * thickness, 4.0f * thickness, 2.0f * thickness, 4.0f * thickness};
+            case DashDotDot:
+                return new float[]{14.0f * thickness, 4.0f * thickness, 2.0f * thickness, 4.0f * thickness, 2.0f * thickness, 4.0f * thickness};
+            case LongDash:
+                return new float[]{18.0f * thickness, 4.0f * thickness};
+            case CircleDot:
+                return new float[]{2.0f * thickness, 4.0f * thickness};
+        }
+        return new float[]{10.0f * thickness};
     }
 
 }

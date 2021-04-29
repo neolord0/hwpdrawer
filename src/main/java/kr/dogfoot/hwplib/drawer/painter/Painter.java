@@ -2,20 +2,24 @@ package kr.dogfoot.hwplib.drawer.painter;
 
 import kr.dogfoot.hwplib.drawer.DrawingOption;
 import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
+import kr.dogfoot.hwplib.drawer.painter.background.BackgroundPainter;
 import kr.dogfoot.hwplib.drawer.painter.control.ControlPainter;
 import kr.dogfoot.hwplib.drawer.painter.text.TextPainter;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.NormalCharInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.Convertor;
 import kr.dogfoot.hwplib.drawer.util.FontManager;
+import kr.dogfoot.hwplib.object.bodytext.control.gso.shapecomponent.lineinfo.LineType;
 import kr.dogfoot.hwplib.object.docinfo.CharShape;
 import kr.dogfoot.hwplib.object.docinfo.borderfill.BorderThickness;
 import kr.dogfoot.hwplib.object.docinfo.borderfill.BorderType;
+import kr.dogfoot.hwplib.object.docinfo.borderfill.fillinfo.PatternType;
 import kr.dogfoot.hwplib.object.etc.Color4Byte;
 
 import java.awt.*;
 import java.awt.font.LineMetrics;
 import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
 import java.io.UnsupportedEncodingException;
 
 public class Painter {
@@ -24,11 +28,15 @@ public class Painter {
 
     private ControlPainter controlPainter;
     private TextPainter textPainter;
+    private BackgroundPainter backgroundPainter;
 
     public Painter(DrawingInfo info) {
         controlPainter = new ControlPainter(this, info);
+
         textPainter = new TextPainter(this);
+        backgroundPainter = new BackgroundPainter(this, info);
     }
+
 
     public void option(DrawingOption option) {
         this.option = option;
@@ -47,8 +55,12 @@ public class Painter {
         return controlPainter;
     }
 
-    public TextPainter textDrawer() {
+    public TextPainter textPainter() {
         return textPainter;
+    }
+
+    public BackgroundPainter backgroundPainter() {
+        return backgroundPainter;
     }
 
     public Painter setDrawingFont(CharShape charShape) {
@@ -88,6 +100,12 @@ public class Painter {
         graphics2D.setColor(Convertor.color(color));
         return this;
     }
+    public Painter setLineStyle(LineType type, int thickness, Color4Byte color) {
+        graphics2D.setStroke(Convertor.stroke(type, thickness));
+
+        graphics2D.setColor(Convertor.color(color));
+        return this;
+    }
 
     public Painter line(long x1, long y1, long x2, long y2) {
         graphics2D.drawLine(
@@ -119,5 +137,18 @@ public class Painter {
     public Painter testBackStyle() {
         graphics2D.setColor(Color.WHITE);
         return this;
+    }
+
+    public Painter setPatternFill(PatternType type, Color4Byte backColor, Color4Byte patternColor) {
+        graphics2D.setColor(Convertor.color(backColor));
+        return this;
+    }
+
+    public void paintImage(Area area, BufferedImage image) {
+        Rectangle rect = area.toConvertedRectangle();
+        rect.x += option.offsetX();
+        rect.y += option.offsetY();
+
+        graphics2D.drawImage(image, rect.x, rect.y, rect.width, rect.height, null);
     }
 }

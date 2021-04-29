@@ -53,15 +53,15 @@ public class HWPDrawer {
     private void drawSection(Section section) throws Exception {
         info
                 .section(section)
-                .newPage()
-                .startBodyTextParagraphList();
+                .startBodyTextParagraphList()
+                .newPage();
 
         ParagraphDrawer paragraphDrawer = new ParagraphDrawer(pagePainter, info);
         for (Paragraph paragraph : info.section()) {
             paragraphDrawer.draw(paragraph);
         }
 
-        info.endParagraphList();
+        info.endBodyTextParagraphList();
     }
 
     private int pageCount() {

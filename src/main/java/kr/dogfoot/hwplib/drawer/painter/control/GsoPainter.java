@@ -1,14 +1,18 @@
 package kr.dogfoot.hwplib.drawer.painter.control;
 
 import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
+import kr.dogfoot.hwplib.drawer.drawinginfo.contentbuffer.ControlContent;
 import kr.dogfoot.hwplib.drawer.painter.Painter;
 import kr.dogfoot.hwplib.drawer.paragraph.ParagraphDrawer;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.control.gso.*;
+import kr.dogfoot.hwplib.object.bodytext.control.gso.shapecomponent.ShapeComponentNormal;
+import kr.dogfoot.hwplib.object.bodytext.control.gso.shapecomponent.lineinfo.LineInfo;
+import kr.dogfoot.hwplib.object.bodytext.control.gso.shapecomponent.lineinfo.LineType;
 import kr.dogfoot.hwplib.object.bodytext.control.gso.textbox.TextBox;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.Paragraph;
 import kr.dogfoot.hwplib.object.docinfo.borderfill.BorderThickness;
-import kr.dogfoot.hwplib.object.docinfo.borderfill.BorderType;
+import kr.dogfoot.hwplib.object.docinfo.borderfill.fillinfo.FillInfo;
 import kr.dogfoot.hwplib.object.etc.Color4Byte;
 
 public class GsoPainter {
@@ -20,55 +24,63 @@ public class GsoPainter {
         this.info = info;
     }
 
-    public void line(ControlLine line, Area areaWithoutOuterMargin) {
+    public void line(ControlLine line, Area area) {
     }
 
-    public void rectangle(ControlRectangle rectangle, Area areaWithoutOuterMargin) throws Exception {
-        painter.testBackStyle();
-        painter.rectangle(areaWithoutOuterMargin, true);
-        drawText(areaWithoutOuterMargin, rectangle.getTextBox());
-        painter.setLineStyle(BorderType.Solid, BorderThickness.MM0_12, new Color4Byte(0, 0, 0, 0));
-        painter.rectangle(areaWithoutOuterMargin, false);
+    public void rectangle(ControlRectangle rectangle, Area area) throws Exception {
+        painter.backgroundPainter().paint(((ShapeComponentNormal)(rectangle.getShapeComponent())).getFillInfo(), area);
+        drawText(rectangle.getTextBox(), area);
+        ;
+        boolean drawLine = setBorderLine(((ShapeComponentNormal)(rectangle.getShapeComponent())).getLineInfo());
+        if (drawLine == true) {
+            painter.rectangle(area, false);
+        }
     }
 
-    public void ellipse(ControlEllipse ellipse, Area areaWithoutOuterMargin) {
+    public void ellipse(ControlEllipse ellipse, Area area) {
     }
 
-    public void arc(ControlArc arc, Area areaWithoutOuterMargin) {
+    public void arc(ControlArc arc, Area area) {
     }
 
-    public void polygon(ControlPolygon polygon, Area areaWithoutOuterMargin) {
+    public void polygon(ControlPolygon polygon, Area area) {
     }
 
-    public void curve(ControlCurve curve, Area areaWithoutOuterMargin) {
+    public void curve(ControlCurve curve, Area area) {
     }
 
-    public void picture(ControlPicture picture, Area areaWithoutOuterMargin) {
+    public void picture(ControlPicture picture, Area area) {
+        painter.paintImage(area, info.getImage(picture.getShapeComponentPicture().getPictureInfo().getBinItemID()));
+        boolean drawLine = setBorderLine(picture.getShapeComponentPicture().getBorderProperty().getLineType(),
+                picture.getShapeComponentPicture().getBorderThickness(),
+                picture.getShapeComponentPicture().getBorderColor());
+        if (drawLine == true) {
+            painter.rectangle(area, false);
+        }
     }
 
-    public void ole(ControlOLE ole, Area areaWithoutOuterMargin) {
+    public void ole(ControlOLE ole, Area area) {
     }
 
-    public void container(ControlContainer container, Area areaWithoutOuterMargin) {
+    public void container(ControlContainer container, Area area) {
     }
 
-    public void objectLinkLine(ControlObjectLinkLine objectLinkLine, Area areaWithoutOuterMargin) {
+    public void objectLinkLine(ControlObjectLinkLine objectLinkLine, Area area) {
     }
 
-    private void drawText(Area areaWithoutOuterMargin, TextBox textBox) throws Exception {
+
+    private void drawText(TextBox textBox, Area controlArea) throws Exception {
         if (textBox == null) {
             return;
         }
 
-        Area textArea = new Area(areaWithoutOuterMargin).applyMargin(
+        Area textArea = new Area(controlArea).applyMargin(
                 textBox.getListHeader().getLeftMargin(),
                 textBox.getListHeader().getTopMargin(),
                 textBox.getListHeader().getRightMargin(),
                 textBox.getListHeader().getBottomMargin());
 
-        info
-                .newControlText(textArea)
-                .startControlParagraphList(textArea);
+        info.startContentContentAndParagraphList(controlArea, textArea);
 
         ParagraphDrawer paragraphDrawer = new ParagraphDrawer(info);
 
@@ -76,17 +88,28 @@ public class GsoPainter {
             paragraphDrawer.draw(paragraph);
         }
 
-        info.endParagraphList();
+        ControlContent controlContent = info.endControlContentAndParagraphList();
 
-        info.controlContent()
-                .adjustVerticalAlignment(textBox.getListHeader().getProperty().getTextVerticalAlignment());
-
-        paintControlContent();
+        controlContent.adjustVerticalAlignment(textBox.getListHeader().getProperty().getTextVerticalAlignment());
+        paintControlContent(controlContent);
     }
 
-    private void paintControlContent() throws Exception {
-        painter.controlPainter().paintControls(info.controlContent().behindControls());
-        painter.textDrawer().paintTextParts(info.controlContent().textParts());
-        painter.controlPainter().paintControls(info.controlContent().notBehindControls());
+    private void paintControlContent(ControlContent controlContent) throws Exception {
+        painter.controlPainter().paintControls(controlContent.behindControls());
+        painter.textPainter().paintTextParts(controlContent.textParts());
+        painter.controlPainter().paintControls(controlContent.nonBehindControls());
     }
+
+    private boolean setBorderLine(LineInfo lineInfo) {
+        return setBorderLine(lineInfo.getProperty().getLineType(), lineInfo.getThickness(), lineInfo.getColor());
+    }
+
+    private boolean setBorderLine(LineType type, int thickness, Color4Byte color) {
+        if (type == LineType.None) {
+            return false;
+        }
+        painter.setLineStyle(type, thickness, color);
+        return true;
+    }
+
 }

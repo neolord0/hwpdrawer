@@ -36,9 +36,9 @@ public class PositionCalculator {
                 return info.pageArea().width() * width / 10000;
             case Column:
                 // todo
-                return info.paragraphArea().width() * width / 10000;
+                    return info.paragraphArea().width() * width / 10000;
             case Para:
-                return info.paragraphArea().width() * width / 10000;
+                    return info.paragraphArea().width() * width / 10000;
             case Absolute:
                 return width;
         }
@@ -72,12 +72,14 @@ public class PositionCalculator {
                 criterionArea = info.paragraphArea();
                 break;
             case Para:
-                // todo
                 criterionArea = info.paragraphArea();
                 break;
         }
         if (criterionArea == null) {
             return 0;
+        }
+        if (info.isBodyText() == false) {
+            System.out.println("CR " + criterionArea);
         }
         long xOffset = gsoHeader.getxOffset();
         switch (gsoHeader.getProperty().getHorzRelativeArrange()) {
