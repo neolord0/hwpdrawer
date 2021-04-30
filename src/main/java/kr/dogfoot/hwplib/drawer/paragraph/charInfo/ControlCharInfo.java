@@ -1,12 +1,11 @@
 package kr.dogfoot.hwplib.drawer.paragraph.charInfo;
 
 import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
-import kr.dogfoot.hwplib.drawer.drawinginfo.contentbuffer.ControlContent;
+import kr.dogfoot.hwplib.drawer.drawinginfo.outputcontent.ControlContent;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.PositionCalculator;
 import kr.dogfoot.hwplib.object.bodytext.control.Control;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlTable;
-import kr.dogfoot.hwplib.object.bodytext.control.ControlType;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.CtrlHeaderGso;
 import kr.dogfoot.hwplib.object.bodytext.control.gso.GsoControl;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPChar;
@@ -33,16 +32,15 @@ public class ControlCharInfo extends CharInfo implements Comparable<ControlCharI
             }
         }
         return charInfo;
-
     }
 
     private Control control;
+    private ControlContent content;
     private CtrlHeaderGso gsoHeader;
     private Area areaWithOuterMargin;
     private Area areaWithoutOuterMargin;
 
     public ControlCharInfo(HWPChar character, CharShape charShape, int index, int position) {
-
         super(character, charShape, index, position);
         control = null;
     }
@@ -51,6 +49,14 @@ public class ControlCharInfo extends CharInfo implements Comparable<ControlCharI
         this.control = control;
         this.gsoHeader = gsoHeader;
         return this;
+    }
+
+    public void content(ControlContent content) {
+        this.content = content;
+    }
+
+    public ControlContent content() {
+        return content;
     }
 
     public ControlCharInfo area(DrawingInfo info) {

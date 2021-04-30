@@ -1,16 +1,15 @@
 package kr.dogfoot.hwplib.drawer.drawinginfo;
 
-import kr.dogfoot.hwplib.drawer.drawinginfo.contentbuffer.OutputContent;
-import kr.dogfoot.hwplib.drawer.drawinginfo.contentbuffer.ControlContent;
-import kr.dogfoot.hwplib.drawer.drawinginfo.contentbuffer.PageContent;
-import kr.dogfoot.hwplib.drawer.paragraph.TextPart;
-import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
+import kr.dogfoot.hwplib.drawer.drawinginfo.outputcontent.OutputContent;
+import kr.dogfoot.hwplib.drawer.drawinginfo.outputcontent.GsoContent;
+import kr.dogfoot.hwplib.drawer.drawinginfo.outputcontent.PageContent;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.HWPFile;
 import kr.dogfoot.hwplib.object.bindata.EmbeddedBinaryData;
 import kr.dogfoot.hwplib.object.bodytext.Section;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlSectionDefine;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlType;
+import kr.dogfoot.hwplib.object.bodytext.control.gso.GsoControl;
 import kr.dogfoot.hwplib.object.bodytext.control.sectiondefine.PageDef;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.Paragraph;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPChar;
@@ -20,7 +19,6 @@ import kr.dogfoot.hwplib.object.docinfo.CharShape;
 import kr.dogfoot.hwplib.object.docinfo.ParaShape;
 
 import javax.imageio.ImageIO;
-import javax.sound.sampled.Line;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -203,23 +201,25 @@ public class DrawingInfo {
         return pageContent;
     }
 
-    public void startContentContentAndParagraphList(Area controlArea, Area textArea) {
-        ControlContent controlContent = new ControlContent(controlArea, textArea);
+    public GsoContent startGsoContent(GsoControl gso, Area controlArea) {
+        GsoContent gsoContent = new GsoContent(gso, controlArea);
+        outputContentStack.push(gsoContent);
+        return gsoContent;
+    }
 
-        outputContent().addChildControlContents(controlContent);
-        outputContentStack.push(controlContent);
+    public void endGsoContent() {
+        outputContentStack.pop();
+    }
 
+    public void startControlParagraphList(Area textArea) {
         ParagraphListInfo paragraphListInfo = new ParagraphListInfo(this, textArea)
                 .bodyText(false);
         paragraphListInfoStack.push(paragraphListInfo);
     }
 
-    public ControlContent endControlContentAndParagraphList() {
-        ControlContent controlContent = (ControlContent) outputContentStack.pop();
+    public long endControlParagraphList() {
         ParagraphListInfo paragraphListInfo = paragraphListInfoStack.pop();
-
-        controlContent.height(paragraphListInfo.height());
-        return controlContent;
+        return paragraphListInfo.height();
     }
 
     public OutputContent outputContent() {

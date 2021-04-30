@@ -1,21 +1,11 @@
 package kr.dogfoot.hwplib.drawer.painter.control;
 
 import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
-import kr.dogfoot.hwplib.drawer.drawinginfo.contentbuffer.ControlContent;
+import kr.dogfoot.hwplib.drawer.drawinginfo.outputcontent.GsoContent;
 import kr.dogfoot.hwplib.drawer.painter.Painter;
-import kr.dogfoot.hwplib.drawer.paragraph.ParagraphDrawer;
-import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlTable;
 import kr.dogfoot.hwplib.object.bodytext.control.table.Cell;
-import kr.dogfoot.hwplib.object.bodytext.control.table.ListHeaderForCell;
-import kr.dogfoot.hwplib.object.bodytext.control.table.Row;
-import kr.dogfoot.hwplib.object.bodytext.paragraph.Paragraph;
-import kr.dogfoot.hwplib.object.docinfo.BorderFill;
-import kr.dogfoot.hwplib.object.docinfo.borderfill.BorderThickness;
-import kr.dogfoot.hwplib.object.docinfo.borderfill.BorderType;
-import kr.dogfoot.hwplib.object.etc.Color4Byte;
-import kr.dogfoot.hwplib.tool.blankfilemaker.BorderFillAdder;
 
 public class TablePainter {
     private Painter painter;
@@ -31,8 +21,9 @@ public class TablePainter {
     }
 
     public void paint(ControlTable table, Area areaWithoutOuterMargin) throws Exception {
+        /*
         cellPositionCalculator.reset(table.getTable().getColumnCount(), table.getTable().getRowCount());
-        ControlContent[][] cellContent = new ControlContent[table.getTable().getColumnCount()][table.getTable().getRowCount()];
+        GsoContent[][] cellContent = new GsoContent[table.getTable().getColumnCount()][table.getTable().getRowCount()];
         for (Row row : table.getRowList()) {
             for (Cell cell : row.getCellList()) {
                 ListHeaderForCell lh = cell.getListHeader();
@@ -67,9 +58,12 @@ public class TablePainter {
 
             }
         }
+
+         */
     }
 
-    public ControlContent drawCell(long width, Cell cell) throws Exception {
+    public GsoContent drawCell(long width, Cell cell) throws Exception {
+        /*
         Area fakeCellArea = new Area(0, 0, width,  0);
         Area fakeTextArea = new Area(fakeCellArea)
                 .applyMargin(cell.getListHeader().getLeftMargin(), 0, cell.getListHeader().getRightMargin(), 0)
@@ -83,9 +77,13 @@ public class TablePainter {
         }
 
         return info.endControlContentAndParagraphList();
+
+         */
+        return null;
     }
 
-    private void paintContent(ControlContent controlContent, Area cellArea, Cell cell) throws Exception {
+    private void paintContent(GsoContent controlContent, Area cellArea, Cell cell) throws Exception {
+        /*
         Area textArea = new Area(cellArea).applyMargin(
                 cell.getListHeader().getLeftMargin(),
                 cell.getListHeader().getTopMargin(),
@@ -99,5 +97,7 @@ public class TablePainter {
         painter.controlPainter().paintControls(controlContent.behindControls());
         painter.textPainter().paintTextParts(controlContent.textParts());
         painter.controlPainter().paintControls(controlContent.nonBehindControls());
+
+         */
     }
 }

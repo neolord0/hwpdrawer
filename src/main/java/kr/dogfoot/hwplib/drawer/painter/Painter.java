@@ -2,6 +2,7 @@ package kr.dogfoot.hwplib.drawer.painter;
 
 import kr.dogfoot.hwplib.drawer.DrawingOption;
 import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
+import kr.dogfoot.hwplib.drawer.drawinginfo.outputcontent.OutputContent;
 import kr.dogfoot.hwplib.drawer.painter.background.BackgroundPainter;
 import kr.dogfoot.hwplib.drawer.painter.control.ControlPainter;
 import kr.dogfoot.hwplib.drawer.painter.text.TextPainter;
@@ -150,5 +151,11 @@ public class Painter {
         rect.y += option.offsetY();
 
         graphics2D.drawImage(image, rect.x, rect.y, rect.width, rect.height, null);
+    }
+
+    public void paintContent(OutputContent content) throws Exception {
+        controlPainter.paintControls(content.behindChildContents());
+        textPainter.paintTextParts(content.textParts());
+        controlPainter.paintControls(content.nonBehindChildContents());
     }
 }

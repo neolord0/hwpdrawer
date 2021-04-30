@@ -116,6 +116,7 @@ public class PositionCalculator {
         if (gsoHeader.getProperty().getVertRelTo() == VertRelTo.Para) {
             yOffset = Math.max(0, yOffset);
         }
+        System.out.println("AA " + gsoHeader.getProperty().getVertRelTo() + "  " + criterionArea + " " + yOffset);
         switch (gsoHeader.getProperty().getVertRelativeArrange()) {
             case TopOrLeft:
             case Inside:

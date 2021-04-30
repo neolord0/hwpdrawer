@@ -1,18 +1,14 @@
 package kr.dogfoot.hwplib.drawer.painter.control;
 
 import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
-import kr.dogfoot.hwplib.drawer.drawinginfo.contentbuffer.ControlContent;
+import kr.dogfoot.hwplib.drawer.drawinginfo.outputcontent.GsoContent;
 import kr.dogfoot.hwplib.drawer.painter.Painter;
-import kr.dogfoot.hwplib.drawer.paragraph.ParagraphDrawer;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.control.gso.*;
 import kr.dogfoot.hwplib.object.bodytext.control.gso.shapecomponent.ShapeComponentNormal;
 import kr.dogfoot.hwplib.object.bodytext.control.gso.shapecomponent.lineinfo.LineInfo;
 import kr.dogfoot.hwplib.object.bodytext.control.gso.shapecomponent.lineinfo.LineType;
 import kr.dogfoot.hwplib.object.bodytext.control.gso.textbox.TextBox;
-import kr.dogfoot.hwplib.object.bodytext.paragraph.Paragraph;
-import kr.dogfoot.hwplib.object.docinfo.borderfill.BorderThickness;
-import kr.dogfoot.hwplib.object.docinfo.borderfill.fillinfo.FillInfo;
 import kr.dogfoot.hwplib.object.etc.Color4Byte;
 
 public class GsoPainter {
@@ -70,6 +66,7 @@ public class GsoPainter {
 
 
     private void drawText(TextBox textBox, Area controlArea) throws Exception {
+        /*
         if (textBox == null) {
             return;
         }
@@ -88,16 +85,21 @@ public class GsoPainter {
             paragraphDrawer.draw(paragraph);
         }
 
-        ControlContent controlContent = info.endControlContentAndParagraphList();
+        GsoContent controlContent = info.endControlContentAndParagraphList();
 
         controlContent.adjustVerticalAlignment(textBox.getListHeader().getProperty().getTextVerticalAlignment());
         paintControlContent(controlContent);
+
+         */
     }
 
-    private void paintControlContent(ControlContent controlContent) throws Exception {
+    private void paintControlContent(GsoContent controlContent) throws Exception {
+        /*
         painter.controlPainter().paintControls(controlContent.behindControls());
         painter.textPainter().paintTextParts(controlContent.textParts());
         painter.controlPainter().paintControls(controlContent.nonBehindControls());
+
+         */
     }
 
     private boolean setBorderLine(LineInfo lineInfo) {
@@ -112,4 +114,42 @@ public class GsoPainter {
         return true;
     }
 
+    public void line(GsoContent gsoContent) {
+    }
+
+    public void rectangle(GsoContent gsoContent) throws Exception {
+        ControlRectangle rectangle = (ControlRectangle) gsoContent.control();
+        painter.backgroundPainter().paint(((ShapeComponentNormal)(rectangle.getShapeComponent())).getFillInfo(), gsoContent.controlArea());
+
+        gsoContent.adjustTextAreaAndVerticalAlignment();
+        painter.paintContent(gsoContent);
+        boolean drawLine = setBorderLine(((ShapeComponentNormal)(rectangle.getShapeComponent())).getLineInfo());
+        if (drawLine == true) {
+            painter.rectangle(gsoContent.controlArea(), false);
+        }
+    }
+
+    public void ellipse(GsoContent gsoContent) {
+    }
+
+    public void arc(GsoContent gsoContent) {
+    }
+
+    public void polygon(GsoContent gsoContent) {
+    }
+
+    public void curve(GsoContent gsoContent) {
+    }
+
+    public void picture(GsoContent gsoContent) {
+    }
+
+    public void ole(GsoContent gsoContent) {
+    }
+
+    public void container(GsoContent gsoContent) {
+    }
+
+    public void objectLinkLine(GsoContent gsoContent) {
+    }
 }

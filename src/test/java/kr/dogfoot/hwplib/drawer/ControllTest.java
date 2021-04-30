@@ -79,4 +79,9 @@ public class ControllTest {
     public void test_글자처럼() throws Exception {
         HWPTester.testAndCompare("testingHWP" + File.separator + "컨트롤" + File.separator + "글자처럼" + File.separator + "1");
     }
+
+    @Test
+    public void test_이미지1() throws Exception {
+        HWPTester.test("testingHWP" + File.separator + "컨트롤" + File.separator + "이미지" + File.separator + "1");
+    }
 }

@@ -37,7 +37,8 @@ public class PagePainter {
                 .setLineStyle(BorderType.Solid, BorderThickness.MM0_15, new Color4Byte(255, 0, 0))
                 .rectangle(info.pageContent().pageArea(), false);
 
-        paintPage();
+        System.out.println(info.pageContent().test(0));
+        painter.paintContent(info.pageContent());
 
         savePngFile(pageImage);
     }
@@ -53,12 +54,6 @@ public class PagePainter {
         graphics.fillRect(0, 0, pageImage.getWidth(), pageImage.getHeight());
 
         return pageImage;
-    }
-
-    private void paintPage() throws Exception {
-        painter.controlPainter().paintControls(info.pageContent().behindControls());
-        painter.textPainter().paintTextParts(info.pageContent().textParts());
-        painter.controlPainter().paintControls(info.pageContent().nonBehindControls());
     }
 
     private void savePngFile(BufferedImage pageImage) throws IOException {

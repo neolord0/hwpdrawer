@@ -1,10 +1,12 @@
 package kr.dogfoot.hwplib.drawer.paragraph;
 
 import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
+import kr.dogfoot.hwplib.drawer.drawinginfo.outputcontent.ControlContent;
 import kr.dogfoot.hwplib.drawer.painter.PagePainter;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfo;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.NormalCharInfo;
+import kr.dogfoot.hwplib.drawer.paragraph.control.ControlDrawer;
 import kr.dogfoot.hwplib.drawer.paragraph.textflow.TextFlowCalculator;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.control.Control;
@@ -24,6 +26,7 @@ public class ParagraphDrawer {
     private DrawingInfo info;
 
     private TextLineDrawer textLineDrawer;
+    private ControlDrawer controlDrawer;
     private WordSplitter wordSplitter;
     private TextFlowCalculator textFlowCalculator;
     private boolean cancelNewLine;
@@ -55,6 +58,7 @@ public class ParagraphDrawer {
         this.info = info;
 
         textLineDrawer = new TextLineDrawer(info);
+        controlDrawer = new ControlDrawer(info);
         wordSplitter = new WordSplitter(this, textLineDrawer, info);
 
         textFlowCalculator = new TextFlowCalculator();
@@ -156,7 +160,7 @@ public class ParagraphDrawer {
         ControlCharInfo charInfo = (ControlCharInfo) charInfoBuffer.get(info.charIndex());
         if (charInfo == null) {
             Control control = info.paragraph().getControlList().get(controlExtendCharIndex);
-            
+
             charInfo = ControlCharInfo.create(ch, control, info);
             charInfoBuffer.put(info.charIndex(), charInfo);
             controlExtendCharIndex++;
@@ -262,15 +266,17 @@ public class ParagraphDrawer {
         return hasNewLine;
     }
 
-    private void addControlChar(ControlCharInfo controlCharInfo) {
+    private void addControlChar(ControlCharInfo controlCharInfo) throws Exception {
+        ControlContent content = controlDrawer.draw(controlCharInfo);
+        controlCharInfo.content(content);
+
         if (controlCharInfo.isLikeLetter() == false) {
-            if (controlCharInfo.textFlowMethod() == 0/*어울림*/) {
+             if (controlCharInfo.textFlowMethod() == 0/*어울림*/) {
                 textFlowCalculator.addForSquare(controlCharInfo);
             } else if (controlCharInfo.textFlowMethod() == 1/*자리차지*/) {
                 textFlowCalculator.addForTopBottom(controlCharInfo);
             }
-
-            info.outputContent().addControl(controlCharInfo);
+            info.outputContent().addChildContent(content);
         } else {
             textLineDrawer.addChar(controlCharInfo);
         }

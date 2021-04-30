@@ -1,4 +1,4 @@
-package kr.dogfoot.hwplib.drawer.drawinginfo.contentbuffer;
+package kr.dogfoot.hwplib.drawer.drawinginfo.outputcontent;
 
 import kr.dogfoot.hwplib.drawer.util.Area;
 

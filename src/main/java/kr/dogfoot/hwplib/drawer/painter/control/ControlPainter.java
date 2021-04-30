@@ -1,7 +1,8 @@
 package kr.dogfoot.hwplib.drawer.painter.control;
 
 import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
-import kr.dogfoot.hwplib.drawer.drawinginfo.contentbuffer.ControlContent;
+import kr.dogfoot.hwplib.drawer.drawinginfo.outputcontent.ControlContent;
+import kr.dogfoot.hwplib.drawer.drawinginfo.outputcontent.GsoContent;
 import kr.dogfoot.hwplib.drawer.painter.Painter;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
@@ -19,61 +20,52 @@ public class ControlPainter {
         tablePainter = new TablePainter(painter, info);
     }
 
-    public void paintControls(TreeSet<ControlCharInfo> controlCharInfos) throws Exception {
-        for (ControlCharInfo controlCharInfo : controlCharInfos) {
-            paint(controlCharInfo);
+    public void paintControls(TreeSet<ControlContent> controlContents) throws Exception {
+        for (ControlContent controlContent : controlContents) {
+            paintControl(controlContent);
         }
     }
 
-    private void paint(ControlCharInfo controlCharInfo) throws Exception {
-        if (controlCharInfo.control() == null) {
-            return;
-        }
-        paint(controlCharInfo, controlCharInfo.areaWithoutOuterMargin());
-    }
-
-    public void paint(ControlCharInfo controlCharInfo, Area area) throws Exception {
-        if (controlCharInfo.control() == null) {
-            return;
-        }
-        switch (controlCharInfo.control().getType()) {
+    public void paintControl(ControlContent controlContent) throws Exception {
+        switch (controlContent.type()) {
             case Gso:
-                GsoControl gso = (GsoControl) controlCharInfo.control();
-                switch (gso.getGsoType()) {
+                GsoContent gsoContent = (GsoContent) controlContent;
+
+                switch (gsoContent.control().getGsoType()) {
                     case Line:
-                        gsoPainter.line((ControlLine) gso, area);
+                        gsoPainter.line(gsoContent);
                         break;
                     case Rectangle:
-                        gsoPainter.rectangle((ControlRectangle) gso, area);
+                        gsoPainter.rectangle(gsoContent);
                         break;
                     case Ellipse:
-                        gsoPainter.ellipse((ControlEllipse) gso, area);
+                        gsoPainter.ellipse(gsoContent);
                         break;
                     case Arc:
-                        gsoPainter.arc((ControlArc) gso, area);
+                        gsoPainter.arc(gsoContent);
                         break;
                     case Polygon:
-                        gsoPainter.polygon((ControlPolygon) gso, area);
+                        gsoPainter.polygon(gsoContent);
                         break;
                     case Curve:
-                        gsoPainter.curve((ControlCurve) gso, area);
+                        gsoPainter.curve(gsoContent);
                         break;
                     case Picture:
-                        gsoPainter.picture((ControlPicture) gso, area);
+                        gsoPainter.picture(gsoContent);
                         break;
                     case OLE:
-                        gsoPainter.ole((ControlOLE) gso, area);
+                        gsoPainter.ole(gsoContent);
                         break;
                     case Container:
-                        gsoPainter.container((ControlContainer) gso, area);
+                        gsoPainter.container(gsoContent);
                         break;
                     case ObjectLinkLine:
-                        gsoPainter.objectLinkLine((ControlObjectLinkLine) gso, area);
+                        gsoPainter.objectLinkLine(gsoContent);
                         break;
                 }
                 break;
             case Table:
-                tablePainter.paint((ControlTable) controlCharInfo.control(), area);
+                // tablePainter.paint((ControlTable) controlCharInfo.control(), area);
                 break;
         }
     }

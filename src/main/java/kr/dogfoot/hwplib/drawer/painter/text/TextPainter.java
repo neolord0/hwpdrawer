@@ -192,9 +192,13 @@ public class TextPainter {
                 } else if (charInfo.type() == CharInfo.Type.Control
                         && ((ControlCharInfo) charInfo).control() != null
                         && ((ControlCharInfo) charInfo).isLikeLetter()) {
-                    Area area = controlArea(part, (ControlCharInfo) charInfo);
-
-                    painter.controlPainter().paint((ControlCharInfo) charInfo, area);
+                    ControlCharInfo controlCharInfo = (ControlCharInfo) charInfo;
+                    Area area = controlArea(part, controlCharInfo);
+                    // todo table
+                    if (controlCharInfo.content() != null) {
+                        controlCharInfo.content().controlArea(area);
+                        painter.controlPainter().paintControl(controlCharInfo.content());
+                    }
                 }
 
                 charX += charInfo.widthAddingCharSpace();
