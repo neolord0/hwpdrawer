@@ -1,7 +1,7 @@
 package kr.dogfoot.hwplib.drawer.paragraph;
 
 import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
-import kr.dogfoot.hwplib.drawer.drawinginfo.outputcontent.ControlContent;
+import kr.dogfoot.hwplib.drawer.drawinginfo.interims.ControlOutput;
 import kr.dogfoot.hwplib.drawer.painter.PagePainter;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfo;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
@@ -267,16 +267,16 @@ public class ParagraphDrawer {
     }
 
     private void addControlChar(ControlCharInfo controlCharInfo) throws Exception {
-        ControlContent content = controlDrawer.draw(controlCharInfo);
-        controlCharInfo.content(content);
+        ControlOutput output = controlDrawer.draw(controlCharInfo);
+        controlCharInfo.output(output);
 
         if (controlCharInfo.isLikeLetter() == false) {
-             if (controlCharInfo.textFlowMethod() == 0/*어울림*/) {
+            if (controlCharInfo.textFlowMethod() == 0/*어울림*/) {
                 textFlowCalculator.addForSquare(controlCharInfo);
             } else if (controlCharInfo.textFlowMethod() == 1/*자리차지*/) {
                 textFlowCalculator.addForTopBottom(controlCharInfo);
             }
-            info.outputContent().addChildContent(content);
+            info.output().addChildOutput(output);
         } else {
             textLineDrawer.addChar(controlCharInfo);
         }
@@ -359,16 +359,16 @@ public class ParagraphDrawer {
     private void saveTextLine() {
         switch (drawingState) {
             case Normal:
-                textLineDrawer.saveToContentBuffer();
+                textLineDrawer.saveToOutput();
                 if (newLineAtNormal) {
-                    info.outputContent().setLastTextPartToLastLine();
+                    info.output().setLastTextPartToLastLine();
                 }
                 break;
             case Recalculating:
                 if (recalculatingTextAreas.size() == 0 || newLineAtRecalculating) {
-                    textLineDrawer.saveToContentBuffer();
+                    textLineDrawer.saveToOutput();
                     if (newLineAtRecalculating) {
-                        info.outputContent().setLastTextPartToLastLine();
+                        info.output().setLastTextPartToLastLine();
                     }
                     drawingState = DrawingState.EndRecalculating;
                 }

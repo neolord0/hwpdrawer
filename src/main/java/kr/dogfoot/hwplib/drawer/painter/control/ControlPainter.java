@@ -1,15 +1,12 @@
 package kr.dogfoot.hwplib.drawer.painter.control;
 
 import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
-import kr.dogfoot.hwplib.drawer.drawinginfo.outputcontent.ControlContent;
-import kr.dogfoot.hwplib.drawer.drawinginfo.outputcontent.GsoContent;
+import kr.dogfoot.hwplib.drawer.drawinginfo.interims.ControlOutput;
+import kr.dogfoot.hwplib.drawer.drawinginfo.interims.GsoOutput;
+import kr.dogfoot.hwplib.drawer.drawinginfo.interims.table.TableOutput;
 import kr.dogfoot.hwplib.drawer.painter.Painter;
-import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
-import kr.dogfoot.hwplib.drawer.util.Area;
-import kr.dogfoot.hwplib.object.bodytext.control.ControlTable;
-import kr.dogfoot.hwplib.object.bodytext.control.gso.*;
 
-import java.util.TreeSet;
+import java.util.Set;
 
 public class ControlPainter {
     private GsoPainter gsoPainter;
@@ -20,52 +17,52 @@ public class ControlPainter {
         tablePainter = new TablePainter(painter, info);
     }
 
-    public void paintControls(TreeSet<ControlContent> controlContents) throws Exception {
-        for (ControlContent controlContent : controlContents) {
-            paintControl(controlContent);
+    public void paintControls(Set<ControlOutput> controlOuputs) throws Exception {
+        for (ControlOutput controlOutput : controlOuputs) {
+            paintControl(controlOutput);
         }
     }
 
-    public void paintControl(ControlContent controlContent) throws Exception {
-        switch (controlContent.type()) {
+    public void paintControl(ControlOutput controlOutput) throws Exception {
+        switch (controlOutput.type()) {
             case Gso:
-                GsoContent gsoContent = (GsoContent) controlContent;
+                GsoOutput gsoOutput = (GsoOutput) controlOutput;
 
-                switch (gsoContent.control().getGsoType()) {
+                switch (gsoOutput.gso().getGsoType()) {
                     case Line:
-                        gsoPainter.line(gsoContent);
+                        gsoPainter.line(gsoOutput);
                         break;
                     case Rectangle:
-                        gsoPainter.rectangle(gsoContent);
+                        gsoPainter.rectangle(gsoOutput);
                         break;
                     case Ellipse:
-                        gsoPainter.ellipse(gsoContent);
+                        gsoPainter.ellipse(gsoOutput);
                         break;
                     case Arc:
-                        gsoPainter.arc(gsoContent);
+                        gsoPainter.arc(gsoOutput);
                         break;
                     case Polygon:
-                        gsoPainter.polygon(gsoContent);
+                        gsoPainter.polygon(gsoOutput);
                         break;
                     case Curve:
-                        gsoPainter.curve(gsoContent);
+                        gsoPainter.curve(gsoOutput);
                         break;
                     case Picture:
-                        gsoPainter.picture(gsoContent);
+                        gsoPainter.picture(gsoOutput);
                         break;
                     case OLE:
-                        gsoPainter.ole(gsoContent);
+                        gsoPainter.ole(gsoOutput);
                         break;
                     case Container:
-                        gsoPainter.container(gsoContent);
+                        gsoPainter.container(gsoOutput);
                         break;
                     case ObjectLinkLine:
-                        gsoPainter.objectLinkLine(gsoContent);
+                        gsoPainter.objectLinkLine(gsoOutput);
                         break;
                 }
                 break;
             case Table:
-                // tablePainter.paint((ControlTable) controlCharInfo.control(), area);
+                tablePainter.paint((TableOutput) controlOutput);
                 break;
         }
     }

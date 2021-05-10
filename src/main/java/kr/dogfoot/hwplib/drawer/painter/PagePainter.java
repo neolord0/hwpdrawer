@@ -31,22 +31,23 @@ public class PagePainter {
     }
 
     public void saveCurrentPage() throws Exception {
+        System.out.println(info.pageOutput().test(0));
+
         BufferedImage pageImage = createPageImage();
         painter
                 .graphics2D((Graphics2D) pageImage.getGraphics())
                 .setLineStyle(BorderType.Solid, BorderThickness.MM0_15, new Color4Byte(255, 0, 0))
-                .rectangle(info.pageContent().pageArea(), false);
+                .rectangle(info.pageOutput().pageArea(), false);
 
-        System.out.println(info.pageContent().test(0));
-        painter.paintContent(info.pageContent());
+        painter.paintContent(info.pageOutput().content());
 
         savePngFile(pageImage);
     }
 
     private BufferedImage createPageImage() {
         BufferedImage pageImage = new BufferedImage(
-                Convertor.fromHWPUnit(info.pageContent().paperArea().width()),
-                Convertor.fromHWPUnit(info.pageContent().paperArea().height()),
+                Convertor.fromHWPUnit(info.pageOutput().paperArea().width()),
+                Convertor.fromHWPUnit(info.pageOutput().paperArea().height()),
                 BufferedImage.TYPE_INT_RGB);
 
         Graphics2D graphics = (Graphics2D) pageImage.getGraphics();

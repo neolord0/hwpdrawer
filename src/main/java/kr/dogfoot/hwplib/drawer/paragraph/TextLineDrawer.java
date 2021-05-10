@@ -140,28 +140,19 @@ public class TextLineDrawer {
         return this;
     }
 
-    public boolean saveToContentBuffer() {
+    public boolean saveToOutput() {
         boolean saved = false;
         for (TextPart part : parts) {
             if (part.hasDrawingCharacter()) {
                 part
                         .maxCharHeight(maxCharHeight)
                         .alignment(info.paraShape().getProperty1().getAlignment());
-                info.outputContent().addTextPart(part);
+                info.output().addTextPart(part);
                 saved = true;
             }
         }
         parts.clear();
         return saved;
-    }
-
-    public String test() {
-        StringBuilder sb = new StringBuilder();
-        for (TextPart textPart : parts) {
-            sb.append(textPart.test());
-            sb.append(":");
-        }
-        return sb.toString();
     }
 }
 

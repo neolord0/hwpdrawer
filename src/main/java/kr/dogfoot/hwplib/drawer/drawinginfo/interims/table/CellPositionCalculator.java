@@ -1,25 +1,20 @@
-package kr.dogfoot.hwplib.drawer.painter.control;
+package kr.dogfoot.hwplib.drawer.drawinginfo.interims.table;
 
 import java.util.ArrayList;
 
 public class CellPositionCalculator {
     private long[] cellXs;
 
-    private ArrayList<RowInfo> rowInfos;
     private long[] rowHeights;
+    private ArrayList<RowInfo> rowInfos;
 
-    public CellPositionCalculator() {
-        rowInfos = new ArrayList<>();
-        cellXs = null;
-        rowHeights = null;
-    }
-
-    public void reset(int columnCount, int rowCount) {
+    public CellPositionCalculator(int columnCount, int rowCount) {
         cellXs = new long[columnCount + 1];
         cellXs[0] = 0;
 
-        rowInfos.clear();
         rowHeights = new long[rowCount];
+
+        rowInfos = new ArrayList<>();
         for (int index = 0; index < rowCount; index++) {
             rowHeights[index] = -1;
         }

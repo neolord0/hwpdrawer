@@ -82,6 +82,6 @@ public class ControllTest {
 
     @Test
     public void test_이미지1() throws Exception {
-        HWPTester.test("testingHWP" + File.separator + "컨트롤" + File.separator + "이미지" + File.separator + "1");
+        HWPTester.testAndCompare("testingHWP" + File.separator + "컨트롤" + File.separator + "이미지" + File.separator + "1");
     }
 }

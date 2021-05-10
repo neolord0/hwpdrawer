@@ -29,7 +29,7 @@ public class TextPainter {
         strikeLinePainter = new StrikeLinePainter(painter);
     }
 
-    public void paintTextParts(ArrayList<TextPart> parts) throws Exception {
+    public void paintTextParts(TextPart[] parts) throws Exception {
         for (TextPart part : parts) {
             paintTextPart(part);
         }
@@ -195,9 +195,9 @@ public class TextPainter {
                     ControlCharInfo controlCharInfo = (ControlCharInfo) charInfo;
                     Area area = controlArea(part, controlCharInfo);
                     // todo table
-                    if (controlCharInfo.content() != null) {
-                        controlCharInfo.content().controlArea(area);
-                        painter.controlPainter().paintControl(controlCharInfo.content());
+                    if (controlCharInfo.output() != null) { ;
+                        controlCharInfo.output().controlArea(area);
+                        painter.controlPainter().paintControl(controlCharInfo.output());
                     }
                 }
 

@@ -4,12 +4,17 @@ import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfo;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.NormalCharInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
+import kr.dogfoot.hwplib.drawer.util.MyStringBuffer;
 import kr.dogfoot.hwplib.object.docinfo.parashape.Alignment;
+import org.apache.poi.ss.formula.functions.T;
 
+import javax.xml.soap.Text;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
 public class TextPart {
+    public static final TextPart[] Zero_Array = new TextPart[0];
+
     private Area area;
     private Alignment alignment;
     private long maxCharHeight;
@@ -137,9 +142,11 @@ public class TextPart {
         return hasDrawingCharacter;
     }
 
-    public String test() {
-        StringBuilder sb = new StringBuilder();
+    public String test(int tabCount) {
+        MyStringBuffer sb = new MyStringBuffer();
 
+        sb.tab(tabCount).append("{ ").append(area).append("\n");
+        sb.tab(tabCount + 1);
         for (CharInfo charInfo : charInfos) {
             if (charInfo.type() == CharInfo.Type.Normal) {
                 NormalCharInfo normalCharInfo = (NormalCharInfo) charInfo;
@@ -153,15 +160,21 @@ public class TextPart {
                 ControlCharInfo controlCharInfo = (ControlCharInfo) charInfo;
                 if (controlCharInfo.control() == null) {
                     sb
-                            .append(controlCharInfo.character().getCode());
+                            .append("[")
+                            .append(Integer.toString(controlCharInfo.character().getCode()))
+                            .append("]");
 
                 } else {
                     sb
-                            .append(controlCharInfo.control().getType());
+                            .append("[")
+                            .append(controlCharInfo.control().getType().toString())
+                            .append("]");
                 }
 
             }
         }
+        sb.append("\n");
+        sb.tab(tabCount).append("}").append("\n");
         return sb.toString();
     }
 }

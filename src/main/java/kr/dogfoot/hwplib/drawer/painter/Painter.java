@@ -2,7 +2,7 @@ package kr.dogfoot.hwplib.drawer.painter;
 
 import kr.dogfoot.hwplib.drawer.DrawingOption;
 import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
-import kr.dogfoot.hwplib.drawer.drawinginfo.outputcontent.OutputContent;
+import kr.dogfoot.hwplib.drawer.drawinginfo.interims.Content;
 import kr.dogfoot.hwplib.drawer.painter.background.BackgroundPainter;
 import kr.dogfoot.hwplib.drawer.painter.control.ControlPainter;
 import kr.dogfoot.hwplib.drawer.painter.text.TextPainter;
@@ -11,9 +11,11 @@ import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.Convertor;
 import kr.dogfoot.hwplib.drawer.util.FontManager;
 import kr.dogfoot.hwplib.object.bodytext.control.gso.shapecomponent.lineinfo.LineType;
+import kr.dogfoot.hwplib.object.docinfo.BorderFill;
 import kr.dogfoot.hwplib.object.docinfo.CharShape;
 import kr.dogfoot.hwplib.object.docinfo.borderfill.BorderThickness;
 import kr.dogfoot.hwplib.object.docinfo.borderfill.BorderType;
+import kr.dogfoot.hwplib.object.docinfo.borderfill.EachBorder;
 import kr.dogfoot.hwplib.object.docinfo.borderfill.fillinfo.PatternType;
 import kr.dogfoot.hwplib.object.etc.Color4Byte;
 
@@ -145,17 +147,54 @@ public class Painter {
         return this;
     }
 
-    public void paintImage(Area area, BufferedImage image) {
+    public Painter image(Area area, BufferedImage image) {
         Rectangle rect = area.toConvertedRectangle();
         rect.x += option.offsetX();
         rect.y += option.offsetY();
 
         graphics2D.drawImage(image, rect.x, rect.y, rect.width, rect.height, null);
+        return this;
     }
 
-    public void paintContent(OutputContent content) throws Exception {
-        controlPainter.paintControls(content.behindChildContents());
+    public void paintContent(Content content) throws Exception {
+        controlPainter.paintControls(content.behindChildOutputs());
         textPainter.paintTextParts(content.textParts());
-        controlPainter.paintControls(content.nonBehindChildContents());
+        controlPainter.paintControls(content.nonBehindChildOutputs());
+    }
+
+    public Painter cellBorder(Area cellArea, BorderFill borderFill) {
+        EachBorder leftBorder = borderFill.getLeftBorder();
+        if (leftBorder.getType() != BorderType.None) {
+            setLineStyle(leftBorder.getType(),
+                    leftBorder.getThickness(),
+                    leftBorder.getColor());
+            line(cellArea.left(), cellArea.top(), cellArea.left(), cellArea.bottom());
+        }
+
+        EachBorder topBorder = borderFill.getTopBorder();
+        if (topBorder.getType() != BorderType.None) {
+            setLineStyle(topBorder.getType(),
+                    topBorder.getThickness(),
+                    topBorder.getColor());
+            line(cellArea.left(), cellArea.top(), cellArea.right(), cellArea.top());
+        }
+
+        EachBorder rightBorder = borderFill.getRightBorder();
+        if (rightBorder.getType() != BorderType.None) {
+            setLineStyle(rightBorder.getType(),
+                    rightBorder.getThickness(),
+                    rightBorder.getColor());
+            line(cellArea.right(), cellArea.top(), cellArea.right(), cellArea.bottom());
+        }
+
+        EachBorder bottomBorder = borderFill.getBottomBorder();
+        if (bottomBorder.getType() != BorderType.None) {
+            setLineStyle(bottomBorder.getType(),
+                    bottomBorder.getThickness(),
+                    bottomBorder.getColor());
+            line(cellArea.left(), cellArea.bottom(), cellArea.right(), cellArea.bottom());
+        }
+
+        return this;
     }
 }

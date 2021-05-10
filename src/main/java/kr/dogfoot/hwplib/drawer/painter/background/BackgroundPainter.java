@@ -43,7 +43,7 @@ public class BackgroundPainter {
     private void imageFill(ImageFill imageFill, Area area) {
         BufferedImage image = info.getImage(imageFill.getPictureInfo().getBinItemID());
         if (image != null) {
-            painter.paintImage(area, image);
+            painter.image(area, image);
         }
     }
 }

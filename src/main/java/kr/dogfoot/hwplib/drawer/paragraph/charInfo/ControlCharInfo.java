@@ -1,7 +1,7 @@
 package kr.dogfoot.hwplib.drawer.paragraph.charInfo;
 
 import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
-import kr.dogfoot.hwplib.drawer.drawinginfo.outputcontent.ControlContent;
+import kr.dogfoot.hwplib.drawer.drawinginfo.interims.ControlOutput;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.PositionCalculator;
 import kr.dogfoot.hwplib.object.bodytext.control.Control;
@@ -35,7 +35,7 @@ public class ControlCharInfo extends CharInfo implements Comparable<ControlCharI
     }
 
     private Control control;
-    private ControlContent content;
+    private ControlOutput output;
     private CtrlHeaderGso gsoHeader;
     private Area areaWithOuterMargin;
     private Area areaWithoutOuterMargin;
@@ -51,12 +51,12 @@ public class ControlCharInfo extends CharInfo implements Comparable<ControlCharI
         return this;
     }
 
-    public void content(ControlContent content) {
-        this.content = content;
+    public void output(ControlOutput output) {
+        this.output = output;
     }
 
-    public ControlContent content() {
-        return content;
+    public ControlOutput output() {
+        return output;
     }
 
     public ControlCharInfo area(DrawingInfo info) {

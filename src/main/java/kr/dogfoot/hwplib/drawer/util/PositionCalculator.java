@@ -78,9 +78,7 @@ public class PositionCalculator {
         if (criterionArea == null) {
             return 0;
         }
-        if (info.isBodyText() == false) {
-            System.out.println("CR " + criterionArea);
-        }
+
         long xOffset = gsoHeader.getxOffset();
         switch (gsoHeader.getProperty().getHorzRelativeArrange()) {
             case TopOrLeft:
@@ -116,7 +114,6 @@ public class PositionCalculator {
         if (gsoHeader.getProperty().getVertRelTo() == VertRelTo.Para) {
             yOffset = Math.max(0, yOffset);
         }
-        System.out.println("AA " + gsoHeader.getProperty().getVertRelTo() + "  " + criterionArea + " " + yOffset);
         switch (gsoHeader.getProperty().getVertRelativeArrange()) {
             case TopOrLeft:
             case Inside:
