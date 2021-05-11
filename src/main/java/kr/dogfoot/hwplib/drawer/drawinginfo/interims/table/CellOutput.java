@@ -82,13 +82,10 @@ public class CellOutput extends Output {
     }
 
     public void move(long offsetX, long offsetY) {
-        cellArea.moveX(offsetX)
-                .moveY(offsetY);
+        cellArea.move(offsetX, offsetY);
 
         for (TextPart textPart : content.textParts()) {
-            textPart.area()
-                    .moveX(offsetX)
-                    .moveY(offsetY);
+            textPart.area().move(offsetX, offsetY);
         }
 
         for (ControlOutput controlOutput : content.behindChildOutputs()) {

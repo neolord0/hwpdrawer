@@ -35,8 +35,8 @@ public class TablePainter {
                 Area cellArea = new Area(0, 0,
                         lh.getWidth(),
                         tableOutput.cellPosition().height(lh.getRowIndex(), lh.getRowSpan()))
-                        .moveX(tableOutput.cellPosition().x(lh.getColIndex()) + tableOutput.controlArea().left())
-                        .moveY(tableOutput.cellPosition().y(lh.getRowIndex()) + tableOutput.controlArea().top());
+                        .move(tableOutput.cellPosition().x(lh.getColIndex()) + tableOutput.controlArea().left(),
+                                tableOutput.cellPosition().y(lh.getRowIndex()) + tableOutput.controlArea().top());
 
                 BorderFill borderFill = info.getBorderFill(lh.getBorderFillId());
                 painter.backgroundPainter().paint(borderFill.getFillInfo(), cellArea);

@@ -94,6 +94,14 @@ public class Area implements Comparable<Area> {
         return this;
     }
 
+    public Area move(long offsetX, long offsetY) {
+        left += offsetX;
+        right += offsetX;
+        top += offsetY;
+        bottom += offsetY;
+        return this;
+    }
+
     public Area moveX(long offsetX) {
         left += offsetX;
         right += offsetX;
@@ -143,6 +151,10 @@ public class Area implements Comparable<Area> {
                 && this.top == that.top
                 && this.right == that.right
                 && this.bottom == that.bottom;
+    }
+
+    public Area widthHeight() {
+        return new Area(0, 0, width(), height());
     }
 
     @Override

@@ -212,9 +212,9 @@ public class TextPainter {
     }
 
     private Area controlArea(TextPart part, ControlCharInfo controlCharInfo) {
-        Area area = new Area(0, 0, controlCharInfo.areaWithoutOuterMargin().width(), controlCharInfo.areaWithoutOuterMargin().height())
-                .moveX(controlCharInfo.x() - (controlCharInfo.areaWithOuterMargin().left() - controlCharInfo.areaWithoutOuterMargin().left()))
-                .moveY(part.area().bottom() - controlCharInfo.areaWithoutOuterMargin().height() - (controlCharInfo.areaWithOuterMargin().bottom() - controlCharInfo.areaWithoutOuterMargin().bottom()));
+        Area area = controlCharInfo.areaWithoutOuterMargin().widthHeight()
+                .move(controlCharInfo.x() - (controlCharInfo.areaWithOuterMargin().left() - controlCharInfo.areaWithoutOuterMargin().left()),
+                        part.area().bottom() - controlCharInfo.areaWithoutOuterMargin().height() - (controlCharInfo.areaWithOuterMargin().bottom() - controlCharInfo.areaWithoutOuterMargin().bottom()));
         return area;
     }
 

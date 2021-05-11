@@ -2,6 +2,7 @@ package kr.dogfoot.hwplib.drawer.paragraph;
 
 import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
 import kr.dogfoot.hwplib.drawer.drawinginfo.interims.ControlOutput;
+import kr.dogfoot.hwplib.drawer.drawinginfo.interims.GsoOutput;
 import kr.dogfoot.hwplib.drawer.painter.PagePainter;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfo;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
@@ -9,8 +10,10 @@ import kr.dogfoot.hwplib.drawer.paragraph.charInfo.NormalCharInfo;
 import kr.dogfoot.hwplib.drawer.paragraph.control.ControlDrawer;
 import kr.dogfoot.hwplib.drawer.paragraph.textflow.TextFlowCalculator;
 import kr.dogfoot.hwplib.drawer.util.Area;
-import kr.dogfoot.hwplib.object.bodytext.control.Control;
+import kr.dogfoot.hwplib.object.bodytext.control.*;
+import kr.dogfoot.hwplib.object.bodytext.control.gso.GsoControl;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.Paragraph;
+import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPChar;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPCharControlChar;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPCharControlExtend;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPCharNormal;
@@ -126,7 +129,7 @@ public class ParagraphDrawer {
                 case ControlInline:
                     break;
                 case ControlExtend:
-                    controlExtend(controlCharInfo((HWPCharControlExtend) info.character()));
+                    controlExtend(info.character());
                     break;
             }
 
@@ -156,13 +159,57 @@ public class ParagraphDrawer {
         return charInfo;
     }
 
+    private void controlExtend(HWPChar character) {
+        if (character.getCode() == 2) {
+            Control control = info.paragraph().getControlList().get(controlExtendCharIndex);
+            if (control.getType() == ControlType.ColumnDefine) {
+                // todo : 단 정의
+            }
+            controlExtendCharIndex++;
+        } else if (character.getCode() == 11) {
+            controlExtend(controlCharInfo((HWPCharControlExtend) character));
+        } else if (character.getCode() == 16) {
+            Control control = info.paragraph().getControlList().get(controlExtendCharIndex);
+            if (control.getType() == ControlType.Header) {
+                ControlHeader header = (ControlHeader) control;
+                switch (header.getHeader().getApplyPage()) {
+                    case BothPage:
+                        info.pageInfo().bothHeader(header);
+                        break;
+                    case EvenPage:
+                        info.pageInfo().evenHeader(header);
+                        break;
+                    case OddPage:
+                        info.pageInfo().oddHeader(header);
+                        break;
+                }
+            } else if (control.getType() == ControlType.Footer) {
+                ControlFooter footer = (ControlFooter) control;
+                switch (footer.getHeader().getApplyPage()) {
+                    case BothPage:
+                        info.pageInfo().bothFooter(footer);
+                        break;
+                    case EvenPage:
+                        info.pageInfo().evenFooter(footer);
+                        break;
+                    case OddPage:
+                        info.pageInfo().oddFooter(footer);
+                        break;
+                }
+            }
+            controlExtendCharIndex++;
+        } else {
+            controlExtendCharIndex++;
+        }
+    }
+
     private ControlCharInfo controlCharInfo(HWPCharControlExtend ch) {
         ControlCharInfo charInfo = (ControlCharInfo) charInfoBuffer.get(info.charIndex());
         if (charInfo == null) {
             Control control = info.paragraph().getControlList().get(controlExtendCharIndex);
-
             charInfo = ControlCharInfo.create(ch, control, info);
             charInfoBuffer.put(info.charIndex(), charInfo);
+
             controlExtendCharIndex++;
         }
         return charInfo;
@@ -288,7 +335,7 @@ public class ParagraphDrawer {
             pagePainter.saveCurrentPage();
             info.newPage();
 
-            currentTextLineArea.top(info.pageArea().top());
+            currentTextLineArea.top(info.pageInfo().bodyArea().top());
 
             if (textLineDrawer.noDrawingCharacter()) {
                 textLineDrawer
@@ -305,7 +352,7 @@ public class ParagraphDrawer {
     }
 
     private boolean isOverBottom(long height) {
-        return info.pageArea().bottom() - (currentTextLineArea.top() + height) < 0;
+        return info.pageInfo().bodyArea().bottom() - (currentTextLineArea.top() + height) < 0;
     }
 
     private void setLineFirst(int index, int position) {

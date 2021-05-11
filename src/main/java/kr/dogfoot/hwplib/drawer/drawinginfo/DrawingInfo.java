@@ -1,16 +1,12 @@
 package kr.dogfoot.hwplib.drawer.drawinginfo;
 
 import kr.dogfoot.hwplib.drawer.drawinginfo.interims.*;
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.table.TableOutput;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.HWPFile;
 import kr.dogfoot.hwplib.object.bindata.EmbeddedBinaryData;
 import kr.dogfoot.hwplib.object.bodytext.Section;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlSectionDefine;
-import kr.dogfoot.hwplib.object.bodytext.control.ControlTable;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlType;
-import kr.dogfoot.hwplib.object.bodytext.control.gso.GsoControl;
-import kr.dogfoot.hwplib.object.bodytext.control.sectiondefine.PageDef;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.Paragraph;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPChar;
 import kr.dogfoot.hwplib.object.docinfo.BinData;
@@ -29,13 +25,11 @@ import java.util.Stack;
 public class DrawingInfo {
     private HWPFile hwpFile;
     private Section section;
-    private ControlSectionDefine sectionDefine;
-    private Area paperArea;
-    private Area pageArea;
+
+    private PageInfo pageInfo;
 
     private HashMap<Integer, BufferedImage> imageMap;
 
-    private int pageNo;
     private int countOfHidingEmptyLineAfterNewPage;
 
     private ParagraphListInfo bodyTextParagraphListInfo;
@@ -45,6 +39,7 @@ public class DrawingInfo {
     private InterimOutput output;
 
     public DrawingInfo() {
+        pageInfo = new PageInfo();
         imageMap = new HashMap<>();
         paragraphListInfoStack = new Stack<>();
         output = new InterimOutput();
@@ -59,7 +54,6 @@ public class DrawingInfo {
         return this;
     }
 
-
     public BorderFill getBorderFill(int borderFillId) {
         return hwpFile.getDocInfo().getBorderFillList().get(borderFillId - 1);
     }
@@ -72,7 +66,6 @@ public class DrawingInfo {
             if (image != null) {
                 return image;
             }
-
             EmbeddedBinaryData embeddedBinaryData = embeddedBinaryData(binData.getBinDataID());
             if (embeddedBinaryData == null || embeddedBinaryData.getData() == null) {
                 return null;
@@ -80,14 +73,13 @@ public class DrawingInfo {
 
             try {
                 InputStream is = new ByteArrayInputStream(embeddedBinaryData.getData());
-                System.out.println(embeddedBinaryData.getData().length);
                 image = ImageIO.read(is);
-                System.out.println(image.getType());
                 imageMap.put(binData.getBinDataID(), image);
             } catch (IOException e) {
-                e.printStackTrace();
+                 e.printStackTrace();
                 image = null;
             }
+
             return image;
         }
         return null;
@@ -103,7 +95,6 @@ public class DrawingInfo {
         return null;
     }
 
-
     public Section section() {
         return section;
     }
@@ -111,7 +102,6 @@ public class DrawingInfo {
     public DrawingInfo section(Section section) throws Exception {
         this.section = section;
         setSectionDefine();
-        calculatePaperPageArea();
         return this;
     }
 
@@ -126,30 +116,11 @@ public class DrawingInfo {
                 throw new Exception("섹션의 첫 문단의 첫번째 컨트롤은 섹션 정의 컨트롤이어야 함.");
             }
         }
-
-        sectionDefine = (ControlSectionDefine) firstPara.getControlList().get(0);
+        pageInfo.sectionDefine((ControlSectionDefine) firstPara.getControlList().get(0));
     }
 
-    private void calculatePaperPageArea() {
-        PageDef pageDef = sectionDefine.getPageDef();
-        paperArea = new Area(0, 0, pageDef.getPaperWidth(), pageDef.getPaperHeight());
-        pageArea = new Area(paperArea)
-                .applyMargin(pageDef.getLeftMargin(),
-                        pageDef.getTopMargin(),
-                        pageDef.getRightMargin(),
-                        pageDef.getBottomMargin())
-                .applyMargin(0,
-                        pageDef.getHeaderMargin(),
-                        0,
-                        pageDef.getFooterMargin());
-    }
-
-    public Area paperArea() {
-        return paperArea;
-    }
-
-    public Area pageArea() {
-        return pageArea;
+    public PageInfo pageInfo() {
+        return pageInfo;
     }
 
     public DrawingInfo startBodyTextParagraphList() {
@@ -166,8 +137,9 @@ public class DrawingInfo {
     }
 
     public void newPage() {
-        pageNo++;
-        if (pageNo > 1 && sectionDefine.getHeader().getProperty().isHideEmptyLine()) {
+        pageInfo.increasePageNo();
+
+        if (pageInfo.pageNo() > 1 && pageInfo.isHideEmptyLine()) {
             countOfHidingEmptyLineAfterNewPage = 2;
         } else {
             countOfHidingEmptyLineAfterNewPage = 0;
@@ -177,11 +149,7 @@ public class DrawingInfo {
             bodyTextParagraphListInfo.resetParagraphStartY();
         }
 
-        output.newPageOutput(pageNo, paperArea, pageArea);
-    }
-
-    public int pageNo() {
-        return pageNo;
+        output.newPageOutput(pageInfo);
     }
 
     public boolean checkHidingEmptyLineAfterNewPage() {

@@ -21,8 +21,8 @@ public class PositionCalculator {
         Area area = new Area(0, 0, width(), height());
         if (!gsoHeader.getProperty().isLikeWord()) {
             area
-                    .moveX(xOffset(area.width()) + gsoHeader.getOutterMarginLeft())
-                    .moveY(yOffset(area.height()) + gsoHeader.getOutterMarginTop());
+                    .move(xOffset(area.width()) + gsoHeader.getOutterMarginLeft(),
+                            yOffset(area.height()) + gsoHeader.getOutterMarginTop());
         }
         return area;
     }
@@ -31,9 +31,9 @@ public class PositionCalculator {
         long width = gsoHeader.getWidth();
         switch (gsoHeader.getProperty().getWidthCriterion()) {
             case Paper:
-                return info.paperArea().width() * width / 10000;
+                return info.pageInfo().paperArea().width() * width / 10000;
             case Page:
-                return info.pageArea().width() * width / 10000;
+                return info.pageInfo().bodyArea().width() * width / 10000;
             case Column:
                 // todo
                     return info.paragraphArea().width() * width / 10000;
@@ -49,9 +49,9 @@ public class PositionCalculator {
         long height = gsoHeader.getHeight();
         switch (gsoHeader.getProperty().getHeightCriterion()) {
             case Paper:
-                return info.paperArea().height() * height / 10000;
+                return info.pageInfo().paperArea().height() * height / 10000;
             case Page:
-                return info.pageArea().height() * height / 10000;
+                return info.pageInfo().bodyArea().height() * height / 10000;
             case Absolute:
                 return height;
         }
@@ -62,10 +62,10 @@ public class PositionCalculator {
         Area criterionArea = null;
         switch (gsoHeader.getProperty().getHorzRelTo()) {
             case Paper:
-                criterionArea = info.paperArea();
+                criterionArea = info.pageInfo().paperArea();
                 break;
             case Page:
-                criterionArea = info.pageArea();
+                criterionArea = info.pageInfo().bodyArea();
                 break;
             case Column:
                 // todo
@@ -87,6 +87,7 @@ public class PositionCalculator {
             case Center:
                 return criterionArea.left() + (criterionArea.width() - width) / 2 + xOffset;
             case BottomOrRight:
+                return criterionArea.right() - xOffset - width;
             case Outside:
                 return criterionArea.right() - width + xOffset;
         }
@@ -97,10 +98,10 @@ public class PositionCalculator {
         Area criterionArea = null;
         switch (gsoHeader.getProperty().getVertRelTo()) {
             case Paper:
-                criterionArea = info.paperArea();
+                criterionArea = info.pageInfo().paperArea();
                 break;
             case Page:
-                criterionArea = info.pageArea();
+                criterionArea = info.pageInfo().bodyArea();
                 break;
             case Para:
                 criterionArea = info.paragraphArea();

@@ -65,7 +65,7 @@ public class HWPDrawer {
     }
 
     private int pageCount() {
-        return pagePainter.currentPageNo();
+        return info.pageInfo().pageNo();
     }
 }
 

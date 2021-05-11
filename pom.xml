@@ -20,6 +20,7 @@
             <artifactId>poi</artifactId>
             <version>4.1.0</version>
         </dependency>
+
         <dependency>
             <groupId>com.twelvemonkeys.imageio</groupId>
             <artifactId>imageio-core</artifactId>

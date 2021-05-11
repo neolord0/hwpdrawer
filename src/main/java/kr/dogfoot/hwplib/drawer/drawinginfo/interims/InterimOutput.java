@@ -1,9 +1,11 @@
 package kr.dogfoot.hwplib.drawer.drawinginfo.interims;
 
+import kr.dogfoot.hwplib.drawer.drawinginfo.PageInfo;
 import kr.dogfoot.hwplib.drawer.drawinginfo.interims.table.CellOutput;
 import kr.dogfoot.hwplib.drawer.drawinginfo.interims.table.TableOutput;
 import kr.dogfoot.hwplib.drawer.paragraph.TextPart;
 import kr.dogfoot.hwplib.drawer.util.Area;
+import kr.dogfoot.hwplib.object.bodytext.control.ControlHeader;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlTable;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.VertRelTo;
 import kr.dogfoot.hwplib.object.bodytext.control.gso.GsoControl;
@@ -19,15 +21,37 @@ public class InterimOutput {
         stack = new Stack<>();
     }
 
-    public void newPageOutput(int pageNo, Area paperArea, Area pageArea) {
+    public void newPageOutput(PageInfo pageInfo) {
         stack.clear();
 
-        page = new PageOutput(pageNo, paperArea, pageArea);
+        page = new PageOutput(pageInfo);
         stack.add(page);
     }
 
     public PageOutput page() {
         return page;
+    }
+
+    public HeaderOutput startHeader() {
+        HeaderOutput headerOutput = page.createHeaderOutput();
+        stack.push(headerOutput);
+        return headerOutput;
+    }
+
+    public void endHeader() {
+        HeaderOutput headerOutput = (HeaderOutput) stack.pop();
+        headerOutput.adjustHeaderArea();
+    }
+
+    public FooterOutput startFooter() {
+        FooterOutput footerOutput = page.createFooterOutput();
+        stack.push(footerOutput);
+        return footerOutput;
+    }
+
+    public void endFooter() {
+        FooterOutput footerOutput = (FooterOutput) stack.pop();
+        footerOutput.adjustFooterArea();
     }
 
     public GsoOutput startGso(GsoControl gso, Area controlArea) {
@@ -60,6 +84,7 @@ public class InterimOutput {
         stack.pop();
     }
 
+
     public Output current() {
         return stack.peek();
     }
@@ -81,6 +106,9 @@ public class InterimOutput {
         } else if (current().type() == Output.Type.Cell) {
             CellOutput cellOutput = (CellOutput) current();
             cellOutput.processAtAddingChildOutput(childOutput);
+        } else if (current().type() == Output.Type.Footer) {
+            FooterOutput footerOutput = (FooterOutput) current();
+            footerOutput.processAtAddingChildOutput(childOutput);
         }
 
 
@@ -92,5 +120,4 @@ public class InterimOutput {
             current().content().addTextPart(part);
         }
     }
-
 }

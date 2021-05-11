@@ -28,7 +28,7 @@ public class ParagraphListInfo {
     private CharShape charShape;
 
     public ParagraphListInfo(DrawingInfo info) {
-        this(info, new Area(info.pageArea()));
+        this(info, new Area(info.pageInfo().bodyArea()));
     }
 
     public ParagraphListInfo(DrawingInfo info, Area textArea) {

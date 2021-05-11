@@ -7,6 +7,8 @@ public abstract class Output {
 
     public enum Type {
         Page,
+        Header,
+        Footer,
         Gso,
         Table,
         Cell

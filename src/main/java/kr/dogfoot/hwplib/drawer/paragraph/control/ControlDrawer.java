@@ -74,7 +74,7 @@ public class ControlDrawer {
                             textBox.getListHeader().getBottomMargin())
                     .verticalAlignment(textBox.getListHeader().getProperty().getTextVerticalAlignment());
 
-            long calculatedContentHeight = drawTextBox(textBox.getParagraphList(), new Area(0, 0, output.textArea().width(), output.textArea().height()));
+            long calculatedContentHeight = drawTextBox(textBox.getParagraphList(), output.textArea().widthHeight());
             output.calculatedContentHeight(calculatedContentHeight);
         }
 

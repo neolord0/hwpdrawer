@@ -84,9 +84,7 @@ public class GsoOutput extends ControlOutput {
 
     @Override
     public void move(long offsetX, long offsetY) {
-        controlArea
-                .moveX(offsetX)
-                .moveY(offsetY);
+        controlArea.move(offsetX, offsetY);
 
         for (ControlOutput controlOutput : content.behindChildOutputs()) {
             if (controlOutput.vertRelTo() == VertRelTo.Para) {
@@ -107,9 +105,7 @@ public class GsoOutput extends ControlOutput {
         long offsetY = offsetY(textArea, verticalAlignment);
 
         for (TextPart textPart : content.textParts()) {
-            textPart.area()
-                    .moveX(textArea.left())
-                    .moveY(textArea.top() + offsetY);
+            textPart.area().move(textArea.left(), textArea.top() + offsetY);
         }
 
         move(textArea.left(), textArea.top() + offsetY);
