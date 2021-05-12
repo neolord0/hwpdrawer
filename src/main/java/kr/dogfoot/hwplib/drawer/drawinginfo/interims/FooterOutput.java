@@ -2,25 +2,20 @@ package kr.dogfoot.hwplib.drawer.drawinginfo.interims;
 
 import kr.dogfoot.hwplib.drawer.paragraph.TextPart;
 import kr.dogfoot.hwplib.drawer.util.Area;
-import kr.dogfoot.hwplib.drawer.util.MyStringBuffer;
+import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.VertRelTo;
-import kr.dogfoot.hwplib.object.bodytext.control.gso.textbox.TextVerticalAlignment;
 
 public class FooterOutput extends Output {
-    private Area footerArea;
+    private final Area footerArea;
     private long calculatedContentHeight;
 
-    private Content content;
+    private final Content content;
 
     public FooterOutput(Area footerArea) {
         this.footerArea = footerArea;
         calculatedContentHeight = 0;
 
         content = new Content();
-    }
-
-    public long calculatedContentHeight() {
-        return calculatedContentHeight;
     }
 
     public void calculatedContentHeight(long calculatedContentHeight) {
@@ -71,7 +66,7 @@ public class FooterOutput extends Output {
 
     @Override
     public String test(int tabCount) {
-        MyStringBuffer sb = new MyStringBuffer();
+        MyStringBuilder sb = new MyStringBuilder();
         sb.tab(tabCount).append("footer - {\n");
         sb.append(content.test(tabCount + 1));
         sb.tab(tabCount).append("footer - }\n");

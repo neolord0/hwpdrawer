@@ -11,8 +11,8 @@ import kr.dogfoot.hwplib.object.bodytext.control.gso.shapecomponent.lineinfo.Lin
 import kr.dogfoot.hwplib.object.etc.Color4Byte;
 
 public class GsoPainter {
-    private Painter painter;
-    private DrawingInfo info;
+    private final Painter painter;
+    private final DrawingInfo info;
 
     public GsoPainter(Painter painter, DrawingInfo info) {
         this.painter = painter;
@@ -62,7 +62,8 @@ public class GsoPainter {
         painter.backgroundPainter().paint(((ShapeComponentNormal)(rectangle.getShapeComponent())).getFillInfo(), gsoOutput.controlArea());
 
         boolean drawLine = setBorderLine(((ShapeComponentNormal)(rectangle.getShapeComponent())).getLineInfo());
-        if (drawLine == true) {
+
+        if (drawLine) {
             painter.rectangle(gsoOutput.controlArea(), false);
         }
 
@@ -91,7 +92,7 @@ public class GsoPainter {
                 picture.getShapeComponentPicture().getBorderThickness(),
                 picture.getShapeComponentPicture().getBorderColor());
 
-        if (drawLine == true) {
+        if (drawLine) {
             painter.rectangle(gsoOutput.controlArea(), false);
         }
     }

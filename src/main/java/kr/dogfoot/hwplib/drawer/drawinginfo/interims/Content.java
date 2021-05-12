@@ -1,17 +1,16 @@
 package kr.dogfoot.hwplib.drawer.drawinginfo.interims;
 
 import kr.dogfoot.hwplib.drawer.paragraph.TextPart;
-import kr.dogfoot.hwplib.drawer.util.MyStringBuffer;
-import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.VertRelTo;
+import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
 
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.TreeSet;
 
 public class Content {
-    private ArrayList<TextPart> textParts;
-    private TreeSet<ControlOutput> behindChildOutputs;
-    private TreeSet<ControlOutput> nonBehindChildOutputs;
+    private final ArrayList<TextPart> textParts;
+    private final TreeSet<ControlOutput> behindChildOutputs;
+    private final TreeSet<ControlOutput> nonBehindChildOutputs;
 
     public Content() {
         textParts = new ArrayList<>();
@@ -50,7 +49,7 @@ public class Content {
     }
 
     public String test(int tabCount) {
-        MyStringBuffer sb = new MyStringBuffer();
+        MyStringBuilder sb = new MyStringBuilder();
         if (textParts.size() > 0) {
             sb.tab(tabCount).append("textParts - {\n");
             for (TextPart part : textParts) {

@@ -8,9 +8,9 @@ import kr.dogfoot.hwplib.object.docinfo.ParaShape;
 import java.util.ArrayList;
 
 public class TextLineDrawer {
-    private DrawingInfo info;
+    private final DrawingInfo info;
 
-    private ArrayList<TextPart> parts;
+    private final ArrayList<TextPart> parts;
     private TextPart currentTextPart;
 
     private long maxCharHeight;

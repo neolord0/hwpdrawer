@@ -2,18 +2,16 @@ package kr.dogfoot.hwplib.drawer.drawinginfo.interims;
 
 import kr.dogfoot.hwplib.drawer.drawinginfo.PageInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
-import kr.dogfoot.hwplib.drawer.util.MyStringBuffer;
-import org.apache.poi.ss.usermodel.HeaderFooter;
-
+import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
 
 public class PageOutput extends Output {
-    private int pageNo;
-    private Area paperArea;
-    private Area bodyArea;
-    private Area headerArea;
-    private Area footerArea;
+    private final int pageNo;
+    private final Area paperArea;
+    private final Area bodyArea;
+    private final Area headerArea;
+    private final Area footerArea;
 
-    private Content content;
+    private final Content content;
     private HeaderOutput headerOutput;
     private FooterOutput footerOutput;
 
@@ -28,6 +26,10 @@ public class PageOutput extends Output {
         content = new Content();
         headerOutput = null;
         footerOutput = null;
+    }
+
+    public int pageNo() {
+        return pageNo;
     }
 
     public Area paperArea() {
@@ -68,7 +70,7 @@ public class PageOutput extends Output {
 
     @Override
     public String test(int tabCount) {
-        MyStringBuffer sb = new MyStringBuffer();
+        MyStringBuilder sb = new MyStringBuilder();
         sb.tab(tabCount).append("page - {\n");
         if (headerOutput != null) {
             sb.append(headerOutput.test(tabCount + 1));

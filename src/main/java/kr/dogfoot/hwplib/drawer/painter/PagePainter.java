@@ -12,15 +12,13 @@ import kr.dogfoot.hwplib.object.etc.Color4Byte;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.geom.Area;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
 public class PagePainter {
-    private DrawingInfo info;
-
-    private Painter painter;
+    private final DrawingInfo info;
+    private final Painter painter;
 
     public PagePainter(DrawingInfo info) {
         this.info = info;

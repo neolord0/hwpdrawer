@@ -11,14 +11,14 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
 public class WordSplitter {
-    private ParagraphDrawer paragraphDrawer;
-    private TextLineDrawer textLineDrawer;
-    private DrawingInfo info;
+    private final ParagraphDrawer paragraphDrawer;
+    private final TextLineDrawer textLineDrawer;
+    private final DrawingInfo info;
 
     private int letterCountBeforeNewLine;
     private boolean hasNewLine;
 
-    private ArrayList<CharInfo> charsOfWord;
+    private final ArrayList<CharInfo> charsOfWord;
     private long wordWidth;
 
     public WordSplitter(ParagraphDrawer paragraphDrawer, TextLineDrawer textLineDrawer, DrawingInfo info) {
@@ -61,7 +61,7 @@ public class WordSplitter {
         for (WordsCharByLanguage wcl : wordCharsByLanguages) {
             boolean splitByLetter = (wcl.hangul) ? splitByHangulLetter : splitByEnglishLetter;
             if (splitByLetter) {
-                addWordAllCharsToLine(wcl.wordChars, true, true);
+                addWordAllCharsToLine(wcl.wordChars, true);
             } else {
                 addEachLanguageWordToLine(wcl.wordChars, wcl.wordWidth);
             }
@@ -102,24 +102,24 @@ public class WordSplitter {
     private void addEachLanguageWordToLine(ArrayList<CharInfo> wordChars, long wordWidth) throws Exception {
         if (wordChars.size() > 0) {
             if (!textLineDrawer.isOverRight(wordWidth, true)) {
-                addWordAllCharsToLine(wordChars, false, true);
+                addWordAllCharsToLine(wordChars, false);
             } else {
                 hasNewLine = true;
 
                 if (!textLineDrawer.noDrawingCharacter()) {
                     paragraphDrawer.saveTextLineAndNewLine();
                 }
-                addWordAllCharsToLine(wordChars, true, true);
+                addWordAllCharsToLine(wordChars, true);
             }
         }
     }
 
-    private void addWordAllCharsToLine(ArrayList<CharInfo> wordChars, boolean checkOverRight, boolean applyMinimumSpace) throws Exception {
+    private void addWordAllCharsToLine(ArrayList<CharInfo> wordChars, boolean checkOverRight) throws Exception {
         for (CharInfo charInfo : wordChars) {
-            if (paragraphDrawer.addCharToLine(charInfo, checkOverRight, applyMinimumSpace)) {
+            if (paragraphDrawer.addCharToLine(charInfo, checkOverRight, true)) {
                 hasNewLine = true;
             }
-            if (hasNewLine == false) {
+            if (!hasNewLine) {
                 letterCountBeforeNewLine++;
             }
         }

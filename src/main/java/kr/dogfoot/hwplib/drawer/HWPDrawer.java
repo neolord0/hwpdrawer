@@ -20,11 +20,9 @@ public class HWPDrawer {
         return drawer.pageCount();
     }
 
-
     private DrawingOption option;
     private DrawingInfo info;
     private PagePainter pagePainter;
-
 
     private HWPDrawer() {
         option = null;

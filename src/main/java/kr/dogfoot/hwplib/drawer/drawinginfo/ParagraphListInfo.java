@@ -8,8 +8,8 @@ import kr.dogfoot.hwplib.object.docinfo.CharShape;
 import kr.dogfoot.hwplib.object.docinfo.ParaShape;
 
 public class ParagraphListInfo {
-    private DrawingInfo info;
-    private Area textArea;
+    private final DrawingInfo info;
+    private final Area textArea;
 
     private Paragraph paragraph;
     private boolean isBodyText;

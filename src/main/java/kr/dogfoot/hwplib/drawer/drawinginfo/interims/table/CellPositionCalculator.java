@@ -3,10 +3,10 @@ package kr.dogfoot.hwplib.drawer.drawinginfo.interims.table;
 import java.util.ArrayList;
 
 public class CellPositionCalculator {
-    private long[] cellXs;
+    private final long[] cellXs;
 
-    private long[] rowHeights;
-    private ArrayList<RowInfo> rowInfos;
+    private final long[] rowHeights;
+    private final ArrayList<RowInfo> rowInfos;
 
     public CellPositionCalculator(int columnCount, int rowCount) {
         cellXs = new long[columnCount + 1];

@@ -17,7 +17,7 @@ public class NormalCharInfo extends CharInfo {
 
     public NormalCharInfo calculateWidth() throws UnsupportedEncodingException {
         if (character.isSpace()) {
-            width = charShape.getBaseSize() / 2;
+            width = charShape.getBaseSize() / 2.0f;
         } else {
             if (character.getType() == HWPCharType.Normal) {
                 width = CharacterSizeGetter.singleObject().getCharWidth(normalCharacter().getCh(), charShape);

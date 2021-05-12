@@ -2,20 +2,19 @@ package kr.dogfoot.hwplib.drawer.drawinginfo.interims;
 
 import kr.dogfoot.hwplib.drawer.paragraph.TextPart;
 import kr.dogfoot.hwplib.drawer.util.Area;
-import kr.dogfoot.hwplib.drawer.util.MyStringBuffer;
+import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.VertRelTo;
 import kr.dogfoot.hwplib.object.bodytext.control.gso.GsoControl;
 import kr.dogfoot.hwplib.object.bodytext.control.gso.textbox.TextVerticalAlignment;
 
-
 public class GsoOutput extends ControlOutput {
-    private GsoControl gso;
+    private final GsoControl gso;
     private Area textMargin;
     private TextVerticalAlignment verticalAlignment;
 
     private long calculatedContentHeight;
 
-    private Content content;
+    private final Content content;
 
     public GsoOutput(GsoControl gso, Area controlArea) {
         this.gso = gso;
@@ -50,10 +49,6 @@ public class GsoOutput extends ControlOutput {
 
     public void verticalAlignment(TextVerticalAlignment verticalAlignment) {
         this.verticalAlignment = verticalAlignment;
-    }
-
-    public long calculatedContentHeight() {
-        return calculatedContentHeight;
     }
 
     public void calculatedContentHeight(long calculatedContentHeight) {
@@ -137,7 +132,7 @@ public class GsoOutput extends ControlOutput {
 
     @Override
     public String test(int tabCount) {
-        MyStringBuffer sb = new MyStringBuffer();
+        MyStringBuilder sb = new MyStringBuilder();
         sb.tab(tabCount).append(gso.getGsoType().toString()).append(" - { ").append(controlArea).append("\n");
         sb.append(content.test(tabCount + 1));
         sb.tab(tabCount).append(gso.getGsoType().toString()).append(" - }\n");

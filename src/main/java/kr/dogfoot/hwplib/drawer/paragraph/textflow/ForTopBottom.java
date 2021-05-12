@@ -6,7 +6,7 @@ import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.VertRelTo;
 import java.util.ArrayList;
 
 public class ForTopBottom {
-    private ArrayList<TopBottomArea> topBottomAreas;
+    private final ArrayList<TopBottomArea> topBottomAreas;
 
     public ForTopBottom() {
         topBottomAreas = new ArrayList<>();
@@ -81,8 +81,8 @@ public class ForTopBottom {
     }
 
     public static class Result {
-        private long yOffset;
-        private VertRelTo vertRelTo;
+        private final long yOffset;
+        private final VertRelTo vertRelTo;
 
         public Result(long yOffset, VertRelTo vertRelTo) {
             this.yOffset = yOffset;

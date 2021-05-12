@@ -8,8 +8,8 @@ import kr.dogfoot.hwplib.object.docinfo.borderfill.fillinfo.*;
 import java.awt.image.BufferedImage;
 
 public class BackgroundPainter {
-    private Painter painter;
-    private DrawingInfo info;
+    private final Painter painter;
+    private final DrawingInfo info;
 
     public BackgroundPainter(Painter painter, DrawingInfo info) {
         this.painter = painter;

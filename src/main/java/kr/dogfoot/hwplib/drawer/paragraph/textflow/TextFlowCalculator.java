@@ -6,8 +6,8 @@ import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.VertRelTo;
 
 public class TextFlowCalculator {
-    private ForTopBottom forTopBottom;
-    private ForSquare forSquare;
+    private final ForTopBottom forTopBottom;
+    private final ForSquare forSquare;
 
     public TextFlowCalculator() {
         forTopBottom = new ForTopBottom();
@@ -48,7 +48,7 @@ public class TextFlowCalculator {
     }
 
     public static class Result {
-        private Area[] dividedAreas;
+        private final Area[] dividedAreas;
         private long offsetY;
         private ParagraphDrawer.DrawingState nextState;
         private boolean cancelNewLine;

@@ -1,24 +1,16 @@
 package kr.dogfoot.hwplib.drawer.painter.control;
 
 import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.GsoOutput;
 import kr.dogfoot.hwplib.drawer.drawinginfo.interims.table.CellOutput;
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.table.CellPositionCalculator;
 import kr.dogfoot.hwplib.drawer.drawinginfo.interims.table.TableOutput;
 import kr.dogfoot.hwplib.drawer.painter.Painter;
 import kr.dogfoot.hwplib.drawer.util.Area;
-import kr.dogfoot.hwplib.object.bodytext.control.ControlTable;
-import kr.dogfoot.hwplib.object.bodytext.control.table.Cell;
 import kr.dogfoot.hwplib.object.bodytext.control.table.ListHeaderForCell;
 import kr.dogfoot.hwplib.object.docinfo.BorderFill;
-import kr.dogfoot.hwplib.object.docinfo.borderfill.BorderThickness;
-import kr.dogfoot.hwplib.object.docinfo.borderfill.BorderType;
-import kr.dogfoot.hwplib.object.etc.Color4Byte;
 
 public class TablePainter {
-    private Painter painter;
-    private DrawingInfo info;
-
+    private final Painter painter;
+    private final DrawingInfo info;
 
     public TablePainter(Painter painter, DrawingInfo info) {
         this.painter = painter;

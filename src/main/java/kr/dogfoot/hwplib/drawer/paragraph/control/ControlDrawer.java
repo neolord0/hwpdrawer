@@ -17,7 +17,7 @@ import kr.dogfoot.hwplib.object.bodytext.paragraph.Paragraph;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.ParagraphList;
 
 public class ControlDrawer {
-    private DrawingInfo info;
+    private final DrawingInfo info;
 
     public ControlDrawer(DrawingInfo info) {
         this.info = info;

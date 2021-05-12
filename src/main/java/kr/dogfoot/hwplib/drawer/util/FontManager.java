@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class FontManager {
-    private static FontManager singleObject = new FontManager();
+    private final static FontManager singleObject = new FontManager();
 
     public static FontManager object() {
         return singleObject;
@@ -18,9 +18,9 @@ public class FontManager {
 
     private DocInfo docInfo;
 
-    private Map<String, Font> originalFontMap;
-    private Map<CharShape, Font> calculatingFontMap;
-    private Map<CharShape, Font> drawingFontMap;
+    private final Map<String, Font> originalFontMap;
+    private final Map<CharShape, Font> calculatingFontMap;
+    private final Map<CharShape, Font> drawingFontMap;
 
     private FontManager() {
         originalFontMap = new HashMap<>();

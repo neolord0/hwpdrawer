@@ -11,7 +11,7 @@ import java.util.LinkedList;
 import java.util.TreeSet;
 
 public class ForSquare {
-    private TreeSet<SquareArea> squareAreas;
+    private final TreeSet<SquareArea> squareAreas;
 
     public ForSquare() {
         squareAreas = new TreeSet<>();
@@ -46,7 +46,7 @@ public class ForSquare {
                     }
                 }
 
-                if (intersected == false) {
+                if (!intersected) {
                     for (Area area : dividedAreas) {
                         switch (squareArea.textHorzArrange) {
                             case LeftOnly:

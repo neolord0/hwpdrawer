@@ -9,16 +9,16 @@ import kr.dogfoot.hwplib.drawer.painter.Painter;
 import java.util.Set;
 
 public class ControlPainter {
-    private GsoPainter gsoPainter;
-    private TablePainter tablePainter;
+    private final GsoPainter gsoPainter;
+    private final TablePainter tablePainter;
 
     public ControlPainter(Painter painter, DrawingInfo info) {
         gsoPainter = new GsoPainter(painter, info);
         tablePainter = new TablePainter(painter, info);
     }
 
-    public void paintControls(Set<ControlOutput> controlOuputs) throws Exception {
-        for (ControlOutput controlOutput : controlOuputs) {
+    public void paintControls(Set<ControlOutput> controlOutputs) throws Exception {
+        for (ControlOutput controlOutput : controlOutputs) {
             paintControl(controlOutput);
         }
     }

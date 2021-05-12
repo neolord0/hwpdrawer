@@ -3,16 +3,16 @@ package kr.dogfoot.hwplib.drawer.drawinginfo.interims.table;
 import kr.dogfoot.hwplib.drawer.drawinginfo.interims.Content;
 import kr.dogfoot.hwplib.drawer.drawinginfo.interims.ControlOutput;
 import kr.dogfoot.hwplib.drawer.util.Area;
-import kr.dogfoot.hwplib.drawer.util.MyStringBuffer;
+import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlTable;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.VertRelTo;
 import kr.dogfoot.hwplib.object.bodytext.control.table.ListHeaderForCell;
 
 public class TableOutput extends ControlOutput {
-    private ControlTable table;
-    private CellPositionCalculator cellPositionCalculator;
+    private final ControlTable table;
+    private final CellPositionCalculator cellPositionCalculator;
 
-    private CellOutput[][] cellOutputs;
+    private final CellOutput[][] cellOutputs;
 
     public TableOutput(ControlTable table, Area controlArea) {
         this.table = table;
@@ -86,7 +86,7 @@ public class TableOutput extends ControlOutput {
 
     @Override
     public String test(int tabCount) {
-        MyStringBuffer sb = new MyStringBuffer();
+        MyStringBuilder sb = new MyStringBuilder();
         sb.tab(tabCount).append("table - { ").append(controlArea).append("\n");
         for (CellOutput[] cellOutputs2 : cellOutputs) {
             for (CellOutput cellOutput : cellOutputs2) {

@@ -5,9 +5,7 @@ import kr.dogfoot.hwplib.drawer.drawinginfo.interims.table.CellOutput;
 import kr.dogfoot.hwplib.drawer.drawinginfo.interims.table.TableOutput;
 import kr.dogfoot.hwplib.drawer.paragraph.TextPart;
 import kr.dogfoot.hwplib.drawer.util.Area;
-import kr.dogfoot.hwplib.object.bodytext.control.ControlHeader;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlTable;
-import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.VertRelTo;
 import kr.dogfoot.hwplib.object.bodytext.control.gso.GsoControl;
 import kr.dogfoot.hwplib.object.bodytext.control.table.Cell;
 
@@ -15,7 +13,7 @@ import java.util.Stack;
 
 public class InterimOutput {
     private PageOutput page;
-    private Stack<Output> stack;
+    private final Stack<Output> stack;
 
     public InterimOutput() {
         stack = new Stack<>();
@@ -91,7 +89,7 @@ public class InterimOutput {
 
     public void setLastTextPartToLastLine() {
         if (current().content() != null) {
-            current().content().setLastTextPartToLastLine();;
+            current().content().setLastTextPartToLastLine();
         }
     }
 

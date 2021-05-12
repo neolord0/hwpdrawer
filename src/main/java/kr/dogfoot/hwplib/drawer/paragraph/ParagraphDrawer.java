@@ -2,7 +2,6 @@ package kr.dogfoot.hwplib.drawer.paragraph;
 
 import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
 import kr.dogfoot.hwplib.drawer.drawinginfo.interims.ControlOutput;
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.GsoOutput;
 import kr.dogfoot.hwplib.drawer.painter.PagePainter;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfo;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
@@ -11,7 +10,6 @@ import kr.dogfoot.hwplib.drawer.paragraph.control.ControlDrawer;
 import kr.dogfoot.hwplib.drawer.paragraph.textflow.TextFlowCalculator;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.control.*;
-import kr.dogfoot.hwplib.object.bodytext.control.gso.GsoControl;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.Paragraph;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPChar;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPCharControlChar;
@@ -25,13 +23,13 @@ import java.io.UnsupportedEncodingException;
 import java.util.*;
 
 public class ParagraphDrawer {
-    private PagePainter pagePainter;
-    private DrawingInfo info;
+    private final PagePainter pagePainter;
+    private final DrawingInfo info;
 
-    private TextLineDrawer textLineDrawer;
-    private ControlDrawer controlDrawer;
-    private WordSplitter wordSplitter;
-    private TextFlowCalculator textFlowCalculator;
+    private final TextLineDrawer textLineDrawer;
+    private final ControlDrawer controlDrawer;
+    private final WordSplitter wordSplitter;
+    private final TextFlowCalculator textFlowCalculator;
     private boolean cancelNewLine;
 
     private DrawingState drawingState;
@@ -40,7 +38,7 @@ public class ParagraphDrawer {
     private boolean firstLine;
     private long height;
 
-    private Map<Integer, CharInfo> charInfoBuffer;
+    private final Map<Integer, CharInfo> charInfoBuffer;
 
     private Area currentTextLineArea;
     private long lineHeight;
@@ -50,7 +48,7 @@ public class ParagraphDrawer {
 
     private int controlExtendCharIndex;
 
-    private Queue<Area> recalculatingTextAreas;
+    private final Queue<Area> recalculatingTextAreas;
 
     public ParagraphDrawer(DrawingInfo info) {
         this(null, info);
@@ -317,7 +315,7 @@ public class ParagraphDrawer {
         ControlOutput output = controlDrawer.draw(controlCharInfo);
         controlCharInfo.output(output);
 
-        if (controlCharInfo.isLikeLetter() == false) {
+        if (!controlCharInfo.isLikeLetter()) {
             if (controlCharInfo.textFlowMethod() == 0/*어울림*/) {
                 textFlowCalculator.addForSquare(controlCharInfo);
             } else if (controlCharInfo.textFlowMethod() == 1/*자리차지*/) {
@@ -383,7 +381,7 @@ public class ParagraphDrawer {
     }
 
     private void checkTextFlow() {
-        if (drawingState == DrawingState.Normal && info.noText() == false) {
+        if (drawingState == DrawingState.Normal && !info.noText()) {
             currentTextLineArea
                     .height(textLineDrawer.maxCharHeight());
             TextFlowCalculator.Result result = textFlowCalculator.calculate(currentTextLineArea);
@@ -427,7 +425,7 @@ public class ParagraphDrawer {
         switch (drawingState) {
             case Normal:
             case StartRedrawing:
-                if (firstLine == true) {
+                if (firstLine) {
                     currentTextLineArea.left(currentTextLineArea.left() - info.paraShape().getIndent() / 2);
                     firstLine = false;
                 }
@@ -449,7 +447,7 @@ public class ParagraphDrawer {
                 currentTextLineArea = storedTextLineArea.moveY(lineHeight);
                 height += lineHeight;
 
-                if (firstLine == true) {
+                if (firstLine) {
                     currentTextLineArea.left(currentTextLineArea.left() - info.paraShape().getIndent() / 2);
                     firstLine = false;
                 }

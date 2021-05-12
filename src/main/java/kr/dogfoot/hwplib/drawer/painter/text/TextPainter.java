@@ -8,10 +8,8 @@ import kr.dogfoot.hwplib.drawer.paragraph.charInfo.NormalCharInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.docinfo.CharShape;
 
-import java.util.ArrayList;
-
 public class TextPainter {
-    private Painter painter;
+    private final Painter painter;
 
     private long baseLine;
     private CharShape drawingCharShape;
@@ -19,8 +17,8 @@ public class TextPainter {
     private long[] spaceAddings;
     private long[] charAddings;
 
-    private UnderLinePainter underLinePainter;
-    private StrikeLinePainter strikeLinePainter;
+    private final UnderLinePainter underLinePainter;
+    private final StrikeLinePainter strikeLinePainter;
 
     public TextPainter(Painter painter) {
         this.painter = painter;
@@ -64,7 +62,7 @@ public class TextPainter {
 
     private void justify(TextPart part) throws Exception {
         charX = part.area().left();
-        if (part.lastLine() == false) {
+        if (!part.lastLine()) {
             if (part.spaceCountWithExceptingLastSpace() != 0) {
                 spaceAddings = spaceAddings(part);
                 charAddings = null;
@@ -110,16 +108,12 @@ public class TextPainter {
         }
         long extraByChar = extra / charCount;
         long rest = extra % charCount;
-
-        long[] charAddings = null;
-        if (charCount > 0) {
-            charAddings = new long[charCount];
-            for (int index = 0; index < charCount; index++) {
-                if (index <= rest) {
-                    charAddings[index] = extraByChar + 1;
-                } else {
-                    charAddings[index] = extraByChar;
-                }
+        long[] charAddings = new long[charCount];
+        for (int index = 0; index < charCount; index++) {
+            if (index <= rest) {
+                charAddings[index] = extraByChar + 1;
+            } else {
+                charAddings[index] = extraByChar;
             }
         }
         return charAddings;
@@ -195,7 +189,7 @@ public class TextPainter {
                     ControlCharInfo controlCharInfo = (ControlCharInfo) charInfo;
                     Area area = controlArea(part, controlCharInfo);
                     // todo table
-                    if (controlCharInfo.output() != null) { ;
+                    if (controlCharInfo.output() != null) {
                         controlCharInfo.output().controlArea(area);
                         painter.controlPainter().paintControl(controlCharInfo.output());
                     }
@@ -212,10 +206,9 @@ public class TextPainter {
     }
 
     private Area controlArea(TextPart part, ControlCharInfo controlCharInfo) {
-        Area area = controlCharInfo.areaWithoutOuterMargin().widthHeight()
+        return controlCharInfo.areaWithoutOuterMargin().widthHeight()
                 .move(controlCharInfo.x() - (controlCharInfo.areaWithOuterMargin().left() - controlCharInfo.areaWithoutOuterMargin().left()),
                         part.area().bottom() - controlCharInfo.areaWithoutOuterMargin().height() - (controlCharInfo.areaWithOuterMargin().bottom() - controlCharInfo.areaWithoutOuterMargin().bottom()));
-        return area;
     }
 
     private long getY(CharInfo charInfo) {

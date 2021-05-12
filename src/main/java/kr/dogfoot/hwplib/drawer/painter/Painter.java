@@ -29,9 +29,9 @@ public class Painter {
     private Graphics2D graphics2D;
     private DrawingOption option;
 
-    private ControlPainter controlPainter;
-    private TextPainter textPainter;
-    private BackgroundPainter backgroundPainter;
+    private final ControlPainter controlPainter;
+    private final TextPainter textPainter;
+    private final BackgroundPainter backgroundPainter;
 
     public Painter(DrawingInfo info) {
         controlPainter = new ControlPainter(this, info);
@@ -124,7 +124,7 @@ public class Painter {
         rect.x += option.offsetX();
         rect.y += option.offsetY();
 
-        if (fill == false) {
+        if (!fill) {
             graphics2D.drawRect(rect.x, rect.y, rect.width, rect.height);
         } else {
             graphics2D.fillRect(rect.x, rect.y, rect.width, rect.height);

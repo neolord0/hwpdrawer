@@ -2,13 +2,13 @@ package kr.dogfoot.hwplib.drawer.drawinginfo.interims;
 
 import kr.dogfoot.hwplib.drawer.paragraph.TextPart;
 import kr.dogfoot.hwplib.drawer.util.Area;
-import kr.dogfoot.hwplib.drawer.util.MyStringBuffer;
+import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.VertRelTo;
 
 public class HeaderOutput extends Output {
-    private Area headerArea;
+    private final Area headerArea;
 
-    private Content content;
+    private final Content content;
 
     public HeaderOutput(Area headerArea) {
         this.headerArea = headerArea;
@@ -47,7 +47,7 @@ public class HeaderOutput extends Output {
 
     @Override
     public String test(int tabCount) {
-        MyStringBuffer sb = new MyStringBuffer();
+        MyStringBuilder sb = new MyStringBuilder();
         sb.tab(tabCount).append("header - {\n");
         sb.append(content.test(tabCount + 1));
         sb.tab(tabCount).append("header - }\n");

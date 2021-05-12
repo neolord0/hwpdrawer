@@ -4,11 +4,9 @@ import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfo;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.NormalCharInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
-import kr.dogfoot.hwplib.drawer.util.MyStringBuffer;
+import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
 import kr.dogfoot.hwplib.object.docinfo.parashape.Alignment;
-import org.apache.poi.ss.formula.functions.T;
 
-import javax.xml.soap.Text;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
@@ -19,7 +17,7 @@ public class TextPart {
     private Alignment alignment;
     private long maxCharHeight;
 
-    private ArrayList<CharInfo> charInfos;
+    private final ArrayList<CharInfo> charInfos;
     private boolean lastLine;
     private int spaceCount;
     private double spaceRate;
@@ -68,21 +66,12 @@ public class TextPart {
         }
     }
 
-    public CharInfo lastChar() {
-        int count = charInfos.size();
-        return (count == 0) ? null : charInfos.get(count - 1);
-    }
-
     public boolean lastLine() {
         return lastLine;
     }
 
     public void lastLine(boolean lastLine) {
         this.lastLine = lastLine;
-    }
-
-    public int spaceCount() {
-        return spaceCount;
     }
 
     public int spaceCountWithExceptingLastSpace() {
@@ -143,7 +132,7 @@ public class TextPart {
     }
 
     public String test(int tabCount) {
-        MyStringBuffer sb = new MyStringBuffer();
+        MyStringBuilder sb = new MyStringBuilder();
 
         sb.tab(tabCount).append("{ ").append(area).append("\n");
         sb.tab(tabCount + 1);

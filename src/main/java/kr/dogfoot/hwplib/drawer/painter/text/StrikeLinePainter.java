@@ -8,7 +8,7 @@ import kr.dogfoot.hwplib.object.docinfo.charshape.BorderType2;
 
 
 public class StrikeLinePainter {
-    private Painter painter;
+    private final Painter painter;
     private long baseLine;
 
     private boolean strike;
@@ -46,24 +46,22 @@ public class StrikeLinePainter {
             paintStrikeLine(charInfo, false);
 
             strike = charInfo.charShape().getProperty().isStrikeLine();
-            if (strike == false) {
+            if (!strike) {
                 lineShape = BorderType2.Solid;
-                ;
                 lineColor = -1;
                 charHeight = -1;
                 startX = -1;
                 drawingCharShape = null;
             } else {
                 lineShape = charInfo.charShape().getProperty().getStrikeLineShape();
-                ;
                 lineColor = charInfo.charShape().getStrikeLineColor().getValue();
                 charHeight = charInfo.charShape().getBaseSize();
                 startX = charInfo.x();
                 drawingCharShape = charInfo.charShape();
             }
         }
-        if (endLine == true && startX != -1) {
-            paintStrikeLine(charInfo, endLine);
+        if (endLine && startX != -1) {
+            paintStrikeLine(charInfo, true);
         }
     }
 
@@ -78,13 +76,13 @@ public class StrikeLinePainter {
 
     private boolean changeLineStyle(CharShape charShape) {
         return charShape.getProperty().isStrikeLine() != strike
-                || (charShape.getProperty().isStrikeLine() == true &&
+                || (charShape.getProperty().isStrikeLine() &&
                 (charShape.getProperty().getStrikeLineShape() != lineShape
                         || charShape.getStrikeLineColor().getValue() != lineColor));
     }
 
     private boolean changeCharHeight(CharShape charShape) {
-        return charShape.getProperty().isStrikeLine() == true
+        return charShape.getProperty().isStrikeLine()
                 && charShape.getBaseSize() != charHeight;
     }
 
@@ -99,7 +97,7 @@ public class StrikeLinePainter {
 
     private void paintStrikeLine(CharInfo charInfo, boolean endLine) {
         long y = baseLine - (charHeight * 2 / 5);
-        long endX = (endLine == true) ? (long) (charInfo.x() + charInfo.width()) : charInfo.x();
+        long endX = (endLine) ? (long) (charInfo.x() + charInfo.width()) : charInfo.x();
 
         painter.setLineStyle(drawingCharShape.getProperty().getStrikeLineShape().toBorderType(),
                 BorderThickness.MM0_15,

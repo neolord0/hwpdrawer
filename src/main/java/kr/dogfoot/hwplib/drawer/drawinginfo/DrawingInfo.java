@@ -26,17 +26,17 @@ public class DrawingInfo {
     private HWPFile hwpFile;
     private Section section;
 
-    private PageInfo pageInfo;
+    private final PageInfo pageInfo;
 
-    private HashMap<Integer, BufferedImage> imageMap;
+    private final HashMap<Integer, BufferedImage> imageMap;
 
     private int countOfHidingEmptyLineAfterNewPage;
 
     private ParagraphListInfo bodyTextParagraphListInfo;
 
-    private Stack<ParagraphListInfo> paragraphListInfoStack;
+    private final Stack<ParagraphListInfo> paragraphListInfoStack;
 
-    private InterimOutput output;
+    private final InterimOutput output;
 
     public DrawingInfo() {
         pageInfo = new PageInfo();
@@ -183,7 +183,7 @@ public class DrawingInfo {
         paragraphListInfo().startParagraph(paragraph);
     }
 
-    public void endParagraph(long endY, long height) throws IOException {
+    public void endParagraph(long endY, long height) {
         output.setLastTextPartToLastLine();
 
         ParagraphListInfo paragraphListInfo = paragraphListInfo();

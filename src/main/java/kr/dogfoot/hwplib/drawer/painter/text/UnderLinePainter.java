@@ -8,7 +8,7 @@ import kr.dogfoot.hwplib.object.docinfo.charshape.BorderType2;
 import kr.dogfoot.hwplib.object.docinfo.charshape.UnderLineSort;
 
 public class UnderLinePainter {
-    private Painter painter;
+    private final Painter painter;
 
     private long baseLine;
     private long maxCharHeight;
@@ -57,8 +57,8 @@ public class UnderLinePainter {
                 drawingCharShape = charInfo.charShape();
             }
         }
-        if (endLine == true && startX != -1) {
-            paintUnderLine(charInfo, endLine);
+        if (endLine && startX != -1) {
+            paintUnderLine(charInfo, true);
         }
     }
 
@@ -87,7 +87,7 @@ public class UnderLinePainter {
         long y = (drawingCharShape.getProperty().getUnderLineSort() == UnderLineSort.Top)
                 ? baseLine - (maxCharHeight * 4 / 5)
                 : baseLine + (maxCharHeight / 5);
-        long endX = (endLine == true) ? (long) (charInfo.x() + charInfo.width()) : charInfo.x();
+        long endX = (endLine) ? (long) (charInfo.x() + charInfo.width()) : charInfo.x();
 
         painter.setLineStyle(drawingCharShape.getProperty().getUnderLineShape().toBorderType(),
                 BorderThickness.MM0_15,

@@ -13,7 +13,7 @@ public class CharacterSizeGetter {
         return singleObject;
     }
 
-    private Graphics2D graphics2DForCalculating;
+    private final Graphics2D graphics2DForCalculating;
 
     public CharacterSizeGetter() {
         BufferedImage tempImage = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);

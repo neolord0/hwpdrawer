@@ -5,21 +5,21 @@ import kr.dogfoot.hwplib.drawer.drawinginfo.interims.ControlOutput;
 import kr.dogfoot.hwplib.drawer.drawinginfo.interims.Output;
 import kr.dogfoot.hwplib.drawer.paragraph.TextPart;
 import kr.dogfoot.hwplib.drawer.util.Area;
-import kr.dogfoot.hwplib.drawer.util.MyStringBuffer;
+import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.VertRelTo;
 import kr.dogfoot.hwplib.object.bodytext.control.gso.textbox.TextVerticalAlignment;
 import kr.dogfoot.hwplib.object.bodytext.control.table.Cell;
 
 public class CellOutput extends Output {
-    private TableOutput tableOutput;
-    private Cell cell;
-    private Area cellArea;
+    private final TableOutput tableOutput;
+    private final Cell cell;
+    private final Area cellArea;
     private Area textMargin;
     private TextVerticalAlignment verticalAlignment;
 
     private long calculatedContentHeight;
 
-    private Content content;
+    private final Content content;
 
     public CellOutput(TableOutput tableOutput, Cell cell) {
         this.tableOutput = tableOutput;
@@ -105,10 +105,6 @@ public class CellOutput extends Output {
         this.verticalAlignment = verticalAlignment;
     }
 
-    public long calculatedContentHeight() {
-        return calculatedContentHeight;
-    }
-
     public void calculatedContentHeight(long calculatedContentHeight) {
         this.calculatedContentHeight =
                 Math.max(this.calculatedContentHeight, calculatedContentHeight);
@@ -137,7 +133,7 @@ public class CellOutput extends Output {
 
     @Override
     public String test(int tabCount) {
-        MyStringBuffer sb = new MyStringBuffer();
+        MyStringBuilder sb = new MyStringBuilder();
         sb.tab(tabCount).append("cell - {" ).append(cellArea).append("\n");
         sb.append(content.test(tabCount + 1));
         sb.tab(tabCount).append("cell - }\n");

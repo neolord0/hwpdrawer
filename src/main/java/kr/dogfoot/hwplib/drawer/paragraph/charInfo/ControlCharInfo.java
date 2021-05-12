@@ -12,7 +12,7 @@ import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPChar;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPCharControlExtend;
 import kr.dogfoot.hwplib.object.docinfo.CharShape;
 
-public class ControlCharInfo extends CharInfo implements Comparable<ControlCharInfo>  {
+public class ControlCharInfo extends CharInfo {
     public static ControlCharInfo create(HWPCharControlExtend character, Control control, DrawingInfo info) {
         ControlCharInfo charInfo = new ControlCharInfo(character, info.charShape(), info.charIndex(), info.charPosition());
         if (character.getCode() == 11) {
@@ -90,10 +90,6 @@ public class ControlCharInfo extends CharInfo implements Comparable<ControlCharI
         return 0;
     }
 
-    public HWPCharControlExtend controlCharacter() {
-        return (HWPCharControlExtend) character;
-    }
-
     public Control control() {
         return control;
     }
@@ -116,28 +112,11 @@ public class ControlCharInfo extends CharInfo implements Comparable<ControlCharI
         return gsoHeader.getProperty().getTextFlowMethod();
     }
 
-    public int zOrder() {
-        if (gsoHeader == null) {
-            return -1;
-        }
-        return gsoHeader.getzOrder();
-    }
-
     public Area areaWithOuterMargin() {
         return areaWithOuterMargin;
     }
 
     public Area areaWithoutOuterMargin() {
         return areaWithoutOuterMargin;
-    }
-
-    @Override
-    public int compareTo(ControlCharInfo o) {
-        if (zOrder() > o.zOrder())
-            return 1;
-        else if (zOrder() == o.zOrder())
-            return 0;
-        else
-            return -1;
     }
 }
