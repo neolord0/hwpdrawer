@@ -1,11 +1,10 @@
-package kr.dogfoot.hwplib.drawer.paragraph;
+package kr.dogfoot.hwplib.drawer.drawinginfo.interims.text;
 
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfo;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.NormalCharInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
-import kr.dogfoot.hwplib.object.docinfo.parashape.Alignment;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -13,42 +12,24 @@ import java.util.ArrayList;
 public class TextPart {
     public static final TextPart[] Zero_Array = new TextPart[0];
 
+    private TextLine textLine;
     private Area area;
-    private Alignment alignment;
-    private long maxCharHeight;
 
     private final ArrayList<CharInfo> charInfos;
-    private boolean lastLine;
     private int spaceCount;
     private double spaceRate;
-    private boolean hasDrawingCharacter;
 
-    public TextPart(Area area) {
-        charInfos = new ArrayList<>();
+    public TextPart(TextLine textLine, Area area) {
+        this.textLine = textLine;
         this.area = area;
 
-        lastLine = false;
+        charInfos = new ArrayList<>();
         spaceCount = 0;
         spaceRate = 1.0;
-        hasDrawingCharacter = false;
     }
 
-    public Alignment alignment() {
-        return alignment;
-    }
-
-    public TextPart alignment(Alignment alignment) {
-        this.alignment = alignment;
-        return this;
-    }
-
-    public long maxCharHeight() {
-        return maxCharHeight;
-    }
-
-    public TextPart maxCharHeight(long maxCharHeight) {
-        this.maxCharHeight = maxCharHeight;
-        return this;
+    public TextLine textLine() {
+        return textLine;
     }
 
     public ArrayList<CharInfo> charInfos() {
@@ -62,16 +43,8 @@ public class TextPart {
         }
         if (charInfo.type() == CharInfo.Type.Normal
                 || (charInfo.type() == CharInfo.Type.Control && ((ControlCharInfo) charInfo).isLikeLetter())) {
-            hasDrawingCharacter = true;
+            textLine.hasDrawingCharacter(true);
         }
-    }
-
-    public boolean lastLine() {
-        return lastLine;
-    }
-
-    public void lastLine(boolean lastLine) {
-        this.lastLine = lastLine;
     }
 
     public int spaceCountWithExceptingLastSpace() {
@@ -125,10 +98,6 @@ public class TextPart {
             }
         }
         return textCount;
-    }
-
-    public boolean hasDrawingCharacter() {
-        return hasDrawingCharacter;
     }
 
     public String test(int tabCount) {

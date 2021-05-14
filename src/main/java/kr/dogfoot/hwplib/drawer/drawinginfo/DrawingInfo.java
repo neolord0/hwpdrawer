@@ -1,6 +1,7 @@
 package kr.dogfoot.hwplib.drawer.drawinginfo;
 
 import kr.dogfoot.hwplib.drawer.drawinginfo.interims.*;
+import kr.dogfoot.hwplib.drawer.drawinginfo.interims.page.PageOutput;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.HWPFile;
 import kr.dogfoot.hwplib.object.bindata.EmbeddedBinaryData;

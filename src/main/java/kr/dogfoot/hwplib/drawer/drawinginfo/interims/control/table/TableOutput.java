@@ -1,7 +1,7 @@
-package kr.dogfoot.hwplib.drawer.drawinginfo.interims.table;
+package kr.dogfoot.hwplib.drawer.drawinginfo.interims.control.table;
 
 import kr.dogfoot.hwplib.drawer.drawinginfo.interims.Content;
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.ControlOutput;
+import kr.dogfoot.hwplib.drawer.drawinginfo.interims.control.ControlOutput;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlTable;

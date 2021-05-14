@@ -1,17 +1,16 @@
 package kr.dogfoot.hwplib.drawer.paragraph;
 
 import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
+import kr.dogfoot.hwplib.drawer.drawinginfo.interims.text.TextLine;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.docinfo.ParaShape;
 
-import java.util.ArrayList;
 
 public class TextLineDrawer {
     private final DrawingInfo info;
 
-    private final ArrayList<TextPart> parts;
-    private TextPart currentTextPart;
+    private TextLine textLine;
 
     private long maxCharHeight;
     private long maxBaseSize;
@@ -21,9 +20,6 @@ public class TextLineDrawer {
 
     public TextLineDrawer(DrawingInfo info) {
         this.info = info;
-
-        parts = new ArrayList<>();
-        currentTextPart = null;
     }
 
     public TextLineDrawer initialize() {
@@ -35,8 +31,7 @@ public class TextLineDrawer {
     }
 
     public TextLineDrawer reset() {
-        parts.clear();
-        currentTextPart = null;
+        textLine = new TextLine();
 
         maxCharHeight = 0;
         maxBaseSize = 0;
@@ -53,9 +48,7 @@ public class TextLineDrawer {
     }
 
     public void addNewTextPart(Area textPartArea) {
-        TextPart textPart = new TextPart(new Area(textPartArea));
-        parts.add(textPart);
-        currentTextPart = textPart;
+        textLine.addNewTextPart(textPartArea);
     }
 
     public boolean justNewLine() {
@@ -70,7 +63,7 @@ public class TextLineDrawer {
         maxCharHeight = Math.max(charInfo.height(), maxCharHeight);
         maxBaseSize = Math.max(charInfo.charShape().getBaseSize(), maxBaseSize);
 
-        currentTextPart.addCharInfo(charInfo);
+        textLine.currentTextPart().addCharInfo(charInfo);
         if (charInfo.character().isSpace()) {
             spacesWidth += charInfo.widthAddingCharSpace();
         } else {
@@ -79,15 +72,15 @@ public class TextLineDrawer {
     }
 
     public boolean isOverRight(double width, boolean applyMinimumSpace) {
-        return currentTextX(applyMinimumSpace) + width > currentTextPart.area().right();
+        return currentTextX(applyMinimumSpace) + width > textLine.currentTextPart().area().right();
     }
 
     private long currentTextX(boolean applyMinimumSpace) {
         if (applyMinimumSpace) {
             long minimumSpace = spacesWidth * (100 - info.paraShape().getProperty1().getMinimumSpace()) / 100;
-            return wordsWidth + minimumSpace + currentTextPart.area().left();
+            return wordsWidth + minimumSpace + textLine.currentTextPart().area().left();
         } else {
-            return wordsWidth + spacesWidth + currentTextPart.area().left();
+            return wordsWidth + spacesWidth + textLine.currentTextPart().area().left();
         }
     }
 
@@ -124,35 +117,30 @@ public class TextLineDrawer {
     }
 
     public boolean noDrawingCharacter() {
-        return !currentTextPart.hasDrawingCharacter();
+        return !textLine.hasDrawingCharacter();
     }
 
     public void setBestSpaceRate() {
-        currentTextPart.spaceRate((double) (currentTextPart.area().width() - wordsWidth) / (double) spacesWidth);
+        textLine.currentTextPart().spaceRate((double) (textLine.currentTextPart().area().width() - wordsWidth) / (double) spacesWidth);
     }
 
     public Area area() {
-        return currentTextPart.area();
+        return textLine.currentTextPart().area();
     }
 
     public TextLineDrawer area(Area textLineArea) {
-        currentTextPart.area(new Area(textLineArea));
+        textLine.currentTextPart().area(new Area(textLineArea));
         return this;
     }
 
     public boolean saveToOutput() {
-        boolean saved = false;
-        for (TextPart part : parts) {
-            if (part.hasDrawingCharacter()) {
-                part
-                        .maxCharHeight(maxCharHeight)
-                        .alignment(info.paraShape().getProperty1().getAlignment());
-                info.output().addTextPart(part);
-                saved = true;
-            }
+        if (textLine.hasDrawingCharacter()) {
+            textLine.maxCharHeight(maxCharHeight)
+                    .alignment(info.paraShape().getProperty1().getAlignment());
+            info.output().addTextLine(textLine);
+            return true;
         }
-        parts.clear();
-        return saved;
+        return false;
     }
 }
 

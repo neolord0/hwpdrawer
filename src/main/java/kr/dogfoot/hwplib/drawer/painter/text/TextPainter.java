@@ -1,7 +1,8 @@
 package kr.dogfoot.hwplib.drawer.painter.text;
 
+import kr.dogfoot.hwplib.drawer.drawinginfo.interims.text.TextLine;
 import kr.dogfoot.hwplib.drawer.painter.Painter;
-import kr.dogfoot.hwplib.drawer.paragraph.TextPart;
+import kr.dogfoot.hwplib.drawer.drawinginfo.interims.text.TextPart;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfo;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.NormalCharInfo;
@@ -27,6 +28,19 @@ public class TextPainter {
         strikeLinePainter = new StrikeLinePainter(painter);
     }
 
+
+    public void paintTextLines(TextLine[] lines) throws Exception {
+        for (TextLine line : lines) {
+            paintTextLine(line);
+        }
+    }
+
+    private void paintTextLine(TextLine line) throws Exception {
+        for (TextPart part : line) {
+            paintTextPart(part);
+        }
+    }
+
     public void paintTextParts(TextPart[] parts) throws Exception {
         for (TextPart part : parts) {
             paintTextPart(part);
@@ -34,10 +48,10 @@ public class TextPainter {
     }
 
     private void paintTextPart(TextPart part) throws Exception {
-        baseLine = part.area().top() + part.maxCharHeight();
+        baseLine = part.area().top() + part.textLine().maxCharHeight();
         drawingCharShape = null;
 
-        switch (part.alignment()) {
+        switch (part.textLine().alignment()) {
             case Justify:
                 justify(part);
                 break;
@@ -62,7 +76,7 @@ public class TextPainter {
 
     private void justify(TextPart part) throws Exception {
         charX = part.area().left();
-        if (!part.lastLine()) {
+        if (!part.textLine().lastLine()) {
             if (part.spaceCountWithExceptingLastSpace() != 0) {
                 spaceAddings = spaceAddings(part);
                 charAddings = null;
@@ -218,7 +232,7 @@ public class TextPainter {
     }
 
     private void paintUnder_StrikeLine(TextPart part) {
-        underLinePainter.initialize(baseLine, part.maxCharHeight());
+        underLinePainter.initialize(baseLine, part.textLine().maxCharHeight());
         strikeLinePainter.initialize(baseLine);
 
         int count = part.charInfos().size();

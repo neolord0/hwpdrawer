@@ -1,10 +1,10 @@
 package kr.dogfoot.hwplib.drawer.paragraph.control;
 
 import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.ControlOutput;
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.GsoOutput;
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.table.CellOutput;
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.table.TableOutput;
+import kr.dogfoot.hwplib.drawer.drawinginfo.interims.control.ControlOutput;
+import kr.dogfoot.hwplib.drawer.drawinginfo.interims.control.GsoOutput;
+import kr.dogfoot.hwplib.drawer.drawinginfo.interims.control.table.CellOutput;
+import kr.dogfoot.hwplib.drawer.drawinginfo.interims.control.table.TableOutput;
 import kr.dogfoot.hwplib.drawer.paragraph.ParagraphDrawer;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;

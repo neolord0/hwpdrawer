@@ -1,7 +1,7 @@
 package kr.dogfoot.hwplib.drawer.paragraph;
 
 import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.ControlOutput;
+import kr.dogfoot.hwplib.drawer.drawinginfo.interims.control.ControlOutput;
 import kr.dogfoot.hwplib.drawer.painter.PagePainter;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfo;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
@@ -85,8 +85,9 @@ public class ParagraphDrawer {
 
         long endY = currentTextLineArea.top() - info.paragraphArea().top();
         if (paragraph.getHeader().isLastInList()) {
-            endY -= (lineHeight - textLineDrawer.maxCharHeight());
-            height -= (lineHeight - textLineDrawer.maxCharHeight());
+            long lineGap = lineHeight - textLineDrawer.maxCharHeight();
+            endY -= lineGap;
+            height -= lineGap;
         }
 
         info.endParagraph(endY, height);

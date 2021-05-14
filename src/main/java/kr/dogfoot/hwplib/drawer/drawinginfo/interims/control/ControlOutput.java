@@ -1,5 +1,6 @@
-package kr.dogfoot.hwplib.drawer.drawinginfo.interims;
+package kr.dogfoot.hwplib.drawer.drawinginfo.interims.control;
 
+import kr.dogfoot.hwplib.drawer.drawinginfo.interims.Output;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.VertRelTo;
 

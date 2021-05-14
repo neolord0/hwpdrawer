@@ -1,8 +1,8 @@
 package kr.dogfoot.hwplib.drawer.painter.control;
 
 import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.table.CellOutput;
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.table.TableOutput;
+import kr.dogfoot.hwplib.drawer.drawinginfo.interims.control.table.CellOutput;
+import kr.dogfoot.hwplib.drawer.drawinginfo.interims.control.table.TableOutput;
 import kr.dogfoot.hwplib.drawer.painter.Painter;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.control.table.ListHeaderForCell;

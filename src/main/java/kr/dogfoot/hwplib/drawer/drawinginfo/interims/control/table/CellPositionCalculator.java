@@ -1,4 +1,4 @@
-package kr.dogfoot.hwplib.drawer.drawinginfo.interims.table;
+package kr.dogfoot.hwplib.drawer.drawinginfo.interims.control.table;
 
 import java.util.ArrayList;
 

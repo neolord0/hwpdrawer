@@ -2,7 +2,7 @@ package kr.dogfoot.hwplib.drawer.painter;
 
 import kr.dogfoot.hwplib.drawer.DrawingOption;
 import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.FooterOutput;
+import kr.dogfoot.hwplib.drawer.drawinginfo.interims.page.FooterOutput;
 import kr.dogfoot.hwplib.drawer.paragraph.ParagraphDrawer;
 import kr.dogfoot.hwplib.drawer.util.Convertor;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.Paragraph;

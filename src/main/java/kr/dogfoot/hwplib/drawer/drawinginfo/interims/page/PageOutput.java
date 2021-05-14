@@ -1,6 +1,8 @@
-package kr.dogfoot.hwplib.drawer.drawinginfo.interims;
+package kr.dogfoot.hwplib.drawer.drawinginfo.interims.page;
 
 import kr.dogfoot.hwplib.drawer.drawinginfo.PageInfo;
+import kr.dogfoot.hwplib.drawer.drawinginfo.interims.Content;
+import kr.dogfoot.hwplib.drawer.drawinginfo.interims.Output;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
 

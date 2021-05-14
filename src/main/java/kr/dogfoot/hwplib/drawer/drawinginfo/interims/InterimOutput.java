@@ -1,9 +1,15 @@
 package kr.dogfoot.hwplib.drawer.drawinginfo.interims;
 
 import kr.dogfoot.hwplib.drawer.drawinginfo.PageInfo;
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.table.CellOutput;
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.table.TableOutput;
-import kr.dogfoot.hwplib.drawer.paragraph.TextPart;
+import kr.dogfoot.hwplib.drawer.drawinginfo.interims.control.ControlOutput;
+import kr.dogfoot.hwplib.drawer.drawinginfo.interims.control.GsoOutput;
+import kr.dogfoot.hwplib.drawer.drawinginfo.interims.page.FooterOutput;
+import kr.dogfoot.hwplib.drawer.drawinginfo.interims.page.HeaderOutput;
+import kr.dogfoot.hwplib.drawer.drawinginfo.interims.page.PageOutput;
+import kr.dogfoot.hwplib.drawer.drawinginfo.interims.control.table.CellOutput;
+import kr.dogfoot.hwplib.drawer.drawinginfo.interims.control.table.TableOutput;
+import kr.dogfoot.hwplib.drawer.drawinginfo.interims.text.TextLine;
+import kr.dogfoot.hwplib.drawer.drawinginfo.interims.text.TextPart;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlTable;
 import kr.dogfoot.hwplib.object.bodytext.control.gso.GsoControl;
@@ -108,14 +114,11 @@ public class InterimOutput {
             FooterOutput footerOutput = (FooterOutput) current();
             footerOutput.processAtAddingChildOutput(childOutput);
         }
-
-
-
     }
 
-    public void addTextPart(TextPart part) {
+    public void addTextLine(TextLine line) {
         if (current().content() != null) {
-            current().content().addTextPart(part);
+            current().content().addTextLine(line);
         }
     }
 }

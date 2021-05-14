@@ -1,9 +1,10 @@
-package kr.dogfoot.hwplib.drawer.drawinginfo.interims.table;
+package kr.dogfoot.hwplib.drawer.drawinginfo.interims.control.table;
 
 import kr.dogfoot.hwplib.drawer.drawinginfo.interims.Content;
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.ControlOutput;
+import kr.dogfoot.hwplib.drawer.drawinginfo.interims.control.ControlOutput;
 import kr.dogfoot.hwplib.drawer.drawinginfo.interims.Output;
-import kr.dogfoot.hwplib.drawer.paragraph.TextPart;
+import kr.dogfoot.hwplib.drawer.drawinginfo.interims.text.TextLine;
+import kr.dogfoot.hwplib.drawer.drawinginfo.interims.text.TextPart;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.VertRelTo;
@@ -59,9 +60,11 @@ public class CellOutput extends Output {
     public void adjustTextAreaAndVerticalAlignment(Area cellArea, Area textArea) {
         long offsetY = offsetY(textArea, verticalAlignment);
 
-        for (TextPart textPart : content.textParts()) {
-            textPart.area()
-                    .moveY(offsetY);
+        for (TextLine line : content.textLines()) {
+            for (TextPart part : line) {
+                part.area()
+                        .moveY(offsetY);
+            }
         }
 
         move(cellArea.left(), cellArea.top());
@@ -84,8 +87,10 @@ public class CellOutput extends Output {
     public void move(long offsetX, long offsetY) {
         cellArea.move(offsetX, offsetY);
 
-        for (TextPart textPart : content.textParts()) {
-            textPart.area().move(offsetX, offsetY);
+        for (TextLine line : content.textLines()) {
+            for (TextPart part : line) {
+                part.area().move(offsetX, offsetY);
+            }
         }
 
         for (ControlOutput controlOutput : content.behindChildOutputs()) {

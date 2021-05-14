@@ -1,6 +1,8 @@
 package kr.dogfoot.hwplib.drawer.drawinginfo.interims;
 
-import kr.dogfoot.hwplib.drawer.paragraph.TextPart;
+import kr.dogfoot.hwplib.drawer.drawinginfo.interims.control.ControlOutput;
+import kr.dogfoot.hwplib.drawer.drawinginfo.interims.text.TextLine;
+import kr.dogfoot.hwplib.drawer.drawinginfo.interims.text.TextPart;
 import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
 
 import java.util.ArrayList;
@@ -8,27 +10,27 @@ import java.util.Set;
 import java.util.TreeSet;
 
 public class Content {
-    private final ArrayList<TextPart> textParts;
+    private final ArrayList<TextLine> lines;
     private final TreeSet<ControlOutput> behindChildOutputs;
     private final TreeSet<ControlOutput> nonBehindChildOutputs;
 
     public Content() {
-        textParts = new ArrayList<>();
+        lines = new ArrayList<>();
         behindChildOutputs = new TreeSet<>();
         nonBehindChildOutputs = new TreeSet<>();
     }
 
-    public void addTextPart(TextPart textPart) {
-        textParts.add(textPart);
+    public void addTextLine(TextLine line) {
+        lines.add(line);
     }
 
-    public TextPart[] textParts() {
-        return textParts.toArray(TextPart.Zero_Array);
+    public TextLine[] textLines() {
+        return lines.toArray(TextLine.Zero_Array);
     }
 
     public void setLastTextPartToLastLine() {
-        if (textParts.size() > 0) {
-            textParts.get(textParts.size() - 1).lastLine(true);
+        if (lines.size() > 0) {
+            lines.get(lines.size() - 1).lastLine(true);
         }
     }
 
@@ -50,12 +52,12 @@ public class Content {
 
     public String test(int tabCount) {
         MyStringBuilder sb = new MyStringBuilder();
-        if (textParts.size() > 0) {
-            sb.tab(tabCount).append("textParts - {\n");
-            for (TextPart part : textParts) {
-                sb.append(part.test(tabCount + 1));
+        if (lines.size() > 0) {
+            sb.tab(tabCount).append("textLines - {\n");
+            for (TextLine line : lines) {
+                sb.append(line.test(tabCount + 1));
             }
-            sb.tab(tabCount).append("textParts - }\n");
+            sb.tab(tabCount).append("textLines - }\n");
         }
 
         if (behindChildOutputs.size() > 0) {
@@ -77,3 +79,4 @@ public class Content {
         return sb.toString();
     }
 }
+

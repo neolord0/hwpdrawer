@@ -1,6 +1,8 @@
-package kr.dogfoot.hwplib.drawer.drawinginfo.interims;
+package kr.dogfoot.hwplib.drawer.drawinginfo.interims.control;
 
-import kr.dogfoot.hwplib.drawer.paragraph.TextPart;
+import kr.dogfoot.hwplib.drawer.drawinginfo.interims.Content;
+import kr.dogfoot.hwplib.drawer.drawinginfo.interims.text.TextLine;
+import kr.dogfoot.hwplib.drawer.drawinginfo.interims.text.TextPart;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.VertRelTo;
@@ -99,8 +101,10 @@ public class GsoOutput extends ControlOutput {
         Area textArea = textArea();
         long offsetY = offsetY(textArea, verticalAlignment);
 
-        for (TextPart textPart : content.textParts()) {
-            textPart.area().move(textArea.left(), textArea.top() + offsetY);
+        for (TextLine line : content.textLines()) {
+            for (TextPart part : line) {
+                part.area().move(textArea.left(), textArea.top() + offsetY);
+            }
         }
 
         move(textArea.left(), textArea.top() + offsetY);

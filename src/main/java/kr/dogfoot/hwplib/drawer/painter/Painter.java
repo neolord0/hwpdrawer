@@ -158,7 +158,7 @@ public class Painter {
 
     public void paintContent(Content content) throws Exception {
         controlPainter.paintControls(content.behindChildOutputs());
-        textPainter.paintTextParts(content.textParts());
+        textPainter.paintTextLines(content.textLines());
         controlPainter.paintControls(content.nonBehindChildOutputs());
     }
 

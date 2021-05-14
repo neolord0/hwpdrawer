@@ -1,9 +1,9 @@
 package kr.dogfoot.hwplib.drawer.painter.control;
 
 import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.ControlOutput;
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.GsoOutput;
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.table.TableOutput;
+import kr.dogfoot.hwplib.drawer.drawinginfo.interims.control.ControlOutput;
+import kr.dogfoot.hwplib.drawer.drawinginfo.interims.control.GsoOutput;
+import kr.dogfoot.hwplib.drawer.drawinginfo.interims.control.table.TableOutput;
 import kr.dogfoot.hwplib.drawer.painter.Painter;
 
 import java.util.Set;

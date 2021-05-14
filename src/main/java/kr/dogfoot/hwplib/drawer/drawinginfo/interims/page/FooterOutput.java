@@ -1,6 +1,10 @@
-package kr.dogfoot.hwplib.drawer.drawinginfo.interims;
+package kr.dogfoot.hwplib.drawer.drawinginfo.interims.page;
 
-import kr.dogfoot.hwplib.drawer.paragraph.TextPart;
+import kr.dogfoot.hwplib.drawer.drawinginfo.interims.Content;
+import kr.dogfoot.hwplib.drawer.drawinginfo.interims.control.ControlOutput;
+import kr.dogfoot.hwplib.drawer.drawinginfo.interims.Output;
+import kr.dogfoot.hwplib.drawer.drawinginfo.interims.text.TextLine;
+import kr.dogfoot.hwplib.drawer.drawinginfo.interims.text.TextPart;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.VertRelTo;
@@ -31,9 +35,12 @@ public class FooterOutput extends Output {
 
     public void adjustFooterArea() {
         long offsetY = offsetY();
-        for (TextPart textPart : content.textParts()) {
-            textPart.area().move(footerArea.left(), footerArea.top() + offsetY);
+        for (TextLine line : content.textLines()) {
+            for (TextPart part : line) {
+                part.area().move(footerArea.left(), footerArea.top() + offsetY);
+            }
         }
+
         for (ControlOutput controlOutput : content.behindChildOutputs()) {
             if (controlOutput.vertRelTo() == VertRelTo.Para) {
                 controlOutput.move(footerArea.left(), footerArea.top() + offsetY);
