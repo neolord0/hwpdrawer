@@ -217,12 +217,12 @@ public class ParagraphDrawer {
     private void startRecalculating() {
         wordSplitter.resetWord();
 
-
         currentTextLineArea = recalculatingTextAreas.poll();
 
+        long partStartX = currentTextLineArea.left() - storedTextLineArea.left();
         textLineDrawer
                 .reset(storedTextLineArea)
-                .addNewTextPart(currentTextLineArea.left() - storedTextLineArea.left(), currentTextLineArea.width());
+                .addNewTextPart(partStartX, currentTextLineArea.width());
 
         info.gotoCharPosition(lineFirstCharIndex, lineFirstCharPosition);
     }
@@ -339,11 +339,11 @@ public class ParagraphDrawer {
             currentTextLineArea.top(info.pageInfo().bodyArea().top());
 
             if (textLineDrawer.noDrawingCharacter()) {
-                textLineDrawer.textLine().clear();
                 textLineDrawer
+                        .clearTextLine()
                         .addNewTextPart(0, currentTextLineArea.width());
             } else {
-                textLineDrawer.textLine().area(new Area(currentTextLineArea));
+                textLineDrawer.textLineArea(new Area(currentTextLineArea));
                 saveTextLine();
                 nextArea();
             }
@@ -393,7 +393,7 @@ public class ParagraphDrawer {
                     .moveY(result.offsetY());
             cancelNewLine = result.cancelNewLine() && textLineDrawer.noDrawingCharacter();
 
-            textLineDrawer.textLine().area(new Area(currentTextLineArea));
+            textLineDrawer.textLineArea(new Area(currentTextLineArea));
             drawingState = result.nextState();
 
             if (drawingState == DrawingState.StartRecalculating) {
@@ -430,6 +430,7 @@ public class ParagraphDrawer {
             case Normal:
             case StartRedrawing:
                 if (firstLine) {
+
                     currentTextLineArea.left(currentTextLineArea.left() - info.paraShape().getIndent() / 2);
                     firstLine = false;
                 }
@@ -443,9 +444,9 @@ public class ParagraphDrawer {
                 break;
             case Recalculating:
                 currentTextLineArea = recalculatingTextAreas.poll();
+                long partStartX = currentTextLineArea.left() - storedTextLineArea.left();
                 textLineDrawer
-                        .resetPart()
-                        .addNewTextPart(currentTextLineArea.left() - storedTextLineArea.left() , currentTextLineArea.width());
+                        .addNewTextPart(partStartX, currentTextLineArea.width());
                 break;
             case EndRecalculating:
                 currentTextLineArea = storedTextLineArea.moveY(lineHeight);

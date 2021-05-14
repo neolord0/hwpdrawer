@@ -35,20 +35,25 @@ public class TextLineDrawer {
 
         maxCharHeight = 0;
         maxBaseSize = 0;
-        resetPart();
-
-        return this;
-    }
-
-    public TextLineDrawer resetPart() {
-        wordsWidth = 0;
-        spacesWidth = 0;
         justNewLine = true;
+
         return this;
     }
 
     public void addNewTextPart(long startX, long width) {
         textLine.addNewTextPart(startX, width);
+
+        wordsWidth = 0;
+        spacesWidth = 0;
+    }
+
+    public TextLineDrawer clearTextLine() {
+        textLine.clear();
+        return this;
+    }
+
+    public void textLineArea(Area area) {
+        textLine.area(area);
     }
 
     public boolean justNewLine() {
@@ -124,18 +129,6 @@ public class TextLineDrawer {
         textLine.currentTextPart().spaceRate((double) (textLine.currentTextPart().width() - wordsWidth) / (double) spacesWidth);
     }
 
-    /*
-    public Area area() {
-        return textLine.currentTextPart().area();
-    }
-
-    public TextLineDrawer area(Area textLineArea) {
-        textLine.currentTextPart().area(new Area(textLineArea));
-        return this;
-    }
-
-     */
-
     public boolean saveToOutput() {
         if (textLine.hasDrawingCharacter()) {
             textLine.maxCharHeight(maxCharHeight)
@@ -144,10 +137,6 @@ public class TextLineDrawer {
             return true;
         }
         return false;
-    }
-
-    public TextLine textLine() {
-        return textLine;
     }
 }
 
