@@ -5,6 +5,7 @@ import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.NormalCharInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
+import kr.dogfoot.hwplib.object.docinfo.parashape.Alignment;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -13,23 +14,49 @@ public class TextPart {
     public static final TextPart[] Zero_Array = new TextPart[0];
 
     private TextLine textLine;
-    private Area area;
+    private long startX;
+    private long width;
 
     private final ArrayList<CharInfo> charInfos;
     private int spaceCount;
     private double spaceRate;
 
-    public TextPart(TextLine textLine, Area area) {
+    public TextPart(TextLine textLine, long startX, long width) {
         this.textLine = textLine;
-        this.area = area;
+        this.startX = startX;
+        this.width = width;
 
         charInfos = new ArrayList<>();
         spaceCount = 0;
         spaceRate = 1.0;
     }
 
-    public TextLine textLine() {
-        return textLine;
+    public Area textLineArea() {
+        return textLine.area();
+    }
+
+    public Alignment alignment() {
+        return textLine.alignment();
+    }
+
+    public boolean lastLine() {
+        return textLine.lastLine();
+    }
+
+    public long maxCharHeight() {
+        return textLine.maxCharHeight();
+    }
+
+    public long startX() {
+        return startX;
+    }
+
+    public long width() {
+        return width;
+    }
+
+    public long endX() {
+        return startX + width;
     }
 
     public ArrayList<CharInfo> charInfos() {
@@ -57,14 +84,6 @@ public class TextPart {
         return spaceCount;
     }
 
-    public Area area() {
-        return area;
-    }
-
-    public void area(Area textLineArea) {
-        this.area = textLineArea;
-    }
-
     public double spaceRate() {
         return spaceRate;
     }
@@ -72,6 +91,7 @@ public class TextPart {
     public void spaceRate(double spaceRate) {
         this.spaceRate = spaceRate;
     }
+
 
     public long textWidthWithExceptingLastSpace() {
         long width = 0;
@@ -103,8 +123,7 @@ public class TextPart {
     public String test(int tabCount) {
         MyStringBuilder sb = new MyStringBuilder();
 
-        sb.tab(tabCount).append("{ ").append(area).append("\n");
-        sb.tab(tabCount + 1);
+        sb.tab(tabCount).append("{ ").append(Long.toString(startX)).append(",").append(Long.toString(width)).append(" : ");
         for (CharInfo charInfo : charInfos) {
             if (charInfo.type() == CharInfo.Type.Normal) {
                 NormalCharInfo normalCharInfo = (NormalCharInfo) charInfo;
@@ -131,8 +150,8 @@ public class TextPart {
 
             }
         }
-        sb.append("\n");
-        sb.tab(tabCount).append("}").append("\n");
+        sb.append(" }");
         return sb.toString();
     }
+
 }

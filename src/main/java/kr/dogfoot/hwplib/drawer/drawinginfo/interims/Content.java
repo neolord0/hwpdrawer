@@ -55,7 +55,7 @@ public class Content {
         if (lines.size() > 0) {
             sb.tab(tabCount).append("textLines - {\n");
             for (TextLine line : lines) {
-                sb.append(line.test(tabCount + 1));
+                sb.append(line.test(tabCount + 1)).append("\n");
             }
             sb.tab(tabCount).append("textLines - }\n");
         }

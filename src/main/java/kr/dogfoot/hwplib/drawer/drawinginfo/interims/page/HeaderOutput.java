@@ -23,9 +23,7 @@ public class HeaderOutput extends Output {
 
     public void adjustHeaderArea() {
         for (TextLine line : content.textLines()) {
-            for (TextPart part : line) {
-                part.area().move(headerArea.left(), headerArea.top());
-            }
+            line.area().move(headerArea.left(), headerArea.top());
         }
 
         for (ControlOutput controlOutput : content.behindChildOutputs()) {

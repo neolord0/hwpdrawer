@@ -101,7 +101,7 @@ public class WordSplitter {
 
     private void addEachLanguageWordToLine(ArrayList<CharInfo> wordChars, long wordWidth) throws Exception {
         if (wordChars.size() > 0) {
-            if (!textLineDrawer.isOverRight(wordWidth, true)) {
+            if (!textLineDrawer.isOverWidth(wordWidth, true)) {
                 addWordAllCharsToLine(wordChars, false);
             } else {
                 hasNewLine = true;

@@ -106,8 +106,8 @@ public class ParagraphDrawer {
         }
 
         textLineDrawer
-                .initialize()
-                .addNewTextPart(currentTextLineArea);
+                .initialize(currentTextLineArea)
+                .addNewTextPart(0, currentTextLineArea.width());
         firstLine = true;
         height = 0;
 
@@ -217,10 +217,12 @@ public class ParagraphDrawer {
     private void startRecalculating() {
         wordSplitter.resetWord();
 
+
         currentTextLineArea = recalculatingTextAreas.poll();
+
         textLineDrawer
-                .reset()
-                .addNewTextPart(currentTextLineArea);
+                .reset(storedTextLineArea)
+                .addNewTextPart(currentTextLineArea.left() - storedTextLineArea.left(), currentTextLineArea.width());
 
         info.gotoCharPosition(lineFirstCharIndex, lineFirstCharPosition);
     }
@@ -229,8 +231,8 @@ public class ParagraphDrawer {
         wordSplitter.resetWord();
 
         textLineDrawer
-                .reset()
-                .addNewTextPart(currentTextLineArea);
+                .reset(currentTextLineArea)
+                .addNewTextPart(0, currentTextLineArea.width());
 
         info.gotoCharPosition(lineFirstCharIndex, lineFirstCharPosition);
     }
@@ -248,12 +250,12 @@ public class ParagraphDrawer {
             addSpaceCharToLine(spaceCharInfo);
             return;
         }
-        if (!textLineDrawer.isOverRight(wordSplitter.wordWidth(), false)) {
+        if (!textLineDrawer.isOverWidth(wordSplitter.wordWidth(), false)) {
             addWordAllCharsToLine(wordSplitter.charsOfWord(), false, false);
             addSpaceCharToLine(spaceCharInfo);
             wordSplitter.resetWord();
         } else {
-            if (!textLineDrawer.isOverRight(wordSplitter.wordWidth(), true)) {
+            if (!textLineDrawer.isOverWidth(wordSplitter.wordWidth(), true)) {
                 addWordAllCharsToLine(wordSplitter.charsOfWord(), false, true);
                 wordSplitter.resetWord();
 
@@ -279,7 +281,7 @@ public class ParagraphDrawer {
 
     public boolean addCharToLine(CharInfo charInfo, boolean checkOverRight, boolean applyMinimumSpace) throws Exception {
         boolean hasNewLine;
-        if (checkOverRight && textLineDrawer.isOverRight(charInfo.width(), applyMinimumSpace)) {
+        if (checkOverRight && textLineDrawer.isOverWidth(charInfo.width(), applyMinimumSpace)) {
             if (applyMinimumSpace) {
                 textLineDrawer.setBestSpaceRate();
             }
@@ -337,10 +339,11 @@ public class ParagraphDrawer {
             currentTextLineArea.top(info.pageInfo().bodyArea().top());
 
             if (textLineDrawer.noDrawingCharacter()) {
+                textLineDrawer.textLine().clear();
                 textLineDrawer
-                        .addNewTextPart(currentTextLineArea);
+                        .addNewTextPart(0, currentTextLineArea.width());
             } else {
-                textLineDrawer.area(currentTextLineArea);
+                textLineDrawer.textLine().area(new Area(currentTextLineArea));
                 saveTextLine();
                 nextArea();
             }
@@ -390,7 +393,7 @@ public class ParagraphDrawer {
                     .moveY(result.offsetY());
             cancelNewLine = result.cancelNewLine() && textLineDrawer.noDrawingCharacter();
 
-            textLineDrawer.area(currentTextLineArea);
+            textLineDrawer.textLine().area(new Area(currentTextLineArea));
             drawingState = result.nextState();
 
             if (drawingState == DrawingState.StartRecalculating) {
@@ -435,14 +438,14 @@ public class ParagraphDrawer {
                     height += lineHeight;
                 }
                 textLineDrawer
-                        .reset()
-                        .addNewTextPart(currentTextLineArea);
+                        .reset(currentTextLineArea)
+                        .addNewTextPart(0, currentTextLineArea.width());
                 break;
             case Recalculating:
                 currentTextLineArea = recalculatingTextAreas.poll();
                 textLineDrawer
                         .resetPart()
-                        .addNewTextPart(currentTextLineArea);
+                        .addNewTextPart(currentTextLineArea.left() - storedTextLineArea.left() , currentTextLineArea.width());
                 break;
             case EndRecalculating:
                 currentTextLineArea = storedTextLineArea.moveY(lineHeight);
@@ -454,8 +457,8 @@ public class ParagraphDrawer {
                 }
 
                 textLineDrawer
-                        .reset()
-                        .addNewTextPart(currentTextLineArea);
+                        .reset(currentTextLineArea)
+                        .addNewTextPart(0, currentTextLineArea.width());
                 break;
         }
     }

@@ -61,10 +61,7 @@ public class CellOutput extends Output {
         long offsetY = offsetY(textArea, verticalAlignment);
 
         for (TextLine line : content.textLines()) {
-            for (TextPart part : line) {
-                part.area()
-                        .moveY(offsetY);
-            }
+            line.area().moveY(offsetY);
         }
 
         move(cellArea.left(), cellArea.top());
@@ -88,9 +85,7 @@ public class CellOutput extends Output {
         cellArea.move(offsetX, offsetY);
 
         for (TextLine line : content.textLines()) {
-            for (TextPart part : line) {
-                part.area().move(offsetX, offsetY);
-            }
+            line.area().move(offsetX, offsetY);
         }
 
         for (ControlOutput controlOutput : content.behindChildOutputs()) {

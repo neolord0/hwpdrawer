@@ -102,9 +102,7 @@ public class GsoOutput extends ControlOutput {
         long offsetY = offsetY(textArea, verticalAlignment);
 
         for (TextLine line : content.textLines()) {
-            for (TextPart part : line) {
-                part.area().move(textArea.left(), textArea.top() + offsetY);
-            }
+            line.area().move(textArea.left(), textArea.top() + offsetY);
         }
 
         move(textArea.left(), textArea.top() + offsetY);

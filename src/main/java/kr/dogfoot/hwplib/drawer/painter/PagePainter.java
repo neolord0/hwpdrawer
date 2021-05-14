@@ -38,7 +38,7 @@ public class PagePainter {
             drawFooter();
         }
 
-        System.out.println(info.output().page().test(0));
+        // System.out.println(info.output().page().test(0));
 
         BufferedImage pageImage = createPageImage();
         painter

@@ -10,6 +10,8 @@ import java.util.Iterator;
 public class TextLine implements Iterable<TextPart> {
     public static final TextLine[] Zero_Array = new TextLine[0];
 
+    private Area area;
+
     private ArrayList<TextPart> parts;
     private TextPart currentTextPart;
 
@@ -18,7 +20,9 @@ public class TextLine implements Iterable<TextPart> {
     private boolean lastLine;
     private boolean hasDrawingCharacter;
 
-    public TextLine() {
+    public TextLine(Area area) {
+        this.area = area;
+
         parts = new ArrayList<>();
         currentTextPart = null;
 
@@ -28,8 +32,16 @@ public class TextLine implements Iterable<TextPart> {
         hasDrawingCharacter = false;
     }
 
-    public void addNewTextPart(Area textPartArea) {
-        TextPart textPart = new TextPart(this, new Area(textPartArea));
+    public Area area() {
+        return area;
+    }
+
+    public void area(Area area) {
+        this.area = area;
+    }
+
+    public void addNewTextPart(long startX, long width) {
+        TextPart textPart = new TextPart(this, startX, width);
 
         parts.add(textPart);
         currentTextPart = textPart;
@@ -84,10 +96,15 @@ public class TextLine implements Iterable<TextPart> {
         MyStringBuilder sb = new MyStringBuilder();
         if (parts.size() > 0) {
             for (TextPart part : parts) {
-                sb.append(part.test(tabCount));
+                sb.append(part.test(tabCount)).append(", ");
             }
         }
         return sb.toString();
+    }
+
+    public void clear() {
+        parts.clear();
+        currentTextPart = null;
     }
 }
 

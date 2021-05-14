@@ -36,9 +36,7 @@ public class FooterOutput extends Output {
     public void adjustFooterArea() {
         long offsetY = offsetY();
         for (TextLine line : content.textLines()) {
-            for (TextPart part : line) {
-                part.area().move(footerArea.left(), footerArea.top() + offsetY);
-            }
+            line.area().move(footerArea.left(), footerArea.top() + offsetY);
         }
 
         for (ControlOutput controlOutput : content.behindChildOutputs()) {

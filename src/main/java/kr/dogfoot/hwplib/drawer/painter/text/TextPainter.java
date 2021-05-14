@@ -28,7 +28,6 @@ public class TextPainter {
         strikeLinePainter = new StrikeLinePainter(painter);
     }
 
-
     public void paintTextLines(TextLine[] lines) throws Exception {
         for (TextLine line : lines) {
             paintTextLine(line);
@@ -41,17 +40,11 @@ public class TextPainter {
         }
     }
 
-    public void paintTextParts(TextPart[] parts) throws Exception {
-        for (TextPart part : parts) {
-            paintTextPart(part);
-        }
-    }
-
     private void paintTextPart(TextPart part) throws Exception {
-        baseLine = part.area().top() + part.textLine().maxCharHeight();
+        baseLine = part.textLineArea().top() + part.maxCharHeight();
         drawingCharShape = null;
 
-        switch (part.textLine().alignment()) {
+        switch (part.alignment()) {
             case Justify:
                 justify(part);
                 break;
@@ -75,8 +68,8 @@ public class TextPainter {
     }
 
     private void justify(TextPart part) throws Exception {
-        charX = part.area().left();
-        if (!part.textLine().lastLine()) {
+        charX = part.textLineArea().left() + part.startX();
+        if (!part.lastLine()) {
             if (part.spaceCountWithExceptingLastSpace() != 0) {
                 spaceAddings = spaceAddings(part);
                 charAddings = null;
@@ -92,7 +85,7 @@ public class TextPainter {
     }
 
     private long[] spaceAddings(TextPart part) {
-        long extra = part.area().width() - part.textWidthWithExceptingLastSpace();
+        long extra = part.width() - part.textWidthWithExceptingLastSpace();
         int spaceCount = part.spaceCountWithExceptingLastSpace();
         if (spaceCount == 0) {
             return null;
@@ -115,7 +108,7 @@ public class TextPainter {
     }
 
     private long[] charAddings(TextPart part) {
-        long extra = part.area().width() - part.textWidthWithExceptingLastSpace();
+        long extra = part.width() - part.textWidthWithExceptingLastSpace();
         int charCount = part.charCountWithExceptingLastSpace() - 1;
         if (charCount <= 0) {
             return null;
@@ -134,35 +127,35 @@ public class TextPainter {
     }
 
     private void left(TextPart part) throws Exception {
-        charX = part.area().left();
+        charX = part.textLineArea().left() + part.startX();
         spaceAddings = null;
         charAddings = null;
         paintInOrder(part);
     }
 
     private void right(TextPart part) throws Exception {
-        charX = part.area().right() - part.textWidthWithExceptingLastSpace();
+        charX = part.textLineArea().left() + part.endX() - part.textWidthWithExceptingLastSpace();
         spaceAddings = null;
         charAddings = null;
         paintInOrder(part);
     }
 
     private void center(TextPart part) throws Exception {
-        charX = part.area().left() + (part.area().width() - part.textWidthWithExceptingLastSpace()) / 2;
+        charX = part.textLineArea().left() + part.startX() + (part.width() - part.textWidthWithExceptingLastSpace()) / 2;
         spaceAddings = null;
         charAddings = null;
         paintInOrder(part);
     }
 
     private void distribute(TextPart part) throws Exception {
-        charX = part.area().left();
+        charX = part.textLineArea().left() + part.startX();
         spaceAddings = null;
         charAddings = charAddings(part);
         paintInOrder(part);
     }
 
     private void divide(TextPart part) throws Exception {
-        charX = part.area().left();
+        charX = part.textLineArea().left() + part.startX();
         spaceAddings = spaceAddings(part);
         charAddings = null;
         paintInOrder(part);
@@ -222,7 +215,7 @@ public class TextPainter {
     private Area controlArea(TextPart part, ControlCharInfo controlCharInfo) {
         return controlCharInfo.areaWithoutOuterMargin().widthHeight()
                 .move(controlCharInfo.x() - (controlCharInfo.areaWithOuterMargin().left() - controlCharInfo.areaWithoutOuterMargin().left()),
-                        part.area().bottom() - controlCharInfo.areaWithoutOuterMargin().height() - (controlCharInfo.areaWithOuterMargin().bottom() - controlCharInfo.areaWithoutOuterMargin().bottom()));
+                        part.textLineArea().bottom() - controlCharInfo.areaWithoutOuterMargin().height() - (controlCharInfo.areaWithOuterMargin().bottom() - controlCharInfo.areaWithoutOuterMargin().bottom()));
     }
 
     private long getY(CharInfo charInfo) {
@@ -232,7 +225,7 @@ public class TextPainter {
     }
 
     private void paintUnder_StrikeLine(TextPart part) {
-        underLinePainter.initialize(baseLine, part.textLine().maxCharHeight());
+        underLinePainter.initialize(baseLine, part.maxCharHeight());
         strikeLinePainter.initialize(baseLine);
 
         int count = part.charInfos().size();

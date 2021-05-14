@@ -22,16 +22,16 @@ public class TextLineDrawer {
         this.info = info;
     }
 
-    public TextLineDrawer initialize() {
-        reset();
+    public TextLineDrawer initialize(Area area) {
+        reset(area);
         wordsWidth = 0;
         spacesWidth = 0;
         justNewLine = false;
         return this;
     }
 
-    public TextLineDrawer reset() {
-        textLine = new TextLine();
+    public TextLineDrawer reset(Area area) {
+        textLine = new TextLine(new Area(area));
 
         maxCharHeight = 0;
         maxBaseSize = 0;
@@ -47,8 +47,8 @@ public class TextLineDrawer {
         return this;
     }
 
-    public void addNewTextPart(Area textPartArea) {
-        textLine.addNewTextPart(textPartArea);
+    public void addNewTextPart(long startX, long width) {
+        textLine.addNewTextPart(startX, width);
     }
 
     public boolean justNewLine() {
@@ -71,16 +71,16 @@ public class TextLineDrawer {
         }
     }
 
-    public boolean isOverRight(double width, boolean applyMinimumSpace) {
-        return currentTextX(applyMinimumSpace) + width > textLine.currentTextPart().area().right();
+    public boolean isOverWidth(double width, boolean applyMinimumSpace) {
+        return currentTextX(applyMinimumSpace) + width > textLine.currentTextPart().width();
     }
 
     private long currentTextX(boolean applyMinimumSpace) {
         if (applyMinimumSpace) {
             long minimumSpace = spacesWidth * (100 - info.paraShape().getProperty1().getMinimumSpace()) / 100;
-            return wordsWidth + minimumSpace + textLine.currentTextPart().area().left();
+            return wordsWidth + minimumSpace;
         } else {
-            return wordsWidth + spacesWidth + textLine.currentTextPart().area().left();
+            return wordsWidth + spacesWidth;
         }
     }
 
@@ -121,9 +121,10 @@ public class TextLineDrawer {
     }
 
     public void setBestSpaceRate() {
-        textLine.currentTextPart().spaceRate((double) (textLine.currentTextPart().area().width() - wordsWidth) / (double) spacesWidth);
+        textLine.currentTextPart().spaceRate((double) (textLine.currentTextPart().width() - wordsWidth) / (double) spacesWidth);
     }
 
+    /*
     public Area area() {
         return textLine.currentTextPart().area();
     }
@@ -133,6 +134,8 @@ public class TextLineDrawer {
         return this;
     }
 
+     */
+
     public boolean saveToOutput() {
         if (textLine.hasDrawingCharacter()) {
             textLine.maxCharHeight(maxCharHeight)
@@ -141,6 +144,10 @@ public class TextLineDrawer {
             return true;
         }
         return false;
+    }
+
+    public TextLine textLine() {
+        return textLine;
     }
 }
 
