@@ -71,6 +71,11 @@ public class ControllTest {
     }
 
     @Test
+    public void test_본문과의_배치_어울림7() throws Exception {
+        HWPTester.test("testingHWP" + File.separator + "컨트롤" + File.separator + "본문과의 배치" + File.separator + "어울림7");
+    }
+
+    @Test
     public void test_본문과의_배치_어울림_자리차지() throws Exception {
         HWPTester.testAndCompare("testingHWP" + File.separator + "컨트롤" + File.separator + "본문과의 배치" + File.separator + "어울림_자리차지");
     }
