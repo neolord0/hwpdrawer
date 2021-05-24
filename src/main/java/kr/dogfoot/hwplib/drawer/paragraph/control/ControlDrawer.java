@@ -1,10 +1,11 @@
 package kr.dogfoot.hwplib.drawer.paragraph.control;
 
-import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.control.ControlOutput;
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.control.GsoOutput;
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.control.table.CellOutput;
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.control.table.TableOutput;
+import kr.dogfoot.hwplib.drawer.input.DrawingInput;
+import kr.dogfoot.hwplib.drawer.interimoutput.InterimOutput;
+import kr.dogfoot.hwplib.drawer.interimoutput.control.ControlOutput;
+import kr.dogfoot.hwplib.drawer.interimoutput.control.GsoOutput;
+import kr.dogfoot.hwplib.drawer.interimoutput.control.table.CellOutput;
+import kr.dogfoot.hwplib.drawer.interimoutput.control.table.TableOutput;
 import kr.dogfoot.hwplib.drawer.paragraph.ParagraphDrawer;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
@@ -13,14 +14,15 @@ import kr.dogfoot.hwplib.object.bodytext.control.gso.*;
 import kr.dogfoot.hwplib.object.bodytext.control.gso.textbox.TextBox;
 import kr.dogfoot.hwplib.object.bodytext.control.table.Cell;
 import kr.dogfoot.hwplib.object.bodytext.control.table.Row;
-import kr.dogfoot.hwplib.object.bodytext.paragraph.Paragraph;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.ParagraphList;
 
 public class ControlDrawer {
-    private final DrawingInfo info;
+    private final DrawingInput input;
+    private final InterimOutput output;
 
-    public ControlDrawer(DrawingInfo info) {
-        this.info = info;
+    public ControlDrawer(DrawingInput input, InterimOutput output) {
+        this.input = input;
+        this.output = output;
     }
 
     public ControlOutput draw(ControlCharInfo controlCharInfo) throws Exception {
@@ -63,10 +65,10 @@ public class ControlDrawer {
     }
 
     private GsoOutput rectangle(ControlRectangle rectangle, Area controlArea) throws Exception {
-        GsoOutput output = info.output().startGso(rectangle, controlArea);
+        GsoOutput output2 = output.startGso(rectangle, controlArea);
         TextBox textBox = rectangle.getTextBox();
         if (rectangle.getTextBox() != null) {
-            output
+            output2
                     .textMargin(
                             textBox.getListHeader().getLeftMargin(),
                             textBox.getListHeader().getTopMargin(),
@@ -74,12 +76,12 @@ public class ControlDrawer {
                             textBox.getListHeader().getBottomMargin())
                     .verticalAlignment(textBox.getListHeader().getProperty().getTextVerticalAlignment());
 
-            long calculatedContentHeight = drawTextBox(textBox.getParagraphList(), output.textArea().widthHeight());
-            output.calculatedContentHeight(calculatedContentHeight);
+            long calculatedContentHeight = drawTextBox(textBox.getParagraphList(), output2.textArea().widthHeight());
+            output2.calculatedContentHeight(calculatedContentHeight);
         }
 
-        info.output().endGso();
-        return output;
+        output.endGso();
+        return output2;
     }
 
 
@@ -100,10 +102,10 @@ public class ControlDrawer {
     }
 
     private GsoOutput picture(ControlPicture picture, Area controlArea) {
-        GsoOutput output = info.output().startGso(picture, controlArea);
+        GsoOutput output2 = output.startGso(picture, controlArea);
 
-        info.output().endGso();
-        return output;
+        output.endGso();
+        return output2;
     }
 
     private GsoOutput ole(ControlOLE ole, Area controlArea) {
@@ -111,10 +113,10 @@ public class ControlDrawer {
     }
 
     private GsoOutput container(ControlContainer container, Area controlArea) {
-        GsoOutput output = info.output().startGso(container, controlArea);
+        GsoOutput output2 = output.startGso(container, controlArea);
 
-        info.output().endGso();
-        return output;
+        output.endGso();
+        return output2;
     }
 
     private GsoOutput objectLinkLine(ControlObjectLinkLine objectLinkLine, Area controlArea) {
@@ -122,24 +124,24 @@ public class ControlDrawer {
     }
 
     private TableOutput table(ControlTable table, Area controlArea) throws Exception {
-        TableOutput output = info.output().startTable(table, controlArea);
+        TableOutput output2 = output.startTable(table, controlArea);
 
         for(Row row : table.getRowList()) {
             for (Cell cell : row.getCellList()) {
-                drawCell(cell, output);
+                drawCell(cell, output2);
             }
         }
 
-        output.calculateCellPosition();
+        output2.calculateCellPosition();
 
-        info.output().endTable();
-        return output;
+        output.endTable();
+        return output2;
     }
 
     private void drawCell(Cell cell, TableOutput tableOutput) throws Exception {
-        CellOutput cellOutput = info.output().startCell(cell, tableOutput);
+        CellOutput output2 = output.startCell(cell, tableOutput);
         if (cell.getParagraphList() != null) {
-            cellOutput
+            output2
                     .textMargin(
                             cell.getListHeader().getLeftMargin(),
                             cell.getListHeader().getTopMargin(),
@@ -147,23 +149,22 @@ public class ControlDrawer {
                             cell.getListHeader().getBottomMargin())
                     .verticalAlignment(cell.getListHeader().getProperty().getTextVerticalAlignment());
 
-            long calculatedContentHeight = drawTextBox(cell.getParagraphList(), cellOutput.textArea());
-            cellOutput.calculatedContentHeight(calculatedContentHeight);
+            long calculatedContentHeight = drawTextBox(cell.getParagraphList(), output2.textArea());
+            output2.calculatedContentHeight(calculatedContentHeight);
 
         }
-        tableOutput.addCell(cellOutput);
-        info.output().endCell();
+        tableOutput.addCell(output2);
+        output.endCell();
     }
 
     private long drawTextBox(ParagraphList paragraphList, Area textArea) throws Exception {
-        info.startControlParagraphList(textArea);
+        input.startControlParaList(textArea, paragraphList.getParagraphs());
 
-        ParagraphDrawer paragraphDrawer = new ParagraphDrawer(info);
-
-        for (Paragraph paragraph : paragraphList) {
-            paragraphDrawer.draw(paragraph);
+        ParagraphDrawer paragraphDrawer = new ParagraphDrawer(input, output);
+        while (input.nextPara()) {
+            paragraphDrawer.draw(false);
         }
 
-        return info.endControlParagraphList();
+        return input.endControlParaList();
     }
 }

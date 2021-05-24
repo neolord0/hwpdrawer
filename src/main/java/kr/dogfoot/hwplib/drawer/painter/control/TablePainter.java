@@ -1,8 +1,8 @@
 package kr.dogfoot.hwplib.drawer.painter.control;
 
-import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.control.table.CellOutput;
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.control.table.TableOutput;
+import kr.dogfoot.hwplib.drawer.input.DrawingInput;
+import kr.dogfoot.hwplib.drawer.interimoutput.control.table.CellOutput;
+import kr.dogfoot.hwplib.drawer.interimoutput.control.table.TableOutput;
 import kr.dogfoot.hwplib.drawer.painter.Painter;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.control.table.ListHeaderForCell;
@@ -10,11 +10,11 @@ import kr.dogfoot.hwplib.object.docinfo.BorderFill;
 
 public class TablePainter {
     private final Painter painter;
-    private final DrawingInfo info;
+    private final DrawingInput input;
 
-    public TablePainter(Painter painter, DrawingInfo info) {
+    public TablePainter(DrawingInput input, Painter painter) {
         this.painter = painter;
-        this.info = info;
+        this.input = input;
     }
 
     public void paint(TableOutput tableOutput) throws Exception {
@@ -30,7 +30,7 @@ public class TablePainter {
                         .move(tableOutput.cellPosition().x(lh.getColIndex()) + tableOutput.controlArea().left(),
                                 tableOutput.cellPosition().y(lh.getRowIndex()) + tableOutput.controlArea().top());
 
-                BorderFill borderFill = info.getBorderFill(lh.getBorderFillId());
+                BorderFill borderFill = input.borderFill(lh.getBorderFillId());
                 painter.backgroundPainter().paint(borderFill.getFillInfo(), cellArea);
                 painter.cellBorder(cellArea, borderFill);
 

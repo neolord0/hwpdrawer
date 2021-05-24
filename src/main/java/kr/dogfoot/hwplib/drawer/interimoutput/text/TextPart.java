@@ -1,4 +1,4 @@
-package kr.dogfoot.hwplib.drawer.drawinginfo.interims.text;
+package kr.dogfoot.hwplib.drawer.interimoutput.text;
 
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfo;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
@@ -153,5 +153,4 @@ public class TextPart {
         sb.append(" }");
         return sb.toString();
     }
-
 }

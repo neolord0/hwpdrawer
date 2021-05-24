@@ -1,20 +1,21 @@
 package kr.dogfoot.hwplib.drawer.paragraph.charInfo;
 
-import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.control.ControlOutput;
+import kr.dogfoot.hwplib.drawer.input.DrawingInput;
+import kr.dogfoot.hwplib.drawer.interimoutput.control.ControlOutput;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.PositionCalculator;
 import kr.dogfoot.hwplib.object.bodytext.control.Control;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlTable;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.CtrlHeaderGso;
+import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.TextFlowMethod;
 import kr.dogfoot.hwplib.object.bodytext.control.gso.GsoControl;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPChar;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPCharControlExtend;
 import kr.dogfoot.hwplib.object.docinfo.CharShape;
 
 public class ControlCharInfo extends CharInfo {
-    public static ControlCharInfo create(HWPCharControlExtend character, Control control, DrawingInfo info) {
-        ControlCharInfo charInfo = new ControlCharInfo(character, info.charShape(), info.charIndex(), info.charPosition());
+    public static ControlCharInfo create(HWPCharControlExtend character, Control control, DrawingInput input) {
+        ControlCharInfo charInfo = new ControlCharInfo(character, input.charShape(), input.paraIndex(), input.charIndex(), input.charPosition());
         if (character.getCode() == 11) {
             CtrlHeaderGso gsoHeader = null;
             switch (control.getType()) {
@@ -28,7 +29,7 @@ public class ControlCharInfo extends CharInfo {
             if (gsoHeader != null) {
                 charInfo
                         .control(control, gsoHeader)
-                        .area(info);
+                        .area(input);
             }
         }
         return charInfo;
@@ -40,8 +41,8 @@ public class ControlCharInfo extends CharInfo {
     private Area areaWithOuterMargin;
     private Area areaWithoutOuterMargin;
 
-    public ControlCharInfo(HWPChar character, CharShape charShape, int index, int position) {
-        super(character, charShape, index, position);
+    public ControlCharInfo(HWPChar character, CharShape charShape, int paraIndex, int index, int position) {
+        super(character, charShape, paraIndex, index, position);
         control = null;
     }
 
@@ -59,8 +60,8 @@ public class ControlCharInfo extends CharInfo {
         return output;
     }
 
-    public ControlCharInfo area(DrawingInfo info) {
-        areaWithoutOuterMargin = PositionCalculator.singleObject().area(gsoHeader, info);
+    public ControlCharInfo area(DrawingInput input) {
+        areaWithoutOuterMargin = PositionCalculator.singleObject().area(gsoHeader, input);
         areaWithOuterMargin = new Area(areaWithoutOuterMargin)
                 .expand(gsoHeader.getOutterMarginLeft(),
                         gsoHeader.getOutterMarginTop(),
@@ -105,9 +106,9 @@ public class ControlCharInfo extends CharInfo {
         return gsoHeader.getProperty().isLikeWord();
     }
 
-    public short textFlowMethod() {
+    public TextFlowMethod textFlowMethod() {
         if (gsoHeader == null) {
-            return -1;
+            return null;
         }
         return gsoHeader.getProperty().getTextFlowMethod();
     }

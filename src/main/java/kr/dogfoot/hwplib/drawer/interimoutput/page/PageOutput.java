@@ -1,15 +1,16 @@
-package kr.dogfoot.hwplib.drawer.drawinginfo.interims.page;
+package kr.dogfoot.hwplib.drawer.interimoutput.page;
 
-import kr.dogfoot.hwplib.drawer.drawinginfo.PageInfo;
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.Content;
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.Output;
+import kr.dogfoot.hwplib.drawer.input.PageInfo;
+import kr.dogfoot.hwplib.drawer.interimoutput.Content;
+import kr.dogfoot.hwplib.drawer.interimoutput.Output;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
 
 public class PageOutput extends Output {
     private final int pageNo;
     private final Area paperArea;
-    private final Area bodyArea;
+    private final Area[] columnAreas;
+
     private final Area headerArea;
     private final Area footerArea;
 
@@ -17,11 +18,10 @@ public class PageOutput extends Output {
     private HeaderOutput headerOutput;
     private FooterOutput footerOutput;
 
-
     public PageOutput(PageInfo pageInfo) {
         pageNo = pageInfo.pageNo();
         paperArea = pageInfo.paperArea();
-        bodyArea = pageInfo.bodyArea();
+        columnAreas = pageInfo.columnAreas();
         headerArea = pageInfo.headerArea();
         footerArea = pageInfo.footerArea();
 
@@ -38,8 +38,8 @@ public class PageOutput extends Output {
         return paperArea;
     }
 
-    public Area bodyArea() {
-        return bodyArea;
+    public Area[] columnAreas() {
+        return columnAreas;
     }
 
     @Override

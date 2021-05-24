@@ -1,11 +1,10 @@
-package kr.dogfoot.hwplib.drawer.drawinginfo;
+package kr.dogfoot.hwplib.drawer.input;
 
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.*;
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.page.PageOutput;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.HWPFile;
 import kr.dogfoot.hwplib.object.bindata.EmbeddedBinaryData;
 import kr.dogfoot.hwplib.object.bodytext.Section;
+import kr.dogfoot.hwplib.object.bodytext.control.ControlColumnDefine;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlSectionDefine;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlType;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.Paragraph;
@@ -23,43 +22,38 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Stack;
 
-public class DrawingInfo {
+public class DrawingInput {
     private HWPFile hwpFile;
-    private Section section;
-
-    private final PageInfo pageInfo;
 
     private final HashMap<Integer, BufferedImage> imageMap;
 
+    private Section section;
+    private final PageInfo pageInfo;
     private int countOfHidingEmptyLineAfterNewPage;
 
-    private ParagraphListInfo bodyTextParagraphListInfo;
+    private ParagraphListInfo bodyTextParaListInfo;
+    private final Stack<ParagraphListInfo> paraListInfoStack;
 
-    private final Stack<ParagraphListInfo> paragraphListInfoStack;
-
-    private final InterimOutput output;
-
-    public DrawingInfo() {
-        pageInfo = new PageInfo();
+    public DrawingInput() {
         imageMap = new HashMap<>();
-        paragraphListInfoStack = new Stack<>();
-        output = new InterimOutput();
+        pageInfo = new PageInfo();
+        paraListInfoStack = new Stack<>();
     }
 
     public HWPFile hwpFile() {
         return hwpFile;
     }
 
-    public DrawingInfo hwpFile(HWPFile hwpFile) {
+    public DrawingInput hwpFile(HWPFile hwpFile) {
         this.hwpFile = hwpFile;
         return this;
     }
 
-    public BorderFill getBorderFill(int borderFillId) {
+    public BorderFill borderFill(int borderFillId) {
         return hwpFile.getDocInfo().getBorderFillList().get(borderFillId - 1);
     }
 
-    public BufferedImage getImage(int binItemID) {
+    public BufferedImage image(int binItemID) {
         BinData binData = hwpFile.getDocInfo().getBinDataList().get(binItemID - 1);
 
         if (binData.getBinDataID() > 0) {
@@ -100,13 +94,13 @@ public class DrawingInfo {
         return section;
     }
 
-    public DrawingInfo section(Section section) throws Exception {
+    public DrawingInput section(Section section) throws Exception {
         this.section = section;
-        setSectionDefine();
+        setSectionColumnDefine();
         return this;
     }
 
-    private void setSectionDefine() throws Exception {
+    private void setSectionColumnDefine() throws Exception {
         Paragraph firstPara = section.getParagraph(0);
         if (firstPara == null) {
             throw new Exception("섹션에는 하나 이상의 문단이 있어야 함.");
@@ -118,27 +112,18 @@ public class DrawingInfo {
             }
         }
         pageInfo.sectionDefine((ControlSectionDefine) firstPara.getControlList().get(0));
+        pageInfo.columnDefine((ControlColumnDefine) firstPara.getControlList().get(1));
     }
 
     public PageInfo pageInfo() {
         return pageInfo;
     }
 
-    public DrawingInfo startBodyTextParagraphList() {
-        ParagraphListInfo paragraphListInfo = new ParagraphListInfo(this)
-                .bodyText(true);
-        bodyTextParagraphListInfo = paragraphListInfo;
-
-        paragraphListInfoStack.push(paragraphListInfo);
-        return this;
-    }
-
-    public void endBodyTextParagraphList() {
-        paragraphListInfoStack.pop();
-    }
-
     public void newPage() {
-        pageInfo.increasePageNo();
+        pageInfo
+                .resetColumn()
+                .increasePageNo();
+        currentParaListInfo().bodyArea(pageInfo.columnArea());
 
         if (pageInfo.pageNo() > 1 && pageInfo.isHideEmptyLine()) {
             countOfHidingEmptyLineAfterNewPage = 2;
@@ -146,11 +131,15 @@ public class DrawingInfo {
             countOfHidingEmptyLineAfterNewPage = 0;
         }
 
-        if (bodyTextParagraphListInfo.paragraph() != null) {
-            bodyTextParagraphListInfo.resetParagraphStartY();
+        if (bodyTextParaListInfo.currentPara() != null) {
+            bodyTextParaListInfo.resetParaStartY();
         }
 
-        output.newPageOutput(pageInfo);
+    }
+
+    public void newColumn() {
+        pageInfo.nextColumn();
+        currentParaListInfo().bodyArea(pageInfo.columnArea());
     }
 
     public boolean checkHidingEmptyLineAfterNewPage() {
@@ -165,71 +154,83 @@ public class DrawingInfo {
         countOfHidingEmptyLineAfterNewPage = 0;
     }
 
-    public PageOutput pageOutput() {
-        return output.page();
+    public DrawingInput startBodyTextParaList(Paragraph[] paras) {
+        ParagraphListInfo paragraphListInfo = new ParagraphListInfo(this)
+                .bodyText(true)
+                .paras(paras);
+        paraListInfoStack.push(paragraphListInfo);
+
+        bodyTextParaListInfo = paragraphListInfo;
+        return this;
     }
 
-    public void startControlParagraphList(Area textArea) {
-        ParagraphListInfo paragraphListInfo = new ParagraphListInfo(this, textArea)
-                .bodyText(false);
-        paragraphListInfoStack.push(paragraphListInfo);
+    public void endBodyTextParaList() {
+        paraListInfoStack.pop();
     }
 
-    public long endControlParagraphList() {
-        ParagraphListInfo paragraphListInfo = paragraphListInfoStack.pop();
-        return paragraphListInfo.height();
+    public void startControlParaList(Area textArea, Paragraph[] paras) {
+        ParagraphListInfo paraListInfo = new ParagraphListInfo(this, textArea)
+                .bodyText(false)
+                .paras(paras);
+        paraListInfoStack.push(paraListInfo);
     }
 
-    public void startParagraph(Paragraph paragraph) {
-        paragraphListInfo().startParagraph(paragraph);
+    public long endControlParaList() {
+        ParagraphListInfo paraListInfo = paraListInfoStack.pop();
+        return paraListInfo.height();
     }
 
-    public void endParagraph(long endY, long height) {
-        output.setLastTextPartToLastLine();
-
-        ParagraphListInfo paragraphListInfo = paragraphListInfo();
-        paragraphListInfo.endParagraph(endY, height);
-    }
-
-    public ParagraphListInfo paragraphListInfo() {
-        return paragraphListInfoStack.peek();
+    public ParagraphListInfo currentParaListInfo() {
+        return paraListInfoStack.peek();
     }
 
     public boolean isBodyText() {
-        return paragraphListInfo().isBodyText();
+        return currentParaListInfo().isBodyText();
     }
 
     public Area paragraphArea() {
-        return paragraphListInfo().paragraphArea();
+        return currentParaListInfo().paraArea();
     }
 
-    public Paragraph paragraph() {
-        return paragraphListInfo().paragraph();
+    public boolean nextPara() {
+        return currentParaListInfo().nextPara();
+    }
+
+    public void startPara() {
+        currentParaListInfo().startPara();
+    }
+
+    public void endPara(long endY, long height) {
+        currentParaListInfo().endPara(endY, height);
+    }
+
+    public Paragraph currentPara() {
+        return currentParaListInfo().currentPara();
+    }
+
+    public int paraIndex() {
+        return currentParaListInfo().paraIndex();
     }
 
     public ParaShape paraShape() {
-        return paragraphListInfo().paraShape();
-    }
-
-    public CharShape charShape() {
-        return paragraphListInfo().charShape();
+        return currentParaListInfo().paraShape();
     }
 
     public boolean noText() {
-        return paragraph().getText() == null || paragraph().getText().getCharList().size() == 0;
+        return currentPara().getText() == null || currentPara().getText().getCharList().size() == 0;
     }
 
     public boolean nextChar() {
-        return paragraphListInfo().nextChar();
+        return currentParaListInfo().nextChar();
     }
 
-    public HWPChar character() {
-        return paragraphListInfo().character();
+    public HWPChar currentChar() {
+        return currentParaListInfo().currentChar();
     }
 
     public boolean beforeChar(int count) {
         for (int index = 0; index < count; index++) {
-            if (!paragraphListInfo().beforeChar()) {
+            if (!currentParaListInfo().beforeChar()) {
                 return false;
             }
         }
@@ -237,18 +238,23 @@ public class DrawingInfo {
     }
 
     public int charIndex() {
-        return paragraphListInfo().charIndex();
+        return currentParaListInfo().charIndex();
     }
 
     public int charPosition() {
-        return paragraphListInfo().charPosition();
+        return currentParaListInfo().charPosition();
+    }
+
+    public CharShape charShape() {
+        return currentParaListInfo().charShape();
     }
 
     public void gotoCharPosition(int lineFirstCharIndex, int lineFirstCharPosition) {
-        paragraphListInfo().gotoCharPosition(lineFirstCharIndex, lineFirstCharPosition);
+        currentParaListInfo().gotoChar(lineFirstCharIndex, lineFirstCharPosition);
     }
 
-    public InterimOutput output() {
-        return output;
+    public void gotoParaCharPosition(int paragraphIndex, int characterIndex, int characterPosition) {
+        currentParaListInfo().gotoPara(paragraphIndex);
+        currentParaListInfo().gotoChar(characterIndex, characterPosition);
     }
 }

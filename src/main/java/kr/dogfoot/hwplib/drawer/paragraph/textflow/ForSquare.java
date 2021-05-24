@@ -11,15 +11,24 @@ import java.util.LinkedList;
 import java.util.TreeSet;
 
 public class ForSquare {
+    private final ArrayList<ControlCharInfo> charInfos;
     private final TreeSet<SquareArea> squareAreas;
 
     public ForSquare() {
+        charInfos = new ArrayList<>();
         squareAreas = new TreeSet<>();
     }
 
-    public void add(ControlCharInfo controlCharInfo) {
-        squareAreas.add(new SquareArea(controlCharInfo.areaWithOuterMargin(),
-                controlCharInfo.header()));
+    public boolean add(ControlCharInfo charInfo) {
+        for (ControlCharInfo charInfo2 : charInfos) {
+            if (charInfo.equals(charInfo2)) {
+                return false;
+            }
+        }
+        charInfos.add(charInfo);
+        squareAreas.add(new SquareArea(charInfo.areaWithOuterMargin(),
+                charInfo.header()));
+        return true;
     }
 
     public TextFlowCalculator.Result calculate(Area textLineArea) {

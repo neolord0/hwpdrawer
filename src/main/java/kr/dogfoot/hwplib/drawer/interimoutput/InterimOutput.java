@@ -1,15 +1,14 @@
-package kr.dogfoot.hwplib.drawer.drawinginfo.interims;
+package kr.dogfoot.hwplib.drawer.interimoutput;
 
-import kr.dogfoot.hwplib.drawer.drawinginfo.PageInfo;
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.control.ControlOutput;
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.control.GsoOutput;
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.page.FooterOutput;
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.page.HeaderOutput;
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.page.PageOutput;
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.control.table.CellOutput;
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.control.table.TableOutput;
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.text.TextLine;
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.text.TextPart;
+import kr.dogfoot.hwplib.drawer.input.PageInfo;
+import kr.dogfoot.hwplib.drawer.interimoutput.control.ControlOutput;
+import kr.dogfoot.hwplib.drawer.interimoutput.control.GsoOutput;
+import kr.dogfoot.hwplib.drawer.interimoutput.page.FooterOutput;
+import kr.dogfoot.hwplib.drawer.interimoutput.page.HeaderOutput;
+import kr.dogfoot.hwplib.drawer.interimoutput.page.PageOutput;
+import kr.dogfoot.hwplib.drawer.interimoutput.control.table.CellOutput;
+import kr.dogfoot.hwplib.drawer.interimoutput.control.table.TableOutput;
+import kr.dogfoot.hwplib.drawer.interimoutput.text.TextLine;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlTable;
 import kr.dogfoot.hwplib.object.bodytext.control.gso.GsoControl;
@@ -88,37 +87,40 @@ public class InterimOutput {
         stack.pop();
     }
 
+    public void setLastTextPartToLastLine() {
+        if (currentOutput().content() != null) {
+            currentOutput().content().setLastTextPartToLastLine();
+        }
+    }
 
-    public Output current() {
+    private Output currentOutput() {
         return stack.peek();
     }
 
-    public void setLastTextPartToLastLine() {
-        if (current().content() != null) {
-            current().content().setLastTextPartToLastLine();
-        }
-    }
-
     public void addChildOutput(ControlOutput childOutput) {
-        if (current().content() != null) {
-            current().content().addChildOutput(childOutput);
+        if (currentOutput().content() != null) {
+            currentOutput().content().addChildOutput(childOutput);
         }
 
-        if (current().type() == Output.Type.Gso) {
-            GsoOutput gsoOutput = (GsoOutput) current();
+        if (currentOutput().type() == Output.Type.Gso) {
+            GsoOutput gsoOutput = (GsoOutput) currentOutput();
             gsoOutput.processAtAddingChildOutput(childOutput);
-        } else if (current().type() == Output.Type.Cell) {
-            CellOutput cellOutput = (CellOutput) current();
+        } else if (currentOutput().type() == Output.Type.Cell) {
+            CellOutput cellOutput = (CellOutput) currentOutput();
             cellOutput.processAtAddingChildOutput(childOutput);
-        } else if (current().type() == Output.Type.Footer) {
-            FooterOutput footerOutput = (FooterOutput) current();
+        } else if (currentOutput().type() == Output.Type.Footer) {
+            FooterOutput footerOutput = (FooterOutput) currentOutput();
             footerOutput.processAtAddingChildOutput(childOutput);
         }
     }
 
     public void addTextLine(TextLine line) {
-        if (current().content() != null) {
-            current().content().addTextLine(line);
+        if (currentOutput().content() != null) {
+            currentOutput().content().addTextLine(line);
         }
+    }
+
+    public TextLine checkAndDeleteRedrawingTextLine(Area area) {
+        return currentOutput().content().deleteRedrawingTextLine(area);
     }
 }

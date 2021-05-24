@@ -1,9 +1,9 @@
 package kr.dogfoot.hwplib.drawer.painter.control;
 
-import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.control.ControlOutput;
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.control.GsoOutput;
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.control.table.TableOutput;
+import kr.dogfoot.hwplib.drawer.input.DrawingInput;
+import kr.dogfoot.hwplib.drawer.interimoutput.control.ControlOutput;
+import kr.dogfoot.hwplib.drawer.interimoutput.control.GsoOutput;
+import kr.dogfoot.hwplib.drawer.interimoutput.control.table.TableOutput;
 import kr.dogfoot.hwplib.drawer.painter.Painter;
 
 import java.util.Set;
@@ -12,9 +12,9 @@ public class ControlPainter {
     private final GsoPainter gsoPainter;
     private final TablePainter tablePainter;
 
-    public ControlPainter(Painter painter, DrawingInfo info) {
-        gsoPainter = new GsoPainter(painter, info);
-        tablePainter = new TablePainter(painter, info);
+    public ControlPainter(DrawingInput input, Painter painter) {
+        gsoPainter = new GsoPainter(input, painter);
+        tablePainter = new TablePainter(input, painter);
     }
 
     public void paintControls(Set<ControlOutput> controlOutputs) throws Exception {

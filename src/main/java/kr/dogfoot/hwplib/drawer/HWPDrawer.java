@@ -1,13 +1,14 @@
 package kr.dogfoot.hwplib.drawer;
 
-import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
+import kr.dogfoot.hwplib.drawer.input.DrawingInput;
+import kr.dogfoot.hwplib.drawer.interimoutput.InterimOutput;
 import kr.dogfoot.hwplib.drawer.painter.PagePainter;
 import kr.dogfoot.hwplib.drawer.paragraph.ParagraphDrawer;
+import kr.dogfoot.hwplib.drawer.paragraph.RedrawException;
 import kr.dogfoot.hwplib.drawer.util.Convertor;
 import kr.dogfoot.hwplib.drawer.util.FontManager;
 import kr.dogfoot.hwplib.object.HWPFile;
 import kr.dogfoot.hwplib.object.bodytext.Section;
-import kr.dogfoot.hwplib.object.bodytext.paragraph.Paragraph;
 
 public class HWPDrawer {
     public static int draw(HWPFile hwpFile, DrawingOption option) throws Exception {
@@ -21,12 +22,14 @@ public class HWPDrawer {
     }
 
     private DrawingOption option;
-    private DrawingInfo info;
+    private DrawingInput input;
+    private InterimOutput output;
     private PagePainter pagePainter;
 
     private HWPDrawer() {
         option = null;
-        info = null;
+        input = null;
+        output = null;
         pagePainter = null;
     }
 
@@ -34,14 +37,14 @@ public class HWPDrawer {
         this.option = option;
         Convertor.option(option);
 
-        info = new DrawingInfo()
+        input = new DrawingInput()
                 .hwpFile(hwpFile);
+        output = new InterimOutput();
 
-        pagePainter = new PagePainter(info)
+        pagePainter = new PagePainter(input, output)
                 .option(option);
 
-
-        for (Section section : info.hwpFile().getBodyText().getSectionList()) {
+        for (Section section : input.hwpFile().getBodyText().getSectionList()) {
             drawSection(section);
         }
 
@@ -49,21 +52,32 @@ public class HWPDrawer {
     }
 
     private void drawSection(Section section) throws Exception {
-        info
+        input
                 .section(section)
-                .startBodyTextParagraphList()
+                .startBodyTextParaList(section.getParagraphs())
                 .newPage();
 
-        ParagraphDrawer paragraphDrawer = new ParagraphDrawer(pagePainter, info);
-        for (Paragraph paragraph : info.section()) {
-            paragraphDrawer.draw(paragraph);
+        output.newPageOutput(input.pageInfo());
+
+        ParagraphDrawer paragraphDrawer = new ParagraphDrawer(input, output, pagePainter);
+        boolean redraw = false;
+        while (redraw || input.nextPara()) {
+            try {
+                paragraphDrawer.draw(redraw);
+                redraw = false;
+            } catch (RedrawException e) {
+                System.out.println("exception ");
+                input.gotoParaCharPosition(e.paraIndex(), e.charIndex(), e.charPosition());
+                input.currentParaListInfo().resetParaStartY(e.startY());
+                redraw = true;
+            }
         }
 
-        info.endBodyTextParagraphList();
+        input.endBodyTextParaList();
     }
 
     private int pageCount() {
-        return info.pageInfo().pageNo();
+        return input.pageInfo().pageNo();
     }
 }
 

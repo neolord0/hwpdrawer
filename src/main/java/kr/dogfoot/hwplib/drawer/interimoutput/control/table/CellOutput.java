@@ -1,10 +1,9 @@
-package kr.dogfoot.hwplib.drawer.drawinginfo.interims.control.table;
+package kr.dogfoot.hwplib.drawer.interimoutput.control.table;
 
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.Content;
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.control.ControlOutput;
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.Output;
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.text.TextLine;
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.text.TextPart;
+import kr.dogfoot.hwplib.drawer.interimoutput.Content;
+import kr.dogfoot.hwplib.drawer.interimoutput.control.ControlOutput;
+import kr.dogfoot.hwplib.drawer.interimoutput.Output;
+import kr.dogfoot.hwplib.drawer.interimoutput.text.TextLine;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.VertRelTo;
@@ -139,5 +138,4 @@ public class CellOutput extends Output {
         sb.tab(tabCount).append("cell - }\n");
         return sb.toString();
     }
-
 }

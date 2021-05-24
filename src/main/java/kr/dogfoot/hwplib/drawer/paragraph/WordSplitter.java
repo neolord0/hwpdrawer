@@ -1,6 +1,6 @@
 package kr.dogfoot.hwplib.drawer.paragraph;
 
-import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
+import kr.dogfoot.hwplib.drawer.input.DrawingInput;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfo;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.NormalCharInfo;
@@ -11,9 +11,9 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
 public class WordSplitter {
+    private final DrawingInput input;
     private final ParagraphDrawer paragraphDrawer;
     private final TextLineDrawer textLineDrawer;
-    private final DrawingInfo info;
 
     private int letterCountBeforeNewLine;
     private boolean hasNewLine;
@@ -21,10 +21,10 @@ public class WordSplitter {
     private final ArrayList<CharInfo> charsOfWord;
     private long wordWidth;
 
-    public WordSplitter(ParagraphDrawer paragraphDrawer, TextLineDrawer textLineDrawer, DrawingInfo info) {
+    public WordSplitter(DrawingInput input, ParagraphDrawer paragraphDrawer, TextLineDrawer textLineDrawer) {
+        this.input = input;
         this.paragraphDrawer = paragraphDrawer;
         this.textLineDrawer = textLineDrawer;
-        this.info = info;
 
         charsOfWord = new ArrayList<>();
     }
@@ -55,8 +55,8 @@ public class WordSplitter {
         letterCountBeforeNewLine = 0;
         hasNewLine = false;
 
-        boolean splitByEnglishLetter = info.paraShape().getProperty1().getLineDivideForEnglish() != LineDivideForEnglish.ByWord;
-        boolean splitByHangulLetter = info.paraShape().getProperty1().getLineDivideForHangul() == LineDivideForHangul.ByLetter;
+        boolean splitByEnglishLetter = input.paraShape().getProperty1().getLineDivideForEnglish() != LineDivideForEnglish.ByWord;
+        boolean splitByHangulLetter = input.paraShape().getProperty1().getLineDivideForHangul() == LineDivideForHangul.ByLetter;
         ArrayList<WordsCharByLanguage> wordCharsByLanguages = splitByLanguage(charsOfWord);
         for (WordsCharByLanguage wcl : wordCharsByLanguages) {
             boolean splitByLetter = (wcl.hangul) ? splitByHangulLetter : splitByEnglishLetter;
@@ -170,7 +170,7 @@ public class WordSplitter {
     public void adjustControlAreaAtNewPage() {
         for (CharInfo charInfo : charsOfWord) {
             if (charInfo.type() == CharInfo.Type.Control) {
-                ((ControlCharInfo) charInfo).area(info);
+                ((ControlCharInfo) charInfo).area(input);
             }
         }
     }

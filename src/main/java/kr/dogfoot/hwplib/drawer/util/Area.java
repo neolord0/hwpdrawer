@@ -166,4 +166,23 @@ public class Area implements Comparable<Area> {
         else
             return -1;
     }
+
+    public void set(Area other) {
+        left = other.left;
+        top = other.top;
+        right = other.right;
+        bottom = other.bottom;
+    }
+
+    public boolean overlap(Area other) {
+        boolean xOverlap = valueInRange(left, other.left, other.right)
+                || valueInRange(other.left, left, right);
+        boolean yOverlap = valueInRange(top, other.top, other.bottom)
+                || valueInRange(other.top(), top,  bottom);
+        return xOverlap && yOverlap;
+    }
+
+    private boolean valueInRange(long value, long min, long max) {
+        return (value >= min) && (value <= max);
+    }
 }

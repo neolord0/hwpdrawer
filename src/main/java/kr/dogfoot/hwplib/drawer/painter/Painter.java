@@ -1,8 +1,8 @@
 package kr.dogfoot.hwplib.drawer.painter;
 
 import kr.dogfoot.hwplib.drawer.DrawingOption;
-import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.Content;
+import kr.dogfoot.hwplib.drawer.input.DrawingInput;
+import kr.dogfoot.hwplib.drawer.interimoutput.Content;
 import kr.dogfoot.hwplib.drawer.painter.background.BackgroundPainter;
 import kr.dogfoot.hwplib.drawer.painter.control.ControlPainter;
 import kr.dogfoot.hwplib.drawer.painter.text.TextPainter;
@@ -33,11 +33,11 @@ public class Painter {
     private final TextPainter textPainter;
     private final BackgroundPainter backgroundPainter;
 
-    public Painter(DrawingInfo info) {
-        controlPainter = new ControlPainter(this, info);
+    public Painter(DrawingInput input) {
+        controlPainter = new ControlPainter(input,this);
 
         textPainter = new TextPainter(this);
-        backgroundPainter = new BackgroundPainter(this, info);
+        backgroundPainter = new BackgroundPainter(input,this);
     }
 
 

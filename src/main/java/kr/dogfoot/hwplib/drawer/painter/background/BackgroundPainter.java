@@ -1,6 +1,6 @@
 package kr.dogfoot.hwplib.drawer.painter.background;
 
-import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
+import kr.dogfoot.hwplib.drawer.input.DrawingInput;
 import kr.dogfoot.hwplib.drawer.painter.Painter;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.docinfo.borderfill.fillinfo.*;
@@ -8,12 +8,12 @@ import kr.dogfoot.hwplib.object.docinfo.borderfill.fillinfo.*;
 import java.awt.image.BufferedImage;
 
 public class BackgroundPainter {
+    private final DrawingInput input;
     private final Painter painter;
-    private final DrawingInfo info;
 
-    public BackgroundPainter(Painter painter, DrawingInfo info) {
+    public BackgroundPainter(DrawingInput input, Painter painter) {
+        this.input = input;
         this.painter = painter;
-        this.info = info;
     }
 
     public void paint(FillInfo fillInfo, Area area) {
@@ -41,7 +41,7 @@ public class BackgroundPainter {
     }
 
     private void imageFill(ImageFill imageFill, Area area) {
-        BufferedImage image = info.getImage(imageFill.getPictureInfo().getBinItemID());
+        BufferedImage image = input.image(imageFill.getPictureInfo().getBinItemID());
         if (image != null) {
             painter.image(area, image);
         }

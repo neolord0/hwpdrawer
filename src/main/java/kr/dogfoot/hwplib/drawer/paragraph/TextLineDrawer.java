@@ -1,14 +1,16 @@
 package kr.dogfoot.hwplib.drawer.paragraph;
 
-import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.text.TextLine;
+import kr.dogfoot.hwplib.drawer.input.DrawingInput;
+import kr.dogfoot.hwplib.drawer.interimoutput.InterimOutput;
+import kr.dogfoot.hwplib.drawer.interimoutput.text.TextLine;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.docinfo.ParaShape;
 
 
 public class TextLineDrawer {
-    private final DrawingInfo info;
+    private final DrawingInput input;
+    private final InterimOutput output;
 
     private TextLine textLine;
 
@@ -18,20 +20,21 @@ public class TextLineDrawer {
     private long spacesWidth;
     private boolean justNewLine;
 
-    public TextLineDrawer(DrawingInfo info) {
-        this.info = info;
+    public TextLineDrawer(DrawingInput input, InterimOutput output) {
+        this.input = input;
+        this.output = output;
     }
 
-    public TextLineDrawer initialize(Area area) {
-        reset(area);
+    public TextLineDrawer initialize(int paragraphIndex, Area area) {
+        reset(paragraphIndex, area);
         wordsWidth = 0;
         spacesWidth = 0;
         justNewLine = false;
         return this;
     }
 
-    public TextLineDrawer reset(Area area) {
-        textLine = new TextLine(new Area(area));
+    public TextLineDrawer reset(int paragraphIndex, Area area) {
+        textLine = new TextLine(paragraphIndex, new Area(area));
 
         maxCharHeight = 0;
         maxBaseSize = 0;
@@ -82,7 +85,7 @@ public class TextLineDrawer {
 
     private long currentTextX(boolean applyMinimumSpace) {
         if (applyMinimumSpace) {
-            long minimumSpace = spacesWidth * (100 - info.paraShape().getProperty1().getMinimumSpace()) / 100;
+            long minimumSpace = spacesWidth * (100 - input.paraShape().getProperty1().getMinimumSpace()) / 100;
             return wordsWidth + minimumSpace;
         } else {
             return wordsWidth + spacesWidth;
@@ -91,7 +94,7 @@ public class TextLineDrawer {
 
     public long maxCharHeight() {
         if (noDrawingCharacter()) {
-            return info.charShape().getBaseSize();
+            return input.charShape().getBaseSize();
         } else {
             return maxCharHeight;
         }
@@ -100,9 +103,9 @@ public class TextLineDrawer {
     public long lineHeight() {
         long lineGap = 0;
         long maxBasSize2 = (noDrawingCharacter())
-                ? info.charShape().getBaseSize()
+                ? input.charShape().getBaseSize()
                 : maxBaseSize;
-        ParaShape paraShape = info.paraShape();
+        ParaShape paraShape = input.paraShape();
         switch (paraShape.getProperty1().getLineSpaceSort()) {
             case RatioForLetter:
                 if (paraShape.getLineSpace() == paraShape.getLineSpace2()) {
@@ -132,8 +135,8 @@ public class TextLineDrawer {
     public boolean saveToOutput() {
         if (textLine.hasDrawingCharacter()) {
             textLine.maxCharHeight(maxCharHeight)
-                    .alignment(info.paraShape().getProperty1().getAlignment());
-            info.output().addTextLine(textLine);
+                    .alignment(input.paraShape().getProperty1().getAlignment());
+            output.addTextLine(textLine);
             return true;
         }
         return false;

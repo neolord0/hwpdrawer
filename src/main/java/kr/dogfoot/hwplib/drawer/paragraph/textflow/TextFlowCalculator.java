@@ -14,12 +14,12 @@ public class TextFlowCalculator {
         forSquare = new ForSquare();
     }
 
-    public void addForTopBottom(ControlCharInfo controlCharInfo) {
-        forTopBottom.addTopBottomArea(controlCharInfo.areaWithOuterMargin(), controlCharInfo.header().getProperty().getVertRelTo());
+    public boolean addForTopBottom(ControlCharInfo controlCharInfo) {
+        return forTopBottom.add(controlCharInfo);
     }
 
-    public void addForSquare(ControlCharInfo controlCharInfo) {
-        forSquare.add(controlCharInfo);
+    public boolean addForSquare(ControlCharInfo controlCharInfo) {
+        return forSquare.add(controlCharInfo);
     }
 
     public void reset() {

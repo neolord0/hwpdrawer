@@ -1,18 +1,32 @@
 package kr.dogfoot.hwplib.drawer.paragraph.textflow;
 
+import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.VertRelTo;
 
 import java.util.ArrayList;
 
 public class ForTopBottom {
+    private final ArrayList<ControlCharInfo> charInfos;
     private final ArrayList<TopBottomArea> topBottomAreas;
 
     public ForTopBottom() {
+        charInfos = new ArrayList<>();
         topBottomAreas = new ArrayList<>();
     }
 
-    public void addTopBottomArea(Area area, VertRelTo vertRelTo) {
+    public boolean add(ControlCharInfo charInfo) {
+        for (ControlCharInfo charInfo2 : charInfos) {
+            if (charInfo.equals(charInfo2)) {
+                return false;
+            }
+        }
+        charInfos.add(charInfo);
+        addTopBottomArea(charInfo.areaWithOuterMargin(), charInfo.header().getProperty().getVertRelTo());
+        return true;
+    }
+
+    private void addTopBottomArea(Area area, VertRelTo vertRelTo) {
         for (TopBottomArea tbArea : topBottomAreas) {
             if (tbArea.intersects(area)) {
                 tbArea.merge(area, vertRelTo);
@@ -23,6 +37,7 @@ public class ForTopBottom {
     }
 
     public void reset() {
+        charInfos.clear();
         topBottomAreas.clear();
     }
 
@@ -43,6 +58,7 @@ public class ForTopBottom {
         }
         return new Result(yOffset, vertRelTo);
     }
+
 
 
     private static class TopBottomArea implements Comparable<TopBottomArea> {

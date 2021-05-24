@@ -6,13 +6,15 @@ import kr.dogfoot.hwplib.object.docinfo.CharShape;
 public abstract class CharInfo {
     protected HWPChar character;
     protected CharShape charShape;
+    protected int paraIndex;
     protected int index;
     protected int position;
     protected long x;
 
-    public CharInfo(HWPChar character, CharShape charShape, int index, int position) {
+    public CharInfo(HWPChar character, CharShape charShape, int paraIndex, int index, int position) {
         this.character = character;
         this.charShape = charShape;
+        this.paraIndex = paraIndex;
         this.index = index;
         this.position = position;
         x = 0;
@@ -26,6 +28,10 @@ public abstract class CharInfo {
 
     public CharShape charShape() {
         return charShape;
+    }
+
+    public int paraIndex() {
+        return paraIndex;
     }
 
     public int index() {
@@ -51,6 +57,10 @@ public abstract class CharInfo {
     }
 
     public abstract long height();
+
+    public boolean equals(CharInfo that) {
+        return this.paraIndex == that.paraIndex && this.index == that.index;
+    }
 
     public enum Type {
         Normal,

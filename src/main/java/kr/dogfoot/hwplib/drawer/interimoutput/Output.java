@@ -1,4 +1,4 @@
-package kr.dogfoot.hwplib.drawer.drawinginfo.interims;
+package kr.dogfoot.hwplib.drawer.interimoutput;
 
 public abstract class Output {
     public abstract Content content();

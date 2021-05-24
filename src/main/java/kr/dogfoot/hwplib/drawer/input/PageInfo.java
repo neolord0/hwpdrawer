@@ -1,6 +1,7 @@
-package kr.dogfoot.hwplib.drawer.drawinginfo;
+package kr.dogfoot.hwplib.drawer.input;
 
 import kr.dogfoot.hwplib.drawer.util.Area;
+import kr.dogfoot.hwplib.object.bodytext.control.ControlColumnDefine;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlFooter;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlHeader;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlSectionDefine;
@@ -13,6 +14,8 @@ public class PageInfo {
     private Area footerArea;
     private Area bodyArea;
 
+    private ColumnsInfo columnsInfo;
+
     private ControlHeader evenHeader;
     private ControlHeader oddHeader;
     private ControlFooter evenFooter;
@@ -20,6 +23,8 @@ public class PageInfo {
     private int pageNo;
 
     public PageInfo() {
+        columnsInfo = new ColumnsInfo(this);
+
         pageNo = 0;
     }
 
@@ -58,6 +63,10 @@ public class PageInfo {
                 .top(paperArea.bottom() - pageDef.getBottomMargin() - pageDef.getFooterMargin());
     }
 
+    public void columnDefine(ControlColumnDefine columnDefine) {
+        columnsInfo.columnDefine(columnDefine);
+    }
+
     public Area paperArea() {
         return paperArea;
     }
@@ -65,6 +74,28 @@ public class PageInfo {
     public Area bodyArea() {
         return bodyArea;
     }
+
+    public Area[] columnAreas() {
+        return columnsInfo.columnAreas();
+    }
+
+    public Area columnArea() {
+        return columnsInfo.columnArea();
+    }
+
+    public boolean lastColumn() {
+        return columnsInfo.lastColumn();
+    }
+
+    public void nextColumn() {
+        columnsInfo.nextColumn();
+    }
+
+    public PageInfo resetColumn() {
+        columnsInfo.resetColumn();
+        return this;
+    }
+
 
     public Area headerArea() {
         return headerArea;

@@ -1,10 +1,10 @@
-package kr.dogfoot.hwplib.drawer.drawinginfo.interims.control;
+package kr.dogfoot.hwplib.drawer.interimoutput.control;
 
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.Content;
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.text.TextLine;
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.text.TextPart;
+import kr.dogfoot.hwplib.drawer.interimoutput.Content;
+import kr.dogfoot.hwplib.drawer.interimoutput.text.TextLine;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
+import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.TextFlowMethod;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.VertRelTo;
 import kr.dogfoot.hwplib.object.bodytext.control.gso.GsoControl;
 import kr.dogfoot.hwplib.object.bodytext.control.gso.textbox.TextVerticalAlignment;
@@ -70,7 +70,7 @@ public class GsoOutput extends ControlOutput {
     }
 
     @Override
-    public int textFlowMethod() {
+    public TextFlowMethod textFlowMethod() {
         return gso.getHeader().getProperty().getTextFlowMethod();
     }
 

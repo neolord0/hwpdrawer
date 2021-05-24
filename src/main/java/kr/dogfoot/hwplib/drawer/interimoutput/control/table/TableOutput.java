@@ -1,10 +1,11 @@
-package kr.dogfoot.hwplib.drawer.drawinginfo.interims.control.table;
+package kr.dogfoot.hwplib.drawer.interimoutput.control.table;
 
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.Content;
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.control.ControlOutput;
+import kr.dogfoot.hwplib.drawer.interimoutput.Content;
+import kr.dogfoot.hwplib.drawer.interimoutput.control.ControlOutput;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlTable;
+import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.TextFlowMethod;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.VertRelTo;
 import kr.dogfoot.hwplib.object.bodytext.control.table.ListHeaderForCell;
 
@@ -49,7 +50,7 @@ public class TableOutput extends ControlOutput {
     }
 
     @Override
-    public int textFlowMethod() {
+    public TextFlowMethod textFlowMethod() {
         return table.getHeader().getProperty().getTextFlowMethod();
     }
 
@@ -71,7 +72,7 @@ public class TableOutput extends ControlOutput {
 
     @Override
     public void adjustTextAreaAndVerticalAlignment() {
-
+        // nothing
     }
 
     @Override

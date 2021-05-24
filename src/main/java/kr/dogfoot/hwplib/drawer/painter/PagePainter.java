@@ -1,11 +1,12 @@
 package kr.dogfoot.hwplib.drawer.painter;
 
 import kr.dogfoot.hwplib.drawer.DrawingOption;
-import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.page.FooterOutput;
+import kr.dogfoot.hwplib.drawer.input.DrawingInput;
+import kr.dogfoot.hwplib.drawer.interimoutput.InterimOutput;
+import kr.dogfoot.hwplib.drawer.interimoutput.page.FooterOutput;
 import kr.dogfoot.hwplib.drawer.paragraph.ParagraphDrawer;
+import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.Convertor;
-import kr.dogfoot.hwplib.object.bodytext.paragraph.Paragraph;
 import kr.dogfoot.hwplib.object.docinfo.borderfill.BorderThickness;
 import kr.dogfoot.hwplib.object.docinfo.borderfill.BorderType;
 import kr.dogfoot.hwplib.object.etc.Color4Byte;
@@ -17,12 +18,14 @@ import java.io.File;
 import java.io.IOException;
 
 public class PagePainter {
-    private final DrawingInfo info;
+    private final DrawingInput input;
+    private final InterimOutput output;
     private final Painter painter;
 
-    public PagePainter(DrawingInfo info) {
-        this.info = info;
-        painter = new Painter(info);
+    public PagePainter(DrawingInput input, InterimOutput output) {
+        this.input = input;
+        this.output = output;
+        painter = new Painter(input);
     }
 
     public PagePainter option(DrawingOption option) {
@@ -31,68 +34,72 @@ public class PagePainter {
     }
 
     public void saveCurrentPage() throws Exception {
-        if (info.pageInfo().header() != null) {
+        if (input.pageInfo().header() != null) {
             drawHeader();
         }
-        if (info.pageInfo().footer() != null) {
+        if (input.pageInfo().footer() != null) {
             drawFooter();
         }
 
-        // System.out.println(info.output().page().test(0));
+        System.out.println(output.page().test(0));
 
         BufferedImage pageImage = createPageImage();
         painter
                 .graphics2D((Graphics2D) pageImage.getGraphics());
 
-        painter
-                .setLineStyle(BorderType.Solid, BorderThickness.MM0_15, new Color4Byte(255, 0, 0))
-                .rectangle(info.pageOutput().bodyArea(), false);
 
-        if (info.pageOutput().headerOutput() != null) {
-            painter.paintContent(info.pageOutput().headerOutput().content());
+        painter.setLineStyle(BorderType.Solid, BorderThickness.MM0_15, new Color4Byte(255, 0, 0));
+        for (Area columnArea : output.page().columnAreas()) {
+               painter.rectangle(columnArea, false);
         }
-        painter.paintContent(info.pageOutput().content());
-        if (info.pageOutput().footerOutput() != null) {
-            painter.paintContent(info.pageOutput().footerOutput().content());
+
+        if (output.page().headerOutput() != null) {
+            painter.paintContent(output.page().headerOutput().content());
+        }
+        painter.paintContent(output.page().content());
+        if (output.page().footerOutput() != null) {
+            painter.paintContent(output.page().footerOutput().content());
         }
 
         savePngFile(pageImage);
     }
 
     private void drawHeader() throws Exception {
-        info.output().startHeader();
-        info.startControlParagraphList(info.pageInfo().headerArea().widthHeight());
-        ParagraphDrawer paragraphDrawer = new ParagraphDrawer(info);
+        output.startHeader();
+        input.startControlParaList(input.pageInfo().headerArea().widthHeight(),
+                input.pageInfo().header().getParagraphList().getParagraphs());
+        ParagraphDrawer paragraphDrawer = new ParagraphDrawer(input, output);
 
-        for (Paragraph paragraph : info.pageInfo().header().getParagraphList()) {
-            paragraphDrawer.draw(paragraph);
+        while (input.nextPara()) {
+            paragraphDrawer.draw(false);
         }
 
-        info.endControlParagraphList();
-        info.output().endHeader();
+        input.endControlParaList();
+        output.endHeader();
     }
 
 
     private void drawFooter() throws Exception {
-        FooterOutput footerOutput = info.output().startFooter();
-        info.startControlParagraphList(info.pageInfo().footerArea().widthHeight());
+        FooterOutput footerOutput = output.startFooter();
+        input.startControlParaList(input.pageInfo().footerArea().widthHeight(),
+                input.pageInfo().footer().getParagraphList().getParagraphs());
 
-        ParagraphDrawer paragraphDrawer = new ParagraphDrawer(info);
-        for (Paragraph paragraph : info.pageInfo().footer().getParagraphList()) {
-            paragraphDrawer.draw(paragraph);
+        ParagraphDrawer paragraphDrawer = new ParagraphDrawer(input, output);
+        while (input.nextPara()) {
+            paragraphDrawer.draw(false);
         }
 
-        long calculatedContentHeight = info.endControlParagraphList();
+        long calculatedContentHeight = input.endControlParaList();
         footerOutput.calculatedContentHeight(calculatedContentHeight);
 
-        info.output().endFooter();
+        output.endFooter();
     }
 
 
     private BufferedImage createPageImage() {
         BufferedImage pageImage = new BufferedImage(
-                Convertor.fromHWPUnit(info.pageOutput().paperArea().width()),
-                Convertor.fromHWPUnit(info.pageOutput().paperArea().height()),
+                Convertor.fromHWPUnit(output.page().paperArea().width()),
+                Convertor.fromHWPUnit(output.page().paperArea().height()),
                 BufferedImage.TYPE_INT_RGB);
 
         Graphics2D graphics = (Graphics2D) pageImage.getGraphics();
@@ -103,7 +110,7 @@ public class PagePainter {
     }
 
     private void savePngFile(BufferedImage pageImage) throws IOException {
-        File outputFile = new File(painter.option().directoryToSave(), "page" + info.pageInfo().pageNo() + ".png");
+        File outputFile = new File(painter.option().directoryToSave(), "page" + input.pageInfo().pageNo() + ".png");
         ImageIO.write(pageImage, "png", outputFile);
     }
 }

@@ -1,6 +1,6 @@
 package kr.dogfoot.hwplib.drawer.util;
 
-import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
+import kr.dogfoot.hwplib.drawer.input.DrawingInput;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.CtrlHeaderGso;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.VertRelTo;
 
@@ -11,10 +11,10 @@ public class PositionCalculator {
         return singleObject;
     }
 
-    private DrawingInfo info;
+    private DrawingInput info;
     private CtrlHeaderGso gsoHeader;
 
-    public Area area(CtrlHeaderGso gsoHeader, DrawingInfo info) {
+    public Area area(CtrlHeaderGso gsoHeader, DrawingInput info) {
         this.info = info;
         this.gsoHeader = gsoHeader;
 

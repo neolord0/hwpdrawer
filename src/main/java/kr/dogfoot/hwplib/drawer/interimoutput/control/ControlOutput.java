@@ -1,7 +1,8 @@
-package kr.dogfoot.hwplib.drawer.drawinginfo.interims.control;
+package kr.dogfoot.hwplib.drawer.interimoutput.control;
 
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.Output;
+import kr.dogfoot.hwplib.drawer.interimoutput.Output;
 import kr.dogfoot.hwplib.drawer.util.Area;
+import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.TextFlowMethod;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.VertRelTo;
 
 public abstract class ControlOutput extends Output implements Comparable<ControlOutput>  {
@@ -9,7 +10,7 @@ public abstract class ControlOutput extends Output implements Comparable<Control
 
     public abstract int zOrder();
 
-    public abstract int textFlowMethod();
+    public abstract TextFlowMethod textFlowMethod();
 
     public abstract VertRelTo vertRelTo();
 

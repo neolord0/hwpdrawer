@@ -1,7 +1,7 @@
 package kr.dogfoot.hwplib.drawer.painter.control;
 
-import kr.dogfoot.hwplib.drawer.drawinginfo.DrawingInfo;
-import kr.dogfoot.hwplib.drawer.drawinginfo.interims.control.GsoOutput;
+import kr.dogfoot.hwplib.drawer.input.DrawingInput;
+import kr.dogfoot.hwplib.drawer.interimoutput.control.GsoOutput;
 import kr.dogfoot.hwplib.drawer.painter.Painter;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.control.gso.*;
@@ -11,19 +11,19 @@ import kr.dogfoot.hwplib.object.bodytext.control.gso.shapecomponent.lineinfo.Lin
 import kr.dogfoot.hwplib.object.etc.Color4Byte;
 
 public class GsoPainter {
+    private final DrawingInput input;
     private final Painter painter;
-    private final DrawingInfo info;
 
-    public GsoPainter(Painter painter, DrawingInfo info) {
+    public GsoPainter(DrawingInput input, Painter painter) {
+        this.input = input;
         this.painter = painter;
-        this.info = info;
     }
 
     public void line(ControlLine line, Area area) {
     }
 
     public void picture(ControlPicture picture, Area area) {
-        painter.image(area, info.getImage(picture.getShapeComponentPicture().getPictureInfo().getBinItemID()));
+        painter.image(area, input.image(picture.getShapeComponentPicture().getPictureInfo().getBinItemID()));
         boolean drawLine = setBorderLine(picture.getShapeComponentPicture().getBorderProperty().getLineType(),
                 picture.getShapeComponentPicture().getBorderThickness(),
                 picture.getShapeComponentPicture().getBorderColor());
@@ -86,7 +86,7 @@ public class GsoPainter {
 
     public void picture(GsoOutput gsoOutput) {
         ControlPicture picture = (ControlPicture) gsoOutput.gso();
-        painter.image(gsoOutput.controlArea(), info.getImage(picture.getShapeComponentPicture().getPictureInfo().getBinItemID()));
+        painter.image(gsoOutput.controlArea(), input.image(picture.getShapeComponentPicture().getPictureInfo().getBinItemID()));
 
         boolean drawLine = setBorderLine(picture.getShapeComponentPicture().getBorderProperty().getLineType(),
                 picture.getShapeComponentPicture().getBorderThickness(),
