@@ -1,5 +1,6 @@
-package kr.dogfoot.hwplib.drawer;
+package kr.dogfoot.hwplib.drawer.control;
 
+import kr.dogfoot.hwplib.drawer.HWPTester;
 import org.junit.Test;
 
 import java.io.File;
@@ -72,7 +73,12 @@ public class ControllTest {
 
     @Test
     public void test_본문과의_배치_어울림7() throws Exception {
-        HWPTester.test("testingHWP" + File.separator + "컨트롤" + File.separator + "본문과의 배치" + File.separator + "어울림7");
+        HWPTester.testAndCompare("testingHWP" + File.separator + "컨트롤" + File.separator + "본문과의 배치" + File.separator + "어울림7");
+    }
+
+    @Test
+    public void test_본문과의_배치_어울림8() throws Exception {
+        HWPTester.testAndCompare("testingHWP" + File.separator + "컨트롤" + File.separator + "본문과의 배치" + File.separator + "어울림8");
     }
 
     @Test

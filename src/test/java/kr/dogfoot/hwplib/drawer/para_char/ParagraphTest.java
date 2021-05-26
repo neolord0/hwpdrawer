@@ -1,5 +1,6 @@
-package kr.dogfoot.hwplib.drawer;
+package kr.dogfoot.hwplib.drawer.para_char;
 
+import kr.dogfoot.hwplib.drawer.HWPTester;
 import org.junit.Test;
 
 import java.io.File;
