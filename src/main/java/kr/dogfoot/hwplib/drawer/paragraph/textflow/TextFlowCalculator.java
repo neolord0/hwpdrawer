@@ -3,36 +3,46 @@ package kr.dogfoot.hwplib.drawer.paragraph.textflow;
 import kr.dogfoot.hwplib.drawer.paragraph.ParagraphDrawer;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
+import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.TextFlowMethod;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.VertRelTo;
 
 public class TextFlowCalculator {
-    private final ForTopBottom forTopBottom;
-    private final ForSquare forSquare;
+    private final ForTakePlace forTakePlace;
+    private final ForFitWithText forFitWithText;
 
     public TextFlowCalculator() {
-        forTopBottom = new ForTopBottom();
-        forSquare = new ForSquare();
+        forTakePlace = new ForTakePlace();
+        forFitWithText = new ForFitWithText();
     }
 
-    public boolean addForTopBottom(ControlCharInfo controlCharInfo) {
-        return forTopBottom.add(controlCharInfo);
+    public void add(ControlCharInfo controlCharInfo) {
+        if (controlCharInfo.textFlowMethod() == TextFlowMethod.TakePlace) {
+            forTakePlace.add(controlCharInfo);
+        } else if (controlCharInfo.textFlowMethod() == TextFlowMethod.FitWithText) {
+            forFitWithText.add(controlCharInfo);
+        }
     }
 
-    public boolean addForSquare(ControlCharInfo controlCharInfo) {
-        return forSquare.add(controlCharInfo);
+    public boolean alreadyAdded(ControlCharInfo controlCharInfo) {
+        if (controlCharInfo.textFlowMethod() == TextFlowMethod.TakePlace) {
+            return forTakePlace.alreadyAdded(controlCharInfo);
+        } else if (controlCharInfo.textFlowMethod() == TextFlowMethod.FitWithText) {
+            return forFitWithText.alreadyAdded(controlCharInfo);
+        }
+        return false;
     }
 
     public void reset() {
-        forTopBottom.reset();
-        forSquare.reset();
+        forTakePlace.reset();
+        forFitWithText.reset();
     }
 
     public Result calculate(Area textLineArea) {
         Area tempTextLineArea = new Area(textLineArea);
-        ForTopBottom.Result resultForTopBottom = forTopBottom.calculate(tempTextLineArea);
+        ForTakePlace.Result resultForTopBottom = forTakePlace.calculate(tempTextLineArea);
         tempTextLineArea.moveY(resultForTopBottom.yOffset());
 
-        Result result = forSquare.calculate(tempTextLineArea);
+        Result result = forFitWithText.calculate(tempTextLineArea);
         if (result.dividedAreas == null) {
             result.nextState = ParagraphDrawer.DrawingState.StartRedrawing;
         } else if (result.dividedAreas().length == 1 && result.dividedAreas()[0].equals(tempTextLineArea)) {

@@ -80,6 +80,15 @@ public class Content {
         return sb.toString();
     }
 
+    public boolean checkRedrawingTextLine(Area area) {
+        for (TextLine textLine : textLines()) {
+            if (textLine.area().overlap(area)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public TextLine deleteRedrawingTextLine(Area area) {
         TextLine firstTextLine = null;
         boolean overlapped = false;

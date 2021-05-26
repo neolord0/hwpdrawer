@@ -9,26 +9,49 @@ import kr.dogfoot.hwplib.drawer.interimoutput.page.PageOutput;
 import kr.dogfoot.hwplib.drawer.interimoutput.control.table.CellOutput;
 import kr.dogfoot.hwplib.drawer.interimoutput.control.table.TableOutput;
 import kr.dogfoot.hwplib.drawer.interimoutput.text.TextLine;
+import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlTable;
 import kr.dogfoot.hwplib.object.bodytext.control.gso.GsoControl;
 import kr.dogfoot.hwplib.object.bodytext.control.table.Cell;
 
+import java.util.ArrayList;
 import java.util.Stack;
 
 public class InterimOutput {
     private PageOutput page;
     private final Stack<Output> stack;
 
+    private final ArrayList<ControlInfo> controlsMovedToNextPage;
+
     public InterimOutput() {
         stack = new Stack<>();
+        controlsMovedToNextPage = new ArrayList<>();
+    }
+
+    public void addControlMovedToNextPage(ControlOutput output, ControlCharInfo charInfo) {
+        controlsMovedToNextPage.add(new ControlInfo(output, charInfo));
+    }
+
+    public boolean hasControlMovedToNextPage() {
+        return !controlsMovedToNextPage.isEmpty();
+    }
+
+    public ControlInfo[] controlsMovedToNextPage() {
+        return controlsMovedToNextPage.toArray(ControlInfo.Zero_Array);
     }
 
     public void newPageOutput(PageInfo pageInfo) {
         stack.clear();
-
         page = new PageOutput(pageInfo);
         stack.add(page);
+
+        if (!controlsMovedToNextPage.isEmpty()) {
+            for (ControlInfo controlInfo : controlsMovedToNextPage) {
+                page.content().addChildOutput(controlInfo.output);
+            }
+            controlsMovedToNextPage.clear();
+        }
     }
 
     public PageOutput page() {
@@ -120,7 +143,32 @@ public class InterimOutput {
         }
     }
 
-    public TextLine checkAndDeleteRedrawingTextLine(Area area) {
+    public boolean checkRedrawingTextLine(Area area) {
+        return currentOutput().content().checkRedrawingTextLine(area);
+    }
+
+    public TextLine deleteRedrawingTextLine(Area area) {
         return currentOutput().content().deleteRedrawingTextLine(area);
+    }
+
+    public static final class ControlInfo {
+        public static final ControlInfo[] Zero_Array = new ControlInfo[0];
+
+        private final ControlOutput output;
+        private final ControlCharInfo charInfo;
+
+        public ControlInfo(ControlOutput output, ControlCharInfo charInfo) {
+            this.output = output;
+            this.charInfo = charInfo;
+        }
+
+        public ControlOutput output() {
+            return output;
+        }
+
+        public ControlCharInfo charInfo() {
+            return charInfo;
+        }
+
     }
 }

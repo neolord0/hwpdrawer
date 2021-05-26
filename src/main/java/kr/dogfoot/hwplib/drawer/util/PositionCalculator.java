@@ -36,9 +36,9 @@ public class PositionCalculator {
                 return info.pageInfo().bodyArea().width() * width / 10000;
             case Column:
                 // todo
-                    return info.paragraphArea().width() * width / 10000;
+                    return info.paraArea().width() * width / 10000;
             case Para:
-                    return info.paragraphArea().width() * width / 10000;
+                    return info.paraArea().width() * width / 10000;
             case Absolute:
                 return width;
         }
@@ -69,10 +69,10 @@ public class PositionCalculator {
                 break;
             case Column:
                 // todo
-                criterionArea = info.paragraphArea();
+                criterionArea = info.paraArea();
                 break;
             case Para:
-                criterionArea = info.paragraphArea();
+                criterionArea = info.paraArea();
                 break;
         }
         if (criterionArea == null) {
@@ -104,7 +104,7 @@ public class PositionCalculator {
                 criterionArea = info.pageInfo().bodyArea();
                 break;
             case Para:
-                criterionArea = info.paragraphArea();
+                criterionArea = info.paraArea();
                 break;
         }
 

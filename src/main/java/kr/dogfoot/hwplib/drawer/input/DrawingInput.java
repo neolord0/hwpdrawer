@@ -123,7 +123,7 @@ public class DrawingInput {
         pageInfo
                 .resetColumn()
                 .increasePageNo();
-        currentParaListInfo().bodyArea(pageInfo.columnArea());
+
 
         if (pageInfo.pageNo() > 1 && pageInfo.isHideEmptyLine()) {
             countOfHidingEmptyLineAfterNewPage = 2;
@@ -131,10 +131,13 @@ public class DrawingInput {
             countOfHidingEmptyLineAfterNewPage = 0;
         }
 
+        bodyTextParaListInfo.bodyArea(pageInfo.columnArea());
+        /*
         if (bodyTextParaListInfo.currentPara() != null) {
             bodyTextParaListInfo.resetParaStartY();
         }
 
+         */
     }
 
     public void newColumn() {
@@ -166,6 +169,7 @@ public class DrawingInput {
 
     public void endBodyTextParaList() {
         paraListInfoStack.pop();
+        bodyTextParaListInfo = null;
     }
 
     public void startControlParaList(Area textArea, Paragraph[] paras) {
@@ -188,7 +192,7 @@ public class DrawingInput {
         return currentParaListInfo().isBodyText();
     }
 
-    public Area paragraphArea() {
+    public Area paraArea() {
         return currentParaListInfo().paraArea();
     }
 

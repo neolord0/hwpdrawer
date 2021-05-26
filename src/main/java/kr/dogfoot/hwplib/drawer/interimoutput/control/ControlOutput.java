@@ -6,6 +6,8 @@ import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.TextFlowMethod;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.VertRelTo;
 
 public abstract class ControlOutput extends Output implements Comparable<ControlOutput>  {
+    public static final ControlOutput[] Zero_Array = new ControlOutput[0];
+
     protected Area controlArea;
 
     public abstract int zOrder();

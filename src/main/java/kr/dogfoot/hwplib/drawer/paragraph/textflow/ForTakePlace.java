@@ -6,50 +6,53 @@ import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.VertRelTo;
 
 import java.util.ArrayList;
 
-public class ForTopBottom {
+public class ForTakePlace {
     private final ArrayList<ControlCharInfo> charInfos;
-    private final ArrayList<TopBottomArea> topBottomAreas;
+    private final ArrayList<TakePlaceArea> takePlaceAreas;
 
-    public ForTopBottom() {
+    public ForTakePlace() {
         charInfos = new ArrayList<>();
-        topBottomAreas = new ArrayList<>();
+        takePlaceAreas = new ArrayList<>();
     }
 
-    public boolean add(ControlCharInfo charInfo) {
+    public void add(ControlCharInfo charInfo) {
+        charInfos.add(charInfo);
+        addTakePlaceArea(charInfo.areaWithOuterMargin(), charInfo.header().getProperty().getVertRelTo());
+    }
+
+    public boolean alreadyAdded(ControlCharInfo charInfo) {
         for (ControlCharInfo charInfo2 : charInfos) {
             if (charInfo.equals(charInfo2)) {
-                return false;
+                return true;
             }
         }
-        charInfos.add(charInfo);
-        addTopBottomArea(charInfo.areaWithOuterMargin(), charInfo.header().getProperty().getVertRelTo());
-        return true;
+        return false;
     }
 
-    private void addTopBottomArea(Area area, VertRelTo vertRelTo) {
-        for (TopBottomArea tbArea : topBottomAreas) {
+    private void addTakePlaceArea(Area area, VertRelTo vertRelTo) {
+        for (TakePlaceArea tbArea : takePlaceAreas) {
             if (tbArea.intersects(area)) {
                 tbArea.merge(area, vertRelTo);
                 return;
             }
         }
-        topBottomAreas.add(new TopBottomArea(area, vertRelTo));
+        takePlaceAreas.add(new TakePlaceArea(area, vertRelTo));
     }
 
     public void reset() {
         charInfos.clear();
-        topBottomAreas.clear();
+        takePlaceAreas.clear();
     }
 
     public Result calculate(Area textLineArea) {
         long yOffset = 0;
         VertRelTo vertRelTo = VertRelTo.Paper;
 
-        int count = topBottomAreas.size();
+        int count = takePlaceAreas.size();
         for (int index = 0; index < count; index++) {
-            TopBottomArea tbArea = topBottomAreas.get(index);
+            TakePlaceArea tbArea = takePlaceAreas.get(index);
             if (tbArea.intersects(textLineArea) &&
-                    (index + 1 == count || topBottomAreas.get(index + 1).intersects(textLineArea) == false)) {
+                    (index + 1 == count || takePlaceAreas.get(index + 1).intersects(textLineArea) == false)) {
                 if (vertRelTo != VertRelTo.Para) {
                     vertRelTo = tbArea.vertRelTo;
                 }
@@ -60,19 +63,18 @@ public class ForTopBottom {
     }
 
 
-
-    private static class TopBottomArea implements Comparable<TopBottomArea> {
+    private static class TakePlaceArea implements Comparable<TakePlaceArea> {
         long top;
         long bottom;
         VertRelTo vertRelTo;
 
-        public TopBottomArea(Area area, VertRelTo vertRelTo) {
+        public TakePlaceArea(Area area, VertRelTo vertRelTo) {
             this.top = area.top();
             this.bottom = area.bottom();
             this.vertRelTo = vertRelTo;
         }
 
-        public int compareTo(TopBottomArea o) {
+        public int compareTo(TakePlaceArea o) {
             if (top > o.top)
                 return 1;
             else if (top == o.top)

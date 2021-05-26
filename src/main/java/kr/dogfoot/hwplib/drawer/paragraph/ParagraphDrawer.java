@@ -39,7 +39,7 @@ public class ParagraphDrawer {
     private boolean firstLine;
     private long height;
 
-    private final Map<Integer, CharInfo> charInfoBuffer;
+    private final CharInfoBuffer charInfoBuffer;
 
     private Area currentTextLineArea;
     private long lineHeight;
@@ -66,7 +66,7 @@ public class ParagraphDrawer {
 
         textFlowCalculator = new TextFlowCalculator();
 
-        charInfoBuffer = new HashMap<>();
+        charInfoBuffer = new CharInfoBuffer();
         recalculatingTextAreas = new LinkedList<>();
     }
 
@@ -75,7 +75,6 @@ public class ParagraphDrawer {
             input.startPara();
         }
 
-        System.out.println(redraw  + " " + input.paraIndex() + "  " + input.charIndex() + " " + input.paragraphArea());
         initialize();
 
         drawingState = DrawingState.Normal;
@@ -91,7 +90,7 @@ public class ParagraphDrawer {
         }
 
 
-        long endY = currentTextLineArea.top() - input.paragraphArea().top();
+        long endY = currentTextLineArea.top() - input.paraArea().top();
         if (input.currentPara().getHeader().isLastInList()) {
             long lineGap = lineHeight - textLineDrawer.maxCharHeight();
             endY -= lineGap;
@@ -108,7 +107,7 @@ public class ParagraphDrawer {
         wordSplitter
                 .resetWord();
 
-        currentTextLineArea = new Area(input.paragraphArea()).height(0);
+        currentTextLineArea = new Area(input.paraArea()).height(0);
 
         if (input.paraShape().getIndent() > 0) {
             currentTextLineArea.left(currentTextLineArea.left() + input.paraShape().getIndent() / 2);
@@ -171,18 +170,17 @@ public class ParagraphDrawer {
     }
 
     public NormalCharInfo normalCharInfo(HWPCharNormal ch) throws UnsupportedEncodingException {
-        NormalCharInfo charInfo = (NormalCharInfo) charInfoBuffer.get(input.charIndex());
+        NormalCharInfo charInfo = (NormalCharInfo) charInfoBuffer.get(input.paraIndex(), input.charIndex());
         if (charInfo == null) {
             charInfo = new NormalCharInfo(ch, input.charShape(), input.paraIndex(), input.charIndex(), input.charPosition())
                     .calculateWidth();
-            charInfoBuffer.put(input.charIndex(), charInfo);
+            charInfoBuffer.add(input.paraIndex(), input.charIndex(), charInfo);
         }
         return charInfo;
     }
 
     private void controlExtend(HWPChar character) {
         if (character.getCode() == 2) {
-
             Control control = input.currentPara().getControlList().get(controlExtendCharIndex);
             if (control.getType() == ControlType.ColumnDefine) {
                 // todo : 단 정의
@@ -199,12 +197,11 @@ public class ParagraphDrawer {
     }
 
     private ControlCharInfo controlCharInfo(HWPCharControlExtend ch) {
-        ControlCharInfo charInfo = (ControlCharInfo) charInfoBuffer.get(input.charIndex());
+        ControlCharInfo charInfo = (ControlCharInfo) charInfoBuffer.get(input.paraIndex(), input.charIndex());
         if (charInfo == null) {
             Control control = input.currentPara().getControlList().get(controlExtendCharIndex);
             charInfo = ControlCharInfo.create(ch, control, input);
-            charInfoBuffer.put(input.charIndex(), charInfo);
-
+            charInfoBuffer.add(input.paraIndex(), input.charIndex(), charInfo);
             controlExtendCharIndex++;
         }
         return charInfo;
@@ -346,27 +343,34 @@ public class ParagraphDrawer {
         ControlOutput output2 = controlDrawer.draw(controlCharInfo);
         controlCharInfo.output(output2);
 
-        if (!controlCharInfo.isLikeLetter()) {
-            boolean added = false;
-            if (controlCharInfo.textFlowMethod() == TextFlowMethod.FitWithText) {
-                added = textFlowCalculator.addForSquare(controlCharInfo);
-            } else if (controlCharInfo.textFlowMethod() == TextFlowMethod.TakePlace) {
-                added = textFlowCalculator.addForTopBottom(controlCharInfo);
-            }
-            output.addChildOutput(output2);
+        if (controlCharInfo.isLikeLetter()) {
+            textLineDrawer.addChar(controlCharInfo);
+            return;
+        }
 
-            if ((controlCharInfo.textFlowMethod() == TextFlowMethod.FitWithText ||
-                    controlCharInfo.textFlowMethod() == TextFlowMethod.TakePlace) && added == true) {
-                TextLine firstRedrawingTextLine = output.checkAndDeleteRedrawingTextLine(controlCharInfo.areaWithOuterMargin());
-                if (firstRedrawingTextLine != null) {
-                    throw new RedrawException(firstRedrawingTextLine.paraIndex(),
+        if (controlCharInfo.textFlowMethod() == TextFlowMethod.FitWithText
+                || controlCharInfo.textFlowMethod() == TextFlowMethod.TakePlace) {
+            if (!textFlowCalculator.alreadyAdded(controlCharInfo)) {
+                if (output.checkRedrawingTextLine(controlCharInfo.areaWithOuterMargin())) {
+                    if ((currentTextLineArea.bottom() - input.pageInfo().bodyArea().top()) < (input.pageInfo().bodyArea().height() * 75 / 100)) {
+                        textFlowCalculator.add(controlCharInfo);
+                        output.addChildOutput(output2);
+
+                        TextLine firstRedrawingTextLine = output.deleteRedrawingTextLine(controlCharInfo.areaWithOuterMargin());
+                        throw new RedrawException(firstRedrawingTextLine.paraIndex(),
                             firstRedrawingTextLine.firstCharIndex(),
                             firstRedrawingTextLine.firstCharPosition(),
                             firstRedrawingTextLine.area().top());
+                    } else {
+                        output.addControlMovedToNextPage(output2, controlCharInfo);
+                    }
+                } else {
+                    textFlowCalculator.add(controlCharInfo);
+                    output.addChildOutput(output2);
                 }
             }
         } else {
-            textLineDrawer.addChar(controlCharInfo);
+            output.addChildOutput(output2);
         }
     }
 
@@ -383,9 +387,13 @@ public class ParagraphDrawer {
 
     private void newPage() throws Exception {
         pagePainter.saveCurrentPage();
+
         input.newPage();
-        output.newPageOutput(input.pageInfo());
         processAtNewColumnOrPage();
+
+        charInfoBuffer.clearUntilPreviousPara();
+
+        output.newPageOutput(input.pageInfo());
     }
 
     private void newColumn() {
@@ -394,7 +402,7 @@ public class ParagraphDrawer {
     }
 
     private void processAtNewColumnOrPage() {
-        currentTextLineArea = new Area(input.paragraphArea());
+        currentTextLineArea = new Area(input.paraArea());
         if (firstLine == true) {
             if (input.paraShape().getIndent() > 0) {
                 currentTextLineArea.left(currentTextLineArea.left() + input.paraShape().getIndent() / 2);
@@ -415,6 +423,11 @@ public class ParagraphDrawer {
 
         wordSplitter.adjustControlAreaAtNewPage();
         textFlowCalculator.reset();
+
+        if (output.hasControlMovedToNextPage()) {
+            for (InterimOutput.ControlInfo controlInfo : output.controlsMovedToNextPage())
+            textFlowCalculator.add(controlInfo.charInfo());
+        }
     }
 
     private boolean isOverBottom(long height) {

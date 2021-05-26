@@ -55,6 +55,10 @@ public class ParagraphListInfo {
         return this;
     }
 
+    public boolean bodyText() {
+        return isBodyText;
+    }
+
     public ParagraphListInfo paras(Paragraph[] paras) {
         this.paras = paras;
         this.paraIndex = 0;
@@ -226,4 +230,5 @@ public class ParagraphListInfo {
             this.charPosition += character.getCharSize();
         }
     }
+
 }

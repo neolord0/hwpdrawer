@@ -10,25 +10,28 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.TreeSet;
 
-public class ForSquare {
+public class ForFitWithText {
     private final ArrayList<ControlCharInfo> charInfos;
-    private final TreeSet<SquareArea> squareAreas;
+    private final TreeSet<FitWithTextArea> fitWithTextAreas;
 
-    public ForSquare() {
+    public ForFitWithText() {
         charInfos = new ArrayList<>();
-        squareAreas = new TreeSet<>();
+        fitWithTextAreas = new TreeSet<>();
     }
 
-    public boolean add(ControlCharInfo charInfo) {
+    public void add(ControlCharInfo charInfo) {
+        charInfos.add(charInfo);
+        fitWithTextAreas.add(new FitWithTextArea(charInfo.areaWithOuterMargin(),
+                charInfo.header()));
+    }
+
+    public boolean alreadyAdded(ControlCharInfo charInfo) {
         for (ControlCharInfo charInfo2 : charInfos) {
             if (charInfo.equals(charInfo2)) {
-                return false;
+                return true;
             }
         }
-        charInfos.add(charInfo);
-        squareAreas.add(new SquareArea(charInfo.areaWithOuterMargin(),
-                charInfo.header()));
-        return true;
+        return false;
     }
 
     public TextFlowCalculator.Result calculate(Area textLineArea) {
@@ -38,7 +41,7 @@ public class ForSquare {
 
         boolean intersected;
         dividedAreas.add(textLineArea);
-        for (SquareArea squareArea : squareAreas) {
+        for (FitWithTextArea squareArea : fitWithTextAreas) {
             if (squareArea.area.intersects(textLineArea)) {
                 addingAreas.clear();
                 removingAreas.clear();
@@ -145,7 +148,7 @@ public class ForSquare {
     private long offsetY(Area textLineArea) {
         long minBottom = -1;
 
-        for (SquareArea squareArea : squareAreas) {
+        for (FitWithTextArea squareArea : fitWithTextAreas) {
             if (squareArea.area.intersects(textLineArea)) {
                 minBottom = (minBottom == -1) ? squareArea.area.bottom() : Math.min(squareArea.area.bottom(), minBottom);
             }
@@ -154,22 +157,22 @@ public class ForSquare {
     }
 
     public void reset() {
-        squareAreas.clear();
+        fitWithTextAreas.clear();
     }
 
-    private static class SquareArea implements Comparable<SquareArea> {
+    private static class FitWithTextArea implements Comparable<FitWithTextArea> {
         public Area area;
         public int zOrder;
         public TextHorzArrange textHorzArrange;
 
-        public SquareArea(Area area, CtrlHeaderGso ctrlHeaderGso) {
+        public FitWithTextArea(Area area, CtrlHeaderGso ctrlHeaderGso) {
             this.area = area;
             zOrder = ctrlHeaderGso.getzOrder();
             textHorzArrange = ctrlHeaderGso.getProperty().getTextHorzArrange();
         }
 
         @Override
-        public int compareTo(SquareArea o) {
+        public int compareTo(FitWithTextArea o) {
             if (zOrder > o.zOrder)
                 return 1;
             else if (zOrder == o.zOrder)

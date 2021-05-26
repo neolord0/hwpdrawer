@@ -49,6 +49,14 @@ public class HWPDrawer {
         }
 
         pagePainter.saveCurrentPage();
+        if (output.hasControlMovedToNextPage()) {
+            input.pageInfo()
+                    .resetColumn()
+                    .increasePageNo();
+
+            output.newPageOutput(input.pageInfo());
+            pagePainter.saveCurrentPage();
+        }
     }
 
     private void drawSection(Section section) throws Exception {
@@ -66,7 +74,6 @@ public class HWPDrawer {
                 paragraphDrawer.draw(redraw);
                 redraw = false;
             } catch (RedrawException e) {
-                System.out.println("exception ");
                 input.gotoParaCharPosition(e.paraIndex(), e.charIndex(), e.charPosition());
                 input.currentParaListInfo().resetParaStartY(e.startY());
                 redraw = true;
