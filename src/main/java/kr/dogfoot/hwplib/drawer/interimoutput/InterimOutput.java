@@ -1,5 +1,7 @@
 package kr.dogfoot.hwplib.drawer.interimoutput;
 
+import kr.dogfoot.hwplib.drawer.input.ColumnsInfo;
+import kr.dogfoot.hwplib.drawer.input.DrawingInput;
 import kr.dogfoot.hwplib.drawer.input.PageInfo;
 import kr.dogfoot.hwplib.drawer.interimoutput.control.ControlOutput;
 import kr.dogfoot.hwplib.drawer.interimoutput.control.GsoOutput;
@@ -41,9 +43,9 @@ public class InterimOutput {
         return controlsMovedToNextPage.toArray(ControlInfo.Zero_Array);
     }
 
-    public void newPageOutput(PageInfo pageInfo) {
+    public void newPageOutput(DrawingInput input) {
         stack.clear();
-        page = new PageOutput(pageInfo);
+        page = new PageOutput(input.pageInfo(), input.columnsInfo());
         stack.add(page);
 
         if (!controlsMovedToNextPage.isEmpty()) {
@@ -116,7 +118,7 @@ public class InterimOutput {
         }
     }
 
-    private Output currentOutput() {
+    public Output currentOutput() {
         return stack.peek();
     }
 

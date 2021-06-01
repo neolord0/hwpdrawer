@@ -1,112 +1,118 @@
 package kr.dogfoot.hwplib.drawer.interimoutput;
 
+import kr.dogfoot.hwplib.drawer.input.ColumnsInfo;
 import kr.dogfoot.hwplib.drawer.interimoutput.control.ControlOutput;
+import kr.dogfoot.hwplib.drawer.interimoutput.text.Column;
+import kr.dogfoot.hwplib.drawer.interimoutput.text.MultiColumn;
 import kr.dogfoot.hwplib.drawer.interimoutput.text.TextLine;
+import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
-import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.TextFlowMethod;
 
 import java.util.ArrayList;
 import java.util.Set;
-import java.util.TreeSet;
 
 public class Content {
-    private final ArrayList<TextLine> textLines;
-    private final TreeSet<ControlOutput> behindChildOutputs;
-    private final TreeSet<ControlOutput> nonBehindChildOutputs;
+    private final ArrayList<MultiColumn> multiColumns;
+    private MultiColumn currentMultiColumn;
 
     public Content() {
-        textLines = new ArrayList<>();
-        behindChildOutputs = new TreeSet<>();
-        nonBehindChildOutputs = new TreeSet<>();
+        multiColumns = new ArrayList<>();
+        addNewMultiColumn(null);
     }
 
-    public void addTextLine(TextLine line) {
-        textLines.add(line);
+    public Content(ColumnsInfo columnsInfo) {
+        multiColumns = new ArrayList<>();
+        addNewMultiColumn(columnsInfo);
     }
 
-    public TextLine[] textLines() {
-        return textLines.toArray(TextLine.Zero_Array);
+    public MultiColumn addNewMultiColumn(ColumnsInfo columnsInfo) {
+        MultiColumn multiColumn = new MultiColumn(columnsInfo);
+        multiColumns.add(multiColumn);
+        currentMultiColumn = multiColumn;
+        return multiColumn;
+    }
+
+    public MultiColumn[] multiColumns() {
+        return multiColumns.toArray(MultiColumn.Zero_Array);
+    }
+
+    public MultiColumn currentMultiColumn() {
+        return currentMultiColumn;
+    }
+
+    public Column currentColumn() {
+        return currentMultiColumn.currentColumn();
+    }
+
+    public void nextColumn() {
+        currentMultiColumn.nextColumn();
+    }
+
+    public void previousColumn() {
+        currentMultiColumn.previousColumn();
+    }
+
+    public void addChildOutput(ControlOutput output) {
+        currentColumn().addChildOutput(output);
     }
 
     public void setLastTextPartToLastLine() {
-        if (textLines.size() > 0) {
-            textLines.get(textLines.size() - 1).lastLine(true);
-        }
+        currentColumn().setLastTextPartToLastLine();
     }
 
-    public void addChildOutput(ControlOutput childOutput) {
-        if (childOutput.textFlowMethod() == TextFlowMethod.BehindText) {
-            behindChildOutputs.add(childOutput);
-        } else {
-            nonBehindChildOutputs.add(childOutput);
-        }
+    public void addTextLine(TextLine line) {
+        currentColumn().addTextLine(line);
+    }
+
+    public boolean checkRedrawingTextLine(Area area) {
+        return currentColumn().checkRedrawingTextLine(area);
+    }
+
+    public TextLine deleteRedrawingTextLine(Area area) {
+        return currentColumn().deleteRedrawingTextLine(area);
+    }
+
+    public TextLine[] textLines() {
+        return currentColumn().textLines();
+    }
+
+    public int textLineCount() {
+        return currentColumn().textLineCount();
+    }
+
+    public TextLine hideTextLineIndex(int topLineIndexForHiding) {
+        return currentColumn().hideTextLineIndex(topLineIndexForHiding);
+    }
+
+    public void clearColumn() {
+        currentColumn().clear();;
     }
 
     public Set<ControlOutput> behindChildOutputs() {
-        return behindChildOutputs;
+        return currentColumn().behindChildOutputs();
     }
 
     public Set<ControlOutput> nonBehindChildOutputs() {
-        return nonBehindChildOutputs;
+        return currentColumn().nonBehindChildOutputs();
     }
 
     public String test(int tabCount) {
         MyStringBuilder sb = new MyStringBuilder();
-        if (textLines.size() > 0) {
-            sb.tab(tabCount).append("textLines - {\n");
-            for (TextLine line : textLines) {
-                sb.append(line.test(tabCount + 1)).append("\n");
-            }
-            sb.tab(tabCount).append("textLines - }\n");
+        for (MultiColumn multiColumn : multiColumns) {
+            sb.tab(tabCount).append("MultiColumn - {\n");
+            sb.append(multiColumn.test(tabCount + 1));
+            sb.tab(tabCount).append("MultiColumn - }\n");
         }
-
-        if (behindChildOutputs.size() > 0) {
-            sb.tab(tabCount).append("b-controls - {\n");
-            for (ControlOutput controlOutput : behindChildOutputs) {
-                sb.append(controlOutput.test(tabCount + 1));
-            }
-            sb.tab(tabCount).append("b-controls - }\n");
-        }
-
-        if (nonBehindChildOutputs.size() > 0) {
-            sb.tab(tabCount).append("n-controls - {\n");
-            for (ControlOutput controlOutput : nonBehindChildOutputs) {
-                sb.append(controlOutput.test(tabCount + 1));
-            }
-            sb.tab(tabCount).append("n-controls - }\n");
-        }
-
         return sb.toString();
     }
 
-    public boolean checkRedrawingTextLine(Area area) {
-        for (TextLine textLine : textLines()) {
-            if (textLine.area().overlap(area)) {
-                return true;
-            }
-        }
-        return false;
+    public void calculateColumnHeight() {
+        currentColumn().calculateHeight();
     }
 
-    public TextLine deleteRedrawingTextLine(Area area) {
-        TextLine firstTextLine = null;
-        boolean overlapped = false;
-        ArrayList<TextLine> deletings = new ArrayList<>();
-        for (TextLine textLine : textLines()) {
-            if (overlapped == false && textLine.area().overlap(area)) {
-                firstTextLine = textLine;
-                overlapped = true;
-            }
-            if (overlapped == true) {
-                deletings.add(textLine);
-            }
-        }
-
-        for (TextLine deleting : deletings) {
-            textLines.remove(deleting);
-        }
-        return firstTextLine;
+    public long multiColumnHeight() {
+        return currentMultiColumn().height();
     }
 }
 

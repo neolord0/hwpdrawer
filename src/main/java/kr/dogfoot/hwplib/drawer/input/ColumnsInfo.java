@@ -3,6 +3,7 @@ package kr.dogfoot.hwplib.drawer.input;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlColumnDefine;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.columndefine.ColumnInfo;
+import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.columndefine.ColumnSort;
 
 import java.util.ArrayList;
 
@@ -10,30 +11,32 @@ public class ColumnsInfo {
     private static final float ColumnInfoRate = 1.297607421875f;
 
     private PageInfo pageInfo;
-
     private ControlColumnDefine columnDefine;
-    private ArrayList<Area> columnAreasFromLeft;
-    private ArrayList<Area> columnAreasFromRight;
+    private Area textArea;
+
+    private ArrayList<Area> areasFromLeft;
+    private ArrayList<Area> areasFromRight;
 
     private int currentColumnIndex;
 
     public ColumnsInfo(PageInfo pageInfo) {
         this.pageInfo = pageInfo;
-
-        columnAreasFromLeft = new ArrayList<>();
-        columnAreasFromRight = new ArrayList<>();
+        areasFromLeft = new ArrayList<>();
+        areasFromRight = new ArrayList<>();
 
         currentColumnIndex = 0;
     }
 
-    public void columnDefine(ControlColumnDefine columnDefine) {
-        columnAreasFromLeft.clear();
-        columnAreasFromRight.clear();
+    public void set(ControlColumnDefine columnDefine, Area textArea) { ;
+        areasFromLeft.clear();
+        areasFromRight.clear();
 
         this.columnDefine = columnDefine;
+        this.textArea = textArea;
+
         if (columnDefine.getHeader().getProperty().getColumnCount() == 1) {
-            columnAreasFromLeft.add(pageInfo.bodyArea());
-            columnAreasFromRight.add(pageInfo.columnArea());
+            areasFromLeft.add(textArea);
+            areasFromRight.add(currentColumnArea());
         } else {
             switch (columnDefine.getHeader().getProperty().getColumnDirection()) {
                 case FromLeft:
@@ -53,28 +56,28 @@ public class ColumnsInfo {
 
     private void makeColumnAreasFromLeft() {
         if (columnDefine.getHeader().getProperty().isSameWidth()) {
-            long columnWidth = (pageInfo.bodyArea().width()
+            long columnWidth = (textArea.width()
                     - columnDefine.getHeader().getGapBetweenColumn() * (columnDefine.getHeader().getProperty().getColumnCount() - 1)) / columnDefine.getHeader().getProperty().getColumnCount();
             long columnGap = columnDefine.getHeader().getGapBetweenColumn();
 
-            long columnStartX = pageInfo.bodyArea().left();
+            long columnStartX = textArea.left();
             for (int index = 0; index < columnDefine.getHeader().getProperty().getColumnCount(); index++) {
-                columnAreasFromLeft.add(new Area(columnStartX,
-                        pageInfo.bodyArea().top(),
+                areasFromLeft.add(new Area(columnStartX,
+                        textArea.top(),
                         columnStartX + columnWidth,
-                        pageInfo.bodyArea().bottom()));
+                        textArea.bottom()));
                 columnStartX += columnWidth + columnGap;
             }
         } else {
-            long columnStartX = pageInfo.bodyArea().left();
+            long columnStartX = textArea.left();
             for (ColumnInfo columnInfo : columnDefine.getHeader().getColumnInfoList()) {
                 float columnWidth = columnInfo.getWidth() * ColumnInfoRate;
                 float columnGap = columnInfo.getGap() * ColumnInfoRate;
 
-                columnAreasFromLeft.add(new Area(columnStartX,
-                        pageInfo.bodyArea().top(),
+                areasFromLeft.add(new Area(columnStartX,
+                        textArea.top(),
                         (long) (columnStartX + columnWidth),
-                        pageInfo.bodyArea().bottom()));
+                        textArea.bottom()));
                 columnStartX += columnWidth + columnGap;
             }
         }
@@ -82,66 +85,86 @@ public class ColumnsInfo {
 
     private void makeColumnAreasFromRight() {
         if (columnDefine.getHeader().getProperty().isSameWidth()) {
-            long columnWidth = (pageInfo.bodyArea().width()
+            long columnWidth = (textArea.width()
                     - columnDefine.getHeader().getGapBetweenColumn() * (columnDefine.getHeader().getProperty().getColumnCount() - 1)) / columnDefine.getHeader().getProperty().getColumnCount();
             long columnGap = columnDefine.getHeader().getGapBetweenColumn();
 
-            long columnEndX = pageInfo.bodyArea().right();
+            long columnEndX = textArea.right();
             for (int index = 0; index < columnDefine.getHeader().getProperty().getColumnCount(); index++) {
-                columnAreasFromRight.add(new Area(columnEndX - columnWidth,
-                        pageInfo.bodyArea().top(),
+                areasFromRight.add(new Area(columnEndX - columnWidth,
+                        textArea.top(),
                         columnEndX,
-                        pageInfo.bodyArea().bottom()));
+                        textArea.bottom()));
                 columnEndX -= columnWidth + columnGap;
             }
         } else {
-            long columnEndX = pageInfo.bodyArea().right();
+            long columnEndX = textArea.right();
             for (ColumnInfo columnInfo : columnDefine.getHeader().getColumnInfoList()) {
                 float columnWidth = columnInfo.getWidth() * ColumnInfoRate;
                 float columnGap = columnInfo.getGap() * ColumnInfoRate;
 
-                columnAreasFromRight.add(new Area((long) (columnEndX - columnWidth),
-                        pageInfo.bodyArea().top(),
+                areasFromRight.add(new Area((long) (columnEndX - columnWidth),
+                        textArea.top(),
                         columnEndX,
-                        pageInfo.bodyArea().bottom()));
+                        textArea.bottom()));
                 columnEndX -= columnWidth + columnGap;
             }
         }
     }
 
     public Area[] columnAreas() {
-        return columnAreasList().toArray(Area.Zero_Array);
+        return areaList().toArray(Area.Zero_Array);
     }
 
-    private ArrayList<Area> columnAreasList() {
+    private ArrayList<Area> areaList() {
         switch (columnDefine.getHeader().getProperty().getColumnDirection()) {
             case FromLeft:
-                return columnAreasFromLeft;
+                return areasFromLeft;
             case FromRight:
-                return columnAreasFromRight;
+                return areasFromRight;
             case Both:
                 if (pageInfo.pageNo() % 2 == 1) {
-                    return columnAreasFromLeft;
+                    return areasFromLeft;
                 } else {
-                    return columnAreasFromRight;
+                    return areasFromRight;
                 }
         }
-        return columnAreasFromLeft;
+        return areasFromLeft;
     }
 
-    public void resetColumn() {
+    public void reset() {
         currentColumnIndex = 0;
     }
 
-    public Area columnArea() {
-        return columnAreasList().get(currentColumnIndex);
+    public Area currentColumnArea() {
+        return areaList().get(currentColumnIndex);
     }
 
     public boolean lastColumn() {
-        return currentColumnIndex + 1 == columnAreasList().size();
+        return currentColumnIndex + 1 == areaList().size();
     }
 
     public void nextColumn() {
         currentColumnIndex++;
+    }
+
+    public void previousColumn() {
+        currentColumnIndex--;
+    }
+
+    public ColumnSort columnSort() {
+        return columnDefine.getHeader().getProperty().getColumnSort();
+    }
+
+    public boolean isDistributionMultiColumn() {
+        if (areasFromLeft.size() > 1
+                && columnDefine.getHeader().getProperty().getColumnSort() == ColumnSort.Distribution) {
+            return true;
+        }
+        return false;
+    }
+
+    public int currentColumnIndex() {
+        return currentColumnIndex;
     }
 }

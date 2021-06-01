@@ -1,73 +1,50 @@
 package kr.dogfoot.hwplib.drawer.paragraph;
 
-import kr.dogfoot.hwplib.drawer.input.DrawingInput;
+import kr.dogfoot.hwplib.drawer.interimoutput.text.TextLine;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfo;
-import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
-import kr.dogfoot.hwplib.drawer.paragraph.charInfo.NormalCharInfo;
+import kr.dogfoot.hwplib.object.docinfo.ParaShape;
 import kr.dogfoot.hwplib.object.docinfo.parashape.LineDivideForEnglish;
 import kr.dogfoot.hwplib.object.docinfo.parashape.LineDivideForHangul;
 
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
 public class WordSplitter {
-    private final DrawingInput input;
-    private final ParagraphDrawer paragraphDrawer;
-    private final TextLineDrawer textLineDrawer;
+    private ParaListDrawer paraListDrawer;
+    private TextLineDrawer textLineDrawer;
+    private WordDrawer wordDrawer;
 
     private int letterCountBeforeNewLine;
     private boolean hasNewLine;
+    private boolean stopAddingChar;
 
-    private final ArrayList<CharInfo> charsOfWord;
-    private long wordWidth;
 
-    public WordSplitter(DrawingInput input, ParagraphDrawer paragraphDrawer, TextLineDrawer textLineDrawer) {
-        this.input = input;
-        this.paragraphDrawer = paragraphDrawer;
+    public WordSplitter(ParaListDrawer paraListDrawer, TextLineDrawer textLineDrawer, WordDrawer wordDrawer) {
+        this.paraListDrawer = paraListDrawer;
         this.textLineDrawer = textLineDrawer;
-
-        charsOfWord = new ArrayList<>();
+        this.wordDrawer = wordDrawer;
     }
 
-    public void resetWord() {
-        charsOfWord.clear();
-        wordWidth = 0;
-    }
+    public int splitByLineAndAdd(ArrayList<CharInfo> wordChars, ParaShape paraShape) throws Exception {
+        stopAddingChar = false;
 
-    public void addCharOfWord(CharInfo charInfo) {
-        charsOfWord.add(charInfo);
-        wordWidth += charInfo.width();
-    }
-
-    public boolean noChar() {
-        return charsOfWord.isEmpty();
-    }
-
-    public ArrayList<CharInfo> charsOfWord() {
-        return charsOfWord;
-    }
-
-    public long wordWidth() {
-        return wordWidth;
-    }
-
-    public int split() throws Exception {
         letterCountBeforeNewLine = 0;
         hasNewLine = false;
 
-        boolean splitByEnglishLetter = input.paraShape().getProperty1().getLineDivideForEnglish() != LineDivideForEnglish.ByWord;
-        boolean splitByHangulLetter = input.paraShape().getProperty1().getLineDivideForHangul() == LineDivideForHangul.ByLetter;
-        ArrayList<WordsCharByLanguage> wordCharsByLanguages = splitByLanguage(charsOfWord);
+        boolean splitByEnglishLetter = paraShape.getProperty1().getLineDivideForEnglish() != LineDivideForEnglish.ByWord;
+        boolean splitByHangulLetter = paraShape.getProperty1().getLineDivideForHangul() == LineDivideForHangul.ByLetter;
+
+        ArrayList<WordsCharByLanguage> wordCharsByLanguages = splitByLanguage(wordChars);
         for (WordsCharByLanguage wcl : wordCharsByLanguages) {
             boolean splitByLetter = (wcl.hangul) ? splitByHangulLetter : splitByEnglishLetter;
             if (splitByLetter) {
-                addWordAllCharsToLine(wcl.wordChars, true);
+                addWordAllChars(wcl.wordChars, true);
             } else {
-                addEachLanguageWordToLine(wcl.wordChars, wcl.wordWidth);
+                addEachLanguageWord(wcl.wordChars, wcl.wordWidth);
             }
         }
         return letterCountBeforeNewLine;
     }
+
 
     private ArrayList<WordsCharByLanguage> splitByLanguage(ArrayList<CharInfo> wordChars) {
         if (wordChars == null || wordChars.size() == 0) {
@@ -99,24 +76,13 @@ public class WordSplitter {
         return list;
     }
 
-    private void addEachLanguageWordToLine(ArrayList<CharInfo> wordChars, long wordWidth) throws Exception {
-        if (wordChars.size() > 0) {
-            if (!textLineDrawer.isOverWidth(wordWidth, true)) {
-                addWordAllCharsToLine(wordChars, false);
-            } else {
-                hasNewLine = true;
-
-                if (!textLineDrawer.noDrawingCharacter()) {
-                    paragraphDrawer.saveTextLineAndNewLine();
-                }
-                addWordAllCharsToLine(wordChars, true);
-            }
-        }
-    }
-
-    private void addWordAllCharsToLine(ArrayList<CharInfo> wordChars, boolean checkOverRight) throws Exception {
+    private void addWordAllChars(ArrayList<CharInfo> wordChars, boolean checkOverRight) throws Exception {
         for (CharInfo charInfo : wordChars) {
-            if (paragraphDrawer.addCharToLine(charInfo, checkOverRight, true)) {
+            if (stopAddingChar == true) {
+                break;
+            }
+
+            if (wordDrawer.addChar(charInfo, checkOverRight, true)) {
                 hasNewLine = true;
             }
             if (!hasNewLine) {
@@ -125,54 +91,23 @@ public class WordSplitter {
         }
     }
 
-    public String test() {
-        StringBuilder sb = new StringBuilder();
-        for (CharInfo charInfo : charsOfWord) {
-            sb.append(testCharInfo(charInfo));
-        }
-        return sb.toString();
-    }
-
-    private String testCharInfo(CharInfo charInfo) {
-        StringBuilder sb = new StringBuilder();
-        if (charInfo.type() == CharInfo.Type.Normal) {
-            NormalCharInfo normalCharInfo = (NormalCharInfo) charInfo;
-            try {
-                sb
-                        .append(normalCharInfo.normalCharacter().getCh())
-                        .append("(")
-                        .append(charInfo.index())
-                        .append(")");
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
-        } else {
-            ControlCharInfo controlCharInfo = (ControlCharInfo) charInfo;
-            if (controlCharInfo.control() == null) {
-                sb
-                        .append(controlCharInfo.character().getCode())
-                        .append("(")
-                        .append(charInfo.index())
-                        .append(")");
-
+    private void addEachLanguageWord(ArrayList<CharInfo> wordChars, long wordWidth) throws Exception {
+        if (wordChars.size() > 0) {
+            if (!textLineDrawer.isOverWidth(wordWidth, true)) {
+                addWordAllChars(wordChars, false);
             } else {
-                sb
-                        .append(controlCharInfo.control().getType())
-                        .append("(")
-                        .append(charInfo.index())
-                        .append(")");
-            }
+                hasNewLine = true;
 
+                if (!textLineDrawer.noDrawingCharacter()) {
+                    paraListDrawer.saveTextLineAndNewLine();
+                }
+                addWordAllChars(wordChars, true);
+            }
         }
-        return sb.toString();
     }
 
-    public void adjustControlAreaAtNewPage() {
-        for (CharInfo charInfo : charsOfWord) {
-            if (charInfo.type() == CharInfo.Type.Control) {
-                ((ControlCharInfo) charInfo).area(input);
-            }
-        }
+    public void stopAddingChar() {
+        stopAddingChar = true;
     }
 
     private static class WordsCharByLanguage {
@@ -184,4 +119,5 @@ public class WordSplitter {
             wordChars = new ArrayList<>();
         }
     }
+
 }

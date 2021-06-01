@@ -31,7 +31,7 @@ public class ParagraphListInfo {
     private CharShape charShape;
 
     public ParagraphListInfo(DrawingInput input) {
-        this(input, new Area(input.pageInfo().columnArea()));
+        this(input, new Area(input.columnsInfo().currentColumnArea()));
     }
 
     public ParagraphListInfo(DrawingInput input, Area bodyArea) {

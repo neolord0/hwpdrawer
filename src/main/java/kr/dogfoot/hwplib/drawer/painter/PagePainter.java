@@ -4,7 +4,7 @@ import kr.dogfoot.hwplib.drawer.DrawingOption;
 import kr.dogfoot.hwplib.drawer.input.DrawingInput;
 import kr.dogfoot.hwplib.drawer.interimoutput.InterimOutput;
 import kr.dogfoot.hwplib.drawer.interimoutput.page.FooterOutput;
-import kr.dogfoot.hwplib.drawer.paragraph.ParagraphDrawer;
+import kr.dogfoot.hwplib.drawer.paragraph.ParaListDrawer;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.Convertor;
 import kr.dogfoot.hwplib.object.docinfo.borderfill.BorderThickness;
@@ -66,30 +66,19 @@ public class PagePainter {
 
     private void drawHeader() throws Exception {
         output.startHeader();
-        input.startControlParaList(input.pageInfo().headerArea().widthHeight(),
-                input.pageInfo().header().getParagraphList().getParagraphs());
-        ParagraphDrawer paragraphDrawer = new ParagraphDrawer(input, output);
 
-        while (input.nextPara()) {
-            paragraphDrawer.draw(false);
-        }
+        ParaListDrawer paraListDrawer = new ParaListDrawer(input, output);
+        paraListDrawer.drawForControl(input.pageInfo().header().getParagraphList(), input.pageInfo().headerArea().widthHeight());
 
-        input.endControlParaList();
         output.endHeader();
     }
 
-
     private void drawFooter() throws Exception {
         FooterOutput footerOutput = output.startFooter();
-        input.startControlParaList(input.pageInfo().footerArea().widthHeight(),
-                input.pageInfo().footer().getParagraphList().getParagraphs());
 
-        ParagraphDrawer paragraphDrawer = new ParagraphDrawer(input, output);
-        while (input.nextPara()) {
-            paragraphDrawer.draw(false);
-        }
+        ParaListDrawer paraListDrawer = new ParaListDrawer(input, output);
+        long calculatedContentHeight = paraListDrawer.drawForControl(input.pageInfo().footer().getParagraphList(), input.pageInfo().footerArea().widthHeight());
 
-        long calculatedContentHeight = input.endControlParaList();
         footerOutput.calculatedContentHeight(calculatedContentHeight);
 
         output.endFooter();

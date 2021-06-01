@@ -6,7 +6,7 @@ import kr.dogfoot.hwplib.drawer.interimoutput.control.ControlOutput;
 import kr.dogfoot.hwplib.drawer.interimoutput.control.GsoOutput;
 import kr.dogfoot.hwplib.drawer.interimoutput.control.table.CellOutput;
 import kr.dogfoot.hwplib.drawer.interimoutput.control.table.TableOutput;
-import kr.dogfoot.hwplib.drawer.paragraph.ParagraphDrawer;
+import kr.dogfoot.hwplib.drawer.paragraph.ParaListDrawer;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlTable;
@@ -158,13 +158,7 @@ public class ControlDrawer {
     }
 
     private long drawTextBox(ParagraphList paragraphList, Area textArea) throws Exception {
-        input.startControlParaList(textArea, paragraphList.getParagraphs());
-
-        ParagraphDrawer paragraphDrawer = new ParagraphDrawer(input, output);
-        while (input.nextPara()) {
-            paragraphDrawer.draw(false);
-        }
-
-        return input.endControlParaList();
+        ParaListDrawer paragraphListDrawer = new ParaListDrawer(input, output);
+        return paragraphListDrawer.drawForControl(paragraphList, textArea);
     }
 }

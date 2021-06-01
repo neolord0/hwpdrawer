@@ -3,7 +3,7 @@ package kr.dogfoot.hwplib.drawer;
 import kr.dogfoot.hwplib.drawer.input.DrawingInput;
 import kr.dogfoot.hwplib.drawer.interimoutput.InterimOutput;
 import kr.dogfoot.hwplib.drawer.painter.PagePainter;
-import kr.dogfoot.hwplib.drawer.paragraph.ParagraphDrawer;
+import kr.dogfoot.hwplib.drawer.paragraph.ParaListDrawer;
 import kr.dogfoot.hwplib.drawer.paragraph.RedrawException;
 import kr.dogfoot.hwplib.drawer.util.Convertor;
 import kr.dogfoot.hwplib.drawer.util.FontManager;
@@ -50,11 +50,11 @@ public class HWPDrawer {
 
         pagePainter.saveCurrentPage();
         if (output.hasControlMovedToNextPage()) {
+            input.columnsInfo().reset();
             input.pageInfo()
-                    .resetColumn()
                     .increasePageNo();
 
-            output.newPageOutput(input.pageInfo());
+            output.newPageOutput(input);
             pagePainter.saveCurrentPage();
         }
     }
@@ -62,25 +62,12 @@ public class HWPDrawer {
     private void drawSection(Section section) throws Exception {
         input
                 .section(section)
-                .startBodyTextParaList(section.getParagraphs())
                 .newPage();
 
-        output.newPageOutput(input.pageInfo());
+        output.newPageOutput(input);
 
-        ParagraphDrawer paragraphDrawer = new ParagraphDrawer(input, output, pagePainter);
-        boolean redraw = false;
-        while (redraw || input.nextPara()) {
-            try {
-                paragraphDrawer.draw(redraw);
-                redraw = false;
-            } catch (RedrawException e) {
-                input.gotoParaCharPosition(e.paraIndex(), e.charIndex(), e.charPosition());
-                input.currentParaListInfo().resetParaStartY(e.startY());
-                redraw = true;
-            }
-        }
-
-        input.endBodyTextParaList();
+        ParaListDrawer paraListDrawer = new ParaListDrawer(input, output, pagePainter);
+        paraListDrawer.drawForBodyText(section);
     }
 
     private int pageCount() {

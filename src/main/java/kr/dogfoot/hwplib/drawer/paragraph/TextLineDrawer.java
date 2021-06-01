@@ -12,8 +12,10 @@ public class TextLineDrawer {
     private final DrawingInput input;
     private final InterimOutput output;
 
+    private CharInfo firstCharInfo;
     private TextLine textLine;
 
+    private long lineHeight;
     private long maxCharHeight;
     private long maxBaseSize;
     private long wordsWidth;
@@ -35,12 +37,18 @@ public class TextLineDrawer {
 
     public TextLineDrawer reset(int paragraphIndex, Area area) {
         textLine = new TextLine(paragraphIndex, new Area(area));
-
         maxCharHeight = 0;
         maxBaseSize = 0;
         justNewLine = true;
-
         return this;
+    }
+
+    public CharInfo firstCharInfo() {
+        return firstCharInfo;
+    }
+
+    public void firstCharInfo(CharInfo firstCharInfo) {
+        this.firstCharInfo = firstCharInfo;
     }
 
     public void addNewTextPart(long startX, long width) {
@@ -55,8 +63,8 @@ public class TextLineDrawer {
         return this;
     }
 
-    public void textLineArea(Area area) {
-        textLine.area(area);
+    public Area textLineArea() {
+        return textLine.area();
     }
 
     public boolean justNewLine() {
@@ -100,28 +108,28 @@ public class TextLineDrawer {
         }
     }
 
-    public long lineHeight() {
+    public void setLineHeight() {
         long lineGap = 0;
-        long maxBasSize2 = (noDrawingCharacter())
+        long maxBaseSize2 = (noDrawingCharacter())
                 ? input.charShape().getBaseSize()
                 : maxBaseSize;
         ParaShape paraShape = input.paraShape();
         switch (paraShape.getProperty1().getLineSpaceSort()) {
             case RatioForLetter:
                 if (paraShape.getLineSpace() == paraShape.getLineSpace2()) {
-                    lineGap = maxBasSize2 * paraShape.getLineSpace() / 100 - maxBasSize2;
+                    lineGap = maxBaseSize2 * paraShape.getLineSpace() / 100 - maxBaseSize2;
                 } else {
-                    lineGap = Math.max(maxBasSize2, paraShape.getLineSpace2() / 2) - maxBasSize2;
+                    lineGap = Math.max(maxBaseSize2, paraShape.getLineSpace2() / 2) - maxBaseSize2;
                 }
                 break;
             case FixedValue:
-                lineGap = paraShape.getLineSpace() / 2 - maxBasSize2;
+                lineGap = paraShape.getLineSpace() / 2 - maxBaseSize2;
                 break;
             case OnlyMargin:
                 lineGap = paraShape.getLineSpace() / 2;
                 break;
         }
-        return maxCharHeight() + lineGap;
+        lineHeight = maxCharHeight() + lineGap;
     }
 
     public boolean noDrawingCharacter() {
@@ -140,6 +148,15 @@ public class TextLineDrawer {
             return true;
         }
         return false;
+    }
+
+    public String test() {
+        return textLine.test(0);
+    }
+
+
+    public long lineHeight() {
+        return lineHeight;
     }
 }
 

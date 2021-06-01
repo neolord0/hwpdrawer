@@ -1,4 +1,4 @@
-package kr.dogfoot.hwplib.drawer.paragraph;
+package kr.dogfoot.hwplib.drawer.paragraph.charInfo;
 
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfo;
 
@@ -35,10 +35,13 @@ public class CharInfoBuffer {
     }
 
     public void clearUntilPreviousPara() {
-        for (int paraIndex : map.keySet()) {
-            if (map.size() > 1) {
-                map.remove(paraIndex);
-            }
+        if (map.size() < 2) {
+            return;
+        }
+
+        Integer paraIndexList[] = map.keySet().toArray(new Integer[0]);
+        for (int index = 0; index < paraIndexList.length - 1; index++) {
+            map.remove(paraIndexList[index]);
         }
     }
 

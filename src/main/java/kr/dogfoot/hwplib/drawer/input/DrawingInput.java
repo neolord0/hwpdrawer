@@ -29,6 +29,7 @@ public class DrawingInput {
 
     private Section section;
     private final PageInfo pageInfo;
+    private final ColumnsInfo columnsInfo;
     private int countOfHidingEmptyLineAfterNewPage;
 
     private ParagraphListInfo bodyTextParaListInfo;
@@ -37,6 +38,7 @@ public class DrawingInput {
     public DrawingInput() {
         imageMap = new HashMap<>();
         pageInfo = new PageInfo();
+        columnsInfo = new ColumnsInfo(pageInfo);
         paraListInfoStack = new Stack<>();
     }
 
@@ -71,7 +73,7 @@ public class DrawingInput {
                 image = ImageIO.read(is);
                 imageMap.put(binData.getBinDataID(), image);
             } catch (IOException e) {
-                 e.printStackTrace();
+                e.printStackTrace();
                 image = null;
             }
 
@@ -82,7 +84,7 @@ public class DrawingInput {
 
     private EmbeddedBinaryData embeddedBinaryData(int binDataID) {
         String name = "BIN" + String.format("%04X", binDataID);
-        for (EmbeddedBinaryData embeddedBinaryData  : hwpFile.getBinData().getEmbeddedBinaryDataList()) {
+        for (EmbeddedBinaryData embeddedBinaryData : hwpFile.getBinData().getEmbeddedBinaryDataList()) {
             if (embeddedBinaryData.getName().startsWith(name)) {
                 return embeddedBinaryData;
             }
@@ -112,18 +114,21 @@ public class DrawingInput {
             }
         }
         pageInfo.sectionDefine((ControlSectionDefine) firstPara.getControlList().get(0));
-        pageInfo.columnDefine((ControlColumnDefine) firstPara.getControlList().get(1));
+        columnsInfo.set((ControlColumnDefine) firstPara.getControlList().get(1), pageInfo.bodyArea());
     }
 
     public PageInfo pageInfo() {
         return pageInfo;
     }
 
+    public ColumnsInfo columnsInfo() {
+        return columnsInfo;
+    }
+
     public void newPage() {
         pageInfo
-                .resetColumn()
                 .increasePageNo();
-
+        columnsInfo.reset();
 
         if (pageInfo.pageNo() > 1 && pageInfo.isHideEmptyLine()) {
             countOfHidingEmptyLineAfterNewPage = 2;
@@ -131,18 +136,19 @@ public class DrawingInput {
             countOfHidingEmptyLineAfterNewPage = 0;
         }
 
-        bodyTextParaListInfo.bodyArea(pageInfo.columnArea());
-        /*
-        if (bodyTextParaListInfo.currentPara() != null) {
-            bodyTextParaListInfo.resetParaStartY();
+        if (bodyTextParaListInfo != null) {
+            bodyTextParaListInfo.bodyArea(columnsInfo.currentColumnArea());
         }
-
-         */
     }
 
-    public void newColumn() {
-        pageInfo.nextColumn();
-        currentParaListInfo().bodyArea(pageInfo.columnArea());
+    public void nextColumn() {
+        columnsInfo.nextColumn();
+        currentParaListInfo().bodyArea(columnsInfo.currentColumnArea());
+    }
+
+    public void previousColumn() {
+        columnsInfo.previousColumn();
+        currentParaListInfo().bodyArea(columnsInfo.currentColumnArea());
     }
 
     public boolean checkHidingEmptyLineAfterNewPage() {

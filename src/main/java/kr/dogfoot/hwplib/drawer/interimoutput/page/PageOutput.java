@@ -1,5 +1,6 @@
 package kr.dogfoot.hwplib.drawer.interimoutput.page;
 
+import kr.dogfoot.hwplib.drawer.input.ColumnsInfo;
 import kr.dogfoot.hwplib.drawer.input.PageInfo;
 import kr.dogfoot.hwplib.drawer.interimoutput.Content;
 import kr.dogfoot.hwplib.drawer.interimoutput.Output;
@@ -18,14 +19,14 @@ public class PageOutput extends Output {
     private HeaderOutput headerOutput;
     private FooterOutput footerOutput;
 
-    public PageOutput(PageInfo pageInfo) {
+    public PageOutput(PageInfo pageInfo, ColumnsInfo columnsInfo) {
         pageNo = pageInfo.pageNo();
         paperArea = pageInfo.paperArea();
-        columnAreas = pageInfo.columnAreas();
+        columnAreas = columnsInfo.columnAreas();
         headerArea = pageInfo.headerArea();
         footerArea = pageInfo.footerArea();
 
-        content = new Content();
+        content = new Content(columnsInfo);
         headerOutput = null;
         footerOutput = null;
     }
