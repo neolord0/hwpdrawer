@@ -1,6 +1,5 @@
 package kr.dogfoot.hwplib.drawer.paragraph;
 
-import kr.dogfoot.hwplib.drawer.interimoutput.text.TextLine;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfo;
 import kr.dogfoot.hwplib.object.docinfo.ParaShape;
 import kr.dogfoot.hwplib.object.docinfo.parashape.LineDivideForEnglish;
@@ -78,18 +77,19 @@ public class WordSplitter {
 
     private void addWordAllChars(ArrayList<CharInfo> wordChars, boolean checkOverRight) throws Exception {
         for (CharInfo charInfo : wordChars) {
-            if (stopAddingChar == true) {
-                break;
-            }
-
             if (wordDrawer.addChar(charInfo, checkOverRight, true)) {
                 hasNewLine = true;
             }
             if (!hasNewLine) {
                 letterCountBeforeNewLine++;
             }
+            
+            if (stopAddingChar == true) {
+                break;
+            }
         }
     }
+
 
     private void addEachLanguageWord(ArrayList<CharInfo> wordChars, long wordWidth) throws Exception {
         if (wordChars.size() > 0) {
@@ -98,7 +98,7 @@ public class WordSplitter {
             } else {
                 hasNewLine = true;
 
-                if (!textLineDrawer.noDrawingCharacter()) {
+                if (!textLineDrawer.noDrawingChar()) {
                     paraListDrawer.saveTextLineAndNewLine();
                 }
                 addWordAllChars(wordChars, true);
@@ -106,8 +106,12 @@ public class WordSplitter {
         }
     }
 
-    public void stopAddingChar() {
-        stopAddingChar = true;
+    public void stopAddingChar(boolean stopAddingChar) {
+        this.stopAddingChar = stopAddingChar;
+    }
+
+    public boolean stoppedAddingChar() {
+        return stopAddingChar;
     }
 
     private static class WordsCharByLanguage {

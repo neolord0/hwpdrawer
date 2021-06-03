@@ -41,6 +41,14 @@ public class Content {
         return currentMultiColumn;
     }
 
+    public boolean rearrangedForDistributionColumn() {
+        return currentMultiColumn().rearrangedForDistributionColumn();
+    }
+
+    public void rearrangedForDistributionColumn(boolean rearrangedForDistributionColumn) {
+        currentMultiColumn().rearrangedForDistributionColumn(rearrangedForDistributionColumn);
+    }
+
     public Column currentColumn() {
         return currentMultiColumn.currentColumn();
     }
@@ -81,8 +89,12 @@ public class Content {
         return currentColumn().textLineCount();
     }
 
-    public TextLine hideTextLineIndex(int topLineIndexForHiding) {
-        return currentColumn().hideTextLineIndex(topLineIndexForHiding);
+    public TextLine hideTextLineIndex(int topLineIndex) {
+        return currentColumn().hideTextLineIndex(topLineIndex);
+    }
+
+    public TextLine deleteTextLineIndex(int topLineIndex) {
+        return currentColumn().deleteTextLineIndex(topLineIndex);
     }
 
     public void clearColumn() {

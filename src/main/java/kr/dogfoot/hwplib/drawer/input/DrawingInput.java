@@ -1,5 +1,6 @@
 package kr.dogfoot.hwplib.drawer.input;
 
+import kr.dogfoot.hwplib.drawer.interimoutput.text.TextLine;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.HWPFile;
 import kr.dogfoot.hwplib.object.bindata.EmbeddedBinaryData;
@@ -266,5 +267,11 @@ public class DrawingInput {
     public void gotoParaCharPosition(int paragraphIndex, int characterIndex, int characterPosition) {
         currentParaListInfo().gotoPara(paragraphIndex);
         currentParaListInfo().gotoChar(characterIndex, characterPosition);
+    }
+
+    public void gotoLineFirstChar(TextLine textLine) {
+        gotoParaCharPosition(textLine.paraIndex(),
+                textLine.firstChar().index(),
+                textLine.firstChar().prePosition());
     }
 }

@@ -4,7 +4,6 @@ import kr.dogfoot.hwplib.drawer.input.DrawingInput;
 import kr.dogfoot.hwplib.drawer.interimoutput.InterimOutput;
 import kr.dogfoot.hwplib.drawer.painter.PagePainter;
 import kr.dogfoot.hwplib.drawer.paragraph.ParaListDrawer;
-import kr.dogfoot.hwplib.drawer.paragraph.RedrawException;
 import kr.dogfoot.hwplib.drawer.util.Convertor;
 import kr.dogfoot.hwplib.drawer.util.FontManager;
 import kr.dogfoot.hwplib.object.HWPFile;

@@ -70,7 +70,7 @@ public class TextPart {
         }
         if (charInfo.type() == CharInfo.Type.Normal
                 || (charInfo.type() == CharInfo.Type.Control && ((ControlCharInfo) charInfo).isLikeLetter())) {
-            textLine.hasDrawingCharacter(true);
+            textLine.hasDrawingChar(true);
         }
     }
 

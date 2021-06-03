@@ -2,10 +2,13 @@ package kr.dogfoot.hwplib.drawer.paragraph;
 
 import kr.dogfoot.hwplib.drawer.input.DrawingInput;
 import kr.dogfoot.hwplib.drawer.interimoutput.InterimOutput;
+import kr.dogfoot.hwplib.drawer.interimoutput.control.ControlOutput;
 import kr.dogfoot.hwplib.drawer.interimoutput.text.TextLine;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.docinfo.ParaShape;
+
+import java.util.ArrayList;
 
 
 public class TextLineDrawer {
@@ -101,7 +104,7 @@ public class TextLineDrawer {
     }
 
     public long maxCharHeight() {
-        if (noDrawingCharacter()) {
+        if (noDrawingChar()) {
             return input.charShape().getBaseSize();
         } else {
             return maxCharHeight;
@@ -110,7 +113,7 @@ public class TextLineDrawer {
 
     public void setLineHeight() {
         long lineGap = 0;
-        long maxBaseSize2 = (noDrawingCharacter())
+        long maxBaseSize2 = (noDrawingChar())
                 ? input.charShape().getBaseSize()
                 : maxBaseSize;
         ParaShape paraShape = input.paraShape();
@@ -132,28 +135,25 @@ public class TextLineDrawer {
         lineHeight = maxCharHeight() + lineGap;
     }
 
-    public boolean noDrawingCharacter() {
-        return !textLine.hasDrawingCharacter();
+    public boolean noDrawingChar() {
+        return !textLine.hasDrawingChar();
     }
 
     public void setBestSpaceRate() {
         textLine.currentTextPart().spaceRate((double) (textLine.currentTextPart().width() - wordsWidth) / (double) spacesWidth);
     }
 
-    public boolean saveToOutput() {
-        if (textLine.hasDrawingCharacter()) {
+    public void saveToOutput() {
+        if (textLine.hasDrawingChar()) {
             textLine.maxCharHeight(maxCharHeight)
                     .alignment(input.paraShape().getProperty1().getAlignment());
             output.addTextLine(textLine);
-            return true;
         }
-        return false;
     }
 
     public String test() {
         return textLine.test(0);
     }
-
 
     public long lineHeight() {
         return lineHeight;

@@ -9,63 +9,132 @@ public class DistributionColumnProcessor {
     private final InterimOutput output;
     private final ParaListDrawer paraListDrawer;
 
+    private int textLineCounts[];
+    private long maxPositionAtOverPage;
+    private int[] textLineCountsOfColumnAtMaxPosition;
+    private long minMultiColumnHeight;
+    private int[] textLineCountsOfColumnAtMinHeight;
+
+    private boolean endProcess;
+
     public DistributionColumnProcessor(DrawingInput input, InterimOutput output, ParaListDrawer paraListDrawer) {
         this.input = input;
         this.output = output;
         this.paraListDrawer = paraListDrawer;
     }
 
-    public void process() throws Exception {
-        int textLineCountOfColumn = output.currentOutput().content().textLineCount();
+    public void test() throws Exception {
+        if (input.columnsInfo().currentColumnIndex() == 0) {
+            reset();
+        }
 
-        long minMultiColumnHeight = -1;
-        int textLineCountOfColumnAtMinHeight = -1;
+        paraListDrawer.forDistributionColumn(true);
 
-        for (int textLineCountOfColumn2 = 1 ; textLineCountOfColumn2 < textLineCountOfColumn - 1; textLineCountOfColumn2++) {
-            TextLine forSecondColumn = output.currentOutput().content().hideTextLineIndex(textLineCountOfColumn2);
+        testFromCurrentColumn();
 
-            input.gotoParaCharPosition(forSecondColumn.paraIndex(), forSecondColumn.firstChar().index(), forSecondColumn.firstChar().prePosition());
+        if (endProcess) {
+            paraListDrawer.forDistributionColumn(false);
+            output.currentOutput().content().rearrangedForDistributionColumn(true);
+            redraw();
+        }
+    }
 
-            paraListDrawer.nextColumn();
+    private void testFromCurrentColumn() throws Exception {
+        int textLineCountOfCurrentColumn = output.currentOutput().content().textLineCount();
+        for (int textLineCount = 1; textLineCount < textLineCountOfCurrentColumn; textLineCount++) {
+            setTextLineCount(input.columnsInfo().currentColumnIndex(), textLineCount);
 
-            boolean redraw = true;
-            while (redraw || input.nextPara()) {
-                try {
-                    paraListDrawer.paragraph(redraw);
-                    redraw = false;
-                } catch (RedrawException e) {
-                    redraw = true;
+            testNextColumn();
+        }
+        if (input.columnsInfo().currentColumnIndex() == 0) {
+            endProcess = true;
+        }
+    }
+
+    private void testNextColumn() throws Exception {
+        TextLine firstLine = output.currentOutput().content().hideTextLineIndex(textLineCount(input.columnsInfo().currentColumnIndex()));
+
+        paraListDrawer.nextColumn();
+        input.gotoLineFirstChar(firstLine);
+        output.currentOutput().content().clearColumn();
+
+        boolean overPage = false;
+        long positionAtOverPage = -1;
+
+        try {
+            paraListDrawer.redrawParaList();
+        } catch (BreakingDrawException e) {
+            if (e.type().isForDistributionColumn()) {
+                overPage = true;
+                positionAtOverPage = e.paraIndex() << 32 +e.charIndex();
+            }
+        }
+
+        setTextLineCount(input.columnsInfo().currentColumnIndex(),
+                output.currentOutput().content().textLineCount());
+
+        setMinimumColumnHeight(overPage,
+                positionAtOverPage,
+                output.currentOutput().content().multiColumnHeight());
+
+        output.currentOutput().content().clearColumn();
+        paraListDrawer.previousColumn();
+    }
+
+    private void setMinimumColumnHeight(boolean overPage, long positionAtOverPage, long multiColumnHeight) {
+        if (input.columnsInfo().lastColumn()) {
+            if (overPage == true) {
+                if (maxPositionAtOverPage == -1 || maxPositionAtOverPage <= positionAtOverPage) {
+                    maxPositionAtOverPage = positionAtOverPage;
+                    textLineCountsOfColumnAtMaxPosition = textLineCounts.clone();
+                }
+            } else {
+                if (minMultiColumnHeight == -1 ||
+                        minMultiColumnHeight >= multiColumnHeight) {
+                    minMultiColumnHeight = multiColumnHeight;
+                    textLineCountsOfColumnAtMinHeight = textLineCounts.clone();
                 }
             }
+        }
+    }
 
-            long multiColumnHeight = output.currentOutput().content().multiColumnHeight();
+    private int textLineCount(int columnIndex) {
+        return textLineCounts[columnIndex];
+    }
 
-            if (minMultiColumnHeight == -1 ||
-                    minMultiColumnHeight >= multiColumnHeight) {
-                minMultiColumnHeight = multiColumnHeight;
-                textLineCountOfColumnAtMinHeight = textLineCountOfColumn2;
-            }
+    private void setTextLineCount(int columnIndex, int textLineCount) {
+        textLineCounts[input.columnsInfo().currentColumnIndex()] = textLineCount;
+    }
 
-            output.currentOutput().content().clearColumn();
-            paraListDrawer.previousColumn();
+    private void redraw()  {
+        if (textLineCountsOfColumnAtMinHeight == null) {
+            input.columnsInfo().limitedTextLineCounts(textLineCountsOfColumnAtMaxPosition);
+        } else {
+            input.columnsInfo().limitedTextLineCounts(textLineCountsOfColumnAtMinHeight);
         }
 
-        TextLine forSecondColumn = output.currentOutput().content().hideTextLineIndex(textLineCountOfColumnAtMinHeight);
+        output.currentOutput().content().hideTextLineIndex(-1);
+        TextLine firstLine = output.currentOutput().content().deleteTextLineIndex(input.columnsInfo().limitedTextLineCount());
 
-        input.gotoParaCharPosition(forSecondColumn.paraIndex(),
-                forSecondColumn.firstChar().index(),
-                forSecondColumn.firstChar().prePosition());
         paraListDrawer.nextColumn();
+        input.gotoLineFirstChar(firstLine);
 
-        boolean redraw = true;
-        while (redraw || input.nextPara()) {
-            try {
-                paraListDrawer.paragraph(redraw);
-                redraw = false;
-            } catch (RedrawException e) {
-                redraw = true;
-            }
+        try {
+            paraListDrawer.redrawParaList();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+    }
+
+    private void reset() {
+        textLineCounts = new int[input.columnsInfo().columnCount()];
+
+        maxPositionAtOverPage = -1;
+        textLineCountsOfColumnAtMaxPosition = null;
+        minMultiColumnHeight = -1;
+        textLineCountsOfColumnAtMinHeight = null;
+
+        endProcess = false;
     }
 
 }

@@ -16,6 +16,7 @@ public class ColumnsInfo {
 
     private ArrayList<Area> areasFromLeft;
     private ArrayList<Area> areasFromRight;
+    private int[] limitedTextLineCounts;
 
     private int currentColumnIndex;
 
@@ -166,5 +167,21 @@ public class ColumnsInfo {
 
     public int currentColumnIndex() {
         return currentColumnIndex;
+    }
+
+    public int columnCount() {
+        return areaList().size();
+    }
+
+    public void limitedTextLineCounts(int[] limitedTextLineCounts) {
+        this.limitedTextLineCounts = limitedTextLineCounts;
+    }
+
+    public int limitedTextLineCount() {
+        if (limitedTextLineCounts == null) {
+            return -1;
+        } else {
+            return limitedTextLineCounts[currentColumnIndex];
+        }
     }
 }

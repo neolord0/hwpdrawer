@@ -24,7 +24,7 @@ public class TextLine implements Iterable<TextPart> {
     private Alignment alignment;
     private long maxCharHeight;
     private boolean lastLine;
-    private boolean hasDrawingCharacter;
+    private boolean hasDrawingChar;
 
     private final TreeSet<ControlOutput> behindChildOutputs;
     private final TreeSet<ControlOutput> nonBehindChildOutputs;
@@ -39,7 +39,7 @@ public class TextLine implements Iterable<TextPart> {
         alignment = Alignment.Justify;
         maxCharHeight = -1;
         lastLine = false;
-        hasDrawingCharacter = false;
+        hasDrawingChar = false;
 
         behindChildOutputs = new TreeSet<>();
         nonBehindChildOutputs = new TreeSet<>();
@@ -48,17 +48,6 @@ public class TextLine implements Iterable<TextPart> {
     public int paraIndex() {
         return paraIndex;
     }
-
-    /*
-    public int firstCharIndex() {
-        CharInfo firstCharInfo = firstChar();
-        if (firstCharInfo != null) {
-            return firstCharInfo.index();
-        }
-        return -1;
-    }
-
-     */
 
     public CharInfo firstChar() {
         if (parts.size() > 0) {
@@ -70,29 +59,6 @@ public class TextLine implements Iterable<TextPart> {
         }
         return null;
     }
-
-    /*
-    public int firstCharPosition() {
-        CharInfo firstCharInfo = firstChar();
-        if (firstCharInfo != null) {
-            return firstCharInfo.position();
-        }
-        return -1;
-    }
-
-     */
-
-/*
-    public int firstCharSize() {
-        CharInfo firstCharInfo = firstChar();
-        if (firstCharInfo != null) {
-            return firstCharInfo.character().getCharSize();
-        }
-        return -1;
-    }
-
-
- */
 
     public Area area() {
         return area;
@@ -145,12 +111,12 @@ public class TextLine implements Iterable<TextPart> {
         return this;
     }
 
-    public boolean hasDrawingCharacter() {
-        return hasDrawingCharacter;
+    public boolean hasDrawingChar() {
+        return hasDrawingChar;
     }
 
-    public TextLine hasDrawingCharacter(boolean hasDrawingCharacter) {
-        this.hasDrawingCharacter = hasDrawingCharacter;
+    public TextLine hasDrawingChar(boolean hasDrawingCharacter) {
+        this.hasDrawingChar = hasDrawingCharacter;
         return this;
     }
 
@@ -173,7 +139,11 @@ public class TextLine implements Iterable<TextPart> {
 
     public String test(int tabCount) {
         MyStringBuilder sb = new MyStringBuilder();
-        sb.append(String.valueOf(firstChar().index())).append(" : ");
+        if (firstChar() != null) {
+            sb.append(String.valueOf(firstChar().paraIndex())).append(":").append(String.valueOf(firstChar().index())) .append(" = ");
+        } else {
+            sb.append("-:- = ");
+        }
         if (parts.size() > 0) {
             for (TextPart part : parts) {
                 sb.append(part.test(tabCount)).append(", ");

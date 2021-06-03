@@ -10,7 +10,6 @@ import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
 public class PageOutput extends Output {
     private final int pageNo;
     private final Area paperArea;
-    private final Area[] columnAreas;
 
     private final Area headerArea;
     private final Area footerArea;
@@ -22,7 +21,6 @@ public class PageOutput extends Output {
     public PageOutput(PageInfo pageInfo, ColumnsInfo columnsInfo) {
         pageNo = pageInfo.pageNo();
         paperArea = pageInfo.paperArea();
-        columnAreas = columnsInfo.columnAreas();
         headerArea = pageInfo.headerArea();
         footerArea = pageInfo.footerArea();
 
@@ -37,10 +35,6 @@ public class PageOutput extends Output {
 
     public Area paperArea() {
         return paperArea;
-    }
-
-    public Area[] columnAreas() {
-        return columnAreas;
     }
 
     @Override

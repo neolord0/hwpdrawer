@@ -76,6 +76,10 @@ public class WordDrawer {
 
         for (CharInfo charInfo : charsOfWord) {
             addChar(charInfo);
+
+            if (wordSplitter.stoppedAddingChar()) {
+                break;
+            }
         }
     }
 
@@ -100,7 +104,7 @@ public class WordDrawer {
         textLineDrawer.justNewLine(false);
 
         if (paraListDrawer.drawingState().canAddChar()) {
-            if (textLineDrawer.noDrawingCharacter() && paraListDrawer.drawingState().isNormal()) {
+            if (textLineDrawer.noDrawingChar() && paraListDrawer.drawingState().isNormal()) {
                 paraListDrawer.checkNewColumnAndPage();
                 textLineDrawer.firstCharInfo(charInfo);
             }
@@ -111,13 +115,12 @@ public class WordDrawer {
                 textLineDrawer.addChar(charInfo);
             }
         }
-
         return hasNewLine;
     }
 
     private void spanningWord(NormalCharInfo spaceCharInfo) throws Exception {
         if (isAllLineDivideByWord()) {
-            if (!textLineDrawer.noDrawingCharacter()) {
+            if (!textLineDrawer.noDrawingChar()) {
                 paraListDrawer.saveTextLineAndNewLine();
             }
             if (paraListDrawer.drawingState().isEndRecalculating()) {
@@ -152,10 +155,6 @@ public class WordDrawer {
                 ((ControlCharInfo) charInfo).area(input);
             }
         }
-    }
-
-    public void stopAddingCharAtSplittingWord() {
-        wordSplitter.stopAddingChar();
     }
 
     public String test() {
@@ -197,5 +196,13 @@ public class WordDrawer {
 
         }
         return sb.toString();
+    }
+
+    public void stopAddingChar() {
+        wordSplitter.stopAddingChar(true);
+    }
+
+    public void continueAddingChar() {
+        wordSplitter.stopAddingChar(false);
     }
 }

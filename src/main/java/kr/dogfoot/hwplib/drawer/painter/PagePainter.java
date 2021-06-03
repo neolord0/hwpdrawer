@@ -47,12 +47,6 @@ public class PagePainter {
         painter
                 .graphics2D((Graphics2D) pageImage.getGraphics());
 
-
-        painter.setLineStyle(BorderType.Solid, BorderThickness.MM0_15, new Color4Byte(255, 0, 0));
-        for (Area columnArea : output.page().columnAreas()) {
-               painter.rectangle(columnArea, false);
-        }
-
         if (output.page().headerOutput() != null) {
             painter.paintContent(output.page().headerOutput().content());
         }

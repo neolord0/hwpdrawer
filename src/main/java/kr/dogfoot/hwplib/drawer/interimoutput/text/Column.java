@@ -91,11 +91,36 @@ public class Column {
         return firstTextLine;
     }
 
-    public TextLine hideTextLineIndex(int topLineIndexForHiding) {
-        if (topLineIndexForHiding < textLineCount()) {
-            this.topLineIndexForHiding = topLineIndexForHiding;
-            return textLines.get(topLineIndexForHiding);
+    public TextLine hideTextLineIndex(int topLineIndex) {
+        if (topLineIndex == -1) {
+            topLineIndexForHiding = -1;
+        } else {
+            if (topLineIndex < textLineCount()) {
+                topLineIndexForHiding = topLineIndex;
+                return textLines.get(topLineIndex);
+            }
         }
+        return null;
+    }
+
+
+    public TextLine deleteTextLineIndex(int topLineIndex) {
+        if (topLineIndex < textLineCount()) {
+            TextLine topLine = textLines.get(topLineIndex);
+
+            ArrayList<TextLine> deletes = new ArrayList<>();
+            for (int index = topLineIndex; index < textLines.size(); index++) {
+                deletes.add(textLines.get(index));
+            }
+
+            for (TextLine textLine : deletes) {
+                textLines.remove(textLine);
+            }
+
+            return topLine;
+        }
+
+
         return null;
     }
 
@@ -134,6 +159,7 @@ public class Column {
         textLines.clear();
         behindChildOutputs.clear();
         nonBehindChildOutputs.clear();
+        topLineIndexForHiding = -1;
     }
 
 

@@ -2,6 +2,8 @@ package kr.dogfoot.hwplib.drawer;
 
 import kr.dogfoot.hwplib.drawer.util.Area;
 
+import java.io.File;
+
 public class Test {
     /*
     @org.junit.Test
@@ -17,12 +19,20 @@ public class Test {
      */
 
     @org.junit.Test
+    public void test_1() throws Exception {
+        HWPTester.test("etc" + File.separator + "2");
+    }
+
+    /*
+    @org.junit.Test
     public void overlapArea() {
         Area a  = new Area(23096,38558, 43569, 43724);
         Area b = new Area(8504, 38720, 51024, 39720);
         System.out.println(a.overlap(b));
         System.out.println(b.overlap(a));
     }
+
+     */
 
     /*
     @org.junit.Test
