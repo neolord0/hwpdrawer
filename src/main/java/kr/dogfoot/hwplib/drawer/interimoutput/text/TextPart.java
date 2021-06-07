@@ -40,7 +40,7 @@ public class TextPart {
     }
 
     public boolean lastLine() {
-        return textLine.lastLine();
+        return textLine.lastInPara();
     }
 
     public long maxCharHeight() {

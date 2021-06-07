@@ -6,9 +6,6 @@ import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.TextFlowMethod;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.VertRelTo;
 
-import java.util.LinkedList;
-import java.util.Queue;
-
 public class TextFlowCalculator {
     private final ForTakePlace forTakePlace;
     private final ForFitWithText forFitWithText;

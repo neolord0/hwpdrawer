@@ -5,7 +5,6 @@ import kr.dogfoot.hwplib.drawer.interimoutput.control.ControlOutput;
 import kr.dogfoot.hwplib.drawer.interimoutput.text.Column;
 import kr.dogfoot.hwplib.drawer.interimoutput.text.MultiColumn;
 import kr.dogfoot.hwplib.drawer.interimoutput.text.TextLine;
-import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
 
@@ -41,12 +40,12 @@ public class Content {
         return currentMultiColumn;
     }
 
-    public boolean rearrangedForDistributionColumn() {
-        return currentMultiColumn().rearrangedForDistributionColumn();
+    public boolean hadRearrangedDistributionMultiColumn() {
+        return currentMultiColumn().hadRearrangedDistributionMultiColumn();
     }
 
-    public void rearrangedForDistributionColumn(boolean rearrangedForDistributionColumn) {
-        currentMultiColumn().rearrangedForDistributionColumn(rearrangedForDistributionColumn);
+    public void hadRearrangedDistributionMultiColumn(boolean hadRearrangedDistributionMultiColumn) {
+        currentMultiColumn().hadRearrangedDistributionMultiColumn(hadRearrangedDistributionMultiColumn);
     }
 
     public Column currentColumn() {
@@ -65,8 +64,8 @@ public class Content {
         currentColumn().addChildOutput(output);
     }
 
-    public void setLastTextPartToLastLine() {
-        currentColumn().setLastTextPartToLastLine();
+    public void setLastLineInPara() {
+        currentColumn().setLastLineInPara();
     }
 
     public void addTextLine(TextLine line) {
@@ -89,8 +88,12 @@ public class Content {
         return currentColumn().textLineCount();
     }
 
-    public TextLine hideTextLineIndex(int topLineIndex) {
+    public TextLine hideTextLine(int topLineIndex) {
         return currentColumn().hideTextLineIndex(topLineIndex);
+    }
+
+    public void resetHidingTextLineIndex() {
+        currentColumn().resetHideTextLineIndex();
     }
 
     public TextLine deleteTextLineIndex(int topLineIndex) {
@@ -126,5 +129,6 @@ public class Content {
     public long multiColumnHeight() {
         return currentMultiColumn().height();
     }
+
 }
 

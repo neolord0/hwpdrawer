@@ -1,9 +1,15 @@
 package kr.dogfoot.hwplib.drawer.paragraph;
 
 import kr.dogfoot.hwplib.drawer.input.DrawingInput;
+import kr.dogfoot.hwplib.drawer.interimoutput.InterimOutput;
+import kr.dogfoot.hwplib.drawer.interimoutput.control.ControlOutput;
+import kr.dogfoot.hwplib.drawer.interimoutput.text.TextLine;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfo;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.NormalCharInfo;
+import kr.dogfoot.hwplib.drawer.paragraph.control.ControlDrawer;
+import kr.dogfoot.hwplib.drawer.paragraph.textflow.TextFlowCalculator;
+import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.TextFlowMethod;
 import kr.dogfoot.hwplib.object.docinfo.parashape.LineDivideForEnglish;
 import kr.dogfoot.hwplib.object.docinfo.parashape.LineDivideForHangul;
 
@@ -12,9 +18,13 @@ import java.util.ArrayList;
 
 public class WordDrawer {
     private final DrawingInput input;
+    private final InterimOutput output;
     private final ParaListDrawer paraListDrawer;
     private final TextLineDrawer textLineDrawer;
+    private final TextFlowCalculator textFlowCalculator;
+
     private final WordSplitter wordSplitter;
+    private final ControlDrawer controlDrawer;
 
     private final ArrayList<CharInfo> charsOfWord;
     private long wordWidth;
@@ -23,11 +33,15 @@ public class WordDrawer {
     private boolean applyMinimumSpace;
 
 
-    public WordDrawer(DrawingInput input, ParaListDrawer paraListDrawer, TextLineDrawer textLineDrawer) {
+    public WordDrawer(DrawingInput input, InterimOutput output, ParaListDrawer paraListDrawer, TextLineDrawer textLineDrawer, TextFlowCalculator textFlowCalculator) {
         this.input = input;
+        this.output = output;
         this.paraListDrawer = paraListDrawer;
         this.textLineDrawer = textLineDrawer;
+        this.textFlowCalculator = textFlowCalculator;
+
         wordSplitter = new WordSplitter(paraListDrawer, textLineDrawer, this);
+        controlDrawer = new ControlDrawer(input, output);
 
         charsOfWord = new ArrayList<>();
     }
@@ -110,12 +124,51 @@ public class WordDrawer {
             }
 
             if (paraListDrawer.drawingState().isNormal() && charInfo.type() == CharInfo.Type.Control) {
-                paraListDrawer.addControlChar((ControlCharInfo) charInfo);
+                addControlChar((ControlCharInfo) charInfo);
             } else {
                 textLineDrawer.addChar(charInfo);
             }
         }
         return hasNewLine;
+    }
+
+    private void addControlChar(ControlCharInfo controlCharInfo) throws Exception {
+        ControlOutput output2 = controlDrawer.draw(controlCharInfo);
+        controlCharInfo.output(output2);
+
+        if (controlCharInfo.isLikeLetter()) {
+            textLineDrawer.addChar(controlCharInfo);
+            return;
+        }
+
+        if (controlCharInfo.textFlowMethod() == TextFlowMethod.FitWithText
+                || controlCharInfo.textFlowMethod() == TextFlowMethod.TakePlace) {
+            if (!textFlowCalculator.alreadyAdded(controlCharInfo)) {
+                if (output.checkRedrawingTextLine(controlCharInfo.areaWithOuterMargin())) {
+                    if (isOver75PercentOfPageHeight(paraListDrawer.currentTextPartArea().bottom())) {
+                        output.addControlMovedToNextPage(output2, controlCharInfo);
+                    } else {
+                        textFlowCalculator.add(controlCharInfo);
+                        output.addChildOutput(output2);
+
+                        TextLine firstRedrawingTextLine = output.deleteRedrawingTextLine(controlCharInfo.areaWithOuterMargin());
+                        throw new BreakingDrawException(firstRedrawingTextLine.paraIndex(),
+                                firstRedrawingTextLine.firstChar().index(),
+                                firstRedrawingTextLine.firstChar().position(),
+                                firstRedrawingTextLine.area().top()).forRedrawing();
+                    }
+                } else {
+                    textFlowCalculator.add(controlCharInfo);
+                    output.addChildOutput(output2);
+                }
+            }
+        } else {
+            output.addChildOutput(output2);
+        }
+    }
+
+    private boolean isOver75PercentOfPageHeight(long y) {
+        return y - input.pageInfo().bodyArea().top() >= input.pageInfo().bodyArea().height() * 75 / 100;
     }
 
     private void spanningWord(NormalCharInfo spaceCharInfo) throws Exception {

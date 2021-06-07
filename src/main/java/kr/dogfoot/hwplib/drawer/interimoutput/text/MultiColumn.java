@@ -11,7 +11,7 @@ public class MultiColumn {
     private Area area;
     private final ArrayList<Column> columns;
     private int currentColumnIndex;
-    private boolean rearrangedForDistributionColumn;
+    private boolean hadRearrangedDistributionMultiColumn;
 
     public MultiColumn(ColumnsInfo columnsInfo) {
         columns = new ArrayList<>();
@@ -24,7 +24,7 @@ public class MultiColumn {
         }
 
         currentColumnIndex = 0;
-        rearrangedForDistributionColumn = false;
+        hadRearrangedDistributionMultiColumn = false;
     }
 
     private void addNewColumn(Area columnArea) {
@@ -66,12 +66,12 @@ public class MultiColumn {
         return height;
     }
 
-    public boolean rearrangedForDistributionColumn() {
-        return rearrangedForDistributionColumn;
+    public boolean hadRearrangedDistributionMultiColumn() {
+        return hadRearrangedDistributionMultiColumn;
     }
 
-    public void rearrangedForDistributionColumn(boolean rearrangedForDistributionColumn) {
-        this.rearrangedForDistributionColumn = rearrangedForDistributionColumn;
+    public void hadRearrangedDistributionMultiColumn(boolean hadRearrangedDistributionMultiColumn) {
+        this.hadRearrangedDistributionMultiColumn = hadRearrangedDistributionMultiColumn;
     }
 
     public String test(int tabCount) {

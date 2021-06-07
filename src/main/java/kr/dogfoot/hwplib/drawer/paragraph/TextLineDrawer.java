@@ -30,16 +30,16 @@ public class TextLineDrawer {
         this.output = output;
     }
 
-    public TextLineDrawer initialize(int paragraphIndex, Area area) {
-        reset(paragraphIndex, area);
+    public TextLineDrawer initialize(Area area) {
+        reset(area);
         wordsWidth = 0;
         spacesWidth = 0;
         justNewLine = false;
         return this;
     }
 
-    public TextLineDrawer reset(int paragraphIndex, Area area) {
-        textLine = new TextLine(paragraphIndex, new Area(area));
+    public TextLineDrawer reset(Area area) {
+        textLine = new TextLine(input.paraIndex(), new Area(area));
         maxCharHeight = 0;
         maxBaseSize = 0;
         justNewLine = true;

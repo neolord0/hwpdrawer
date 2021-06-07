@@ -7,10 +7,12 @@ import java.io.File;
 public class Test {
     /*
     @org.junit.Test
-    public void test_1() throws Exception {
+    public void test_2() throws Exception {
         HWPTester.test("etc" + File.separator + "사업신청서");
     }
+     */
 
+    /*
     @org.junit.Test
     public void test_2() throws Exception {
         HWPTester.test("etc");
@@ -18,10 +20,13 @@ public class Test {
 
      */
 
+    /*
     @org.junit.Test
     public void test_1() throws Exception {
         HWPTester.test("etc" + File.separator + "2");
     }
+
+     */
 
     /*
     @org.junit.Test

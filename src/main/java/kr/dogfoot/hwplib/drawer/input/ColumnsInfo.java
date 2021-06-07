@@ -184,4 +184,12 @@ public class ColumnsInfo {
             return limitedTextLineCounts[currentColumnIndex];
         }
     }
+
+    public boolean isOverLimitedTextLineCount(int textLineCount) {
+        if (limitedTextLineCounts != null &&
+                limitedTextLineCounts[currentColumnIndex] <= textLineCount) {
+            return true;
+        }
+        return false;
+    }
 }

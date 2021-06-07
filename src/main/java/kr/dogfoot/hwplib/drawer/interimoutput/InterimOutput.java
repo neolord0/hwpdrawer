@@ -1,8 +1,6 @@
 package kr.dogfoot.hwplib.drawer.interimoutput;
 
-import kr.dogfoot.hwplib.drawer.input.ColumnsInfo;
 import kr.dogfoot.hwplib.drawer.input.DrawingInput;
-import kr.dogfoot.hwplib.drawer.input.PageInfo;
 import kr.dogfoot.hwplib.drawer.interimoutput.control.ControlOutput;
 import kr.dogfoot.hwplib.drawer.interimoutput.control.GsoOutput;
 import kr.dogfoot.hwplib.drawer.interimoutput.page.FooterOutput;
@@ -112,19 +110,22 @@ public class InterimOutput {
         stack.pop();
     }
 
-    public void setLastTextPartToLastLine() {
-        if (currentOutput().content() != null) {
-            currentOutput().content().setLastTextPartToLastLine();
+    public void setLastLineInPara() {
+        if (currentContent() != null) {
+            currentContent().setLastLineInPara();
         }
     }
+    private Content currentContent() {
+        return currentOutput().content();
+    }
 
-    public Output currentOutput() {
+    private Output currentOutput() {
         return stack.peek();
     }
 
     public void addChildOutput(ControlOutput childOutput) {
-        if (currentOutput().content() != null) {
-            currentOutput().content().addChildOutput(childOutput);
+        if (currentContent() != null) {
+            currentContent().addChildOutput(childOutput);
         }
 
         if (currentOutput().type() == Output.Type.Gso) {
@@ -140,17 +141,57 @@ public class InterimOutput {
     }
 
     public void addTextLine(TextLine line) {
-        if (currentOutput().content() != null) {
-            currentOutput().content().addTextLine(line);
+        if (currentContent() != null) {
+            currentContent().addTextLine(line);
         }
     }
 
+    public int textLineCount() {
+        return currentContent().textLineCount();
+    }
+
     public boolean checkRedrawingTextLine(Area area) {
-        return currentOutput().content().checkRedrawingTextLine(area);
+        return currentContent().checkRedrawingTextLine(area);
     }
 
     public TextLine deleteRedrawingTextLine(Area area) {
-        return currentOutput().content().deleteRedrawingTextLine(area);
+        return currentContent().deleteRedrawingTextLine(area);
+    }
+
+    public TextLine hideTextLine(int topLineIndex) {
+        return currentContent().hideTextLine(topLineIndex);
+    }
+
+    public void resetHidingTextLineIndex() {
+        currentContent().resetHidingTextLineIndex();
+    }
+
+    public TextLine deleteTextLineIndex(int topLineIndex) {
+        return currentContent().deleteTextLineIndex(topLineIndex);
+    }
+
+    public boolean hadRearrangedDistributionMultiColumn() {
+        return currentContent().hadRearrangedDistributionMultiColumn();
+    }
+
+    public void hadRearrangedDistributionMultiColumn(boolean hadRearrangedDistributionMultiColumn) {
+        currentContent().hadRearrangedDistributionMultiColumn(hadRearrangedDistributionMultiColumn);
+    }
+
+    public void nextColumn() {
+        currentContent().nextColumn();
+    }
+
+    public void previousColumn() {
+        currentContent().previousColumn();
+    }
+
+    public void clearColumn() {
+        currentContent().clearColumn();
+    }
+
+    public long multiColumnHeight() {
+        return currentContent().multiColumnHeight();
     }
 
     public static final class ControlInfo {

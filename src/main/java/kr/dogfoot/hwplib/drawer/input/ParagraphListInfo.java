@@ -36,15 +36,14 @@ public class ParagraphListInfo {
 
     public ParagraphListInfo(DrawingInput input, Area bodyArea) {
         this.input = input;
-
         height = 0;
 
         bodyArea(bodyArea);
     }
 
     public void bodyArea(Area bodyArea) {
-        paraStartY = 0;
         this.bodyArea = bodyArea;
+        paraStartY = 0;
         if (paraShape != null) {
             setParaArea();
         }
@@ -230,5 +229,4 @@ public class ParagraphListInfo {
             this.charPosition += character.getCharSize();
         }
     }
-
 }

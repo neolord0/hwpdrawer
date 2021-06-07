@@ -23,7 +23,7 @@ public class TextLine implements Iterable<TextPart> {
 
     private Alignment alignment;
     private long maxCharHeight;
-    private boolean lastLine;
+    private boolean lastInPara;
     private boolean hasDrawingChar;
 
     private final TreeSet<ControlOutput> behindChildOutputs;
@@ -38,7 +38,7 @@ public class TextLine implements Iterable<TextPart> {
 
         alignment = Alignment.Justify;
         maxCharHeight = -1;
-        lastLine = false;
+        lastInPara = false;
         hasDrawingChar = false;
 
         behindChildOutputs = new TreeSet<>();
@@ -102,12 +102,12 @@ public class TextLine implements Iterable<TextPart> {
         return this;
     }
 
-    public boolean lastLine() {
-        return lastLine;
+    public boolean lastInPara() {
+        return lastInPara;
     }
 
-    public TextLine lastLine(boolean lastLine) {
-        this.lastLine = lastLine;
+    public TextLine lastInPara(boolean lastLine) {
+        this.lastInPara = lastLine;
         return this;
     }
 

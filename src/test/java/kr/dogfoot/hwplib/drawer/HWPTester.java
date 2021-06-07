@@ -19,6 +19,7 @@ public class HWPTester {
         int pageCount = HWPDrawer.draw(hwpFile,
                 new DrawingOption()
                         .directoryToSave(path)
+                        .fontPath("font")
                         .zoomRate(80));
 
         long endTime = System.currentTimeMillis();
@@ -58,6 +59,7 @@ public class HWPTester {
         int pageCount = HWPDrawer.draw(hwpFile,
                 new DrawingOption()
                         .directoryToSave(path)
+                        .fontPath("font")
                         .zoomRate(80));
 
         long endTime = System.currentTimeMillis();

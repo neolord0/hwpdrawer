@@ -5,7 +5,6 @@ import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.TextFlowMethod;
 
-import javax.xml.soap.Text;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.TreeSet;
@@ -40,9 +39,9 @@ public class Column {
         return textLines.toArray(TextLine.Zero_Array);
     }
 
-    public void setLastTextPartToLastLine() {
+    public void setLastLineInPara() {
         if (textLines.size() > 0) {
-            textLines.get(textLines.size() - 1).lastLine(true);
+            textLines.get(textLines.size() - 1).lastInPara(true);
         }
     }
 
@@ -92,17 +91,16 @@ public class Column {
     }
 
     public TextLine hideTextLineIndex(int topLineIndex) {
-        if (topLineIndex == -1) {
-            topLineIndexForHiding = -1;
-        } else {
-            if (topLineIndex < textLineCount()) {
-                topLineIndexForHiding = topLineIndex;
-                return textLines.get(topLineIndex);
-            }
+        if (topLineIndex < textLineCount()) {
+            topLineIndexForHiding = topLineIndex;
+            return textLines.get(topLineIndex);
         }
         return null;
     }
 
+    public void resetHideTextLineIndex() {
+        topLineIndexForHiding = -1;
+    }
 
     public TextLine deleteTextLineIndex(int topLineIndex) {
         if (topLineIndex < textLineCount()) {

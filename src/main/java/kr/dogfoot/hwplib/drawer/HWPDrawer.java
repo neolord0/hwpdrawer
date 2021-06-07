@@ -5,12 +5,14 @@ import kr.dogfoot.hwplib.drawer.interimoutput.InterimOutput;
 import kr.dogfoot.hwplib.drawer.painter.PagePainter;
 import kr.dogfoot.hwplib.drawer.paragraph.ParaListDrawer;
 import kr.dogfoot.hwplib.drawer.util.Convertor;
+import kr.dogfoot.hwplib.drawer.util.FontLoader;
 import kr.dogfoot.hwplib.drawer.util.FontManager;
 import kr.dogfoot.hwplib.object.HWPFile;
 import kr.dogfoot.hwplib.object.bodytext.Section;
 
 public class HWPDrawer {
     public static int draw(HWPFile hwpFile, DrawingOption option) throws Exception {
+        FontLoader.object().fontPath(option.fontPath());
         FontManager.object().hwpFile(hwpFile);
 
         HWPDrawer drawer = new HWPDrawer();
