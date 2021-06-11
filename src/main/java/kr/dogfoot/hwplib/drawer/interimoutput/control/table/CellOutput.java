@@ -32,7 +32,7 @@ public class CellOutput extends Output {
         textMargin = null;
         verticalAlignment = TextVerticalAlignment.Top;
 
-        content = new Content();
+        content = new Content(cellArea);
     }
 
     public Cell cell() {

@@ -55,17 +55,13 @@ public class HWPDrawer {
             input.pageInfo()
                     .increasePageNo();
 
-            output.newPageOutput(input);
+            output.newPage(input);
             pagePainter.saveCurrentPage();
         }
     }
 
     private void drawSection(Section section) throws Exception {
-        input
-                .section(section)
-                .newPage();
-
-        output.newPageOutput(input);
+        input.section(section);
 
         ParaListDrawer paraListDrawer = new ParaListDrawer(input, output, pagePainter);
         paraListDrawer.drawForBodyText(section);

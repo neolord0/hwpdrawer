@@ -15,8 +15,7 @@ public class HeaderOutput extends Output {
 
     public HeaderOutput(Area headerArea) {
         this.headerArea = headerArea;
-
-        content = new Content();
+        content = new Content(headerArea);
     }
 
 

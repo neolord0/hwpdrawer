@@ -18,13 +18,15 @@ public class Column {
     private final TreeSet<ControlOutput> behindChildOutputs;
     private final TreeSet<ControlOutput> nonBehindChildOutputs;
 
-    private int topLineIndexForHiding = -1;
+    private int topLineIndexForHiding;
 
     public Column(Area area) {
         this.area = area;
         textLines = new ArrayList<>();
         behindChildOutputs = new TreeSet<>();
         nonBehindChildOutputs = new TreeSet<>();
+
+        topLineIndexForHiding = -1;
     }
 
     public void addTextLine(TextLine line) {
@@ -102,6 +104,14 @@ public class Column {
         topLineIndexForHiding = -1;
     }
 
+    public int topLineIndexForHiding() {
+        return topLineIndexForHiding;
+    }
+
+    public void topLineIndexForHiding(int topLineIndexForHiding) {
+        this.topLineIndexForHiding = topLineIndexForHiding;
+    }
+
     public TextLine deleteTextLineIndex(int topLineIndex) {
         if (topLineIndex < textLineCount()) {
             TextLine topLine = textLines.get(topLineIndex);
@@ -117,8 +127,6 @@ public class Column {
 
             return topLine;
         }
-
-
         return null;
     }
 
@@ -139,19 +147,24 @@ public class Column {
             return -1;
         }
 
-        long top;
-        long bottom;
-
-        if (topLineIndexForHiding == -1) {
-            top = textLines.get(0).area().top();
-            bottom = textLines.get(textLines.size() - 1).area().bottom();
+        if (topLineIndexForHiding == 0) {
+            return 0;
         } else {
-            top = textLines.get(0).area().top();
-            bottom = textLines.get(topLineIndexForHiding - 1).area().bottom();
-        }
+            long top;
+            long bottom;
 
-        return bottom - top;
+            top = textLines.get(0).area().top();
+
+            if (topLineIndexForHiding == -1) {
+                bottom = textLines.get(textLines.size() - 1).area().bottom();
+            } else {
+                bottom = textLines.get(topLineIndexForHiding - 1).area().bottom();
+            }
+
+            return bottom - top;
+        }
     }
+
 
     public void clear() {
         textLines.clear();
@@ -160,13 +173,28 @@ public class Column {
         topLineIndexForHiding = -1;
     }
 
+    public Area area() {
+        return area;
+    }
 
     public String test(int tabCount) {
+        return test(tabCount, false);
+    }
+
+    public String test(int tabCount, boolean hideLine) {
         MyStringBuilder sb = new MyStringBuilder();
         if (textLines.size() > 0) {
             sb.tab(tabCount).append("textLines - {\n");
-            for (TextLine line : textLines) {
-                sb.append(line.test(tabCount + 1)).append("\n");
+            if (hideLine == false || topLineIndexForHiding == -1)  {
+                for (TextLine line : textLines) {
+                    sb.append(line.test(tabCount + 1)).append("\n");
+                }
+            } else {
+                int count = textLines.size();
+                for (int index = 0; index < topLineIndexForHiding; index++) {
+                    TextLine line = textLines.get(index);
+                    sb.append(line.test(tabCount + 1)).append("\n");
+                }
             }
             sb.tab(tabCount).append("textLines - }\n");
         }

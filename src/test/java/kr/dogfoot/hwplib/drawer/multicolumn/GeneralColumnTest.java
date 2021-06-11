@@ -37,12 +37,7 @@ public class GeneralColumnTest {
     }
 
     @Test
-    public void test_일반_단나누기설정_1() throws Exception {
-        HWPTester.test("testingHWP" + File.separator + "다단" + File.separator + "일반" + File.separator + "단나누기설정" + File.separator + "1");
-    }
-
-    @Test
-    public void test_일반_단나누기설정_2() throws Exception {
-        HWPTester.test("testingHWP" + File.separator + "다단" + File.separator + "일반" + File.separator + "단나누기설정" + File.separator + "2");
+    public void test_단나누기설정_1() throws Exception {
+        HWPTester.testAndCompare("testingHWP" + File.separator + "다단" + File.separator + "일반" + File.separator + "단나누기설정" + File.separator + "1");
     }
 }

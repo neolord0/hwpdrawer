@@ -24,6 +24,11 @@ public class BreakingDrawException extends Exception {
         return this;
     }
 
+    public BreakingDrawException forEndingPara() {
+        type = Type.ForEndingPara;;
+        return this;
+    }
+
     public Type type() {
         return type;
     }
@@ -46,7 +51,8 @@ public class BreakingDrawException extends Exception {
 
     public enum Type {
         ForRedrawing,
-        ForDistributionColumn;
+        ForDistributionColumn,
+        ForEndingPara;
 
         public boolean isForRedrawing() {
             return this == ForRedrawing;
@@ -54,6 +60,10 @@ public class BreakingDrawException extends Exception {
 
         public boolean isForDistributionColumn() {
             return this == ForDistributionColumn;
+        }
+
+        public boolean isForEndingPara() {
+            return this == ForEndingPara;
         }
     }
 }

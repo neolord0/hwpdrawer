@@ -15,9 +15,15 @@ public class Content {
     private final ArrayList<MultiColumn> multiColumns;
     private MultiColumn currentMultiColumn;
 
-    public Content() {
+    public Content(Area area) {
         multiColumns = new ArrayList<>();
-        addNewMultiColumn(null);
+        addNewMultiColumn(area);
+    }
+
+    private void addNewMultiColumn(Area area) {
+        MultiColumn multiColumn = new MultiColumn(area);
+        multiColumns.add(multiColumn);
+        currentMultiColumn = multiColumn;
     }
 
     public Content(ColumnsInfo columnsInfo) {
@@ -122,13 +128,12 @@ public class Content {
         return sb.toString();
     }
 
-    public void calculateColumnHeight() {
-        currentColumn().calculateHeight();
-    }
-
     public long multiColumnHeight() {
         return currentMultiColumn().height();
     }
 
+    public long multiColumnBottom() {
+        return currentMultiColumn().bottom();
+    }
 }
 

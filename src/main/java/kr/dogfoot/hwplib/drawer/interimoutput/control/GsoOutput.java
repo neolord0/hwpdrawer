@@ -25,7 +25,7 @@ public class GsoOutput extends ControlOutput {
         verticalAlignment = TextVerticalAlignment.Top;
         calculatedContentHeight = 0;
 
-        content = new Content();
+        content = new Content(controlArea);
     }
 
     public GsoControl gso() {

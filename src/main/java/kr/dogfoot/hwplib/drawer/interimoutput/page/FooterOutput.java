@@ -18,7 +18,7 @@ public class FooterOutput extends Output {
         this.footerArea = footerArea;
         calculatedContentHeight = 0;
 
-        content = new Content();
+        content = new Content(footerArea);
     }
 
     public void calculatedContentHeight(long calculatedContentHeight) {

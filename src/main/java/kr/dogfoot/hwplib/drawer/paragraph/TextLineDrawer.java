@@ -16,6 +16,7 @@ public class TextLineDrawer {
     private final InterimOutput output;
 
     private CharInfo firstCharInfo;
+
     private TextLine textLine;
 
     private long lineHeight;

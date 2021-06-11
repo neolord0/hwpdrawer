@@ -61,7 +61,6 @@ public class WordDrawer {
             addSpaceChar(spaceCharInfo);
             return;
         }
-
         if (!textLineDrawer.isOverWidth(wordWidth, false)) {
             addWordAllChars(false, false);
             addSpaceChar(spaceCharInfo);
@@ -123,10 +122,12 @@ public class WordDrawer {
                 textLineDrawer.firstCharInfo(charInfo);
             }
 
-            if (paraListDrawer.drawingState().isNormal() && charInfo.type() == CharInfo.Type.Control) {
-                addControlChar((ControlCharInfo) charInfo);
-            } else {
-                textLineDrawer.addChar(charInfo);
+            if (wordSplitter.stoppedAddingChar() == false) {
+                if (paraListDrawer.drawingState().isNormal() && charInfo.type() == CharInfo.Type.Control) {
+                    addControlChar((ControlCharInfo) charInfo);
+                } else {
+                    textLineDrawer.addChar(charInfo);
+                }
             }
         }
         return hasNewLine;

@@ -25,4 +25,9 @@ public class DivideColumnTest {
     public void test_기본_4() throws Exception {
         HWPTester.testAndCompare("testingHWP" + File.separator + "다단" + File.separator + "배분" + File.separator + "기본" + File.separator + "4");
     }
+
+    @Test
+    public void test_기본_5() throws Exception {
+        HWPTester.testAndCompare("testingHWP" + File.separator + "다단" + File.separator + "배분" + File.separator + "기본" + File.separator + "5");
+    }
 }

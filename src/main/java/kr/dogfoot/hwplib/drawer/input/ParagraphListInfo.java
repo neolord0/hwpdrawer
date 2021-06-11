@@ -31,13 +31,13 @@ public class ParagraphListInfo {
     private CharShape charShape;
 
     public ParagraphListInfo(DrawingInput input) {
-        this(input, new Area(input.columnsInfo().currentColumnArea()));
+        this.input = input;
+        height = 0;
+        paraArea = new Area();
     }
 
     public ParagraphListInfo(DrawingInput input, Area bodyArea) {
-        this.input = input;
-        height = 0;
-
+        this(input);
         bodyArea(bodyArea);
     }
 
@@ -78,7 +78,6 @@ public class ParagraphListInfo {
         if (paraIndex < paras.length) {
             currentPara = paras[paraIndex];
             this.paraIndex = paraIndex + 1;
-            paraIndex++;
             return true;
         } else {
             return false;
@@ -95,7 +94,6 @@ public class ParagraphListInfo {
 
     public void startPara() {
         setParaShape();
-        setParaArea();
 
         charIndex = 0;
         charPosition = 0;
@@ -111,13 +109,12 @@ public class ParagraphListInfo {
     }
 
     private void setParaArea() {
-        paraArea = new Area(bodyArea)
+        paraArea.set(bodyArea)
                 .applyMargin(paraShape.getLeftMargin() / 2,
                         paraShape.getTopParaSpace() / 2,
                         paraShape.getRightMargin() / 2,
-                        0);
-
-        paraArea.top(paraArea.top() + paraStartY);
+                        0)
+                .top(paraArea.top() + paraStartY);
     }
 
     private void setCharShape() {
@@ -158,6 +155,7 @@ public class ParagraphListInfo {
     }
 
     public Area paraArea() {
+        setParaArea();
         return paraArea;
     }
 

@@ -26,9 +26,6 @@ public class TextLine implements Iterable<TextPart> {
     private boolean lastInPara;
     private boolean hasDrawingChar;
 
-    private final TreeSet<ControlOutput> behindChildOutputs;
-    private final TreeSet<ControlOutput> nonBehindChildOutputs;
-
     public TextLine(int paraIndex, Area area) {
         this.paraIndex = paraIndex;
         this.area = area;
@@ -40,9 +37,6 @@ public class TextLine implements Iterable<TextPart> {
         maxCharHeight = -1;
         lastInPara = false;
         hasDrawingChar = false;
-
-        behindChildOutputs = new TreeSet<>();
-        nonBehindChildOutputs = new TreeSet<>();
     }
 
     public int paraIndex() {
@@ -59,6 +53,7 @@ public class TextLine implements Iterable<TextPart> {
         }
         return null;
     }
+
 
     public Area area() {
         return area;
@@ -120,25 +115,9 @@ public class TextLine implements Iterable<TextPart> {
         return this;
     }
 
-    public void addChildOutput(ControlOutput childOutput) {
-        if (childOutput.textFlowMethod() == TextFlowMethod.BehindText) {
-            behindChildOutputs.add(childOutput);
-        } else {
-            nonBehindChildOutputs.add(childOutput);
-        }
-    }
-
-    public Set<ControlOutput> behindChildOutputs() {
-        return behindChildOutputs;
-    }
-
-    public Set<ControlOutput> nonBehindChildOutputs() {
-        return nonBehindChildOutputs;
-    }
-
-
     public String test(int tabCount) {
         MyStringBuilder sb = new MyStringBuilder();
+        sb.tab(tabCount);
         if (firstChar() != null) {
             sb.append(String.valueOf(firstChar().paraIndex())).append(":").append(String.valueOf(firstChar().index())) .append(" = ");
         } else {
@@ -146,7 +125,7 @@ public class TextLine implements Iterable<TextPart> {
         }
         if (parts.size() > 0) {
             for (TextPart part : parts) {
-                sb.append(part.test(tabCount)).append(", ");
+                sb.append(part.test(0)).append(", ");
             }
         }
         return sb.toString();

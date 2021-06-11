@@ -15,13 +15,19 @@ public class MultiColumn {
 
     public MultiColumn(ColumnsInfo columnsInfo) {
         columns = new ArrayList<>();
-        if (columnsInfo == null) {
-            addNewColumn(null);
-        } else {
-            for (Area columnArea : columnsInfo.columnAreas())  {
-                addNewColumn(columnArea);
-            }
+        area = new Area(columnsInfo.multiColumnArea());
+
+        for (Area columnArea : columnsInfo.columnAreas())  {
+            addNewColumn(columnArea);
         }
+
+        currentColumnIndex = 0;
+        hadRearrangedDistributionMultiColumn = false;
+    }
+
+    public MultiColumn(Area area) {
+        columns = new ArrayList<>();
+        addNewColumn(area);
 
         currentColumnIndex = 0;
         hadRearrangedDistributionMultiColumn = false;
@@ -44,6 +50,10 @@ public class MultiColumn {
         return columns.toArray(Column.Zero_Array);
     }
 
+    public Column column(int index) {
+        return columns.get(index);
+    }
+
     public Column currentColumn() {
         return columns.get(currentColumnIndex);
     }
@@ -52,6 +62,9 @@ public class MultiColumn {
         currentColumnIndex++;
     }
 
+    public int currentColumnIndex() {
+        return currentColumnIndex;
+    }
 
     public void previousColumn() {
         currentColumnIndex--;
@@ -66,6 +79,10 @@ public class MultiColumn {
         return height;
     }
 
+    public long bottom() {
+        return area.top() + height();
+    }
+
     public boolean hadRearrangedDistributionMultiColumn() {
         return hadRearrangedDistributionMultiColumn;
     }
@@ -75,12 +92,17 @@ public class MultiColumn {
     }
 
     public String test(int tabCount) {
+        return test(tabCount, false);
+    }
+
+    public String test(int tabCount, boolean hideLine) {
         MyStringBuilder sb = new MyStringBuilder();
         for (Column column : columns) {
-            sb.tab(tabCount).append("Column - {\n");
-            sb.append(column.test(tabCount + 1));
+            sb.tab(tabCount).append("Column : ").append(column.area()).append(" -  {\n");
+            sb.append(column.test(tabCount + 1, hideLine));
             sb.tab(tabCount).append("Column - }\n");
         }
         return sb.toString();
     }
+
 }

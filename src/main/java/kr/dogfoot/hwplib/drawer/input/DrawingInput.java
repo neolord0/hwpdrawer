@@ -100,23 +100,18 @@ public class DrawingInput {
 
     public DrawingInput section(Section section) throws Exception {
         this.section = section;
-        setSectionColumnDefine();
         return this;
     }
 
-    private void setSectionColumnDefine() throws Exception {
-        Paragraph firstPara = section.getParagraph(0);
-        if (firstPara == null) {
-            throw new Exception("섹션에는 하나 이상의 문단이 있어야 함.");
-        } else {
-            if (firstPara.getControlList() == null ||
-                    firstPara.getControlList().get(0) == null ||
-                    firstPara.getControlList().get(0).getType() != ControlType.SectionDefine) {
-                throw new Exception("섹션의 첫 문단의 첫번째 컨트롤은 섹션 정의 컨트롤이어야 함.");
-            }
-        }
-        pageInfo.sectionDefine((ControlSectionDefine) firstPara.getControlList().get(0));
-        columnsInfo.set((ControlColumnDefine) firstPara.getControlList().get(1), pageInfo.bodyArea());
+    public void sectionDefine(ControlSectionDefine sectionDefine) {
+        pageInfo.sectionDefine(sectionDefine);
+    }
+
+    public void newMultiColumn(ControlColumnDefine columnDefine, long startY) {
+        Area multiColumnArea = new Area(pageInfo.bodyArea()).top(startY);
+        columnsInfo.set(columnDefine, multiColumnArea);
+
+        currentParaListInfo().bodyArea(columnsInfo.currentColumnArea());
     }
 
     public PageInfo pageInfo() {
@@ -139,6 +134,7 @@ public class DrawingInput {
         }
 
         if (bodyTextParaListInfo != null) {
+            columnsInfo.set(new Area(pageInfo.bodyArea()));
             bodyTextParaListInfo.bodyArea(columnsInfo.currentColumnArea());
         }
     }
