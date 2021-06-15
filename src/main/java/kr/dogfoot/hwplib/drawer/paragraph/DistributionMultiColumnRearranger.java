@@ -4,8 +4,6 @@ import kr.dogfoot.hwplib.drawer.input.DrawingInput;
 import kr.dogfoot.hwplib.drawer.interimoutput.InterimOutput;
 import kr.dogfoot.hwplib.drawer.interimoutput.text.Column;
 import kr.dogfoot.hwplib.drawer.interimoutput.text.TextLine;
-import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
-import org.apache.poi.ss.formula.functions.Columns;
 
 public class DistributionMultiColumnRearranger {
     private final DrawingInput input;
@@ -36,6 +34,10 @@ public class DistributionMultiColumnRearranger {
 
     public void rearrangeFromCurrentColumn() throws Exception {
         if (input.columnsInfo().currentColumnIndex() == 0) {
+            if (output.textLineCount() == 1) {
+                return;
+            }
+            System.out.println(output.currentMultiColumn().test(5));
             paraListDrawer.forDistributionMultiColumn(true);
             reset();
             testing = true;
@@ -52,7 +54,6 @@ public class DistributionMultiColumnRearranger {
         }
     }
 
-
     private void reset() {
         textLineCounts = new int[input.columnsInfo().columnCount()];
 
@@ -66,12 +67,10 @@ public class DistributionMultiColumnRearranger {
 
     private void testFromCurrentColumn() throws Exception {
         int textLineCountOfCurrentColumn = output.textLineCount();
-
-        for (int textLineCount = 1; textLineCount < textLineCountOfCurrentColumn; textLineCount++) {
+        for (int textLineCount = 1; textLineCount <= textLineCountOfCurrentColumn; textLineCount++) {
             setTextLineCount(textLineCount);
             testNextColumn();
         }
-
         if (input.columnsInfo().currentColumnIndex() == 0) {
             endProcess = true;
         }
@@ -85,8 +84,15 @@ public class DistributionMultiColumnRearranger {
     }
 
     private void testNextColumn() throws Exception {
-        TextLine firstLine = output.hideTextLine(textLineCount(input.columnsInfo().currentColumnIndex()));
-        input.gotoLineFirstChar(firstLine);
+        TextLine firstLine = output.hideTextLine(textLineCount(input.columnsInfo().currentColumnIndex()) - 1);
+        TextLine nextLine = output.currentColumn().nextLine(firstLine);
+        if (nextLine != null) {
+            input.gotoChar(nextLine.firstChar());
+        } else {
+            if (output.currentColumn().nextChar() != null) {
+                input.gotoChar(output.currentColumn().nextChar());
+            }
+        }
 
         paraListDrawer.nextColumn();
         output.clearColumn();
@@ -97,23 +103,27 @@ public class DistributionMultiColumnRearranger {
 
         try {
             paraListDrawer.redrawParaList(endParaIndex);
-        } catch (BreakingDrawException e) {
+        } catch (BreakDrawingException e) {
             switch (e.type()) {
-                case ForDistributionColumn:
+                case ForNewPage:
                     overPage = true;
                     positionAtOverPage = e.paraIndex() << 32 + e.charIndex();
                     break;
                 case ForEndingPara:
                     endingPara = true;
                     break;
+                case ForEndingTest:
+                    break;
             }
         }
 
-        setTextLineCount2(output.textLineCount(), overPage);
-        setMinimumHeightOfMultiColumn(overPage,
-                endingPara,
-                positionAtOverPage,
-                output.multiColumnHeight());
+        if (input.columnsInfo().lastColumn() || endingPara || overPage) {
+            setTextLineCount2(output.textLineCount(), overPage);
+            setMinimumHeightOfMultiColumn(overPage,
+                    endingPara,
+                    positionAtOverPage,
+                    output.multiColumnHeight());
+        }
 
         output.clearColumn();
         paraListDrawer.previousColumn();
@@ -130,6 +140,11 @@ public class DistributionMultiColumnRearranger {
         for (int index = 0; index < count; index++) {
             columns[index].topLineIndexForHiding(textLineCounts[index]);
         }
+
+        for (int tlc :  textLineCounts) {
+            System.out.print(tlc+  ", ");
+        }
+        System.out.println(overPage);
     }
 
     private void setMinimumHeightOfMultiColumn(boolean overPage, boolean endingPara, long positionAtOverPage, long multiColumnHeight) {
@@ -153,25 +168,29 @@ public class DistributionMultiColumnRearranger {
         return textLineCounts[columnIndex];
     }
 
-
     public boolean testing() {
         return testing;
     }
 
     private void redraw() {
+        System.out.println("redraw start");
         setLimitedTextCounts();
 
         output.resetHidingTextLineIndex();
 
         TextLine firstLine = output.deleteTextLineIndex(input.columnsInfo().limitedTextLineCount());
-        input.gotoLineFirstChar(firstLine);
-
+        if (firstLine != null) {
+            input.gotoChar(firstLine.firstChar());
+        } else {
+            input.gotoChar(output.currentColumn().nextChar());
+        }
         paraListDrawer.nextColumn();
 
         try {
             paraListDrawer.redrawParaList(-1);
         } catch (Exception e) {
         }
+        System.out.println("redraw end");
     }
 
     private void setLimitedTextCounts() {

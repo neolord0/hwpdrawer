@@ -159,5 +159,9 @@ public class TextLineDrawer {
     public long lineHeight() {
         return lineHeight;
     }
+
+    public long lineGap() {
+        return lineHeight - maxCharHeight();
+    }
 }
 

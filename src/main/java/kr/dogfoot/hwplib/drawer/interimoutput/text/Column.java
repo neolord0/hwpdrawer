@@ -1,6 +1,7 @@
 package kr.dogfoot.hwplib.drawer.interimoutput.text;
 
 import kr.dogfoot.hwplib.drawer.interimoutput.control.ControlOutput;
+import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.TextFlowMethod;
@@ -19,6 +20,7 @@ public class Column {
     private final TreeSet<ControlOutput> nonBehindChildOutputs;
 
     private int topLineIndexForHiding;
+    private CharInfo nextChar;
 
     public Column(Area area) {
         this.area = area;
@@ -29,8 +31,25 @@ public class Column {
         topLineIndexForHiding = -1;
     }
 
-    public void addTextLine(TextLine line) {
-        textLines.add(line);
+    public void addTextLine(TextLine textLine) {
+        textLine
+                .column(this)
+                .index(textLines.size());
+        textLines.add(textLine);
+    }
+
+    public TextLine nextLine(TextLine textLine) {
+        if (textLine.index() + 1 >= textLines.size()) {
+            return null;
+        }
+        return textLines.get(textLine.index() + 1);
+    }
+
+    public TextLine firstLine() {
+        if (textLines.isEmpty()) {
+            return null;
+        }
+        return textLines.get(0);
     }
 
     public int textLineCount() {
@@ -176,6 +195,15 @@ public class Column {
     public Area area() {
         return area;
     }
+
+    public void nextChar(CharInfo nextChar) {
+        this.nextChar = nextChar;
+    }
+
+    public CharInfo nextChar() {
+        return nextChar;
+    }
+
 
     public String test(int tabCount) {
         return test(tabCount, false);

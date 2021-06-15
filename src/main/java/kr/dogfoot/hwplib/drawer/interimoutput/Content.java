@@ -47,76 +47,26 @@ public class Content {
     }
 
     public boolean hadRearrangedDistributionMultiColumn() {
-        return currentMultiColumn().hadRearrangedDistributionMultiColumn();
+        return currentMultiColumn.hadRearrangedDistributionMultiColumn();
     }
 
     public void hadRearrangedDistributionMultiColumn(boolean hadRearrangedDistributionMultiColumn) {
-        currentMultiColumn().hadRearrangedDistributionMultiColumn(hadRearrangedDistributionMultiColumn);
+        currentMultiColumn.hadRearrangedDistributionMultiColumn(hadRearrangedDistributionMultiColumn);
     }
 
-    public Column currentColumn() {
-        return currentMultiColumn.currentColumn();
+    public ControlOutput[] behindChildOutputs() {
+        return currentMultiColumn.currentColumn().behindChildOutputs().toArray(ControlOutput.Zero_Array);
     }
 
-    public void nextColumn() {
-        currentMultiColumn.nextColumn();
-    }
 
-    public void previousColumn() {
-        currentMultiColumn.previousColumn();
-    }
-
-    public void addChildOutput(ControlOutput output) {
-        currentColumn().addChildOutput(output);
-    }
-
-    public void setLastLineInPara() {
-        currentColumn().setLastLineInPara();
-    }
-
-    public void addTextLine(TextLine line) {
-        currentColumn().addTextLine(line);
-    }
-
-    public boolean checkRedrawingTextLine(Area area) {
-        return currentColumn().checkRedrawingTextLine(area);
-    }
-
-    public TextLine deleteRedrawingTextLine(Area area) {
-        return currentColumn().deleteRedrawingTextLine(area);
+    public ControlOutput[] nonBehindChildOutputs() {
+        return currentMultiColumn.currentColumn().nonBehindChildOutputs().toArray(ControlOutput.Zero_Array);
     }
 
     public TextLine[] textLines() {
-        return currentColumn().textLines();
+        return currentMultiColumn.currentColumn().textLines();
     }
 
-    public int textLineCount() {
-        return currentColumn().textLineCount();
-    }
-
-    public TextLine hideTextLine(int topLineIndex) {
-        return currentColumn().hideTextLineIndex(topLineIndex);
-    }
-
-    public void resetHidingTextLineIndex() {
-        currentColumn().resetHideTextLineIndex();
-    }
-
-    public TextLine deleteTextLineIndex(int topLineIndex) {
-        return currentColumn().deleteTextLineIndex(topLineIndex);
-    }
-
-    public void clearColumn() {
-        currentColumn().clear();;
-    }
-
-    public Set<ControlOutput> behindChildOutputs() {
-        return currentColumn().behindChildOutputs();
-    }
-
-    public Set<ControlOutput> nonBehindChildOutputs() {
-        return currentColumn().nonBehindChildOutputs();
-    }
 
     public String test(int tabCount) {
         MyStringBuilder sb = new MyStringBuilder();
@@ -129,11 +79,11 @@ public class Content {
     }
 
     public long multiColumnHeight() {
-        return currentMultiColumn().height();
+        return currentMultiColumn.height();
     }
 
     public long multiColumnBottom() {
-        return currentMultiColumn().bottom();
+        return currentMultiColumn.bottom();
     }
 }
 

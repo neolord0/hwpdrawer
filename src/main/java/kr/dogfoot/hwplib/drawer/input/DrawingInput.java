@@ -8,7 +8,6 @@ import kr.dogfoot.hwplib.object.bindata.EmbeddedBinaryData;
 import kr.dogfoot.hwplib.object.bodytext.Section;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlColumnDefine;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlSectionDefine;
-import kr.dogfoot.hwplib.object.bodytext.control.ControlType;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.Paragraph;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPChar;
 import kr.dogfoot.hwplib.object.docinfo.BinData;
@@ -113,6 +112,14 @@ public class DrawingInput {
 
         currentParaListInfo().bodyArea(columnsInfo.currentColumnArea());
     }
+
+    public void newMultiColumnWithSameColumnDefine(long startY) {
+        Area multiColumnArea = new Area(pageInfo.bodyArea()).top(startY);
+        columnsInfo.setWithSameColumnDefine(multiColumnArea);
+
+        currentParaListInfo().bodyArea(columnsInfo.currentColumnArea());
+    }
+
 
     public PageInfo pageInfo() {
         return pageInfo;
@@ -236,9 +243,9 @@ public class DrawingInput {
         return currentParaListInfo().currentChar();
     }
 
-    public boolean beforeChar(int count) {
+    public boolean previousChar(int count) {
         for (int index = 0; index < count; index++) {
-            if (!currentParaListInfo().beforeChar()) {
+            if (!currentParaListInfo().previousChar()) {
                 return false;
             }
         }
@@ -257,9 +264,15 @@ public class DrawingInput {
         return currentParaListInfo().charShape();
     }
 
-    public void gotoCharPosition(CharInfo charInfo) {
+    public void gotoCharInPara(CharInfo charInfo) {
         currentParaListInfo().gotoChar(charInfo.index(), charInfo.prePosition());
     }
+
+    public void gotoChar(CharInfo charInfo) {
+        currentParaListInfo().gotoPara(charInfo.paraIndex());
+        currentParaListInfo().gotoChar(charInfo.index(), charInfo.prePosition());
+    }
+
 
     public void gotoParaCharPosition(int paragraphIndex, int characterIndex, int characterPosition) {
         currentParaListInfo().gotoPara(paragraphIndex);
@@ -267,8 +280,10 @@ public class DrawingInput {
     }
 
     public void gotoLineFirstChar(TextLine textLine) {
+        assert(textLine.paraIndex() == textLine.firstChar().paraIndex());
         gotoParaCharPosition(textLine.paraIndex(),
                 textLine.firstChar().index(),
                 textLine.firstChar().prePosition());
     }
+
 }

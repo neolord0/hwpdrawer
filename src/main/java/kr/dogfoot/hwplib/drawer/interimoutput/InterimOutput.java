@@ -9,6 +9,8 @@ import kr.dogfoot.hwplib.drawer.interimoutput.page.HeaderOutput;
 import kr.dogfoot.hwplib.drawer.interimoutput.page.PageOutput;
 import kr.dogfoot.hwplib.drawer.interimoutput.control.table.CellOutput;
 import kr.dogfoot.hwplib.drawer.interimoutput.control.table.TableOutput;
+import kr.dogfoot.hwplib.drawer.interimoutput.text.Column;
+import kr.dogfoot.hwplib.drawer.interimoutput.text.MultiColumn;
 import kr.dogfoot.hwplib.drawer.interimoutput.text.TextLine;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
@@ -49,7 +51,7 @@ public class InterimOutput {
 
         if (!controlsMovedToNextPage.isEmpty()) {
             for (ControlInfo controlInfo : controlsMovedToNextPage) {
-                page.content().addChildOutput(controlInfo.output);
+                page.content().currentMultiColumn().currentColumn().addChildOutput(controlInfo.output);
             }
             controlsMovedToNextPage.clear();
         }
@@ -113,7 +115,7 @@ public class InterimOutput {
 
     public void setLastLineInPara() {
         if (currentContent() != null) {
-            currentContent().setLastLineInPara();
+            currentContent().currentMultiColumn().currentColumn().setLastLineInPara();
         }
     }
 
@@ -125,9 +127,17 @@ public class InterimOutput {
         return stack.peek();
     }
 
+    public MultiColumn currentMultiColumn() {
+        return currentContent().currentMultiColumn();
+    }
+
+    public Column currentColumn() {
+        return currentMultiColumn().currentColumn();
+    }
+
     public void addChildOutput(ControlOutput childOutput) {
         if (currentContent() != null) {
-            currentContent().addChildOutput(childOutput);
+            currentColumn().addChildOutput(childOutput);
         }
 
         if (currentOutput().type() == Output.Type.Gso) {
@@ -144,32 +154,32 @@ public class InterimOutput {
 
     public void addTextLine(TextLine line) {
         if (currentContent() != null) {
-            currentContent().addTextLine(line);
+            currentColumn().addTextLine(line);
         }
     }
 
     public int textLineCount() {
-        return currentContent().textLineCount();
+        return currentColumn().textLineCount();
     }
 
     public boolean checkRedrawingTextLine(Area area) {
-        return currentContent().checkRedrawingTextLine(area);
+        return currentColumn().checkRedrawingTextLine(area);
     }
 
     public TextLine deleteRedrawingTextLine(Area area) {
-        return currentContent().deleteRedrawingTextLine(area);
+        return currentColumn().deleteRedrawingTextLine(area);
     }
 
     public TextLine hideTextLine(int topLineIndex) {
-        return currentContent().hideTextLine(topLineIndex);
+        return currentColumn().hideTextLineIndex(topLineIndex);
     }
 
     public void resetHidingTextLineIndex() {
-        currentContent().resetHidingTextLineIndex();
+        currentColumn().resetHideTextLineIndex();
     }
 
     public TextLine deleteTextLineIndex(int topLineIndex) {
-        return currentContent().deleteTextLineIndex(topLineIndex);
+        return currentColumn().deleteTextLineIndex(topLineIndex);
     }
 
     public boolean hadRearrangedDistributionMultiColumn() {
@@ -181,15 +191,15 @@ public class InterimOutput {
     }
 
     public void nextColumn() {
-        currentContent().nextColumn();
+        currentMultiColumn().nextColumn();
     }
 
     public void previousColumn() {
-        currentContent().previousColumn();
+        currentMultiColumn().previousColumn();
     }
 
     public void clearColumn() {
-        currentContent().clearColumn();
+        currentColumn().clear();
     }
 
     public void newMultiColumn(ColumnsInfo columnsInfo) {

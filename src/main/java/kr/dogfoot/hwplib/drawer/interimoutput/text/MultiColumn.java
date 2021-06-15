@@ -50,10 +50,6 @@ public class MultiColumn {
         return columns.toArray(Column.Zero_Array);
     }
 
-    public Column column(int index) {
-        return columns.get(index);
-    }
-
     public Column currentColumn() {
         return columns.get(currentColumnIndex);
     }

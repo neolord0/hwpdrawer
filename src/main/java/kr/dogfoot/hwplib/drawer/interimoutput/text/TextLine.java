@@ -15,6 +15,9 @@ import java.util.TreeSet;
 public class TextLine implements Iterable<TextPart> {
     public static final TextLine[] Zero_Array = new TextLine[0];
 
+    private Column column;
+    private int index;
+
     private int paraIndex;
     private Area area;
 
@@ -39,6 +42,11 @@ public class TextLine implements Iterable<TextPart> {
         hasDrawingChar = false;
     }
 
+    public void clear() {
+        parts.clear();
+        currentTextPart = null;
+    }
+
     public int paraIndex() {
         return paraIndex;
     }
@@ -54,6 +62,22 @@ public class TextLine implements Iterable<TextPart> {
         return null;
     }
 
+    public Column column() {
+        return column;
+    }
+
+    public TextLine column(Column column) {
+        this.column = column;
+        return this;
+    }
+
+    public int index() {
+        return index;
+    }
+
+    public void index(int index) {
+        this.index = index;
+    }
 
     public Area area() {
         return area;
@@ -129,11 +153,6 @@ public class TextLine implements Iterable<TextPart> {
             }
         }
         return sb.toString();
-    }
-
-    public void clear() {
-        parts.clear();
-        currentTextPart = null;
     }
 }
 

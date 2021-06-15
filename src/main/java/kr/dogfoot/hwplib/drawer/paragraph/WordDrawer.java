@@ -15,6 +15,7 @@ import kr.dogfoot.hwplib.object.docinfo.parashape.LineDivideForHangul;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.SimpleTimeZone;
 
 public class WordDrawer {
     private final DrawingInput input;
@@ -78,7 +79,7 @@ public class WordDrawer {
     }
 
     private void addSpaceChar(NormalCharInfo spaceCharInfo) {
-        if (paraListDrawer.drawingState().canAddChar() && spaceCharInfo != null) {
+        if (paraListDrawer.drawingState().canAddChar() && spaceCharInfo != null && !wordSplitter.stoppedAddingChar()) {
             textLineDrawer.addChar(spaceCharInfo);
         }
     }
@@ -118,8 +119,8 @@ public class WordDrawer {
 
         if (paraListDrawer.drawingState().canAddChar()) {
             if (textLineDrawer.noDrawingChar() && paraListDrawer.drawingState().isNormal()) {
-                paraListDrawer.checkNewColumnAndPage();
                 textLineDrawer.firstCharInfo(charInfo);
+                paraListDrawer.checkNewColumnAndPage();
             }
 
             if (wordSplitter.stoppedAddingChar() == false) {
@@ -153,10 +154,11 @@ public class WordDrawer {
                         output.addChildOutput(output2);
 
                         TextLine firstRedrawingTextLine = output.deleteRedrawingTextLine(controlCharInfo.areaWithOuterMargin());
-                        throw new BreakingDrawException(firstRedrawingTextLine.paraIndex(),
+
+                        throw new RedrawException(firstRedrawingTextLine.paraIndex(),
                                 firstRedrawingTextLine.firstChar().index(),
                                 firstRedrawingTextLine.firstChar().position(),
-                                firstRedrawingTextLine.area().top()).forRedrawing();
+                                firstRedrawingTextLine.area().top());
                     }
                 } else {
                     textFlowCalculator.add(controlCharInfo);
@@ -178,15 +180,14 @@ public class WordDrawer {
                 paraListDrawer.saveTextLineAndNewLine();
             }
             if (paraListDrawer.drawingState().isEndRecalculating()) {
-                input.beforeChar(charsOfWord.size() + 1);
+                input.previousChar(charsOfWord.size() + 1);
             }
-
             addWordAllChars(true, false);
         } else {
             int countOfAddingBeforeNewLine = wordSplitter.splitByLineAndAdd(charsOfWord, input.paraShape());
 
             if (paraListDrawer.drawingState().isEndRecalculating()) {
-                input.beforeChar(charsOfWord.size() - countOfAddingBeforeNewLine + 1);
+                input.previousChar(charsOfWord.size() - countOfAddingBeforeNewLine + 1);
             }
         }
         addSpaceChar(spaceCharInfo);
@@ -259,4 +260,5 @@ public class WordDrawer {
     public void continueAddingChar() {
         wordSplitter.stopAddingChar(false);
     }
+
 }

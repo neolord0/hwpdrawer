@@ -150,7 +150,7 @@ public class TextPart {
 
             }
         }
-        sb.append(" }");
+        sb.append(" }(").append(Integer.toString(charInfos.size())).append(")");
         return sb.toString();
     }
 }

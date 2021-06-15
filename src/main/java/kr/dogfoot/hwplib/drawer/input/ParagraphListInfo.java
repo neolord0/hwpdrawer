@@ -190,16 +190,25 @@ public class ParagraphListInfo {
         return character;
     }
 
-    public boolean beforeChar() {
+    public boolean previousChar() {
         if (currentPara().getText() != null &&
-                charIndex - 2 >= 0) {
+                charIndex - 2 >= -1) {
             charPosition -= character.getCharSize();
             charIndex--;
-            character = currentPara().getText().getCharList().get(charIndex - 1);
+            if (charIndex - 1 >= 0) {
+                character = currentPara().getText().getCharList().get(charIndex - 1);
+                charPosition -= character.getCharSize();
+                setCharShape();
+                charPosition += character.getCharSize();
+            } else {
+                charIndex = 0;
+                charPosition = 0;
+                character = null;
 
-            charPosition -= character.getCharSize();
-            setCharShape();
-            charPosition += character.getCharSize();
+                charShapeIndex = -1;
+                setCharShape();
+            }
+
             return true;
         } else {
             return false;

@@ -58,6 +58,10 @@ public class ColumnsInfo {
         }
     }
 
+    public void setWithSameColumnDefine(Area multiColumnArea) {
+        set(columnDefine, multiColumnArea);
+    }
+
     public void set(Area multiColumnArea) { ;
         set(columnDefine, multiColumnArea);
     }
@@ -186,6 +190,15 @@ public class ColumnsInfo {
 
     public void limitedTextLineCounts(int[] limitedTextLineCounts) {
         this.limitedTextLineCounts = limitedTextLineCounts;
+        if (limitedTextLineCounts == null) {
+            System.out.println("null is null");
+        } else {
+            System.out.print("[");
+            for (int lineCount : limitedTextLineCounts) {
+                System.out.print(lineCount + ",");
+            }
+            System.out.println("]");
+        }
     }
 
     public int limitedTextLineCount() {

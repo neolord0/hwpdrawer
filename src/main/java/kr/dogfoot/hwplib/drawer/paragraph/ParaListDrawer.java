@@ -11,14 +11,11 @@ import kr.dogfoot.hwplib.drawer.paragraph.textflow.TextFlowCalculationResult;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.ParagraphListInterface;
 import kr.dogfoot.hwplib.object.bodytext.control.*;
-import kr.dogfoot.hwplib.object.bodytext.paragraph.header.DivideSort;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.text.*;
 
 import java.io.UnsupportedEncodingException;
 
 public class ParaListDrawer {
-    private final static long MultiColumnGsp = 1200; // 약 4mm
-
     private final DrawingInput input;
     private final InterimOutput output;
     private final PagePainter pagePainter;
@@ -28,6 +25,7 @@ public class ParaListDrawer {
     private final TextLineDrawer textLineDrawer;
     private final WordDrawer wordDrawer;
     private final DistributionMultiColumnRearranger distributionMultiColumnRearranger;
+    private final ParaDividingProcessor paraDividingProcessor;
 
     private final CharInfoBuffer charInfoBuffer;
 
@@ -55,11 +53,13 @@ public class ParaListDrawer {
         this.output = output;
         this.pagePainter = pagePainter;
 
+
         textFlowCalculator = new TextFlowCalculator();
 
         textLineDrawer = new TextLineDrawer(input, output);
         wordDrawer = new WordDrawer(input, output,this, textLineDrawer, textFlowCalculator);
         distributionMultiColumnRearranger = new DistributionMultiColumnRearranger(input, output, this);
+        paraDividingProcessor = new ParaDividingProcessor(input, output, this, distributionMultiColumnRearranger);
 
         charInfoBuffer = new CharInfoBuffer();
         currentTextPartArea = new Area();
@@ -74,14 +74,10 @@ public class ParaListDrawer {
             try {
                 paragraph(redraw);
                 redraw = false;
-            } catch (BreakingDrawException e) {
-                if (e.type().isForRedrawing()) {
-                    input.gotoParaCharPosition(e.paraIndex(), e.charIndex(), e.charPosition());
-                    input.currentParaListInfo().resetParaStartY(e.startY());
-                    redraw = true;
-                } else {
-                    throw e;
-                }
+            } catch (RedrawException e) {
+                input.gotoParaCharPosition(e.paraIndex(), e.charIndex(), e.charPosition());
+                input.currentParaListInfo().resetParaStartY(e.startY());
+                redraw = true;
             }
         }
 
@@ -94,7 +90,6 @@ public class ParaListDrawer {
 
         input.endBodyTextParaList();
     }
-
 
     public long drawForControl(ParagraphListInterface paraList, Area textArea) throws Exception {
         input.startControlParaList(textArea, paraList.getParagraphs());
@@ -116,123 +111,74 @@ public class ParaListDrawer {
         boolean redraw = true;
         boolean endingPara = false;
 
-        wordDrawer.continueAddingChar();
 
         while (redraw || (endingPara = !input.nextPara()) == false) {
             if (endParaIndex != -1 && input.paraIndex() > endParaIndex) {
                 endingPara = true;
                 break;
             }
-
             try {
                 paragraph(redraw);
                 redraw = false;
-            } catch (BreakingDrawException e) {
-                if (e.type().isForRedrawing()) {
-                    redraw = true;
-                } else if (e.type().isForDistributionColumn()) {
-                    throw e;
+            } catch (RedrawException e) {
+                redraw = true;
+            } catch (BreakDrawingException e) {
+                switch (e.type()) {
+                    case ForNewPage:
+                    case ForEndingTest:
+                    case ForDividingColumn:
+                        throw e;
                 }
             }
         }
 
-        if (endingPara == true
+        if (!output.hadRearrangedDistributionMultiColumn()) {
+            if (endingPara == true
                     && !input.columnsInfo().lastColumn()
                     && distributionMultiColumnRearranger.hasEmptyColumn()) {
-            distributionMultiColumnRearranger.rearrangeFromCurrentColumn();
+                distributionMultiColumnRearranger.rearrangeFromCurrentColumn();
+            }
         }
 
         if (endingPara || input.nextPara() == false) {
-            throw new BreakingDrawException(0, 0, 0, 0).forEndingPara();
+            throw new BreakDrawingException().forEndingPara();
         }
     }
 
-    public void paragraph(boolean redraw) throws Exception {
+    private void paragraph(boolean redraw) throws Exception {
         controlExtendCharIndex = 0;
 
         if (redraw == false) {
-            input.startPara();
-            processDivideSectionOrMultiColumn();
+            startPara();
         }
 
         resetForNewPara();
-        processDividePageOrColumn();
 
         if (input.noText()) {
+            checkNewColumnAndPage();
             saveTextLineAndNewLine();
         } else {
             chars();
         }
 
+        output.setLastLineInPara();
+
+        endPara();
+    }
+
+    private void startPara() throws Exception {
+        input.startPara();
+        paraDividingProcessor.process();
+    }
+
+    private void endPara() {
         long endY = currentTextPartArea.top() - input.paraArea().top();
         if (input.currentPara().getHeader().isLastInList()) {
-            long lineGap = textLineDrawer.lineHeight() - textLineDrawer.maxCharHeight();
+            long lineGap = textLineDrawer.lineGap();
             endY -= lineGap;
             paraHeight -= lineGap;
         }
-
-        output.setLastLineInPara();
         input.endPara(endY, paraHeight);
-    }
-
-    private void processDivideSectionOrMultiColumn() throws Exception {
-        DivideSort divideSort = input.currentPara().getHeader().getDivideSort();
-
-        if (divideSort.isDivideSection()) {
-            onSection();
-        }  else if (divideSort.isDivideMultiColumn()) {
-            onMultiColumn();
-        }
-    }
-
-    private void onSection() {
-        input.nextChar();
-        HWPChar firstChar = input.currentChar();
-        input.nextChar();
-        HWPChar secondChar = input.currentChar();
-
-        if (firstChar.getType() == HWPCharType.ControlExtend &&
-                ((HWPCharControlExtend) firstChar).isSectionDefine()) {
-            input.sectionDefine((ControlSectionDefine) input.currentPara().getControlList().get(0));
-            controlExtendCharIndex++;
-        }
-
-        if (secondChar.getType() == HWPCharType.ControlExtend &&
-                ((HWPCharControlExtend) secondChar).isColumnDefine()) {
-            input.newMultiColumn((ControlColumnDefine) input.currentPara().getControlList().get(1),
-                    input.pageInfo().bodyArea().top());
-            controlExtendCharIndex++;
-        }
-
-        input.newPage();
-        output.newPage(input);
-    }
-
-    private void onMultiColumn() throws Exception {
-        if (!output.hadRearrangedDistributionMultiColumn()) {
-            gotoZeroColumn();
-            distributionMultiColumnRearranger.endParaIndex(input.paraIndex() - 1);
-            distributionMultiColumnRearranger.rearrangeFromCurrentColumn();
-        } else {
-            input.nextChar();
-            HWPChar firstChar = input.currentChar();
-
-            if (firstChar.getType() == HWPCharType.ControlExtend &&
-                    ((HWPCharControlExtend) firstChar).isColumnDefine()) {
-                input.newMultiColumn((ControlColumnDefine) input.currentPara().getControlList().get(0), output.multiColumnBottom() + MultiColumnGsp);
-                controlExtendCharIndex++;
-            }
-
-            output.newMultiColumn(input.columnsInfo());
-            resetForNewColumn();
-        }
-    }
-
-    private void gotoZeroColumn() {
-        while (input.columnsInfo().currentColumnIndex() > 0) {
-            input.previousColumn();
-            output.previousColumn();
-        }
     }
 
     private void resetForNewPara() {
@@ -265,21 +211,10 @@ public class ParaListDrawer {
         }
     }
 
-    private void processDividePageOrColumn() throws Exception {
-        DivideSort divideSort = input.currentPara().getHeader().getDivideSort();
-        if (divideSort.isDividePage()) {
-            newPage();
-        } else if (divideSort.isDivideColumn()) {
-            if (input.columnsInfo().lastColumn()) {
-                newPage();
-            } else {
-                nextColumn();
-            }
-        }
-    }
-
     private void chars() throws Exception {
         while (input.nextChar()) {
+            wordDrawer.continueAddingChar();
+
             switch (input.currentChar().getType()) {
                 case Normal:
                     normalChar();
@@ -312,6 +247,10 @@ public class ParaListDrawer {
 
     private void normalChar() throws Exception {
         NormalCharInfo charInfo = normalCharInfo((HWPCharNormal) input.currentChar());
+        if (input.paraIndex() == 1 && charInfo.index() < 100) {
+            System.out.println(charInfo.paraIndex() + "," + charInfo.index() + ":" + charInfo.normalCharacter().getCh() + ";" + textLineDrawer.test());
+        }
+
         if (!charInfo.character().isSpace()) {
             wordDrawer.addCharOfWord(charInfo);
         } else {
@@ -344,22 +283,16 @@ public class ParaListDrawer {
     }
 
     private void controlExtend() {
-        if (input.currentChar().getCode() == 2) {
-            columnDefine();
-        } else if (input.currentChar().getCode() == 11) {
+        if (input.currentChar().getCode() == 11) {
             tableOrGso();
         } else if (input.currentChar().getCode() == 16) {
             headerFooter();
         } else {
-            controlExtendCharIndex++;
+            increaseControlExtendCharIndex();
         }
     }
 
-    private void columnDefine() {
-        Control control = input.currentPara().getControlList().get(controlExtendCharIndex);
-        if (control.getType() == ControlType.ColumnDefine) {
-            // todo
-        }
+    public void increaseControlExtendCharIndex() {
         controlExtendCharIndex++;
     }
 
@@ -369,7 +302,7 @@ public class ParaListDrawer {
             Control control = input.currentPara().getControlList().get(controlExtendCharIndex);
             charInfo = ControlCharInfo.create((HWPCharControlExtend) input.currentChar(), control, input);
             charInfoBuffer.add(input.paraIndex(), input.charIndex(), charInfo);
-            controlExtendCharIndex++;
+            increaseControlExtendCharIndex();
         }
 
         wordDrawer.addCharOfWord(charInfo);
@@ -404,11 +337,11 @@ public class ParaListDrawer {
                     break;
             }
         }
-        controlExtendCharIndex++;
+        increaseControlExtendCharIndex();
     }
 
     private void startRecalculatingTextLine() {
-        input.gotoCharPosition(textLineDrawer.firstCharInfo());
+        input.gotoCharInPara(textLineDrawer.firstCharInfo());
 
         currentTextPartArea.set(textFlowCalculationResult.nextArea());
         textLineDrawer
@@ -418,44 +351,23 @@ public class ParaListDrawer {
     }
 
     private void startRedrawingTextLine() {
-        input.gotoCharPosition(textLineDrawer.firstCharInfo());
+        input.gotoCharInPara(textLineDrawer.firstCharInfo());
         textLineDrawer
                 .reset(currentTextPartArea)
                 .addNewTextPart(0, currentTextPartArea.width());
         wordDrawer.reset();
     }
 
-    public void checkNewColumnAndPage() throws Exception {
-        if (input.isBodyText()
-                && isOverBottom(textLineDrawer.maxCharHeight())) {
-             if (input.columnsInfo().lastColumn()) {
-                newPage();
-            } else {
-                if (distributionMultiColumnRearranger.testing() ||
-                        input.columnsInfo().isDistributionMultiColumn()) {
-                    distributionMultiColumnRearranger.rearrangeFromCurrentColumn();
-
-                    wordDrawer.stopAddingChar();
-                } else {
-                    nextColumn();
-                }
-            }
-        } else {
-            if (!input.columnsInfo().lastColumn() &&
-                    input.columnsInfo().isOverLimitedTextLineCount(output.textLineCount())) {
-                nextColumn();
-            }
-        }
-    }
 
     private boolean isOverBottom(long height) {
         return input.columnsInfo().currentColumnArea().bottom() < currentTextPartArea.top() + height;
     }
 
-    private void newPage() throws Exception {
+    public void newPage() throws Exception {
         if (forDistributionMultiColumn) {
-            throw new BreakingDrawException(input.paraIndex(), input.charIndex(), input.charPosition(), 0).forDistributionColumn();
+            throw new BreakDrawingException(input.paraIndex(), input.charIndex(), input.charPosition()).forNewPage();
         }
+
         pagePainter.saveCurrentPage();
         charInfoBuffer.clearUntilPreviousPara();
 
@@ -479,22 +391,22 @@ public class ParaListDrawer {
 
     public void nextColumn() {
         input.nextColumn();
-        resetForNewColumn();
         output.nextColumn();
+        resetForNewColumn();
     }
 
     public void previousColumn() {
         input.previousColumn();
-        resetForNewColumn();
         output.previousColumn();
+        resetForNewColumn();
     }
 
-    private void resetForNewColumn() {
+    public void resetForNewColumn() {
         currentTextPartArea.set(input.paraArea());
         applyIndent();
 
         if (textLineDrawer.noDrawingChar()) {
-            textLineDrawer
+             textLineDrawer
                     .clearTextLine()
                     .addNewTextPart(0, currentTextPartArea.width());
         } else {
@@ -510,7 +422,6 @@ public class ParaListDrawer {
             textLineDrawer.setLineHeight();
 
             checkTextFlow();
-            checkNewColumnAndPage();
 
              if (textLineDrawer.noDrawingChar() && input.checkHidingEmptyLineAfterNewPage()) {
                 input.descendCountOfHidingEmptyLineAfterNewPage();
@@ -544,9 +455,45 @@ public class ParaListDrawer {
         }
     }
 
+    public void checkNewColumnAndPage() throws Exception {
+        if (drawingState.isNormal()
+                && (isOverBottom(textLineDrawer.maxCharHeight())
+                        || input.columnsInfo().isOverLimitedTextLineCount(output.textLineCount()))) {
+            if (input.columnsInfo().lastColumn()
+                    && input.isBodyText()) {
+                newPage();
+            } else {
+                output.currentColumn().nextChar(textLineDrawer.firstCharInfo());
+
+                if (!input.columnsInfo().lastColumn()) {
+                    if (!output.currentMultiColumn().hadRearrangedDistributionMultiColumn()
+                            && (distributionMultiColumnRearranger.testing()
+                            || input.columnsInfo().isDistributionMultiColumn())) {
+
+                        distributionMultiColumnRearranger.rearrangeFromCurrentColumn();
+
+                        if (distributionMultiColumnRearranger.testing()) {
+                            throw new BreakDrawingException().forEndingTest();
+                        } else {
+                            wordDrawer.stopAddingChar();
+                        }
+                    } else {
+                        nextColumn();
+                    }
+                }
+            }
+        }
+    }
+
     private void saveTextLine() {
         switch (drawingState) {
             case Normal:
+          /*
+                if (input.paraIndex() == 1) {
+                    System.out.println(textLineDrawer.test());
+                }
+
+           */
                 textLineDrawer.saveToOutput();
                 if (newLineAtNormal) {
                     output.setLastLineInPara();
