@@ -20,7 +20,7 @@ import java.util.SimpleTimeZone;
 public class WordDrawer {
     private final DrawingInput input;
     private final InterimOutput output;
-    private final ParaListDrawer paraListDrawer;
+    private final ParaDrawer paraDrawer;
     private final TextLineDrawer textLineDrawer;
     private final TextFlowCalculator textFlowCalculator;
 
@@ -34,14 +34,14 @@ public class WordDrawer {
     private boolean applyMinimumSpace;
 
 
-    public WordDrawer(DrawingInput input, InterimOutput output, ParaListDrawer paraListDrawer, TextLineDrawer textLineDrawer, TextFlowCalculator textFlowCalculator) {
+    public WordDrawer(DrawingInput input, InterimOutput output, ParaDrawer paraDrawer, TextLineDrawer textLineDrawer, TextFlowCalculator textFlowCalculator) {
         this.input = input;
         this.output = output;
-        this.paraListDrawer = paraListDrawer;
+        this.paraDrawer = paraDrawer;
         this.textLineDrawer = textLineDrawer;
         this.textFlowCalculator = textFlowCalculator;
 
-        wordSplitter = new WordSplitter(paraListDrawer, textLineDrawer, this);
+        wordSplitter = new WordSplitter(paraDrawer, textLineDrawer, this);
         controlDrawer = new ControlDrawer(input, output);
 
         charsOfWord = new ArrayList<>();
@@ -70,7 +70,7 @@ public class WordDrawer {
                 addWordAllChars(false, true);
 
                 textLineDrawer.setBestSpaceRate();
-                paraListDrawer.saveTextLineAndNewLine();
+                paraDrawer.saveTextLineAndNewLine();
             } else {
                 spanningWord(spaceCharInfo);
             }
@@ -79,7 +79,7 @@ public class WordDrawer {
     }
 
     private void addSpaceChar(NormalCharInfo spaceCharInfo) {
-        if (paraListDrawer.drawingState().canAddChar() && spaceCharInfo != null && !wordSplitter.stoppedAddingChar()) {
+        if (paraDrawer.drawingState().canAddChar() && spaceCharInfo != null && !wordSplitter.stoppedAddingChar()) {
             textLineDrawer.addChar(spaceCharInfo);
         }
     }
@@ -104,9 +104,9 @@ public class WordDrawer {
                 textLineDrawer.setBestSpaceRate();
             }
 
-            paraListDrawer.saveTextLineAndNewLine();
+            paraDrawer.saveTextLineAndNewLine();
 
-            if (paraListDrawer.drawingState().isNormal() || paraListDrawer.drawingState().isEndRecalculating()) {
+            if (paraDrawer.drawingState().isNormal() || paraDrawer.drawingState().isEndRecalculating()) {
                 hasNewLine = true;
             } else {
                 hasNewLine = false;
@@ -117,14 +117,14 @@ public class WordDrawer {
 
         textLineDrawer.justNewLine(false);
 
-        if (paraListDrawer.drawingState().canAddChar()) {
-            if (textLineDrawer.noDrawingChar() && paraListDrawer.drawingState().isNormal()) {
+        if (paraDrawer.drawingState().canAddChar()) {
+            if (textLineDrawer.noDrawingChar() && paraDrawer.drawingState().isNormal()) {
                 textLineDrawer.firstCharInfo(charInfo);
-                paraListDrawer.checkNewColumnAndPage();
+                paraDrawer.checkNewColumnAndPage();
             }
 
             if (wordSplitter.stoppedAddingChar() == false) {
-                if (paraListDrawer.drawingState().isNormal() && charInfo.type() == CharInfo.Type.Control) {
+                if (paraDrawer.drawingState().isNormal() && charInfo.type() == CharInfo.Type.Control) {
                     addControlChar((ControlCharInfo) charInfo);
                 } else {
                     textLineDrawer.addChar(charInfo);
@@ -147,7 +147,7 @@ public class WordDrawer {
                 || controlCharInfo.textFlowMethod() == TextFlowMethod.TakePlace) {
             if (!textFlowCalculator.alreadyAdded(controlCharInfo)) {
                 if (output.checkRedrawingTextLine(controlCharInfo.areaWithOuterMargin())) {
-                    if (isOver75PercentOfPageHeight(paraListDrawer.currentTextPartArea().bottom())) {
+                    if (isOver75PercentOfPageHeight(paraDrawer.currentTextPartArea().bottom())) {
                         output.addControlMovedToNextPage(output2, controlCharInfo);
                     } else {
                         textFlowCalculator.add(controlCharInfo);
@@ -177,16 +177,16 @@ public class WordDrawer {
     private void spanningWord(NormalCharInfo spaceCharInfo) throws Exception {
         if (isAllLineDivideByWord()) {
             if (!textLineDrawer.noDrawingChar()) {
-                paraListDrawer.saveTextLineAndNewLine();
+                paraDrawer.saveTextLineAndNewLine();
             }
-            if (paraListDrawer.drawingState().isEndRecalculating()) {
+            if (paraDrawer.drawingState().isEndRecalculating()) {
                 input.previousChar(charsOfWord.size() + 1);
             }
             addWordAllChars(true, false);
         } else {
             int countOfAddingBeforeNewLine = wordSplitter.splitByLineAndAdd(charsOfWord, input.paraShape());
 
-            if (paraListDrawer.drawingState().isEndRecalculating()) {
+            if (paraDrawer.drawingState().isEndRecalculating()) {
                 input.previousChar(charsOfWord.size() - countOfAddingBeforeNewLine + 1);
             }
         }

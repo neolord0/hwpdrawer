@@ -1,5 +1,6 @@
 package kr.dogfoot.hwplib.drawer.paragraph.textflow;
 
+import kr.dogfoot.hwplib.drawer.paragraph.ParaDrawer;
 import kr.dogfoot.hwplib.drawer.paragraph.ParaListDrawer;
 import kr.dogfoot.hwplib.drawer.util.Area;
 
@@ -60,7 +61,7 @@ public class TextFlowCalculationResult {
         return result.cancelNewLine();
     }
 
-    public ParaListDrawer.DrawingState nextState() {
+    public ParaDrawer.DrawingState nextState() {
         return result.nextState();
     }
 }

@@ -2,6 +2,7 @@ package kr.dogfoot.hwplib.drawer.interimoutput;
 
 import kr.dogfoot.hwplib.drawer.input.ColumnsInfo;
 import kr.dogfoot.hwplib.drawer.input.DrawingInput;
+import kr.dogfoot.hwplib.drawer.input.ParallelMultiColumnInfo;
 import kr.dogfoot.hwplib.drawer.interimoutput.control.ControlOutput;
 import kr.dogfoot.hwplib.drawer.interimoutput.control.GsoOutput;
 import kr.dogfoot.hwplib.drawer.interimoutput.page.FooterOutput;
@@ -12,6 +13,7 @@ import kr.dogfoot.hwplib.drawer.interimoutput.control.table.TableOutput;
 import kr.dogfoot.hwplib.drawer.interimoutput.text.Column;
 import kr.dogfoot.hwplib.drawer.interimoutput.text.MultiColumn;
 import kr.dogfoot.hwplib.drawer.interimoutput.text.TextLine;
+import kr.dogfoot.hwplib.drawer.paragraph.ParaListDrawer;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlTable;
@@ -19,16 +21,24 @@ import kr.dogfoot.hwplib.object.bodytext.control.gso.GsoControl;
 import kr.dogfoot.hwplib.object.bodytext.control.table.Cell;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Stack;
 
 public class InterimOutput {
-    private PageOutput page;
     private final Stack<Output> stack;
+
+    private Map<Integer, PageOutput> pageMap;
+    private int currentPageNo;
 
     private final ArrayList<ControlInfo> controlsMovedToNextPage;
 
     public InterimOutput() {
         stack = new Stack<>();
+
+        pageMap = new HashMap<>();
+        currentPageNo = 0;
+
         controlsMovedToNextPage = new ArrayList<>();
     }
 
@@ -44,25 +54,49 @@ public class InterimOutput {
         return controlsMovedToNextPage.toArray(ControlInfo.Zero_Array);
     }
 
-    public void newPage(DrawingInput input) {
+    public void nextPage(DrawingInput input) throws Exception {
         stack.clear();
-        page = new PageOutput(input.pageInfo(), input.columnsInfo());
-        stack.add(page);
 
-        if (!controlsMovedToNextPage.isEmpty()) {
-            for (ControlInfo controlInfo : controlsMovedToNextPage) {
-                page.content().currentMultiColumn().currentColumn().addChildOutput(controlInfo.output);
+        currentPageNo++;
+        PageOutput page = pageMap.get(currentPageNo);
+        if (page == null) {
+            page = new PageOutput(input.pageInfo(), input.columnsInfo());
+            pageMap.put(currentPageNo, page);
+
+            if (!controlsMovedToNextPage.isEmpty()) {
+                for (ControlInfo controlInfo : controlsMovedToNextPage) {
+                    page.content().currentMultiColumn().currentColumn().addChildOutput(controlInfo.output);
+                }
+                controlsMovedToNextPage.clear();
             }
-            controlsMovedToNextPage.clear();
         }
+
+        stack.add(page);
     }
 
-    public PageOutput page() {
+    public PageOutput gotoPage(int pageNo) {
+        stack.clear();
+        currentPageNo = pageNo;
+        PageOutput page = pageMap.get(currentPageNo);
+        stack.add(page);
         return page;
     }
 
+    public PageOutput[] pages() {
+        return pageMap.values().toArray(PageOutput.Zero_Array);
+    }
+
+
+    public PageOutput currentPage() {
+        return pageMap.get(currentPageNo);
+    }
+
+    public void clearPages() {
+        pageMap.clear();
+    }
+
     public HeaderOutput startHeader() {
-        HeaderOutput headerOutput = page.createHeaderOutput();
+        HeaderOutput headerOutput = currentPage().createHeaderOutput();
         stack.push(headerOutput);
         return headerOutput;
     }
@@ -73,7 +107,7 @@ public class InterimOutput {
     }
 
     public FooterOutput startFooter() {
-        FooterOutput footerOutput = page.createFooterOutput();
+        FooterOutput footerOutput = currentPage().createFooterOutput();
         stack.push(footerOutput);
         return footerOutput;
     }
@@ -202,8 +236,12 @@ public class InterimOutput {
         currentColumn().clear();
     }
 
-    public void newMultiColumn(ColumnsInfo columnsInfo) {
-        currentContent().addNewMultiColumn(columnsInfo);
+    public void nextMultiColumn(ColumnsInfo columnsInfo) {
+        currentContent().nextMultiColumn(columnsInfo);
+    }
+
+    public int currentMultiColumnIndex() {
+        return  currentContent().currentMultiColumnIndex();
     }
 
     public long multiColumnHeight() {
@@ -213,6 +251,11 @@ public class InterimOutput {
     public long multiColumnBottom() {
         return currentContent().multiColumnBottom();
     }
+
+    public void gotoStartingParallelMultiColumn(ParallelMultiColumnInfo parallelMultiColumnInfo) {
+        gotoPage(parallelMultiColumnInfo.startingPageNo()).content().gotoMultiColumn(parallelMultiColumnInfo.startingMultiColumnIndex());
+    }
+
 
     public static final class ControlInfo {
         public static final ControlInfo[] Zero_Array = new ControlInfo[0];
@@ -232,6 +275,5 @@ public class InterimOutput {
         public ControlCharInfo charInfo() {
             return charInfo;
         }
-
     }
 }

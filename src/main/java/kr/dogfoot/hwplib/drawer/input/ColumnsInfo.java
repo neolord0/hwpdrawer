@@ -66,6 +66,10 @@ public class ColumnsInfo {
         set(columnDefine, multiColumnArea);
     }
 
+    public void set() {
+        set(columnDefine, multiColumnArea);
+    }
+
     private void makeColumnAreasFromLeft() {
         if (columnDefine.getHeader().getProperty().isSameWidth()) {
             long columnWidth = (multiColumnArea.width()
@@ -180,8 +184,21 @@ public class ColumnsInfo {
         return false;
     }
 
+    public boolean isParallelMultiColumn() {
+        if (areasFromLeft.size() > 1
+                && columnDefine.getHeader().getProperty().getColumnSort() == ColumnSort.Parallel) {
+            return true;
+        }
+        return false;
+
+    }
+
     public int currentColumnIndex() {
         return currentColumnIndex;
+    }
+
+    public void currentColumnIndex(int currentColumnIndex) {
+        this.currentColumnIndex = currentColumnIndex;
     }
 
     public int columnCount() {
@@ -190,15 +207,6 @@ public class ColumnsInfo {
 
     public void limitedTextLineCounts(int[] limitedTextLineCounts) {
         this.limitedTextLineCounts = limitedTextLineCounts;
-        if (limitedTextLineCounts == null) {
-            System.out.println("null is null");
-        } else {
-            System.out.print("[");
-            for (int lineCount : limitedTextLineCounts) {
-                System.out.print(lineCount + ",");
-            }
-            System.out.println("]");
-        }
     }
 
     public int limitedTextLineCount() {
@@ -216,4 +224,5 @@ public class ColumnsInfo {
         }
         return false;
     }
+
 }

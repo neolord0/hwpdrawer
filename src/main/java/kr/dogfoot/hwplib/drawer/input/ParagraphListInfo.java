@@ -30,10 +30,14 @@ public class ParagraphListInfo {
     private int charShapeIndex;
     private CharShape charShape;
 
+    private ParallelMultiColumnInfo parallelMultiColumnInfo;
+
     public ParagraphListInfo(DrawingInput input) {
         this.input = input;
         height = 0;
         paraArea = new Area();
+
+        parallelMultiColumnInfo = new ParallelMultiColumnInfo();
     }
 
     public ParagraphListInfo(DrawingInput input, Area bodyArea) {
@@ -235,5 +239,9 @@ public class ParagraphListInfo {
             setCharShape();
             this.charPosition += character.getCharSize();
         }
+    }
+
+    public ParallelMultiColumnInfo parallelMultiColumnInfo() {
+        return parallelMultiColumnInfo;
     }
 }

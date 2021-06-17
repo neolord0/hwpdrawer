@@ -142,6 +142,7 @@ public class TextLine implements Iterable<TextPart> {
     public String test(int tabCount) {
         MyStringBuilder sb = new MyStringBuilder();
         sb.tab(tabCount);
+        sb.append(area).append("-");
         if (firstChar() != null) {
             sb.append(String.valueOf(firstChar().paraIndex())).append(":").append(String.valueOf(firstChar().index())) .append(" = ");
         } else {

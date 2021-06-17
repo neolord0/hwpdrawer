@@ -2,95 +2,72 @@ package kr.dogfoot.hwplib.drawer.paragraph;
 
 import kr.dogfoot.hwplib.drawer.input.DrawingInput;
 import kr.dogfoot.hwplib.drawer.interimoutput.InterimOutput;
-import kr.dogfoot.hwplib.object.bodytext.control.ControlColumnDefine;
-import kr.dogfoot.hwplib.object.bodytext.control.ControlSectionDefine;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.header.DivideSort;
-import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPChar;
-import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPCharControlExtend;
-import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPCharType;
+import kr.dogfoot.hwplib.drawer.util.Area;
 
 public class ParaDividingProcessor {
-    private final static long MultiColumnGsp = 1200; // 약 4mm
-
     private final DrawingInput input;
     private final InterimOutput output;
-    private final ParaListDrawer paraListDrawer;
-    private final DistributionMultiColumnRearranger distributionMultiColumnRearranger;
+    private final ParaDrawer paraDrawer;
 
-    public ParaDividingProcessor(DrawingInput input, InterimOutput output, ParaListDrawer paraListDrawer, DistributionMultiColumnRearranger distributionMultiColumnRearranger) {
+    public ParaDividingProcessor(DrawingInput input, InterimOutput output, ParaDrawer paraDrawer) {
         this.input = input;
         this.output = output;
-        this.paraListDrawer = paraListDrawer;
-        this.distributionMultiColumnRearranger = distributionMultiColumnRearranger;
+        this.paraDrawer = paraDrawer;
     }
 
     public void process() throws Exception {
         DivideSort divideSort = input.currentPara().getHeader().getDivideSort();
 
         if (divideSort.isDivideSection()) {
-            onSection();
+            onDividingSection();
         }  else if (divideSort.isDivideMultiColumn()) {
-            onMultiColumn();
-            return;
-        }
-
-        if (divideSort.isDividePage()) {
-            paraListDrawer.newPage();
+            onDividingMultiColumn();
+        } else if (divideSort.isDividePage()) {
+            onDividingPage();
         } else if (divideSort.isDivideColumn()) {
-            if (input.columnsInfo().isDistributionMultiColumn()) {
-                onMultiColumn();
-            } else {
-                if (input.columnsInfo().lastColumn()) {
-                    paraListDrawer.newPage();
-                } else {
-                    paraListDrawer.nextColumn();
-                }
-            }
+            onDividingColumn();
         }
     }
 
-    private void onSection() {
-        input.nextChar();
-        HWPChar firstChar = input.currentChar();
-        input.nextChar();
-        HWPChar secondChar = input.currentChar();
+    private void onDividingSection() throws Exception {
+        paraDrawer.setSectionDefine();
+        paraDrawer.setColumnDefine(input.pageInfo().bodyArea().top());
 
-        if (firstChar.getType() == HWPCharType.ControlExtend &&
-                ((HWPCharControlExtend) firstChar).isSectionDefine()) {
-            input.sectionDefine((ControlSectionDefine) input.currentPara().getControlList().get(0));
-            paraListDrawer.increaseControlExtendCharIndex();
+        input.nextPage(false);
+        output.nextPage(input);
+
+        if (input.columnsInfo().isParallelMultiColumn()) {
+            input.parallelMultiColumnInfo().startParallelMultiColumn(input.pageInfo().pageNo(), output.currentMultiColumnIndex());
         }
-
-        if (secondChar.getType() == HWPCharType.ControlExtend &&
-                ((HWPCharControlExtend) secondChar).isColumnDefine()) {
-            input.newMultiColumn((ControlColumnDefine) input.currentPara().getControlList().get(1),
-                    input.pageInfo().bodyArea().top());
-            paraListDrawer.increaseControlExtendCharIndex();
-        }
-
-        input.newPage();
-        output.newPage(input);
     }
 
-    private void onMultiColumn() throws Exception {
-        if (!output.hadRearrangedDistributionMultiColumn()) {
-            if (!distributionMultiColumnRearranger.testing()) {
+    private void onDividingMultiColumn() throws Exception {
+        if (!output.hadRearrangedDistributionMultiColumn() && output.textLineCount() > 1) {
+            if (!distributionMultiColumnRearranger().testing()) {
                 gotoZeroColumn();
-                distributionMultiColumnRearranger.endParaIndex(input.paraIndex() - 1);
-                distributionMultiColumnRearranger.rearrangeFromCurrentColumn();
+
+                distributionMultiColumnRearranger().endParaIndex(input.paraIndex() - 1);
+                distributionMultiColumnRearranger().rearrangeFromCurrentColumn();
             } else {
-                distributionMultiColumnRearranger.endParaIndex(input.paraIndex() - 1);
+                distributionMultiColumnRearranger().endParaIndex(input.paraIndex() - 1);
                 throw new BreakDrawingException().forDividingColumn();
             }
         } else {
-            distributionMultiColumnRearranger.endParaIndex(-1);
+            paraDrawer.nextMultiColumn();
 
-            setColumnDefine();
+            if (input.columnsInfo().isParallelMultiColumn()) {
+                input.parallelMultiColumnInfo().startParallelMultiColumn(input.pageInfo().pageNo(), output.currentMultiColumnIndex());
+            }
 
-            output.newMultiColumn(input.columnsInfo());
-            paraListDrawer.resetForNewColumn();
-            throw new BreakDrawingException().forDividingColumn();
+            if (output.textLineCount() > 1) {
+                throw new BreakDrawingException().forDividingColumn();
+            }
         }
+    }
+
+    private DistributionMultiColumnRearranger distributionMultiColumnRearranger() {
+        return paraDrawer.distributionMultiColumnRearranger();
     }
 
     private void gotoZeroColumn() {
@@ -100,18 +77,30 @@ public class ParaDividingProcessor {
         }
     }
 
-    private void setColumnDefine() {
-        input.nextChar();
-        HWPChar firstChar = input.currentChar();
+    private void onDividingPage() throws Exception {
+        if (input.columnsInfo().isDistributionMultiColumn()) {
+            if (!output.hadRearrangedDistributionMultiColumn() && output.textLineCount() > 1) {
+                gotoZeroColumn();
 
-        if (firstChar.getType() == HWPCharType.ControlExtend &&
-                ((HWPCharControlExtend) firstChar).isColumnDefine()) {
-            input.newMultiColumn((ControlColumnDefine) input.currentPara().getControlList().get(0), output.multiColumnBottom() + MultiColumnGsp);
-            paraListDrawer.increaseControlExtendCharIndex();
+                distributionMultiColumnRearranger().endParaIndex(input.paraIndex() - 1);
+                distributionMultiColumnRearranger().rearrangeFromCurrentColumn();
+            } else {
+                paraDrawer.nextPage();
+            }
         } else {
-            input.newMultiColumnWithSameColumnDefine(output.multiColumnBottom() + MultiColumnGsp);
-            input.previousChar(1);
+            paraDrawer.nextPage();
         }
     }
 
+    private void onDividingColumn() throws Exception {
+        if (input.columnsInfo().isDistributionMultiColumn()) {
+            onDividingMultiColumn();
+        } else {
+            if (input.columnsInfo().lastColumn()) {
+                paraDrawer.nextPage();
+            } else {
+                paraDrawer.nextColumn();
+            }
+        }
+    }
 }

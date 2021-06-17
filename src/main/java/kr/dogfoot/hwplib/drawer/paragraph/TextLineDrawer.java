@@ -145,11 +145,11 @@ public class TextLineDrawer {
     }
 
     public void saveToOutput() {
-        if (textLine.hasDrawingChar()) {
+//         if (textLine.hasDrawingChar()) {
             textLine.maxCharHeight(maxCharHeight)
                     .alignment(input.paraShape().getProperty1().getAlignment());
             output.addTextLine(textLine);
-        }
+  //       }
     }
 
     public String test() {

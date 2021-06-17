@@ -30,7 +30,9 @@ public class TextPainter {
 
     public void paintTextLines(TextLine[] lines) throws Exception {
         for (TextLine line : lines) {
-            paintTextLine(line);
+            if (line.hasDrawingChar()) {
+                paintTextLine(line);
+            }
         }
     }
 
@@ -195,7 +197,7 @@ public class TextPainter {
                         && ((ControlCharInfo) charInfo).isLikeLetter()) {
                     ControlCharInfo controlCharInfo = (ControlCharInfo) charInfo;
                     Area area = controlArea(part, controlCharInfo);
-                    // todo table
+
                     if (controlCharInfo.output() != null) {
                         controlCharInfo.output().controlArea(area);
                         painter.controlPainter().paintControl(controlCharInfo.output());

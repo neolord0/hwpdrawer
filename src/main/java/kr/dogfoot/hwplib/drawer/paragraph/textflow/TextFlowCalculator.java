@@ -1,5 +1,6 @@
 package kr.dogfoot.hwplib.drawer.paragraph.textflow;
 
+import kr.dogfoot.hwplib.drawer.paragraph.ParaDrawer;
 import kr.dogfoot.hwplib.drawer.paragraph.ParaListDrawer;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
@@ -45,11 +46,11 @@ public class TextFlowCalculator {
 
         Result result = forFitWithText.calculate(tempTextLineArea);
         if (result.dividedAreas == null) {
-            result.nextState = ParaListDrawer.DrawingState.StartRedrawing;
+            result.nextState = ParaDrawer.DrawingState.StartRedrawing;
         } else if (result.dividedAreas().length == 1 && result.dividedAreas()[0].equals(tempTextLineArea)) {
-            result.nextState = ParaListDrawer.DrawingState.Normal;
+            result.nextState = ParaDrawer.DrawingState.Normal;
         } else {
-            result.nextState = ParaListDrawer.DrawingState.StartRecalculating;
+            result.nextState = ParaDrawer.DrawingState.StartRecalculating;
         }
         result.offsetY += resultForTopBottom.yOffset();
         if (resultForTopBottom.yOffset() > 0 && resultForTopBottom.vertRelTo() == VertRelTo.Para) {
@@ -62,13 +63,13 @@ public class TextFlowCalculator {
     public static class Result {
         private final Area[] dividedAreas;
         private long offsetY;
-        private ParaListDrawer.DrawingState nextState;
+        private ParaDrawer.DrawingState nextState;
         private boolean cancelNewLine;
 
         public Result(Area[] dividedAreas, long offsetY) {
             this.dividedAreas = dividedAreas;
             this.offsetY = offsetY;
-            nextState = ParaListDrawer.DrawingState.Normal;
+            nextState = ParaDrawer.DrawingState.Normal;
             cancelNewLine = false;
         }
 
@@ -80,7 +81,7 @@ public class TextFlowCalculator {
             return offsetY;
         }
 
-        public ParaListDrawer.DrawingState nextState() {
+        public ParaDrawer.DrawingState nextState() {
             return nextState;
         }
 

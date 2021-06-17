@@ -8,6 +8,8 @@ import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
 
 public class PageOutput extends Output {
+    public final static PageOutput[] Zero_Array = new PageOutput[0];
+
     private final int pageNo;
     private final Area paperArea;
 
@@ -79,4 +81,5 @@ public class PageOutput extends Output {
         sb.tab(tabCount).append("page - }\n");
         return sb.toString();
     }
+
 }

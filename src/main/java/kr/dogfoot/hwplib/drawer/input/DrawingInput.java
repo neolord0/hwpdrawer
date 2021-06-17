@@ -129,10 +129,9 @@ public class DrawingInput {
         return columnsInfo;
     }
 
-    public void newPage() {
+    public void nextPage(boolean keepCurrentColumnIndex) {
         pageInfo
                 .increasePageNo();
-        columnsInfo.reset();
 
         if (pageInfo.pageNo() > 1 && pageInfo.isHideEmptyLine()) {
             countOfHidingEmptyLineAfterNewPage = 2;
@@ -140,10 +139,21 @@ public class DrawingInput {
             countOfHidingEmptyLineAfterNewPage = 0;
         }
 
+        int currentColumnIndex = 0;
+        if (keepCurrentColumnIndex) {
+            currentColumnIndex = columnsInfo.currentColumnIndex();
+        }
         if (bodyTextParaListInfo != null) {
             columnsInfo.set(new Area(pageInfo.bodyArea()));
             bodyTextParaListInfo.bodyArea(columnsInfo.currentColumnArea());
+        } else {
+            columnsInfo.reset();
         }
+
+        if (keepCurrentColumnIndex) {
+            columnsInfo.currentColumnIndex(currentColumnIndex);
+        }
+
     }
 
     public void nextColumn() {
@@ -284,6 +294,10 @@ public class DrawingInput {
         gotoParaCharPosition(textLine.paraIndex(),
                 textLine.firstChar().index(),
                 textLine.firstChar().prePosition());
+    }
+
+    public ParallelMultiColumnInfo parallelMultiColumnInfo() {
+        return currentParaListInfo().parallelMultiColumnInfo();
     }
 
 }

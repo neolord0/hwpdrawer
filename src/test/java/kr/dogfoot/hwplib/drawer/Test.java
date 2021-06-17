@@ -1,16 +1,13 @@
 package kr.dogfoot.hwplib.drawer;
 
-import kr.dogfoot.hwplib.drawer.util.Area;
-
-import java.io.File;
+import kr.dogfoot.hwplib.object.HWPFile;
+import kr.dogfoot.hwplib.reader.HWPReader;
 
 public class Test {
-    /*
     @org.junit.Test
     public void test_2() throws Exception {
-        HWPTester.test("etc" + File.separator + "사업신청서");
+        HWPFile hwp = HWPReader.fromFile("etc/a.hwp");
     }
-     */
 
     /*
     @org.junit.Test

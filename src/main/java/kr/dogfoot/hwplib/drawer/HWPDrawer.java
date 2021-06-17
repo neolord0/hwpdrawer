@@ -49,15 +49,17 @@ public class HWPDrawer {
             drawSection(section);
         }
 
-        pagePainter.saveCurrentPage();
         if (output.hasControlMovedToNextPage()) {
             input.columnsInfo().reset();
             input.pageInfo()
                     .increasePageNo();
 
-            output.newPage(input);
-            pagePainter.saveCurrentPage();
-        }
+            output.nextPage(input);
+            ParaListDrawer.drawHeaderFooter(input, output);
+      }
+
+        pagePainter.saveAllPages();
+
     }
 
     private void drawSection(Section section) throws Exception {

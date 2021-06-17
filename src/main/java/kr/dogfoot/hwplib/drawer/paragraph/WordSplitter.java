@@ -8,17 +8,17 @@ import kr.dogfoot.hwplib.object.docinfo.parashape.LineDivideForHangul;
 import java.util.ArrayList;
 
 public class WordSplitter {
-    private ParaListDrawer paraListDrawer;
-    private TextLineDrawer textLineDrawer;
-    private WordDrawer wordDrawer;
+    private final ParaDrawer paraDrawer;
+    private final TextLineDrawer textLineDrawer;
+    private final WordDrawer wordDrawer;
 
     private int letterCountBeforeNewLine;
     private boolean hasNewLine;
     private boolean stopAddingChar;
 
 
-    public WordSplitter(ParaListDrawer paraListDrawer, TextLineDrawer textLineDrawer, WordDrawer wordDrawer) {
-        this.paraListDrawer = paraListDrawer;
+    public WordSplitter(ParaDrawer paraDrawer, TextLineDrawer textLineDrawer, WordDrawer wordDrawer) {
+        this.paraDrawer = paraDrawer;
         this.textLineDrawer = textLineDrawer;
         this.wordDrawer = wordDrawer;
     }
@@ -99,7 +99,7 @@ public class WordSplitter {
                 hasNewLine = true;
 
                 if (!textLineDrawer.noDrawingChar()) {
-                    paraListDrawer.saveTextLineAndNewLine();
+                    paraDrawer.saveTextLineAndNewLine();
                 }
                 addWordAllChars(wordChars, true);
             }

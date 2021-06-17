@@ -2,47 +2,20 @@ package kr.dogfoot.hwplib.drawer.paragraph;
 
 import kr.dogfoot.hwplib.drawer.input.DrawingInput;
 import kr.dogfoot.hwplib.drawer.interimoutput.InterimOutput;
+import kr.dogfoot.hwplib.drawer.interimoutput.page.FooterOutput;
 import kr.dogfoot.hwplib.drawer.painter.PagePainter;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfoBuffer;
-import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
-import kr.dogfoot.hwplib.drawer.paragraph.charInfo.NormalCharInfo;
-import kr.dogfoot.hwplib.drawer.paragraph.textflow.TextFlowCalculator;
-import kr.dogfoot.hwplib.drawer.paragraph.textflow.TextFlowCalculationResult;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.ParagraphListInterface;
-import kr.dogfoot.hwplib.object.bodytext.control.*;
-import kr.dogfoot.hwplib.object.bodytext.paragraph.text.*;
-
-import java.io.UnsupportedEncodingException;
 
 public class ParaListDrawer {
     private final DrawingInput input;
     private final InterimOutput output;
     private final PagePainter pagePainter;
 
-    private final TextFlowCalculator textFlowCalculator;
-
-    private final TextLineDrawer textLineDrawer;
-    private final WordDrawer wordDrawer;
-    private final DistributionMultiColumnRearranger distributionMultiColumnRearranger;
-    private final ParaDividingProcessor paraDividingProcessor;
-
+    private final ParaDrawer paraDrawer;
     private final CharInfoBuffer charInfoBuffer;
-
-    private boolean firstLine;
-    private boolean cancelNewLine;
-
-    private Area currentTextPartArea;
-    private long paraHeight;
-
-    private TextFlowCalculationResult textFlowCalculationResult;
-    private DrawingState drawingState;
-    private boolean newLineAtRecalculating;
-    private boolean newLineAtNormal;
-
-    private int controlExtendCharIndex;
-
-    private boolean forDistributionMultiColumn;
+    private final DistributionMultiColumnRearranger distributionMultiColumnRearranger;
 
     public ParaListDrawer(DrawingInput input, InterimOutput output) {
         this(input, output, null);
@@ -53,17 +26,10 @@ public class ParaListDrawer {
         this.output = output;
         this.pagePainter = pagePainter;
 
-
-        textFlowCalculator = new TextFlowCalculator();
-
-        textLineDrawer = new TextLineDrawer(input, output);
-        wordDrawer = new WordDrawer(input, output,this, textLineDrawer, textFlowCalculator);
-        distributionMultiColumnRearranger = new DistributionMultiColumnRearranger(input, output, this);
-        paraDividingProcessor = new ParaDividingProcessor(input, output, this, distributionMultiColumnRearranger);
+        paraDrawer = new ParaDrawer(input, output, pagePainter, this);
 
         charInfoBuffer = new CharInfoBuffer();
-        currentTextPartArea = new Area();
-        textFlowCalculationResult = null;
+        distributionMultiColumnRearranger = new DistributionMultiColumnRearranger(input, output, this, paraDrawer);
     }
 
     public void drawForBodyText(ParagraphListInterface paraList) throws Exception {
@@ -72,7 +38,7 @@ public class ParaListDrawer {
         boolean redraw = false;
         while (redraw || input.nextPara()) {
             try {
-                paragraph(redraw);
+                paraDrawer.draw(redraw);
                 redraw = false;
             } catch (RedrawException e) {
                 input.gotoParaCharPosition(e.paraIndex(), e.charIndex(), e.charPosition());
@@ -89,13 +55,47 @@ public class ParaListDrawer {
         }
 
         input.endBodyTextParaList();
+        drawHeaderFooter();
+    }
+
+    public static void drawHeaderFooter(DrawingInput input, InterimOutput output) throws Exception {
+        drawHeader(input, output);
+        drawFooter(input, output);
+    }
+
+    public void drawHeaderFooter() throws Exception {
+        drawHeader(input, output);
+        drawFooter(input, output);
+    }
+
+    private static void drawHeader(DrawingInput input, InterimOutput output) throws Exception {
+        if (input.pageInfo().header() != null) {
+            output.startHeader();
+
+            ParaListDrawer paraListDrawer = new ParaListDrawer(input, output);
+            paraListDrawer.drawForControl(input.pageInfo().header().getParagraphList(), input.pageInfo().headerArea().widthHeight());
+
+            output.endHeader();
+        }
+    }
+
+    private static void drawFooter(DrawingInput input, InterimOutput output) throws Exception {
+        if (input.pageInfo().footer() != null) {
+            FooterOutput footerOutput = output.startFooter();
+
+            ParaListDrawer paraListDrawer = new ParaListDrawer(input, output);
+            long calculatedContentHeight = paraListDrawer.drawForControl(input.pageInfo().footer().getParagraphList(), input.pageInfo().footerArea().widthHeight());
+
+            footerOutput.calculatedContentHeight(calculatedContentHeight);
+            output.endFooter();
+        }
     }
 
     public long drawForControl(ParagraphListInterface paraList, Area textArea) throws Exception {
         input.startControlParaList(textArea, paraList.getParagraphs());
 
         while (input.nextPara()) {
-            paragraph(false);
+            paraDrawer.draw(false);
         }
 
         if (!output.hadRearrangedDistributionMultiColumn()) {
@@ -104,13 +104,13 @@ public class ParaListDrawer {
                 distributionMultiColumnRearranger.rearrangeFromCurrentColumn();
             }
         }
+
         return input.endControlParaList();
     }
 
-    public void redrawParaList(int endParaIndex) throws Exception {
+    public void redraw(int endParaIndex) throws Exception {
         boolean redraw = true;
         boolean endingPara = false;
-
 
         while (redraw || (endingPara = !input.nextPara()) == false) {
             if (endParaIndex != -1 && input.paraIndex() > endParaIndex) {
@@ -118,7 +118,7 @@ public class ParaListDrawer {
                 break;
             }
             try {
-                paragraph(redraw);
+                paraDrawer.draw(redraw);
                 redraw = false;
             } catch (RedrawException e) {
                 redraw = true;
@@ -145,6 +145,15 @@ public class ParaListDrawer {
         }
     }
 
+    public CharInfoBuffer charInfoBuffer() {
+        return charInfoBuffer;
+    }
+
+    public DistributionMultiColumnRearranger distributionMultiColumnRearranger() {
+        return distributionMultiColumnRearranger;
+    }
+
+    /*
     private void paragraph(boolean redraw) throws Exception {
         controlExtendCharIndex = 0;
 
@@ -153,7 +162,6 @@ public class ParaListDrawer {
         }
 
         resetForNewPara();
-
         if (input.noText()) {
             checkNewColumnAndPage();
             saveTextLineAndNewLine();
@@ -214,7 +222,6 @@ public class ParaListDrawer {
     private void chars() throws Exception {
         while (input.nextChar()) {
             wordDrawer.continueAddingChar();
-
             switch (input.currentChar().getType()) {
                 case Normal:
                     normalChar();
@@ -247,9 +254,6 @@ public class ParaListDrawer {
 
     private void normalChar() throws Exception {
         NormalCharInfo charInfo = normalCharInfo((HWPCharNormal) input.currentChar());
-        if (input.paraIndex() == 1 && charInfo.index() < 100) {
-            System.out.println(charInfo.paraIndex() + "," + charInfo.index() + ":" + charInfo.normalCharacter().getCh() + ";" + textLineDrawer.test());
-        }
 
         if (!charInfo.character().isSpace()) {
             wordDrawer.addCharOfWord(charInfo);
@@ -272,7 +276,6 @@ public class ParaListDrawer {
         if (input.currentChar().isParaBreak()
                 || input.currentChar().isLineBreak()) {
             wordDrawer.addWordToLine(null);
-
             if (drawingState.isRecalculating()) {
                 newLineAtRecalculating = true;
             } else if (drawingState.isNormal()) {
@@ -294,6 +297,11 @@ public class ParaListDrawer {
 
     public void increaseControlExtendCharIndex() {
         controlExtendCharIndex++;
+    }
+
+
+    public int controlExtendCharIndex() {
+        return controlExtendCharIndex;
     }
 
     private void tableOrGso() {
@@ -389,6 +397,40 @@ public class ParaListDrawer {
         }
     }
 
+    public void nextMultiColumn() {
+        distributionMultiColumnRearranger.endParaIndex(-1);
+        setColumnDefine(output.multiColumnBottom());
+        output.newMultiColumn(input.columnsInfo());
+        resetForNewColumn();
+    }
+
+    public void setSectionDefine() {
+        input.nextChar();
+        HWPChar firstChar = input.currentChar();
+
+        if (firstChar.getType() == HWPCharType.ControlExtend &&
+                ((HWPCharControlExtend) firstChar).isSectionDefine()) {
+            input.sectionDefine((ControlSectionDefine) input.currentPara().getControlList().get(0));
+            controlExtendCharIndex++;
+        } else {
+            input.previousChar(1);
+        }
+    }
+
+    public void setColumnDefine(long startY) {
+
+        input.nextChar();
+        HWPChar firstChar = input.currentChar();
+        if (firstChar.getType() == HWPCharType.ControlExtend &&
+                ((HWPCharControlExtend) firstChar).isColumnDefine()) {
+            input.newMultiColumn((ControlColumnDefine) input.currentPara().getControlList().get(controlExtendCharIndex),  startY + MultiColumnGsp);
+            controlExtendCharIndex++;
+        } else {
+            input.newMultiColumnWithSameColumnDefine(startY + MultiColumnGsp);
+            input.previousChar(1);
+        }
+    }
+
     public void nextColumn() {
         input.nextColumn();
         output.nextColumn();
@@ -459,8 +501,7 @@ public class ParaListDrawer {
         if (drawingState.isNormal()
                 && (isOverBottom(textLineDrawer.maxCharHeight())
                         || input.columnsInfo().isOverLimitedTextLineCount(output.textLineCount()))) {
-            if (input.columnsInfo().lastColumn()
-                    && input.isBodyText()) {
+            if (isOverBottom(textLineDrawer.maxCharHeight()) && input.columnsInfo().lastColumn() && input.isBodyText()) {
                 newPage();
             } else {
                 output.currentColumn().nextChar(textLineDrawer.firstCharInfo());
@@ -488,12 +529,6 @@ public class ParaListDrawer {
     private void saveTextLine() {
         switch (drawingState) {
             case Normal:
-          /*
-                if (input.paraIndex() == 1) {
-                    System.out.println(textLineDrawer.test());
-                }
-
-           */
                 textLineDrawer.saveToOutput();
                 if (newLineAtNormal) {
                     output.setLastLineInPara();
@@ -596,4 +631,6 @@ public class ParaListDrawer {
             return this == Recalculating;
         }
     }
+
+     */
 }
