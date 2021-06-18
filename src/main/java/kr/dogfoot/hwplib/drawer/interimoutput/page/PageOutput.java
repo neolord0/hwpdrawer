@@ -70,7 +70,7 @@ public class PageOutput extends Output {
     @Override
     public String test(int tabCount) {
         MyStringBuilder sb = new MyStringBuilder();
-        sb.tab(tabCount).append("page - {\n");
+        sb.tab(tabCount).append("page ").append(Integer.toString(pageNo)).append(" - {\n");
         if (headerOutput != null) {
             sb.append(headerOutput.test(tabCount + 1));
         }
@@ -81,5 +81,4 @@ public class PageOutput extends Output {
         sb.tab(tabCount).append("page - }\n");
         return sb.toString();
     }
-
 }

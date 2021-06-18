@@ -56,7 +56,7 @@ public class HWPDrawer {
 
             output.nextPage(input);
             ParaListDrawer.drawHeaderFooter(input, output);
-      }
+        }
 
         pagePainter.saveAllPages();
 
@@ -70,7 +70,7 @@ public class HWPDrawer {
     }
 
     private int pageCount() {
-        return input.pageInfo().pageNo();
+        return pagePainter.pageCount();
     }
 }
 

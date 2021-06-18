@@ -29,7 +29,8 @@ public class ColumnsInfo {
         currentColumnIndex = 0;
     }
 
-    public void set(ControlColumnDefine columnDefine, Area multiColumnArea) { ;
+    public void set(ControlColumnDefine columnDefine, Area multiColumnArea) {
+        ;
         areasFromLeft.clear();
         areasFromRight.clear();
 
@@ -62,7 +63,8 @@ public class ColumnsInfo {
         set(columnDefine, multiColumnArea);
     }
 
-    public void set(Area multiColumnArea) { ;
+    public void set(Area multiColumnArea) {
+        ;
         set(columnDefine, multiColumnArea);
     }
 

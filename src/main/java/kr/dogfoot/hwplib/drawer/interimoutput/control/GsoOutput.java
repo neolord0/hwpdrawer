@@ -42,10 +42,10 @@ public class GsoOutput extends ControlOutput {
             return controlArea;
         } else {
             return new Area(controlArea)
-                .applyMargin(textMargin.left(),
-                    textMargin.top(),
-                    textMargin.right(),
-                    textMargin.bottom());
+                    .applyMargin(textMargin.left(),
+                            textMargin.top(),
+                            textMargin.right(),
+                            textMargin.bottom());
         }
     }
 

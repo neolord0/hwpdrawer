@@ -1,4 +1,5 @@
 package kr.dogfoot.hwplib.drawer.interimoutput.text;
+
 import kr.dogfoot.hwplib.drawer.input.ColumnsInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
@@ -17,7 +18,7 @@ public class MultiColumn {
         columns = new ArrayList<>();
         area = new Area(columnsInfo.multiColumnArea());
 
-        for (Area columnArea : columnsInfo.columnAreas())  {
+        for (Area columnArea : columnsInfo.columnAreas()) {
             addNewColumn(columnArea);
         }
 
@@ -60,6 +61,10 @@ public class MultiColumn {
 
     public int currentColumnIndex() {
         return currentColumnIndex;
+    }
+
+    public void gotoColumnIndex(int columnIndex) {
+        this.currentColumnIndex = columnIndex;
     }
 
     public void previousColumn() {

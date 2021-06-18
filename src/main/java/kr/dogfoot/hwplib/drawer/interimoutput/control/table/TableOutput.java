@@ -60,7 +60,7 @@ public class TableOutput extends ControlOutput {
     }
 
     @Override
-    public void move(long offsetX ,long offsetY) {
+    public void move(long offsetX, long offsetY) {
         for (CellOutput[] cellOutputs2 : cellOutputs) {
             for (CellOutput cellOutput : cellOutputs2) {
                 if (cellOutput != null) {

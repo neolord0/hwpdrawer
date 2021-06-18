@@ -1,16 +1,12 @@
 package kr.dogfoot.hwplib.drawer.interimoutput.text;
 
-import kr.dogfoot.hwplib.drawer.interimoutput.control.ControlOutput;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfo;
-import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
-import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.TextFlowMethod;
-import kr.dogfoot.hwplib.object.docinfo.parashape.Alignment;
 import kr.dogfoot.hwplib.drawer.util.Area;
+import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
+import kr.dogfoot.hwplib.object.docinfo.parashape.Alignment;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Set;
-import java.util.TreeSet;
 
 public class TextLine implements Iterable<TextPart> {
     public static final TextLine[] Zero_Array = new TextLine[0];
@@ -144,7 +140,7 @@ public class TextLine implements Iterable<TextPart> {
         sb.tab(tabCount);
         sb.append(area).append("-");
         if (firstChar() != null) {
-            sb.append(String.valueOf(firstChar().paraIndex())).append(":").append(String.valueOf(firstChar().index())) .append(" = ");
+            sb.append(String.valueOf(firstChar().paraIndex())).append(":").append(String.valueOf(firstChar().index())).append(" = ");
         } else {
             sb.append("-:- = ");
         }

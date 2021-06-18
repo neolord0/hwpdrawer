@@ -36,7 +36,7 @@ public class BackgroundPainter {
 
     private void gradientFill(GradientFill gradientFill, Area area) {
         painter
-                .setPatternFill(PatternType.None, gradientFill.getColorList().get(0),  gradientFill.getColorList().get(0))
+                .setPatternFill(PatternType.None, gradientFill.getColorList().get(0), gradientFill.getColorList().get(0))
                 .rectangle(area, true);
     }
 

@@ -64,7 +64,9 @@ public abstract class CharInfo {
 
     public int prePosition() {
         return position - character.getCharSize();
-    };
+    }
+
+    ;
 
     public enum Type {
         Normal,

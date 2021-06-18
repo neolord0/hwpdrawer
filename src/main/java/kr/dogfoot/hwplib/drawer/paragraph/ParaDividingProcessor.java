@@ -3,7 +3,6 @@ package kr.dogfoot.hwplib.drawer.paragraph;
 import kr.dogfoot.hwplib.drawer.input.DrawingInput;
 import kr.dogfoot.hwplib.drawer.interimoutput.InterimOutput;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.header.DivideSort;
-import kr.dogfoot.hwplib.drawer.util.Area;
 
 public class ParaDividingProcessor {
     private final DrawingInput input;
@@ -21,7 +20,7 @@ public class ParaDividingProcessor {
 
         if (divideSort.isDivideSection()) {
             onDividingSection();
-        }  else if (divideSort.isDivideMultiColumn()) {
+        } else if (divideSort.isDivideMultiColumn()) {
             onDividingMultiColumn();
         } else if (divideSort.isDividePage()) {
             onDividingPage();
@@ -34,16 +33,18 @@ public class ParaDividingProcessor {
         paraDrawer.setSectionDefine();
         paraDrawer.setColumnDefine(input.pageInfo().bodyArea().top());
 
-        input.nextPage(false);
+        input.nextPage();
         output.nextPage(input);
 
         if (input.columnsInfo().isParallelMultiColumn()) {
-            input.parallelMultiColumnInfo().startParallelMultiColumn(input.pageInfo().pageNo(), output.currentMultiColumnIndex());
+            input.parallelMultiColumnInfo().startParallelMultiColumn(output.currentPage().pageNo(), output.currentMultiColumnIndex());
         }
     }
 
     private void onDividingMultiColumn() throws Exception {
-        if (!output.hadRearrangedDistributionMultiColumn() && output.textLineCount() > 1) {
+        if (!output.hadRearrangedDistributionMultiColumn()
+                && input.columnsInfo().columnCount() > 1
+                && output.textLineCount() > 1) {
             if (!distributionMultiColumnRearranger().testing()) {
                 gotoZeroColumn();
 
@@ -57,7 +58,7 @@ public class ParaDividingProcessor {
             paraDrawer.nextMultiColumn();
 
             if (input.columnsInfo().isParallelMultiColumn()) {
-                input.parallelMultiColumnInfo().startParallelMultiColumn(input.pageInfo().pageNo(), output.currentMultiColumnIndex());
+                input.parallelMultiColumnInfo().startParallelMultiColumn(output.currentPage().pageNo(), output.currentMultiColumnIndex());
             }
 
             if (output.textLineCount() > 1) {
@@ -93,14 +94,25 @@ public class ParaDividingProcessor {
     }
 
     private void onDividingColumn() throws Exception {
-        if (input.columnsInfo().isDistributionMultiColumn()) {
-            onDividingMultiColumn();
-        } else {
-            if (input.columnsInfo().lastColumn()) {
-                paraDrawer.nextPage();
-            } else {
-                paraDrawer.nextColumn();
-            }
+        switch (input.columnsInfo().columnSort()) {
+            case Normal:
+                if (input.columnsInfo().lastColumn()) {
+                    paraDrawer.nextPage();
+                } else {
+                    paraDrawer.nextColumn();
+                }
+                break;
+            case Distribution:
+                onDividingMultiColumn();
+                break;
+            case Parallel:
+                if (input.columnsInfo().lastColumn()) {
+                    paraDrawer.nextMultiColumn();
+                    input.parallelMultiColumnInfo().startParallelMultiColumn(output.currentPage().pageNo(), output.currentMultiColumnIndex());
+                } else {
+                    paraDrawer.nextColumn();
+                }
+                break;
         }
     }
 }

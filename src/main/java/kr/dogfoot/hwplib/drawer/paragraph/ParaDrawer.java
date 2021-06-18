@@ -2,7 +2,6 @@ package kr.dogfoot.hwplib.drawer.paragraph;
 
 import kr.dogfoot.hwplib.drawer.input.DrawingInput;
 import kr.dogfoot.hwplib.drawer.interimoutput.InterimOutput;
-import kr.dogfoot.hwplib.drawer.interimoutput.page.FooterOutput;
 import kr.dogfoot.hwplib.drawer.painter.PagePainter;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfoBuffer;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
@@ -55,7 +54,7 @@ public class ParaDrawer {
 
         textFlowCalculator = new TextFlowCalculator();
         textLineDrawer = new TextLineDrawer(input, output);
-        wordDrawer = new WordDrawer(input, output,this, textLineDrawer, textFlowCalculator);
+        wordDrawer = new WordDrawer(input, output, this, textLineDrawer, textFlowCalculator);
 
         paraDividingProcessor = new ParaDividingProcessor(input, output, this);
 
@@ -78,8 +77,6 @@ public class ParaDrawer {
             chars();
         }
 
-        output.setLastLineInPara();
-
         endPara();
     }
 
@@ -89,6 +86,8 @@ public class ParaDrawer {
     }
 
     private void endPara() {
+        output.setLastLineInPara();
+
         long endY = currentTextPartArea.top() - input.paraArea().top();
         if (input.currentPara().getHeader().isLastInList()) {
             long lineGap = textLineDrawer.lineGap();
@@ -163,7 +162,6 @@ public class ParaDrawer {
 
     private void normalChar() throws Exception {
         NormalCharInfo charInfo = normalCharInfo((HWPCharNormal) input.currentChar());
-
         if (!charInfo.character().isSpace()) {
             wordDrawer.addCharOfWord(charInfo);
         } else {
@@ -194,6 +192,7 @@ public class ParaDrawer {
             } else if (drawingState.isNormal()) {
                 newLineAtNormal = true;
             }
+
             saveTextLineAndNewLine();
         }
     }
@@ -270,8 +269,8 @@ public class ParaDrawer {
         wordDrawer.reset();
     }
 
-    private boolean isOverBottom(long height) {
-        return input.columnsInfo().currentColumnArea().bottom() < currentTextPartArea.top() + height;
+    private boolean isOverBottom(long addingHeight) {
+        return input.columnsInfo().currentColumnArea().bottom() < currentTextPartArea.top() + addingHeight;
     }
 
     public void nextPage() throws Exception {
@@ -279,18 +278,18 @@ public class ParaDrawer {
             throw new BreakDrawingException(input.paraIndex(), input.charIndex(), input.charPosition()).forNewPage();
         }
 
+        charInfoBuffer().clearUntilPreviousPara();
         paraListDrawer.drawHeaderFooter();
 
         if (input.columnsInfo().isParallelMultiColumn()) {
-            charInfoBuffer().clearUntilPreviousPara();
-
-            input.nextPage(true);
+            int currentColumnIndex = input.columnsInfo().currentColumnIndex();
+            input.nextPage();
+            input.gotoColumnIndex(currentColumnIndex);
             resetForNewPage();
             output.nextPage(input);
+            output.gotoMultiColumn(0).gotoColumnIndex(currentColumnIndex);
         } else {
-            charInfoBuffer().clearUntilPreviousPara();
-
-            input.nextPage(false);
+            input.nextPage();
             resetForNewPage();
             output.nextPage(input);
         }
@@ -311,8 +310,12 @@ public class ParaDrawer {
 
     public void nextMultiColumn() {
         distributionMultiColumnRearranger().endParaIndex(-1);
+
+        output.gotoLastMultiColumn();
+        input.gotoPage(output.currentPage().pageNo());
         setColumnDefine(output.multiColumnBottom());
         output.nextMultiColumn(input.columnsInfo());
+
         resetForNewColumn();
     }
 
@@ -338,7 +341,7 @@ public class ParaDrawer {
         HWPChar firstChar = input.currentChar();
         if (firstChar.getType() == HWPCharType.ControlExtend &&
                 ((HWPCharControlExtend) firstChar).isColumnDefine()) {
-            input.newMultiColumn((ControlColumnDefine) input.currentPara().getControlList().get(controlExtendCharIndex),  startY + MultiColumnGsp);
+            input.newMultiColumn((ControlColumnDefine) input.currentPara().getControlList().get(controlExtendCharIndex), startY + MultiColumnGsp);
             controlExtendCharIndex++;
         } else {
             input.newMultiColumnWithSameColumnDefine(startY + MultiColumnGsp);
@@ -349,7 +352,14 @@ public class ParaDrawer {
     public void nextColumn() {
         if (input.columnsInfo().isParallelMultiColumn()) {
             output.gotoStartingParallelMultiColumn(input.parallelMultiColumnInfo());
+            input.gotoPage(input.parallelMultiColumnInfo().startingPageNo());
+
+            int currentColumnIndex = input.columnsInfo().currentColumnIndex();
             setColumnDefine(output.currentMultiColumn().area().top() - MultiColumnGsp);
+            input.columnsInfo().currentColumnIndex(currentColumnIndex);
+            output.currentMultiColumn().gotoColumnIndex(currentColumnIndex);
+
+
             input.nextColumn();
             output.nextColumn();
             resetForNewColumn();

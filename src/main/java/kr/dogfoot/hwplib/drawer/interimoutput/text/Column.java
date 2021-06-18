@@ -213,7 +213,7 @@ public class Column {
         MyStringBuilder sb = new MyStringBuilder();
         if (textLines.size() > 0) {
             sb.tab(tabCount).append("textLines - {\n");
-            if (hideLine == false || topLineIndexForHiding == -1)  {
+            if (hideLine == false || topLineIndexForHiding == -1) {
                 for (TextLine line : textLines) {
                     sb.append(line.test(tabCount + 1)).append("\n");
                 }

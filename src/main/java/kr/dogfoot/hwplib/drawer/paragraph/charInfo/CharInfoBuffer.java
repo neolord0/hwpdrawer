@@ -1,8 +1,7 @@
 package kr.dogfoot.hwplib.drawer.paragraph.charInfo;
 
-import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfo;
-
-import java.util.*;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class CharInfoBuffer {
     private final Map<Integer, Map<Integer, CharInfo>> map;

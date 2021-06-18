@@ -59,9 +59,9 @@ public class GsoPainter {
 
     public void rectangle(GsoOutput gsoOutput) throws Exception {
         ControlRectangle rectangle = (ControlRectangle) gsoOutput.gso();
-        painter.backgroundPainter().paint(((ShapeComponentNormal)(rectangle.getShapeComponent())).getFillInfo(), gsoOutput.controlArea());
+        painter.backgroundPainter().paint(((ShapeComponentNormal) (rectangle.getShapeComponent())).getFillInfo(), gsoOutput.controlArea());
 
-        boolean drawLine = setBorderLine(((ShapeComponentNormal)(rectangle.getShapeComponent())).getLineInfo());
+        boolean drawLine = setBorderLine(((ShapeComponentNormal) (rectangle.getShapeComponent())).getLineInfo());
 
         if (drawLine) {
             painter.rectangle(gsoOutput.controlArea(), false);

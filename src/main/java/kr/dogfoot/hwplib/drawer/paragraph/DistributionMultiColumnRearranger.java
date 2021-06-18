@@ -40,7 +40,7 @@ public class DistributionMultiColumnRearranger {
     public void rearrangeFromCurrentColumn() throws Exception {
         if (input.columnsInfo().currentColumnIndex() == 0) {
             if (output.textLineCount() <= 1) {
-                 return;
+                return;
             }
 
             paraDrawer.forDistributionMultiColumn(true);
@@ -156,7 +156,7 @@ public class DistributionMultiColumnRearranger {
     private void setResultLineCount(boolean overPage, boolean endingPara, int paraIndexAtOverPage, int charIndexAtOverPage, long multiColumnHeight) {
         if (input.columnsInfo().lastColumn() || endingPara) {
             if (overPage == true) {
-                if (isLatePosition(paraIndexAtOverPage, charIndexAtOverPage) ) {
+                if (isLatePosition(paraIndexAtOverPage, charIndexAtOverPage)) {
                     lineCountsOfColumnAtMaxPosition = testingLineCounts.clone();
 
                     paraIndexAtLatestPosition = paraIndexAtOverPage;

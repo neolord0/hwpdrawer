@@ -182,7 +182,7 @@ public class Area implements Comparable<Area> {
         boolean xOverlap = valueInRange(left, other.left, other.right)
                 || valueInRange(other.left, left, right);
         boolean yOverlap = valueInRange(top, other.top, other.bottom)
-                || valueInRange(other.top(), top,  bottom);
+                || valueInRange(other.top(), top, bottom);
         return xOverlap && yOverlap;
     }
 

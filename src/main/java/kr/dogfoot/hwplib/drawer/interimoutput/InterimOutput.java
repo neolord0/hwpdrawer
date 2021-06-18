@@ -5,15 +5,14 @@ import kr.dogfoot.hwplib.drawer.input.DrawingInput;
 import kr.dogfoot.hwplib.drawer.input.ParallelMultiColumnInfo;
 import kr.dogfoot.hwplib.drawer.interimoutput.control.ControlOutput;
 import kr.dogfoot.hwplib.drawer.interimoutput.control.GsoOutput;
+import kr.dogfoot.hwplib.drawer.interimoutput.control.table.CellOutput;
+import kr.dogfoot.hwplib.drawer.interimoutput.control.table.TableOutput;
 import kr.dogfoot.hwplib.drawer.interimoutput.page.FooterOutput;
 import kr.dogfoot.hwplib.drawer.interimoutput.page.HeaderOutput;
 import kr.dogfoot.hwplib.drawer.interimoutput.page.PageOutput;
-import kr.dogfoot.hwplib.drawer.interimoutput.control.table.CellOutput;
-import kr.dogfoot.hwplib.drawer.interimoutput.control.table.TableOutput;
 import kr.dogfoot.hwplib.drawer.interimoutput.text.Column;
 import kr.dogfoot.hwplib.drawer.interimoutput.text.MultiColumn;
 import kr.dogfoot.hwplib.drawer.interimoutput.text.TextLine;
-import kr.dogfoot.hwplib.drawer.paragraph.ParaListDrawer;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlTable;
@@ -21,9 +20,9 @@ import kr.dogfoot.hwplib.object.bodytext.control.gso.GsoControl;
 import kr.dogfoot.hwplib.object.bodytext.control.table.Cell;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
+import java.util.TreeMap;
 
 public class InterimOutput {
     private final Stack<Output> stack;
@@ -36,7 +35,7 @@ public class InterimOutput {
     public InterimOutput() {
         stack = new Stack<>();
 
-        pageMap = new HashMap<>();
+        pageMap = new TreeMap<>();
         currentPageNo = 0;
 
         controlsMovedToNextPage = new ArrayList<>();
@@ -241,8 +240,37 @@ public class InterimOutput {
     }
 
     public int currentMultiColumnIndex() {
-        return  currentContent().currentMultiColumnIndex();
+        return currentContent().currentMultiColumnIndex();
     }
+
+    public MultiColumn gotoMultiColumn(int multiColumnIndex) {
+        return currentContent().gotoMultiColumn(multiColumnIndex);
+    }
+
+    public void gotoLastMultiColumn() {
+        gotoLastPage();
+        currentContent().gotoLastMultiColumn();
+    }
+
+    private void gotoLastPage() {
+        PageOutput lastPage = lastPage();
+        gotoPage(lastPage);
+    }
+
+    private void gotoPage(PageOutput lastPage) {
+        stack.clear();
+        currentPageNo = lastPage.pageNo();
+        stack.add(lastPage);
+    }
+
+    private PageOutput lastPage() {
+        PageOutput[] pages = pages();
+        if (pages.length > 0) {
+            return pages[pages.length - 1];
+        }
+        return null;
+    }
+
 
     public long multiColumnHeight() {
         return currentContent().multiColumnHeight();
@@ -255,7 +283,6 @@ public class InterimOutput {
     public void gotoStartingParallelMultiColumn(ParallelMultiColumnInfo parallelMultiColumnInfo) {
         gotoPage(parallelMultiColumnInfo.startingPageNo()).content().gotoMultiColumn(parallelMultiColumnInfo.startingMultiColumnIndex());
     }
-
 
     public static final class ControlInfo {
         public static final ControlInfo[] Zero_Array = new ControlInfo[0];

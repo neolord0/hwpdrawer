@@ -1,8 +1,8 @@
 package kr.dogfoot.hwplib.drawer.interimoutput.control.table;
 
 import kr.dogfoot.hwplib.drawer.interimoutput.Content;
-import kr.dogfoot.hwplib.drawer.interimoutput.control.ControlOutput;
 import kr.dogfoot.hwplib.drawer.interimoutput.Output;
+import kr.dogfoot.hwplib.drawer.interimoutput.control.ControlOutput;
 import kr.dogfoot.hwplib.drawer.interimoutput.text.TextLine;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
@@ -133,7 +133,7 @@ public class CellOutput extends Output {
     @Override
     public String test(int tabCount) {
         MyStringBuilder sb = new MyStringBuilder();
-        sb.tab(tabCount).append("cell - {" ).append(cellArea).append("\n");
+        sb.tab(tabCount).append("cell - {").append(cellArea).append("\n");
         sb.append(content.test(tabCount + 1));
         sb.tab(tabCount).append("cell - }\n");
         return sb.toString();

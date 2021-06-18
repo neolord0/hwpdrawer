@@ -1,6 +1,5 @@
 package kr.dogfoot.hwplib.drawer.input;
 
-import kr.dogfoot.hwplib.drawer.interimoutput.text.TextLine;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.HWPFile;
@@ -129,9 +128,8 @@ public class DrawingInput {
         return columnsInfo;
     }
 
-    public void nextPage(boolean keepCurrentColumnIndex) {
-        pageInfo
-                .increasePageNo();
+    public void nextPage() {
+        pageInfo.increasePageNo();
 
         if (pageInfo.pageNo() > 1 && pageInfo.isHideEmptyLine()) {
             countOfHidingEmptyLineAfterNewPage = 2;
@@ -139,19 +137,11 @@ public class DrawingInput {
             countOfHidingEmptyLineAfterNewPage = 0;
         }
 
-        int currentColumnIndex = 0;
-        if (keepCurrentColumnIndex) {
-            currentColumnIndex = columnsInfo.currentColumnIndex();
-        }
         if (bodyTextParaListInfo != null) {
             columnsInfo.set(new Area(pageInfo.bodyArea()));
             bodyTextParaListInfo.bodyArea(columnsInfo.currentColumnArea());
         } else {
             columnsInfo.reset();
-        }
-
-        if (keepCurrentColumnIndex) {
-            columnsInfo.currentColumnIndex(currentColumnIndex);
         }
 
     }
@@ -289,15 +279,16 @@ public class DrawingInput {
         currentParaListInfo().gotoChar(characterIndex, characterPosition);
     }
 
-    public void gotoLineFirstChar(TextLine textLine) {
-        assert(textLine.paraIndex() == textLine.firstChar().paraIndex());
-        gotoParaCharPosition(textLine.paraIndex(),
-                textLine.firstChar().index(),
-                textLine.firstChar().prePosition());
-    }
-
     public ParallelMultiColumnInfo parallelMultiColumnInfo() {
         return currentParaListInfo().parallelMultiColumnInfo();
     }
 
+    public void gotoPage(int pageNo) {
+        pageInfo.pageNo(pageNo);
+    }
+
+    public void gotoColumnIndex(int currentColumnIndex) {
+        columnsInfo().currentColumnIndex(currentColumnIndex);
+        currentParaListInfo().bodyArea(columnsInfo.currentColumnArea());
+    }
 }

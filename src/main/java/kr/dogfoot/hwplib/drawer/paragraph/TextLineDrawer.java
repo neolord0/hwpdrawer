@@ -2,13 +2,10 @@ package kr.dogfoot.hwplib.drawer.paragraph;
 
 import kr.dogfoot.hwplib.drawer.input.DrawingInput;
 import kr.dogfoot.hwplib.drawer.interimoutput.InterimOutput;
-import kr.dogfoot.hwplib.drawer.interimoutput.control.ControlOutput;
 import kr.dogfoot.hwplib.drawer.interimoutput.text.TextLine;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.docinfo.ParaShape;
-
-import java.util.ArrayList;
 
 
 public class TextLineDrawer {
@@ -146,10 +143,10 @@ public class TextLineDrawer {
 
     public void saveToOutput() {
 //         if (textLine.hasDrawingChar()) {
-            textLine.maxCharHeight(maxCharHeight)
-                    .alignment(input.paraShape().getProperty1().getAlignment());
-            output.addTextLine(textLine);
-  //       }
+        textLine.maxCharHeight(maxCharHeight)
+                .alignment(input.paraShape().getProperty1().getAlignment());
+        output.addTextLine(textLine);
+        //       }
     }
 
     public String test() {

@@ -126,7 +126,7 @@ public class ControlDrawer {
     private TableOutput table(ControlTable table, Area controlArea) throws Exception {
         TableOutput output2 = output.startTable(table, controlArea);
 
-        for(Row row : table.getRowList()) {
+        for (Row row : table.getRowList()) {
             for (Cell cell : row.getCellList()) {
                 drawCell(cell, output2);
             }

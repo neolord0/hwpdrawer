@@ -83,7 +83,7 @@ public class WordSplitter {
             if (!hasNewLine) {
                 letterCountBeforeNewLine++;
             }
-            
+
             if (stopAddingChar == true) {
                 break;
             }

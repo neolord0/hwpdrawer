@@ -1,16 +1,13 @@
 package kr.dogfoot.hwplib.drawer.interimoutput;
 
 import kr.dogfoot.hwplib.drawer.input.ColumnsInfo;
-import kr.dogfoot.hwplib.drawer.input.ParallelMultiColumnInfo;
 import kr.dogfoot.hwplib.drawer.interimoutput.control.ControlOutput;
-import kr.dogfoot.hwplib.drawer.interimoutput.text.Column;
 import kr.dogfoot.hwplib.drawer.interimoutput.text.MultiColumn;
 import kr.dogfoot.hwplib.drawer.interimoutput.text.TextLine;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
 
 import java.util.ArrayList;
-import java.util.Set;
 
 public class Content {
     private final ArrayList<MultiColumn> multiColumns;
@@ -47,9 +44,15 @@ public class Content {
         return currentMultiColumnIndex;
     }
 
-    public void gotoMultiColumn(int multiColumnIndex) {
+    public MultiColumn gotoMultiColumn(int multiColumnIndex) {
         currentMultiColumnIndex = multiColumnIndex;
+        return multiColumns.get(multiColumnIndex);
     }
+
+    public void gotoLastMultiColumn() {
+        currentMultiColumnIndex = multiColumns.size() - 1;
+    }
+
     public MultiColumn[] multiColumns() {
         return multiColumns.toArray(MultiColumn.Zero_Array);
     }

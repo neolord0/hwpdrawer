@@ -36,10 +36,10 @@ public class Painter {
     private final BackgroundPainter backgroundPainter;
 
     public Painter(DrawingInput input) {
-        controlPainter = new ControlPainter(input,this);
+        controlPainter = new ControlPainter(input, this);
 
         textPainter = new TextPainter(this);
-        backgroundPainter = new BackgroundPainter(input,this);
+        backgroundPainter = new BackgroundPainter(input, this);
     }
 
 
@@ -105,6 +105,7 @@ public class Painter {
         graphics2D.setColor(Convertor.color(color));
         return this;
     }
+
     public Painter setLineStyle(LineType type, int thickness, Color4Byte color) {
         graphics2D.setStroke(Convertor.stroke(type, thickness));
 

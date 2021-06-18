@@ -69,22 +69,22 @@ public class ParaListDrawer {
     }
 
     private static void drawHeader(DrawingInput input, InterimOutput output) throws Exception {
-        if (input.pageInfo().header() != null) {
+        if (input.pageInfo().header(output.currentPage()) != null) {
             output.startHeader();
 
             ParaListDrawer paraListDrawer = new ParaListDrawer(input, output);
-            paraListDrawer.drawForControl(input.pageInfo().header().getParagraphList(), input.pageInfo().headerArea().widthHeight());
+            paraListDrawer.drawForControl(input.pageInfo().header(output.currentPage()).getParagraphList(), input.pageInfo().headerArea().widthHeight());
 
             output.endHeader();
         }
     }
 
     private static void drawFooter(DrawingInput input, InterimOutput output) throws Exception {
-        if (input.pageInfo().footer() != null) {
+        if (input.pageInfo().footer(output.currentPage()) != null) {
             FooterOutput footerOutput = output.startFooter();
 
             ParaListDrawer paraListDrawer = new ParaListDrawer(input, output);
-            long calculatedContentHeight = paraListDrawer.drawForControl(input.pageInfo().footer().getParagraphList(), input.pageInfo().footerArea().widthHeight());
+            long calculatedContentHeight = paraListDrawer.drawForControl(input.pageInfo().footer(output.currentPage()).getParagraphList(), input.pageInfo().footerArea().widthHeight());
 
             footerOutput.calculatedContentHeight(calculatedContentHeight);
             output.endFooter();

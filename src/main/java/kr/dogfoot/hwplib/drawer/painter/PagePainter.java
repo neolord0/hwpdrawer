@@ -3,9 +3,7 @@ package kr.dogfoot.hwplib.drawer.painter;
 import kr.dogfoot.hwplib.drawer.DrawingOption;
 import kr.dogfoot.hwplib.drawer.input.DrawingInput;
 import kr.dogfoot.hwplib.drawer.interimoutput.InterimOutput;
-import kr.dogfoot.hwplib.drawer.interimoutput.page.FooterOutput;
 import kr.dogfoot.hwplib.drawer.interimoutput.page.PageOutput;
-import kr.dogfoot.hwplib.drawer.paragraph.ParaListDrawer;
 import kr.dogfoot.hwplib.drawer.util.Convertor;
 
 import javax.imageio.ImageIO;
@@ -18,11 +16,13 @@ public class PagePainter {
     private final DrawingInput input;
     private final InterimOutput output;
     private final Painter painter;
+    private int pageCount;
 
     public PagePainter(DrawingInput input, InterimOutput output) {
         this.input = input;
         this.output = output;
         painter = new Painter(input);
+        pageCount = 0;
     }
 
     public PagePainter option(DrawingOption option) {
@@ -31,15 +31,15 @@ public class PagePainter {
     }
 
     public void saveAllPages() throws Exception {
-         for(PageOutput pageOutput : output.pages()) {
-             savePage(pageOutput);
-         }
+        for (PageOutput pageOutput : output.pages()) {
+            savePage(pageOutput);
+        }
     }
 
     private void savePage(PageOutput pageOutput) throws Exception {
         BufferedImage pageImage = createPageImage(pageOutput);
 
-        System.out.println(pageOutput.test(0));
+        // System.out.println(pageOutput.test(0));
 
         painter
                 .graphics2D((Graphics2D) pageImage.getGraphics());
@@ -55,6 +55,7 @@ public class PagePainter {
         }
 
         savePngFile(pageImage, pageOutput.pageNo());
+        pageCount++;
     }
 
     public void saveCurrentPage() throws Exception {
@@ -79,4 +80,7 @@ public class PagePainter {
         ImageIO.write(pageImage, "png", outputFile);
     }
 
+    public int pageCount() {
+        return pageCount;
+    }
 }

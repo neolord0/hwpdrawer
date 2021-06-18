@@ -1,12 +1,10 @@
 package kr.dogfoot.hwplib.drawer.input;
 
+import kr.dogfoot.hwplib.drawer.interimoutput.page.PageOutput;
 import kr.dogfoot.hwplib.drawer.util.Area;
-import kr.dogfoot.hwplib.object.bodytext.control.ControlColumnDefine;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlFooter;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlHeader;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlSectionDefine;
-import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.columndefine.ColumnInfo;
-import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.columndefine.ColumnSort;
 import kr.dogfoot.hwplib.object.bodytext.control.sectiondefine.PageDef;
 
 public class PageInfo {
@@ -101,15 +99,15 @@ public class PageInfo {
         evenFooter = oddFooter = bothFooter;
     }
 
-    public ControlHeader header() {
-        if (pageNo % 2 == 0) {
+    public ControlHeader header(PageOutput pageOutput) {
+        if (pageOutput.pageNo() % 2 == 0) {
             return evenHeader;
         }
         return oddHeader;
     }
 
-    public ControlFooter footer() {
-        if (pageNo % 2 == 0) {
+    public ControlFooter footer(PageOutput pageOutput) {
+        if (pageOutput.pageNo() % 2 == 0) {
             return evenFooter;
         }
         return oddFooter;
@@ -117,6 +115,10 @@ public class PageInfo {
 
     public int pageNo() {
         return pageNo;
+    }
+
+    public void pageNo(int pageNo) {
+        this.pageNo = pageNo;
     }
 
     public void increasePageNo() {

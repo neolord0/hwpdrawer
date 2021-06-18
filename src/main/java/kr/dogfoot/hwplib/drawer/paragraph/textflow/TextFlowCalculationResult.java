@@ -1,7 +1,6 @@
 package kr.dogfoot.hwplib.drawer.paragraph.textflow;
 
 import kr.dogfoot.hwplib.drawer.paragraph.ParaDrawer;
-import kr.dogfoot.hwplib.drawer.paragraph.ParaListDrawer;
 import kr.dogfoot.hwplib.drawer.util.Area;
 
 import java.util.LinkedList;

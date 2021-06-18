@@ -22,7 +22,8 @@ public class BreakDrawingException extends Exception {
     }
 
     public BreakDrawingException forEndingPara() {
-        type = Type.ForEndingPara;;
+        type = Type.ForEndingPara;
+        ;
         return this;
     }
 

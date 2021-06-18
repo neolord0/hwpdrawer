@@ -1,8 +1,8 @@
 package kr.dogfoot.hwplib.drawer.painter.text;
 
 import kr.dogfoot.hwplib.drawer.interimoutput.text.TextLine;
-import kr.dogfoot.hwplib.drawer.painter.Painter;
 import kr.dogfoot.hwplib.drawer.interimoutput.text.TextPart;
+import kr.dogfoot.hwplib.drawer.painter.Painter;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfo;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.NormalCharInfo;

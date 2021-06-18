@@ -15,7 +15,6 @@ import kr.dogfoot.hwplib.object.docinfo.parashape.LineDivideForHangul;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.SimpleTimeZone;
 
 public class WordDrawer {
     private final DrawingInput input;
