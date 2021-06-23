@@ -3,19 +3,18 @@ package kr.dogfoot.hwplib.drawer;
 import kr.dogfoot.hwplib.object.HWPFile;
 import kr.dogfoot.hwplib.reader.HWPReader;
 
-public class Test {
-    @org.junit.Test
+import org.junit.Test;
+
+public class TestETC {
+    @Test
     public void test_2() throws Exception {
         HWPFile hwp = HWPReader.fromFile("etc/a.hwp");
     }
 
-    /*
-    @org.junit.Test
-    public void test_2() throws Exception {
+    @Test
+    public void test_3() throws Exception {
         HWPTester.test("etc");
     }
-
-     */
 
     /*
     @org.junit.Test

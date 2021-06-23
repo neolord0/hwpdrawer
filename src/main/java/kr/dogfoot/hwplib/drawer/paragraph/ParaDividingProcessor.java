@@ -3,6 +3,7 @@ package kr.dogfoot.hwplib.drawer.paragraph;
 import kr.dogfoot.hwplib.drawer.input.DrawingInput;
 import kr.dogfoot.hwplib.drawer.interimoutput.InterimOutput;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.header.DivideSort;
+import kr.dogfoot.hwplib.drawer.util.Area;
 
 public class ParaDividingProcessor {
     private final DrawingInput input;
@@ -31,8 +32,9 @@ public class ParaDividingProcessor {
 
     private void onDividingSection() throws Exception {
         paraDrawer.setSectionDefine();
-        paraDrawer.setColumnDefine(input.pageInfo().bodyArea().top());
 
+        input.columnsInfo().set(null, input.pageInfo().bodyArea());
+        paraDrawer.setColumnDefine(input.pageInfo().bodyArea().top());
         input.nextPage();
         output.nextPage(input);
 

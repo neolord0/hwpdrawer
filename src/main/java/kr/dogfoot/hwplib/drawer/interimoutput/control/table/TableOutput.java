@@ -61,6 +61,7 @@ public class TableOutput extends ControlOutput {
 
     @Override
     public void move(long offsetX, long offsetY) {
+        controlArea.move(offsetX, offsetY);
         for (CellOutput[] cellOutputs2 : cellOutputs) {
             for (CellOutput cellOutput : cellOutputs2) {
                 if (cellOutput != null) {
@@ -71,7 +72,7 @@ public class TableOutput extends ControlOutput {
     }
 
     @Override
-    public void adjustTextAreaAndVerticalAlignment() {
+    public void adjustTextBoxAreaAndVerticalAlignment() {
         // nothing
     }
 

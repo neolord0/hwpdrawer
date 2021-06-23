@@ -2,6 +2,7 @@ package kr.dogfoot.hwplib.drawer.interimoutput.text;
 
 import kr.dogfoot.hwplib.drawer.interimoutput.control.ControlOutput;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfo;
+import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.TextFlowMethod;
@@ -111,6 +112,7 @@ public class Column {
         return firstTextLine;
     }
 
+
     public TextLine hideTextLineIndex(int topLineIndex) {
         if (topLineIndex < textLineCount()) {
             topLineIndexForHiding = topLineIndex;
@@ -123,17 +125,14 @@ public class Column {
         topLineIndexForHiding = -1;
     }
 
-    public int topLineIndexForHiding() {
-        return topLineIndexForHiding;
-    }
-
     public void topLineIndexForHiding(int topLineIndexForHiding) {
         this.topLineIndexForHiding = topLineIndexForHiding;
     }
 
-    public TextLine deleteTextLineIndex(int topLineIndex) {
+    public ResultDeleteTextLineIndex deleteTextLineIndex(int topLineIndex) {
         if (topLineIndex < textLineCount()) {
-            TextLine topLine = textLines.get(topLineIndex);
+            ResultDeleteTextLineIndex result = new ResultDeleteTextLineIndex();
+            result.topLine(textLines.get(topLineIndex));
 
             ArrayList<TextLine> deletes = new ArrayList<>();
             for (int index = topLineIndex; index < textLines.size(); index++) {
@@ -142,11 +141,23 @@ public class Column {
 
             for (TextLine textLine : deletes) {
                 textLines.remove(textLine);
+                deleteControlOutputs(textLine, result);
             }
 
-            return topLine;
+            return result;
         }
         return null;
+    }
+
+    private void deleteControlOutputs(TextLine textLine, ResultDeleteTextLineIndex result) {
+        for (ControlCharInfo controlCharInfo : textLine.controls()) {
+            if (controlCharInfo.output().textFlowMethod() == TextFlowMethod.BehindText) {
+                behindChildOutputs.remove(controlCharInfo.output());
+            } else {
+                nonBehindChildOutputs.remove(controlCharInfo.output());
+            }
+            result.addDeletedControl(controlCharInfo);
+        }
     }
 
     public TextLine[] paintingTextLines() {
@@ -204,6 +215,12 @@ public class Column {
         return nextChar;
     }
 
+    public boolean empty() {
+        return textLines.isEmpty()
+                && behindChildOutputs.isEmpty()
+                && nonBehindChildOutputs.isEmpty();
+    }
+
 
     public String test(int tabCount) {
         return test(tabCount, false);
@@ -246,4 +263,29 @@ public class Column {
         return sb.toString();
     }
 
+    public static class ResultDeleteTextLineIndex {
+        private TextLine topLine;
+        private ArrayList<ControlCharInfo> deletedControls;
+
+        public ResultDeleteTextLineIndex() {
+            topLine = null;
+            deletedControls = new ArrayList<>();
+        }
+
+        public TextLine topLine() {
+            return topLine;
+        }
+
+        public void topLine(TextLine topLine) {
+            this.topLine = topLine;
+        }
+
+        public void addDeletedControl(ControlCharInfo controlCharInfo) {
+            deletedControls.add(controlCharInfo);
+        }
+
+        public ControlCharInfo[] deletedControls() {
+            return deletedControls.toArray(ControlCharInfo.Zero_Array);
+        }
+    }
 }

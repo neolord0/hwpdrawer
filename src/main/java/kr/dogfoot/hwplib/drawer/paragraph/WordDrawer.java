@@ -167,6 +167,7 @@ public class WordDrawer {
         } else {
             output.addChildOutput(output2);
         }
+        textLineDrawer.addControlCharInfo(controlCharInfo);
     }
 
     private boolean isOver75PercentOfPageHeight(long y) {

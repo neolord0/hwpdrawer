@@ -6,10 +6,13 @@ import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.TextFlowMethod;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.VertRelTo;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
 public class TextFlowCalculator {
     private final ForTakePlace forTakePlace;
     private final ForFitWithText forFitWithText;
-
 
     public TextFlowCalculator() {
         forTakePlace = new ForTakePlace();
@@ -24,6 +27,14 @@ public class TextFlowCalculator {
         }
     }
 
+    public void delete(ControlCharInfo controlCharInfo) {
+        if (controlCharInfo.textFlowMethod() == TextFlowMethod.TakePlace) {
+            forTakePlace.delete(controlCharInfo);
+        } else if (controlCharInfo.textFlowMethod() == TextFlowMethod.FitWithText) {
+            forFitWithText.delete(controlCharInfo);
+        }
+    }
+
     public boolean alreadyAdded(ControlCharInfo controlCharInfo) {
         if (controlCharInfo.textFlowMethod() == TextFlowMethod.TakePlace) {
             return forTakePlace.alreadyAdded(controlCharInfo);
@@ -33,9 +44,12 @@ public class TextFlowCalculator {
         return false;
     }
 
-    public void reset() {
-        forTakePlace.reset();
+    public void resetForNewPage() {
         forFitWithText.reset();
+    }
+
+    public void resetForNewColumn() {
+        forTakePlace.reset();
     }
 
     public TextFlowCalculationResult calculate(Area textLineArea) {
@@ -58,6 +72,7 @@ public class TextFlowCalculator {
 
         return new TextFlowCalculationResult(result, textLineArea);
     }
+
 
     public static class Result {
         private final Area[] dividedAreas;

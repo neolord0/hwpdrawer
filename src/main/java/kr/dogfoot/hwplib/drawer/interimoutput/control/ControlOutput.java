@@ -18,7 +18,7 @@ public abstract class ControlOutput extends Output implements Comparable<Control
 
     public abstract void move(long offsetX, long offsetY);
 
-    public abstract void adjustTextAreaAndVerticalAlignment();
+    public abstract void adjustTextBoxAreaAndVerticalAlignment();
 
     public Area controlArea() {
         return controlArea;

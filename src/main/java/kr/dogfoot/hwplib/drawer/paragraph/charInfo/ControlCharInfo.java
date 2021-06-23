@@ -14,6 +14,8 @@ import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPCharControlExtend;
 import kr.dogfoot.hwplib.object.docinfo.CharShape;
 
 public class ControlCharInfo extends CharInfo {
+    public static final ControlCharInfo[] Zero_Array = new ControlCharInfo[0];
+
     public static ControlCharInfo create(HWPCharControlExtend character, Control control, DrawingInput input) {
         ControlCharInfo charInfo = new ControlCharInfo(character, input.charShape(), input.paraIndex(), input.charIndex(), input.charPosition());
         if (character.getCode() == 11) {

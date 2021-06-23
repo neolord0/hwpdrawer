@@ -76,7 +76,7 @@ public class ControlDrawer {
                             textBox.getListHeader().getBottomMargin())
                     .verticalAlignment(textBox.getListHeader().getProperty().getTextVerticalAlignment());
 
-            long calculatedContentHeight = drawTextBox(textBox.getParagraphList(), output2.textArea().widthHeight());
+            long calculatedContentHeight = drawTextBox(textBox.getParagraphList(), output2.textBoxArea().widthHeight());
             output2.calculatedContentHeight(calculatedContentHeight);
         }
 
@@ -149,7 +149,7 @@ public class ControlDrawer {
                             cell.getListHeader().getBottomMargin())
                     .verticalAlignment(cell.getListHeader().getProperty().getTextVerticalAlignment());
 
-            long calculatedContentHeight = drawTextBox(cell.getParagraphList(), output2.textArea());
+            long calculatedContentHeight = drawTextBox(cell.getParagraphList(), output2.textBoxArea());
             output2.calculatedContentHeight(calculatedContentHeight);
 
         }
@@ -157,8 +157,8 @@ public class ControlDrawer {
         output.endCell();
     }
 
-    private long drawTextBox(ParagraphList paragraphList, Area textArea) throws Exception {
+    private long drawTextBox(ParagraphList paragraphList, Area textBoxArea) throws Exception {
         ParaListDrawer paragraphListDrawer = new ParaListDrawer(input, output);
-        return paragraphListDrawer.drawForControl(paragraphList, textArea);
+        return paragraphListDrawer.drawForControl(paragraphList, textBoxArea);
     }
 }

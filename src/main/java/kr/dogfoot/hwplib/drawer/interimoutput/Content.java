@@ -31,13 +31,21 @@ public class Content {
         currentMultiColumnIndex = 0;
     }
 
-
     public void nextMultiColumn(ColumnsInfo columnsInfo) {
+        if (currentMultiColumn() != null && currentMultiColumn().empty()) {
+            deleteCurrentMultiColumn();
+        }
+
         currentMultiColumnIndex++;
         if (currentMultiColumnIndex >= multiColumns.size()) {
             MultiColumn multiColumn = new MultiColumn(columnsInfo);
             multiColumns.add(multiColumn);
         }
+    }
+
+    private void deleteCurrentMultiColumn() {
+        multiColumns.remove(currentMultiColumnIndex);
+        currentMultiColumnIndex--;
     }
 
     public int currentMultiColumnIndex() {
@@ -82,6 +90,24 @@ public class Content {
         return currentMultiColumn().currentColumn().textLines();
     }
 
+    public long multiColumnHeight() {
+        return currentMultiColumn().height();
+    }
+
+    public long multiColumnBottom() {
+        return currentMultiColumn().bottom();
+    }
+
+    public long height() {
+        long height = 0;
+        for (MultiColumn multiColumn : multiColumns) {
+            if (multiColumn.columnCount() > 0) {
+                height += multiColumn.height() + MultiColumn.Gsp;
+            }
+        }
+        height -= MultiColumn.Gsp;
+        return height;
+    }
 
     public String test(int tabCount) {
         MyStringBuilder sb = new MyStringBuilder();
@@ -92,14 +118,5 @@ public class Content {
         }
         return sb.toString();
     }
-
-    public long multiColumnHeight() {
-        return currentMultiColumn().height();
-    }
-
-    public long multiColumnBottom() {
-        return currentMultiColumn().bottom();
-    }
-
 }
 

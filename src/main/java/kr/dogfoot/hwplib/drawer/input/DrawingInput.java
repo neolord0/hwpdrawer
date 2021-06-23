@@ -29,7 +29,6 @@ public class DrawingInput {
 
     private Section section;
     private final PageInfo pageInfo;
-    private final ColumnsInfo columnsInfo;
     private int countOfHidingEmptyLineAfterNewPage;
 
     private ParagraphListInfo bodyTextParaListInfo;
@@ -38,7 +37,6 @@ public class DrawingInput {
     public DrawingInput() {
         imageMap = new HashMap<>();
         pageInfo = new PageInfo();
-        columnsInfo = new ColumnsInfo(pageInfo);
         paraListInfoStack = new Stack<>();
     }
 
@@ -106,17 +104,17 @@ public class DrawingInput {
     }
 
     public void newMultiColumn(ControlColumnDefine columnDefine, long startY) {
-        Area multiColumnArea = new Area(pageInfo.bodyArea()).top(startY);
-        columnsInfo.set(columnDefine, multiColumnArea);
+        Area multiColumnArea = new Area(currentParaListInfo().columnsInfo().textBoxArea()).top(startY);
+        currentParaListInfo().columnsInfo().set(columnDefine, multiColumnArea);
 
-        currentParaListInfo().bodyArea(columnsInfo.currentColumnArea());
+        currentParaListInfo().textBoxArea(currentParaListInfo().columnsInfo().currentColumnArea());
     }
 
     public void newMultiColumnWithSameColumnDefine(long startY) {
-        Area multiColumnArea = new Area(pageInfo.bodyArea()).top(startY);
-        columnsInfo.setWithSameColumnDefine(multiColumnArea);
+        Area multiColumnArea = new Area(currentParaListInfo().columnsInfo().textBoxArea()).top(startY);
+        currentParaListInfo().columnsInfo().setWithSameColumnDefine(multiColumnArea);
 
-        currentParaListInfo().bodyArea(columnsInfo.currentColumnArea());
+        currentParaListInfo().textBoxArea(currentParaListInfo().columnsInfo().currentColumnArea());
     }
 
 
@@ -125,7 +123,7 @@ public class DrawingInput {
     }
 
     public ColumnsInfo columnsInfo() {
-        return columnsInfo;
+        return currentParaListInfo().columnsInfo();
     }
 
     public void nextPage() {
@@ -138,22 +136,22 @@ public class DrawingInput {
         }
 
         if (bodyTextParaListInfo != null) {
-            columnsInfo.set(new Area(pageInfo.bodyArea()));
-            bodyTextParaListInfo.bodyArea(columnsInfo.currentColumnArea());
+            currentParaListInfo().columnsInfo().set(new Area(pageInfo.bodyArea()));
+            bodyTextParaListInfo.textBoxArea(currentParaListInfo().columnsInfo().currentColumnArea());
         } else {
-            columnsInfo.reset();
+            currentParaListInfo().columnsInfo().reset();
         }
 
     }
 
     public void nextColumn() {
-        columnsInfo.nextColumn();
-        currentParaListInfo().bodyArea(columnsInfo.currentColumnArea());
+        currentParaListInfo().columnsInfo().nextColumn();
+        currentParaListInfo().textBoxArea(currentParaListInfo().columnsInfo().currentColumnArea());
     }
 
     public void previousColumn() {
-        columnsInfo.previousColumn();
-        currentParaListInfo().bodyArea(columnsInfo.currentColumnArea());
+        currentParaListInfo().columnsInfo().previousColumn();
+        currentParaListInfo().textBoxArea(currentParaListInfo().columnsInfo().currentColumnArea());
     }
 
     public boolean checkHidingEmptyLineAfterNewPage() {
@@ -169,9 +167,8 @@ public class DrawingInput {
     }
 
     public DrawingInput startBodyTextParaList(Paragraph[] paras) {
-        ParagraphListInfo paragraphListInfo = new ParagraphListInfo(this)
-                .bodyText(true)
-                .paras(paras);
+        ParagraphListInfo paragraphListInfo = new ParagraphListInfo(this, paras)
+                .forBodyText();
         paraListInfoStack.push(paragraphListInfo);
 
         bodyTextParaListInfo = paragraphListInfo;
@@ -183,10 +180,9 @@ public class DrawingInput {
         bodyTextParaListInfo = null;
     }
 
-    public void startControlParaList(Area textArea, Paragraph[] paras) {
-        ParagraphListInfo paraListInfo = new ParagraphListInfo(this, textArea)
-                .bodyText(false)
-                .paras(paras);
+    public void startControlParaList(Area textBoxArea, Paragraph[] paras) {
+        ParagraphListInfo paraListInfo = new ParagraphListInfo(this, paras)
+                .forControl(textBoxArea);
         paraListInfoStack.push(paraListInfo);
     }
 
@@ -289,6 +285,6 @@ public class DrawingInput {
 
     public void gotoColumnIndex(int currentColumnIndex) {
         columnsInfo().currentColumnIndex(currentColumnIndex);
-        currentParaListInfo().bodyArea(columnsInfo.currentColumnArea());
+        currentParaListInfo().textBoxArea(currentParaListInfo().columnsInfo().currentColumnArea());
     }
 }

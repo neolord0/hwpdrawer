@@ -73,6 +73,26 @@ public class InterimOutput {
         stack.add(page);
     }
 
+
+    public void addEmptyPage(DrawingInput input) {
+        stack.clear();
+
+        currentPageNo++;
+        ColumnsInfo columnsInfo = new ColumnsInfo(input.pageInfo());
+        columnsInfo.set(null, input.pageInfo().bodyArea());
+        PageOutput page = new PageOutput(input.pageInfo(), columnsInfo);
+        pageMap.put(currentPageNo, page);
+
+        if (!controlsMovedToNextPage.isEmpty()) {
+            for (ControlInfo controlInfo : controlsMovedToNextPage) {
+                page.content().currentMultiColumn().currentColumn().addChildOutput(controlInfo.output);
+            }
+            controlsMovedToNextPage.clear();
+        }
+
+        stack.add(page);
+    }
+
     public PageOutput gotoPage(int pageNo) {
         stack.clear();
         currentPageNo = pageNo;
@@ -84,7 +104,6 @@ public class InterimOutput {
     public PageOutput[] pages() {
         return pageMap.values().toArray(PageOutput.Zero_Array);
     }
-
 
     public PageOutput currentPage() {
         return pageMap.get(currentPageNo);
@@ -211,7 +230,7 @@ public class InterimOutput {
         currentColumn().resetHideTextLineIndex();
     }
 
-    public TextLine deleteTextLineIndex(int topLineIndex) {
+    public Column.ResultDeleteTextLineIndex deleteTextLineIndex(int topLineIndex) {
         return currentColumn().deleteTextLineIndex(topLineIndex);
     }
 
@@ -282,6 +301,11 @@ public class InterimOutput {
 
     public void gotoStartingParallelMultiColumn(ParallelMultiColumnInfo parallelMultiColumnInfo) {
         gotoPage(parallelMultiColumnInfo.startingPageNo()).content().gotoMultiColumn(parallelMultiColumnInfo.startingMultiColumnIndex());
+    }
+
+    // test
+    public int outputSize() {
+        return stack.size();
     }
 
     public static final class ControlInfo {

@@ -91,8 +91,8 @@ public class ParaListDrawer {
         }
     }
 
-    public long drawForControl(ParagraphListInterface paraList, Area textArea) throws Exception {
-        input.startControlParaList(textArea, paraList.getParagraphs());
+    public long drawForControl(ParagraphListInterface paraList, Area textBoxArea) throws Exception {
+        input.startControlParaList(textBoxArea, paraList.getParagraphs());
 
         while (input.nextPara()) {
             paraDrawer.draw(false);
@@ -104,8 +104,8 @@ public class ParaListDrawer {
                 distributionMultiColumnRearranger.rearrangeFromCurrentColumn();
             }
         }
-
-        return input.endControlParaList();
+        input.endControlParaList();
+        return output.currentContent().height();
     }
 
     public void redraw(int endParaIndex) throws Exception {

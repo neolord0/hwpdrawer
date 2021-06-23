@@ -50,15 +50,18 @@ public class HWPDrawer {
         }
 
         if (output.hasControlMovedToNextPage()) {
-            input.columnsInfo().reset();
-            input.pageInfo()
-                    .increasePageNo();
-
-            output.nextPage(input);
-            ParaListDrawer.drawHeaderFooter(input, output);
+            drawAddedPage();
         }
 
         pagePainter.saveAllPages();
+
+    }
+
+    private void drawAddedPage() throws Exception {
+        input.pageInfo()
+                .increasePageNo();
+        output.addEmptyPage(input);
+        ParaListDrawer.drawHeaderFooter(input, output);
 
     }
 

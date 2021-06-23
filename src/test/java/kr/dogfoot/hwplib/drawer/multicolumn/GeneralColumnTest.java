@@ -50,4 +50,19 @@ public class GeneralColumnTest {
     public void test_다단설정나누기_3() throws Exception {
         HWPTester.testAndCompare("testingHWP" + File.separator + "다단" + File.separator + "일반" + File.separator + "다단설정나누기" + File.separator + "3");
     }
+
+    @Test
+    public void test_컨트롤포함_단기준으로_앞으로() throws Exception {
+        HWPTester.testAndCompare("testingHWP" + File.separator + "다단" + File.separator + "일반" + File.separator + "컨트롤 포함" + File.separator + "단기준으로" + File.separator + "앞으로");
+    }
+
+    @Test
+    public void test_컨트롤포함_단기준으로_어울림_자리차지() throws Exception {
+        HWPTester.testAndCompare("testingHWP" + File.separator + "다단" + File.separator + "일반" + File.separator + "컨트롤 포함" + File.separator + "단기준으로" + File.separator + "어울림_자리차지");
+    }
+
+    @Test
+    public void test_컨트롤안_1() throws Exception {
+        HWPTester.testAndCompare("testingHWP" + File.separator + "다단" + File.separator + "일반" + File.separator + "컨트롤 안" + File.separator + "1");
+    }
 }

@@ -160,6 +160,19 @@ public class ForFitWithText {
         fitWithTextAreas.clear();
     }
 
+    public void delete(ControlCharInfo charInfo) {
+        charInfos.remove(charInfo);
+        updateFitWithTextAreas();
+    }
+
+    private void updateFitWithTextAreas() {
+        fitWithTextAreas.clear();
+        for (ControlCharInfo charInfo : charInfos) {
+            fitWithTextAreas.add(new FitWithTextArea(charInfo.areaWithOuterMargin(),
+                    charInfo.header()));
+        }
+    }
+
     private static class FitWithTextArea implements Comparable<FitWithTextArea> {
         public Area area;
         public int zOrder;

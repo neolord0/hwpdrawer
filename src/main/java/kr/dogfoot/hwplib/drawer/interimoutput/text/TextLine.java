@@ -1,6 +1,8 @@
 package kr.dogfoot.hwplib.drawer.interimoutput.text;
 
+import kr.dogfoot.hwplib.drawer.interimoutput.control.ControlOutput;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfo;
+import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
 import kr.dogfoot.hwplib.object.docinfo.parashape.Alignment;
@@ -25,6 +27,8 @@ public class TextLine implements Iterable<TextPart> {
     private boolean lastInPara;
     private boolean hasDrawingChar;
 
+    private ArrayList<ControlCharInfo> controls;
+
     public TextLine(int paraIndex, Area area) {
         this.paraIndex = paraIndex;
         this.area = area;
@@ -36,11 +40,14 @@ public class TextLine implements Iterable<TextPart> {
         maxCharHeight = -1;
         lastInPara = false;
         hasDrawingChar = false;
+
+        controls = new ArrayList<>();
     }
 
     public void clear() {
         parts.clear();
         currentTextPart = null;
+        controls.clear();
     }
 
     public int paraIndex() {
@@ -133,6 +140,14 @@ public class TextLine implements Iterable<TextPart> {
     public TextLine hasDrawingChar(boolean hasDrawingCharacter) {
         this.hasDrawingChar = hasDrawingCharacter;
         return this;
+    }
+
+    public void addControlCharInfo(ControlCharInfo controlCharInfo) {
+        controls.add(controlCharInfo);
+    }
+
+    public ControlCharInfo[] controls() {
+        return controls.toArray(ControlCharInfo.Zero_Array);
     }
 
     public String test(int tabCount) {

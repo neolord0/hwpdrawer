@@ -2,6 +2,7 @@ package kr.dogfoot.hwplib.drawer.paragraph;
 
 import kr.dogfoot.hwplib.drawer.input.DrawingInput;
 import kr.dogfoot.hwplib.drawer.interimoutput.InterimOutput;
+import kr.dogfoot.hwplib.drawer.interimoutput.text.MultiColumn;
 import kr.dogfoot.hwplib.drawer.painter.PagePainter;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfoBuffer;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
@@ -18,8 +19,6 @@ import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPCharType;
 import java.io.UnsupportedEncodingException;
 
 public class ParaDrawer {
-    private final static long MultiColumnGsp = 1200; // 약 4mm
-
     private final DrawingInput input;
     private final InterimOutput output;
     private final PagePainter pagePainter;
@@ -68,9 +67,10 @@ public class ParaDrawer {
         if (redraw == false) {
             startPara();
         }
-
         resetForNewPara();
+
         if (input.noText()) {
+            textLineDrawer.setEmptyLineHeight();
             checkNewColumnAndPage();
             saveTextLineAndNewLine();
         } else {
@@ -79,6 +79,7 @@ public class ParaDrawer {
 
         endPara();
     }
+
 
     private void startPara() throws Exception {
         input.startPara();
@@ -299,7 +300,7 @@ public class ParaDrawer {
         resetForNewColumn();
 
         wordDrawer.adjustControlAreaAtNewPage();
-        textFlowCalculator.reset();
+        textFlowCalculator.resetForNewPage();
 
         if (output.hasControlMovedToNextPage()) {
             for (InterimOutput.ControlInfo controlInfo : output.controlsMovedToNextPage()) {
@@ -310,10 +311,13 @@ public class ParaDrawer {
 
     public void nextMultiColumn() {
         distributionMultiColumnRearranger().endParaIndex(-1);
-
-        output.gotoLastMultiColumn();
-        input.gotoPage(output.currentPage().pageNo());
-        setColumnDefine(output.multiColumnBottom());
+        if (input.isBodyText()) {
+            output.gotoLastMultiColumn();
+            input.gotoPage(output.currentPage().pageNo());
+            setColumnDefine(output.multiColumnBottom() + MultiColumn.Gsp);
+        } else {
+            setColumnDefine(0);
+        }
         output.nextMultiColumn(input.columnsInfo());
 
         resetForNewColumn();
@@ -341,10 +345,10 @@ public class ParaDrawer {
         HWPChar firstChar = input.currentChar();
         if (firstChar.getType() == HWPCharType.ControlExtend &&
                 ((HWPCharControlExtend) firstChar).isColumnDefine()) {
-            input.newMultiColumn((ControlColumnDefine) input.currentPara().getControlList().get(controlExtendCharIndex), startY + MultiColumnGsp);
+            input.newMultiColumn((ControlColumnDefine) input.currentPara().getControlList().get(controlExtendCharIndex), startY);
             controlExtendCharIndex++;
         } else {
-            input.newMultiColumnWithSameColumnDefine(startY + MultiColumnGsp);
+            input.newMultiColumnWithSameColumnDefine(startY);
             input.previousChar(1);
         }
     }
@@ -355,7 +359,7 @@ public class ParaDrawer {
             input.gotoPage(input.parallelMultiColumnInfo().startingPageNo());
 
             int currentColumnIndex = input.columnsInfo().currentColumnIndex();
-            setColumnDefine(output.currentMultiColumn().area().top() - MultiColumnGsp);
+            setColumnDefine(output.currentMultiColumn().area().top());
             input.columnsInfo().currentColumnIndex(currentColumnIndex);
             output.currentMultiColumn().gotoColumnIndex(currentColumnIndex);
 
@@ -379,15 +383,21 @@ public class ParaDrawer {
     public void resetForNewColumn() {
         currentTextPartArea.set(input.paraArea());
         applyIndent();
-
-        if (textLineDrawer.noDrawingChar()) {
+        textFlowCalculator.resetForNewColumn();
+        if (textLineDrawer.notInitialized()) {
             textLineDrawer
-                    .clearTextLine()
+                    .initialize(currentTextPartArea)
                     .addNewTextPart(0, currentTextPartArea.width());
         } else {
-            textLineDrawer.textLineArea().set(currentTextPartArea);
-            saveTextLine();
-            nextTextPartArea();
+            if (textLineDrawer.noDrawingChar()) {
+                textLineDrawer
+                        .clearTextLine()
+                        .addNewTextPart(0, currentTextPartArea.width());
+            } else {
+                textLineDrawer.textLineArea().set(currentTextPartArea);
+                saveTextLine();
+                nextTextPartArea();
+            }
         }
     }
 
@@ -536,6 +546,10 @@ public class ParaDrawer {
 
     public Area currentTextPartArea() {
         return currentTextPartArea;
+    }
+
+    public TextFlowCalculator textFlowCalculator() {
+        return textFlowCalculator;
     }
 
     public enum DrawingState {

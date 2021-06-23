@@ -8,11 +8,10 @@ import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.columndefine.ColumnS
 import java.util.ArrayList;
 
 public class ColumnsInfo {
-    private static final float ColumnInfoRate = 1.297607421875f;
 
     private PageInfo pageInfo;
     private ControlColumnDefine columnDefine;
-    private Area multiColumnArea;
+    private Area textBoxArea;
 
     private ArrayList<Area> areasFromLeft;
     private ArrayList<Area> areasFromRight;
@@ -22,26 +21,25 @@ public class ColumnsInfo {
 
     public ColumnsInfo(PageInfo pageInfo) {
         this.pageInfo = pageInfo;
-        multiColumnArea = new Area();
+        textBoxArea = new Area();
 
         areasFromLeft = new ArrayList<>();
         areasFromRight = new ArrayList<>();
         currentColumnIndex = 0;
     }
 
-    public void set(ControlColumnDefine columnDefine, Area multiColumnArea) {
-        ;
+    public void set(ControlColumnDefine columnDefine, Area textBoxArea) {
         areasFromLeft.clear();
         areasFromRight.clear();
 
         this.columnDefine = columnDefine;
-        this.multiColumnArea = multiColumnArea;
+        this.textBoxArea.set(textBoxArea);
 
         currentColumnIndex = 0;
         limitedTextLineCounts = null;
 
-        if (columnDefine.getHeader().getProperty().getColumnCount() == 1) {
-            areasFromLeft.add(multiColumnArea);
+        if (columnDefine == null || columnDefine.getHeader().getProperty().getColumnCount() == 1) {
+            areasFromLeft.add(textBoxArea);
             areasFromRight.add(currentColumnArea());
         } else {
             switch (columnDefine.getHeader().getProperty().getColumnDirection()) {
@@ -59,79 +57,88 @@ public class ColumnsInfo {
         }
     }
 
-    public void setWithSameColumnDefine(Area multiColumnArea) {
-        set(columnDefine, multiColumnArea);
+    public void setWithSameColumnDefine(Area textBoxArea) {
+        set(columnDefine, textBoxArea);
     }
 
-    public void set(Area multiColumnArea) {
-        ;
-        set(columnDefine, multiColumnArea);
+    public void set(Area textBoxArea) {
+        set(columnDefine, textBoxArea);
     }
 
     public void set() {
-        set(columnDefine, multiColumnArea);
+        set(columnDefine, textBoxArea);
     }
 
     private void makeColumnAreasFromLeft() {
         if (columnDefine.getHeader().getProperty().isSameWidth()) {
-            long columnWidth = (multiColumnArea.width()
+            long columnWidth = (textBoxArea.width()
                     - columnDefine.getHeader().getGapBetweenColumn() * (columnDefine.getHeader().getProperty().getColumnCount() - 1)) / columnDefine.getHeader().getProperty().getColumnCount();
             long columnGap = columnDefine.getHeader().getGapBetweenColumn();
 
-            long columnStartX = multiColumnArea.left();
+            long columnStartX = textBoxArea.left();
             for (int index = 0; index < columnDefine.getHeader().getProperty().getColumnCount(); index++) {
                 areasFromLeft.add(new Area(columnStartX,
-                        multiColumnArea.top(),
+                        textBoxArea.top(),
                         columnStartX + columnWidth,
-                        multiColumnArea.bottom()));
+                        textBoxArea.bottom()));
                 columnStartX += columnWidth + columnGap;
             }
         } else {
-            long columnStartX = multiColumnArea.left();
+            long columnStartX = textBoxArea.left();
+            float rate = textBoxArea.width() / (float) sumColumnINfo();
             for (ColumnInfo columnInfo : columnDefine.getHeader().getColumnInfoList()) {
-                float columnWidth = columnInfo.getWidth() * ColumnInfoRate;
-                float columnGap = columnInfo.getGap() * ColumnInfoRate;
+                float columnWidth = columnInfo.getWidth() * rate;
+                float columnGap = columnInfo.getGap() * rate;
 
                 areasFromLeft.add(new Area(columnStartX,
-                        multiColumnArea.top(),
+                        textBoxArea.top(),
                         (long) (columnStartX + columnWidth),
-                        multiColumnArea.bottom()));
+                        textBoxArea.bottom()));
                 columnStartX += columnWidth + columnGap;
             }
         }
+    }
+
+    private long sumColumnINfo() {
+        long sum = 0;
+        for (ColumnInfo columnInfo : columnDefine.getHeader().getColumnInfoList()) {
+            sum += columnInfo.getWidth() + columnInfo.getGap();
+        }
+        return sum;
     }
 
     private void makeColumnAreasFromRight() {
         if (columnDefine.getHeader().getProperty().isSameWidth()) {
-            long columnWidth = (multiColumnArea.width()
+            long columnWidth = (textBoxArea.width()
                     - columnDefine.getHeader().getGapBetweenColumn() * (columnDefine.getHeader().getProperty().getColumnCount() - 1)) / columnDefine.getHeader().getProperty().getColumnCount();
             long columnGap = columnDefine.getHeader().getGapBetweenColumn();
 
-            long columnEndX = multiColumnArea.right();
+            long columnEndX = textBoxArea.right();
             for (int index = 0; index < columnDefine.getHeader().getProperty().getColumnCount(); index++) {
                 areasFromRight.add(new Area(columnEndX - columnWidth,
-                        multiColumnArea.top(),
+                        textBoxArea.top(),
                         columnEndX,
-                        multiColumnArea.bottom()));
+                        textBoxArea.bottom()));
                 columnEndX -= columnWidth + columnGap;
             }
         } else {
-            long columnEndX = multiColumnArea.right();
+            long columnEndX = textBoxArea.right();
+            float rate = textBoxArea.width() / (float) sumColumnINfo();
             for (ColumnInfo columnInfo : columnDefine.getHeader().getColumnInfoList()) {
-                float columnWidth = columnInfo.getWidth() * ColumnInfoRate;
-                float columnGap = columnInfo.getGap() * ColumnInfoRate;
+                float columnWidth = columnInfo.getWidth() * rate;
+                float columnGap = columnInfo.getGap() * rate;
 
                 areasFromRight.add(new Area((long) (columnEndX - columnWidth),
-                        multiColumnArea.top(),
+                        textBoxArea.top(),
                         columnEndX,
-                        multiColumnArea.bottom()));
+                        textBoxArea.bottom()));
                 columnEndX -= columnWidth + columnGap;
             }
         }
     }
 
-    public Area multiColumnArea() {
-        return multiColumnArea;
+    public Area textBoxArea() {
+        return textBoxArea;
     }
 
     public Area[] columnAreas() {
@@ -139,6 +146,10 @@ public class ColumnsInfo {
     }
 
     private ArrayList<Area> areaList() {
+        if (columnDefine == null) {
+            return areasFromLeft;
+        }
+
         switch (columnDefine.getHeader().getProperty().getColumnDirection()) {
             case FromLeft:
                 return areasFromLeft;
@@ -179,7 +190,7 @@ public class ColumnsInfo {
     }
 
     public boolean isDistributionMultiColumn() {
-        if (areasFromLeft.size() > 1
+        if (columnCount() > 1
                 && columnDefine.getHeader().getProperty().getColumnSort() == ColumnSort.Distribution) {
             return true;
         }
@@ -226,5 +237,4 @@ public class ColumnsInfo {
         }
         return false;
     }
-
 }

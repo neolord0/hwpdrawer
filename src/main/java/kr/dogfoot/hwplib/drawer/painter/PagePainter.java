@@ -39,7 +39,7 @@ public class PagePainter {
     private void savePage(PageOutput pageOutput) throws Exception {
         BufferedImage pageImage = createPageImage(pageOutput);
 
-        // System.out.println(pageOutput.test(0));
+        System.out.println(pageOutput.test(0));
 
         painter
                 .graphics2D((Graphics2D) pageImage.getGraphics());

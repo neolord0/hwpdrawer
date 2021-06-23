@@ -4,6 +4,7 @@ import kr.dogfoot.hwplib.drawer.input.DrawingInput;
 import kr.dogfoot.hwplib.drawer.interimoutput.InterimOutput;
 import kr.dogfoot.hwplib.drawer.interimoutput.text.Column;
 import kr.dogfoot.hwplib.drawer.interimoutput.text.TextLine;
+import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
 
 public class DistributionMultiColumnRearranger {
     private final DrawingInput input;
@@ -191,10 +192,12 @@ public class DistributionMultiColumnRearranger {
         setLimitedTextCounts();
 
         output.resetHidingTextLineIndex();
-
-        TextLine firstLine = output.deleteTextLineIndex(input.columnsInfo().limitedTextLineCount());
-        if (firstLine != null) {
-            input.gotoChar(firstLine.firstChar());
+        Column.ResultDeleteTextLineIndex result = output.deleteTextLineIndex(input.columnsInfo().limitedTextLineCount());
+        if (result != null) {
+            input.gotoChar(result.topLine().firstChar());
+            for (ControlCharInfo controlCharInfo : result.deletedControls()) {
+                paraDrawer.textFlowCalculator().delete(controlCharInfo);
+            }
         } else {
             input.gotoChar(output.currentColumn().nextChar());
         }

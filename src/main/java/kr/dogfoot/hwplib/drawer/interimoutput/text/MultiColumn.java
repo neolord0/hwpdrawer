@@ -7,6 +7,8 @@ import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
 import java.util.ArrayList;
 
 public class MultiColumn {
+    public final static long Gsp = 1200; // 약 4mm
+
     public final static MultiColumn[] Zero_Array = new MultiColumn[0];
 
     private Area area;
@@ -16,7 +18,7 @@ public class MultiColumn {
 
     public MultiColumn(ColumnsInfo columnsInfo) {
         columns = new ArrayList<>();
-        area = new Area(columnsInfo.multiColumnArea());
+        area = new Area(columnsInfo.textBoxArea());
 
         for (Area columnArea : columnsInfo.columnAreas()) {
             addNewColumn(columnArea);
@@ -45,6 +47,10 @@ public class MultiColumn {
 
     public void area(Area area) {
         this.area = area;
+    }
+
+    public int columnCount() {
+        return columns.size();
     }
 
     public Column[] columns() {
@@ -92,6 +98,16 @@ public class MultiColumn {
         this.hadRearrangedDistributionMultiColumn = hadRearrangedDistributionMultiColumn;
     }
 
+    public boolean empty() {
+        for (Column column : columns) {
+            if (column.empty() == false) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
     public String test(int tabCount) {
         return test(tabCount, false);
     }
@@ -105,5 +121,4 @@ public class MultiColumn {
         }
         return sb.toString();
     }
-
 }

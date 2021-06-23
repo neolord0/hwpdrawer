@@ -1,6 +1,8 @@
 package kr.dogfoot.hwplib.drawer.interimoutput.control;
 
 import kr.dogfoot.hwplib.drawer.interimoutput.Content;
+import kr.dogfoot.hwplib.drawer.interimoutput.text.Column;
+import kr.dogfoot.hwplib.drawer.interimoutput.text.MultiColumn;
 import kr.dogfoot.hwplib.drawer.interimoutput.text.TextLine;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
@@ -37,7 +39,7 @@ public class GsoOutput extends ControlOutput {
         return this;
     }
 
-    public Area textArea() {
+    public Area textBoxArea() {
         if (textMargin == null) {
             return controlArea;
         } else {
@@ -46,6 +48,12 @@ public class GsoOutput extends ControlOutput {
                             textMargin.top(),
                             textMargin.right(),
                             textMargin.bottom());
+        }
+    }
+
+    public void applyCalculatedContentHeight() {
+        if (calculatedContentHeight > textBoxArea().height()) {
+            controlArea.bottom(controlArea.top() +  textMargin.top() + calculatedContentHeight + textMargin.bottom());
         }
     }
 
@@ -97,26 +105,30 @@ public class GsoOutput extends ControlOutput {
     }
 
     @Override
-    public void adjustTextAreaAndVerticalAlignment() {
-        Area textArea = textArea();
-        long offsetY = offsetY(textArea, verticalAlignment);
+    public void adjustTextBoxAreaAndVerticalAlignment() {
+        Area textBoxArea = textBoxArea();
+        long offsetY = offsetY(textBoxArea, verticalAlignment);
 
-        for (TextLine line : content.textLines()) {
-            line.area().move(textArea.left(), textArea.top() + offsetY);
+        for (MultiColumn multiColumn : content.multiColumns()) {
+            for (Column column : multiColumn.columns()) {
+                for (TextLine line : column.textLines()) {
+                    line.area().move(textBoxArea.left(), textBoxArea.top() + offsetY);;
+                }
+            }
         }
 
-        move(textArea.left(), textArea.top() + offsetY);
+        move(textBoxArea.left(), textBoxArea.top() + offsetY);
     }
 
-    private long offsetY(Area textArea, TextVerticalAlignment verticalAlignment) {
-        if (calculatedContentHeight < textArea.height()) {
+    private long offsetY(Area textBoxArea, TextVerticalAlignment verticalAlignment) {
+        if (calculatedContentHeight < textBoxArea.height()) {
             switch (verticalAlignment) {
                 case Top:
                     return 0;
                 case Center:
-                    return (textArea.height() - calculatedContentHeight) / 2;
+                    return (textBoxArea.height() - calculatedContentHeight) / 2;
                 case Bottom:
-                    return textArea.height() - calculatedContentHeight;
+                    return textBoxArea.height() - calculatedContentHeight;
             }
         }
         return 0;

@@ -9,7 +9,8 @@ import kr.dogfoot.hwplib.object.docinfo.ParaShape;
 
 public class ParagraphListInfo {
     private final DrawingInput input;
-    private Area bodyArea;
+    private Area textBoxArea;
+    private ColumnsInfo columnsInfo;
 
     private Paragraph currentPara;
     private Paragraph[] paras;
@@ -32,40 +33,41 @@ public class ParagraphListInfo {
 
     private ParallelMultiColumnInfo parallelMultiColumnInfo;
 
-    public ParagraphListInfo(DrawingInput input) {
+    public ParagraphListInfo(DrawingInput input, Paragraph[] paras) {
         this.input = input;
+        columnsInfo = new ColumnsInfo(input.pageInfo());
+
         height = 0;
         paraArea = new Area();
 
         parallelMultiColumnInfo = new ParallelMultiColumnInfo();
+
+        this.paras = paras;
+        this.paraIndex = 0;
     }
 
-    public ParagraphListInfo(DrawingInput input, Area bodyArea) {
-        this(input);
-        bodyArea(bodyArea);
+    public ParagraphListInfo forBodyText() {
+        this.isBodyText = true;
+        return this;
     }
 
-    public void bodyArea(Area bodyArea) {
-        this.bodyArea = bodyArea;
+    public ParagraphListInfo forControl(Area textBoxArea) {
+        this.isBodyText = false;
+        columnsInfo.set(null, textBoxArea);
+        textBoxArea(textBoxArea);
+        return this;
+    }
+
+    public void textBoxArea(Area textBoxArea) {
+        this.textBoxArea = textBoxArea;
         paraStartY = 0;
         if (paraShape != null) {
             setParaArea();
         }
     }
 
-    public ParagraphListInfo bodyText(boolean bodyText) {
-        this.isBodyText = bodyText;
-        return this;
-    }
-
     public boolean bodyText() {
         return isBodyText;
-    }
-
-    public ParagraphListInfo paras(Paragraph[] paras) {
-        this.paras = paras;
-        this.paraIndex = 0;
-        return this;
     }
 
     public boolean nextPara() {
@@ -113,7 +115,7 @@ public class ParagraphListInfo {
     }
 
     private void setParaArea() {
-        paraArea.set(bodyArea)
+        paraArea.set(textBoxArea)
                 .applyMargin(paraShape.getLeftMargin() / 2,
                         paraShape.getTopParaSpace() / 2,
                         paraShape.getRightMargin() / 2,
@@ -169,7 +171,7 @@ public class ParagraphListInfo {
     }
 
     public void resetParaStartY(long startY) {
-        this.paraStartY = startY - bodyArea.top();
+        this.paraStartY = startY - textBoxArea.top();
         setParaArea();
     }
 
@@ -243,5 +245,9 @@ public class ParagraphListInfo {
 
     public ParallelMultiColumnInfo parallelMultiColumnInfo() {
         return parallelMultiColumnInfo;
+    }
+
+    public ColumnsInfo columnsInfo() {
+        return columnsInfo;
     }
 }
