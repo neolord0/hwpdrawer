@@ -2,7 +2,7 @@ package kr.dogfoot.hwplib.drawer.interimoutput;
 
 import kr.dogfoot.hwplib.drawer.input.ColumnsInfo;
 import kr.dogfoot.hwplib.drawer.interimoutput.control.ControlOutput;
-import kr.dogfoot.hwplib.drawer.interimoutput.text.MultiColumn;
+import kr.dogfoot.hwplib.drawer.interimoutput.text.TextRow;
 import kr.dogfoot.hwplib.drawer.interimoutput.text.TextLine;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
@@ -10,111 +10,106 @@ import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
 import java.util.ArrayList;
 
 public class Content {
-    private final ArrayList<MultiColumn> multiColumns;
-    private int currentMultiColumnIndex;
+    private final ArrayList<TextRow> rows;
+    private int currentRowIndex;
 
     public Content(Area area) {
-        multiColumns = new ArrayList<>();
+        rows = new ArrayList<>();
 
-        MultiColumn multiColumn = new MultiColumn(area);
-        multiColumns.add(multiColumn);
+        TextRow multiColumn = new TextRow(area);
+        rows.add(multiColumn);
 
-        currentMultiColumnIndex = 0;
+        currentRowIndex = 0;
     }
 
     public Content(ColumnsInfo columnsInfo) {
-        multiColumns = new ArrayList<>();
+        rows = new ArrayList<>();
 
-        MultiColumn multiColumn = new MultiColumn(columnsInfo);
-        multiColumns.add(multiColumn);
+        TextRow multiColumn = new TextRow(columnsInfo);
+        rows.add(multiColumn);
 
-        currentMultiColumnIndex = 0;
+        currentRowIndex = 0;
     }
 
-    public void nextMultiColumn(ColumnsInfo columnsInfo) {
-        if (currentMultiColumn() != null && currentMultiColumn().empty()) {
-            deleteCurrentMultiColumn();
+    public void nextRow(ColumnsInfo columnsInfo) {
+        if (currentRow() != null && currentRow().empty()) {
+            deleteCurrentRow();
         }
 
-        currentMultiColumnIndex++;
-        if (currentMultiColumnIndex >= multiColumns.size()) {
-            MultiColumn multiColumn = new MultiColumn(columnsInfo);
-            multiColumns.add(multiColumn);
+        currentRowIndex++;
+        if (currentRowIndex >= rows.size()) {
+            TextRow multiColumn = new TextRow(columnsInfo);
+            rows.add(multiColumn);
         }
     }
 
-    private void deleteCurrentMultiColumn() {
-        multiColumns.remove(currentMultiColumnIndex);
-        currentMultiColumnIndex--;
+    private void deleteCurrentRow() {
+        rows.remove(currentRowIndex);
+        currentRowIndex--;
     }
 
-    public int currentMultiColumnIndex() {
-        return currentMultiColumnIndex;
+    public int currentRowIndex() {
+        return currentRowIndex;
     }
 
-    public MultiColumn gotoMultiColumn(int multiColumnIndex) {
-        currentMultiColumnIndex = multiColumnIndex;
-        return multiColumns.get(multiColumnIndex);
+    public TextRow gotoRow(int rowIndex) {
+        currentRowIndex = rowIndex;
+        return rows.get(rowIndex);
     }
 
-    public void gotoLastMultiColumn() {
-        currentMultiColumnIndex = multiColumns.size() - 1;
+    public void gotoLastRow() {
+        currentRowIndex = rows.size() - 1;
     }
 
-    public MultiColumn[] multiColumns() {
-        return multiColumns.toArray(MultiColumn.Zero_Array);
+    public TextRow[] rows() {
+        return rows.toArray(TextRow.Zero_Array);
     }
 
-    public MultiColumn currentMultiColumn() {
-        return multiColumns.get(currentMultiColumnIndex);
-    }
-
-    public boolean hadRearrangedDistributionMultiColumn() {
-        return currentMultiColumn().hadRearrangedDistributionMultiColumn();
-    }
-
-    public void hadRearrangedDistributionMultiColumn(boolean hadRearrangedDistributionMultiColumn) {
-        currentMultiColumn().hadRearrangedDistributionMultiColumn(hadRearrangedDistributionMultiColumn);
+    public TextRow currentRow() {
+        return rows.get(currentRowIndex);
     }
 
     public ControlOutput[] behindChildOutputs() {
-        return currentMultiColumn().currentColumn().behindChildOutputs().toArray(ControlOutput.Zero_Array);
+        return currentRow().currentColumn().behindChildOutputs().toArray(ControlOutput.Zero_Array);
     }
 
-
     public ControlOutput[] nonBehindChildOutputs() {
-        return currentMultiColumn().currentColumn().nonBehindChildOutputs().toArray(ControlOutput.Zero_Array);
+        return currentRow().currentColumn().nonBehindChildOutputs().toArray(ControlOutput.Zero_Array);
     }
 
     public TextLine[] textLines() {
-        return currentMultiColumn().currentColumn().textLines();
+        return currentRow().currentColumn().textLines();
     }
 
-    public long multiColumnHeight() {
-        return currentMultiColumn().height();
+    public long rowHeight() {
+        return currentRow().height();
     }
 
-    public long multiColumnBottom() {
-        return currentMultiColumn().bottom();
+    public long rowBottom() {
+        return currentRow().bottom();
+    }
+
+    public int rowCount() {
+        return rows.size();
     }
 
     public long height() {
         long height = 0;
-        for (MultiColumn multiColumn : multiColumns) {
-            if (multiColumn.columnCount() > 0) {
-                height += multiColumn.height() + MultiColumn.Gsp;
+        for (TextRow row : rows) {
+            if (row.columnCount() > 0) {
+                height += row.height() + TextRow.Gsp;
             }
         }
-        height -= MultiColumn.Gsp;
+        height -= TextRow.Gsp;
         return height;
     }
 
     public String test(int tabCount) {
         MyStringBuilder sb = new MyStringBuilder();
-        for (MultiColumn multiColumn : multiColumns) {
-            sb.tab(tabCount).append("MultiColumn - {\n");
-            sb.append(multiColumn.test(tabCount + 1));
-            sb.tab(tabCount).append("MultiColumn - }\n");
+        for (TextRow row : rows) {
+            sb.tab(tabCount).append("Row - {\n");
+            sb.append(row.test(tabCount + 1));
+            sb.tab(tabCount).append("Row - }\n");
         }
         return sb.toString();
     }

@@ -1,6 +1,5 @@
 package kr.dogfoot.hwplib.drawer.interimoutput.text;
 
-import kr.dogfoot.hwplib.drawer.interimoutput.control.ControlOutput;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfo;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
@@ -13,7 +12,7 @@ import java.util.Iterator;
 public class TextLine implements Iterable<TextPart> {
     public static final TextLine[] Zero_Array = new TextLine[0];
 
-    private Column column;
+    private TextColumn column;
     private int index;
 
     private int paraIndex;
@@ -65,11 +64,11 @@ public class TextLine implements Iterable<TextPart> {
         return null;
     }
 
-    public Column column() {
+    public TextColumn column() {
         return column;
     }
 
-    public TextLine column(Column column) {
+    public TextLine column(TextColumn column) {
         this.column = column;
         return this;
     }

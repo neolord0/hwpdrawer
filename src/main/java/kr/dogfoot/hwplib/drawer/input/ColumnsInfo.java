@@ -8,7 +8,6 @@ import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.columndefine.ColumnS
 import java.util.ArrayList;
 
 public class ColumnsInfo {
-
     private PageInfo pageInfo;
     private ControlColumnDefine columnDefine;
     private Area textBoxArea;
@@ -18,6 +17,8 @@ public class ColumnsInfo {
     private int[] limitedTextLineCounts;
 
     private int currentColumnIndex;
+
+    private boolean processLikeDistributionMultiColumn;
 
     public ColumnsInfo(PageInfo pageInfo) {
         this.pageInfo = pageInfo;
@@ -55,9 +56,10 @@ public class ColumnsInfo {
                     break;
             }
         }
+        processLikeDistributionMultiColumn = false;
     }
 
-    public void setWithSameColumnDefine(Area textBoxArea) {
+    public void setWithPreviousColumnDefine(Area textBoxArea) {
         set(columnDefine, textBoxArea);
     }
 
@@ -65,7 +67,7 @@ public class ColumnsInfo {
         set(columnDefine, textBoxArea);
     }
 
-    public void set() {
+    public void setWithPreviousInfo() {
         set(columnDefine, textBoxArea);
     }
 
@@ -189,22 +191,38 @@ public class ColumnsInfo {
         return columnDefine.getHeader().getProperty().getColumnSort();
     }
 
+    public boolean processLikeDistributionMultiColumn() {
+        return processLikeDistributionMultiColumn;
+    }
+
+    public void processLikeDistributionMultiColumn(boolean processLikeDistributionMultiColumn) {
+        this.processLikeDistributionMultiColumn = processLikeDistributionMultiColumn;
+    }
+
     public boolean isDistributionMultiColumn() {
         if (columnCount() > 1
-                && columnDefine.getHeader().getProperty().getColumnSort() == ColumnSort.Distribution) {
+                && (columnDefine.getHeader().getProperty().getColumnSort() == ColumnSort.Distribution)) {
             return true;
         }
         return false;
     }
 
     public boolean isParallelMultiColumn() {
-        if (areasFromLeft.size() > 1
+        if (columnCount() > 1
                 && columnDefine.getHeader().getProperty().getColumnSort() == ColumnSort.Parallel) {
             return true;
         }
         return false;
-
     }
+
+    public boolean isNormalMultiColumn() {
+        if (columnCount() > 1
+                && columnDefine.getHeader().getProperty().getColumnSort() == ColumnSort.Normal) {
+            return true;
+        }
+        return false;
+    }
+
 
     public int currentColumnIndex() {
         return currentColumnIndex;

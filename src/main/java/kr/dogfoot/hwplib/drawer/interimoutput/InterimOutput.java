@@ -10,8 +10,8 @@ import kr.dogfoot.hwplib.drawer.interimoutput.control.table.TableOutput;
 import kr.dogfoot.hwplib.drawer.interimoutput.page.FooterOutput;
 import kr.dogfoot.hwplib.drawer.interimoutput.page.HeaderOutput;
 import kr.dogfoot.hwplib.drawer.interimoutput.page.PageOutput;
-import kr.dogfoot.hwplib.drawer.interimoutput.text.Column;
-import kr.dogfoot.hwplib.drawer.interimoutput.text.MultiColumn;
+import kr.dogfoot.hwplib.drawer.interimoutput.text.TextColumn;
+import kr.dogfoot.hwplib.drawer.interimoutput.text.TextRow;
 import kr.dogfoot.hwplib.drawer.interimoutput.text.TextLine;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
@@ -64,7 +64,7 @@ public class InterimOutput {
 
             if (!controlsMovedToNextPage.isEmpty()) {
                 for (ControlInfo controlInfo : controlsMovedToNextPage) {
-                    page.content().currentMultiColumn().currentColumn().addChildOutput(controlInfo.output);
+                    page.content().currentRow().currentColumn().addChildOutput(controlInfo.output);
                 }
                 controlsMovedToNextPage.clear();
             }
@@ -85,7 +85,7 @@ public class InterimOutput {
 
         if (!controlsMovedToNextPage.isEmpty()) {
             for (ControlInfo controlInfo : controlsMovedToNextPage) {
-                page.content().currentMultiColumn().currentColumn().addChildOutput(controlInfo.output);
+                page.content().currentRow().currentColumn().addChildOutput(controlInfo.output);
             }
             controlsMovedToNextPage.clear();
         }
@@ -167,7 +167,7 @@ public class InterimOutput {
 
     public void setLastLineInPara() {
         if (currentContent() != null) {
-            currentContent().currentMultiColumn().currentColumn().setLastLineInPara();
+            currentContent().currentRow().currentColumn().setLastLineInPara();
         }
     }
 
@@ -175,16 +175,16 @@ public class InterimOutput {
         return currentOutput().content();
     }
 
-    private Output currentOutput() {
+    public Output currentOutput() {
         return stack.peek();
     }
 
-    public MultiColumn currentMultiColumn() {
-        return currentContent().currentMultiColumn();
+    public TextRow currentRow() {
+        return currentContent().currentRow();
     }
 
-    public Column currentColumn() {
-        return currentMultiColumn().currentColumn();
+    public TextColumn currentColumn() {
+        return currentRow().currentColumn();
     }
 
     public void addChildOutput(ControlOutput childOutput) {
@@ -230,50 +230,52 @@ public class InterimOutput {
         currentColumn().resetHideTextLineIndex();
     }
 
-    public Column.ResultDeleteTextLineIndex deleteTextLineIndex(int topLineIndex) {
+    public TextColumn.ResultDeleteTextLineIndex deleteTextLineIndex(int topLineIndex) {
         return currentColumn().deleteTextLineIndex(topLineIndex);
     }
 
     public boolean hadRearrangedDistributionMultiColumn() {
-        return currentContent().hadRearrangedDistributionMultiColumn();
+        return currentRow().hadRearrangedDistributionMultiColumn();
     }
 
     public void hadRearrangedDistributionMultiColumn(boolean hadRearrangedDistributionMultiColumn) {
-        currentContent().hadRearrangedDistributionMultiColumn(hadRearrangedDistributionMultiColumn);
+        currentRow().hadRearrangedDistributionMultiColumn(hadRearrangedDistributionMultiColumn);
     }
 
     public void nextColumn() {
-        currentMultiColumn().nextColumn();
+        currentRow().nextColumn();
     }
 
     public void previousColumn() {
-        currentMultiColumn().previousColumn();
+        currentRow().previousColumn();
     }
 
     public void clearColumn() {
         currentColumn().clear();
     }
 
-    public void nextMultiColumn(ColumnsInfo columnsInfo) {
-        currentContent().nextMultiColumn(columnsInfo);
+    public void nextRow(ColumnsInfo columnsInfo) {
+        currentContent().nextRow(columnsInfo);
     }
 
-    public int currentMultiColumnIndex() {
-        return currentContent().currentMultiColumnIndex();
+    public int currentRowIndex() {
+        return currentContent().currentRowIndex();
     }
 
-    public MultiColumn gotoMultiColumn(int multiColumnIndex) {
-        return currentContent().gotoMultiColumn(multiColumnIndex);
+    public TextRow gotoRow(int rowIndex) {
+        return currentContent().gotoRow(rowIndex);
     }
 
-    public void gotoLastMultiColumn() {
+    public void gotoLastRow() {
         gotoLastPage();
-        currentContent().gotoLastMultiColumn();
+        currentContent().gotoLastRow();
     }
 
     private void gotoLastPage() {
         PageOutput lastPage = lastPage();
-        gotoPage(lastPage);
+        if (lastPage != null) {
+            gotoPage(lastPage);
+        }
     }
 
     private void gotoPage(PageOutput lastPage) {
@@ -290,22 +292,16 @@ public class InterimOutput {
         return null;
     }
 
-
-    public long multiColumnHeight() {
-        return currentContent().multiColumnHeight();
+    public long rowHeight() {
+        return currentContent().rowHeight();
     }
 
-    public long multiColumnBottom() {
-        return currentContent().multiColumnBottom();
+    public long rowBottom() {
+        return currentContent().rowBottom();
     }
 
     public void gotoStartingParallelMultiColumn(ParallelMultiColumnInfo parallelMultiColumnInfo) {
-        gotoPage(parallelMultiColumnInfo.startingPageNo()).content().gotoMultiColumn(parallelMultiColumnInfo.startingMultiColumnIndex());
-    }
-
-    // test
-    public int outputSize() {
-        return stack.size();
+        gotoPage(parallelMultiColumnInfo.startingPageNo()).content().gotoRow(parallelMultiColumnInfo.startingRowIndex());
     }
 
     public static final class ControlInfo {

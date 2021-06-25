@@ -1,22 +1,24 @@
 package kr.dogfoot.hwplib.drawer.interimoutput.text;
 
 import kr.dogfoot.hwplib.drawer.input.ColumnsInfo;
+import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
 
 import java.util.ArrayList;
 
-public class MultiColumn {
+public class TextRow {
     public final static long Gsp = 1200; // 약 4mm
 
-    public final static MultiColumn[] Zero_Array = new MultiColumn[0];
+    public final static TextRow[] Zero_Array = new TextRow[0];
 
     private Area area;
-    private final ArrayList<Column> columns;
+    private final ArrayList<TextColumn> columns;
     private int currentColumnIndex;
     private boolean hadRearrangedDistributionMultiColumn;
+    private int calculationCount;
 
-    public MultiColumn(ColumnsInfo columnsInfo) {
+    public TextRow(ColumnsInfo columnsInfo) {
         columns = new ArrayList<>();
         area = new Area(columnsInfo.textBoxArea());
 
@@ -26,9 +28,10 @@ public class MultiColumn {
 
         currentColumnIndex = 0;
         hadRearrangedDistributionMultiColumn = false;
+        calculationCount = 0;
     }
 
-    public MultiColumn(Area area) {
+    public TextRow(Area area) {
         columns = new ArrayList<>();
         addNewColumn(area);
 
@@ -37,7 +40,7 @@ public class MultiColumn {
     }
 
     private void addNewColumn(Area columnArea) {
-        Column column = new Column(columnArea);
+        TextColumn column = new TextColumn(columnArea);
         columns.add(column);
     }
 
@@ -53,20 +56,20 @@ public class MultiColumn {
         return columns.size();
     }
 
-    public Column[] columns() {
-        return columns.toArray(Column.Zero_Array);
+    public TextColumn[] columns() {
+        return columns.toArray(TextColumn.Zero_Array);
     }
 
-    public Column currentColumn() {
+    public TextColumn currentColumn() {
         return columns.get(currentColumnIndex);
-    }
-
-    public void nextColumn() {
-        currentColumnIndex++;
     }
 
     public int currentColumnIndex() {
         return currentColumnIndex;
+    }
+
+    public void nextColumn() {
+        currentColumnIndex++;
     }
 
     public void gotoColumnIndex(int columnIndex) {
@@ -79,7 +82,7 @@ public class MultiColumn {
 
     public long height() {
         long height = -1;
-        for (Column column : columns) {
+        for (TextColumn column : columns) {
             long columnHeight = column.calculateHeight();
             height = height > columnHeight ? height : columnHeight;
         }
@@ -87,6 +90,9 @@ public class MultiColumn {
     }
 
     public long bottom() {
+        if (area == null) {
+            return -1;
+        }
         return area.top() + height();
     }
 
@@ -99,7 +105,7 @@ public class MultiColumn {
     }
 
     public boolean empty() {
-        for (Column column : columns) {
+        for (TextColumn column : columns) {
             if (column.empty() == false) {
                 return false;
             }
@@ -107,6 +113,23 @@ public class MultiColumn {
         return true;
     }
 
+    public CharInfo firstChar() {
+         return columns.get(0).firstLine().firstChar();
+    }
+
+    public void clear() {
+        for (TextColumn column : columns) {
+            column.clear();
+        }
+    }
+
+    public int calculationCount() {
+        return calculationCount;
+    }
+
+    public void increaseCalculationCount() {
+        calculationCount++;
+    }
 
     public String test(int tabCount) {
         return test(tabCount, false);
@@ -114,11 +137,12 @@ public class MultiColumn {
 
     public String test(int tabCount, boolean hideLine) {
         MyStringBuilder sb = new MyStringBuilder();
-        for (Column column : columns) {
+        for (TextColumn column : columns) {
             sb.tab(tabCount).append("Column : ").append(column.area()).append(" -  {\n");
             sb.append(column.test(tabCount + 1, hideLine));
             sb.tab(tabCount).append("Column - }\n");
         }
         return sb.toString();
     }
+
 }

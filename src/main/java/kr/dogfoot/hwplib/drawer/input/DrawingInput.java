@@ -1,5 +1,6 @@
 package kr.dogfoot.hwplib.drawer.input;
 
+import kr.dogfoot.hwplib.drawer.interimoutput.InterimOutput;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.HWPFile;
@@ -103,27 +104,8 @@ public class DrawingInput {
         pageInfo.sectionDefine(sectionDefine);
     }
 
-    public void newMultiColumn(ControlColumnDefine columnDefine, long startY) {
-        Area multiColumnArea = new Area(currentParaListInfo().columnsInfo().textBoxArea()).top(startY);
-        currentParaListInfo().columnsInfo().set(columnDefine, multiColumnArea);
-
-        currentParaListInfo().textBoxArea(currentParaListInfo().columnsInfo().currentColumnArea());
-    }
-
-    public void newMultiColumnWithSameColumnDefine(long startY) {
-        Area multiColumnArea = new Area(currentParaListInfo().columnsInfo().textBoxArea()).top(startY);
-        currentParaListInfo().columnsInfo().setWithSameColumnDefine(multiColumnArea);
-
-        currentParaListInfo().textBoxArea(currentParaListInfo().columnsInfo().currentColumnArea());
-    }
-
-
     public PageInfo pageInfo() {
         return pageInfo;
-    }
-
-    public ColumnsInfo columnsInfo() {
-        return currentParaListInfo().columnsInfo();
     }
 
     public void nextPage() {
@@ -136,22 +118,46 @@ public class DrawingInput {
         }
 
         if (bodyTextParaListInfo != null) {
-            currentParaListInfo().columnsInfo().set(new Area(pageInfo.bodyArea()));
+            currentParaListInfo().columnsInfo().setWithPreviousColumnDefine(new Area(pageInfo.bodyArea()));
             bodyTextParaListInfo.textBoxArea(currentParaListInfo().columnsInfo().currentColumnArea());
         } else {
             currentParaListInfo().columnsInfo().reset();
         }
+    }
 
+    public void gotoPage(int pageNo) {
+        pageInfo.pageNo(pageNo);
+    }
+
+    public void newRow(ControlColumnDefine columnDefine, long startY) {
+        Area multiColumnArea = new Area(currentParaListInfo().columnsInfo().textBoxArea()).top(startY);
+        currentParaListInfo().columnsInfo().set(columnDefine, multiColumnArea);
+        currentParaListInfo().setTextBoxAreaToColumnArea();
+    }
+
+    public void newRowWithPreviousColumnDefine(long startY) {
+        Area multiColumnArea = new Area(currentParaListInfo().columnsInfo().textBoxArea()).top(startY);
+        currentParaListInfo().columnsInfo().setWithPreviousColumnDefine(multiColumnArea);
+        currentParaListInfo().setTextBoxAreaToColumnArea();
+    }
+
+    public ColumnsInfo columnsInfo() {
+        return currentParaListInfo().columnsInfo();
     }
 
     public void nextColumn() {
         currentParaListInfo().columnsInfo().nextColumn();
-        currentParaListInfo().textBoxArea(currentParaListInfo().columnsInfo().currentColumnArea());
+        currentParaListInfo().setTextBoxAreaToColumnArea();
     }
 
     public void previousColumn() {
         currentParaListInfo().columnsInfo().previousColumn();
-        currentParaListInfo().textBoxArea(currentParaListInfo().columnsInfo().currentColumnArea());
+        currentParaListInfo().setTextBoxAreaToColumnArea();
+    }
+
+    public void gotoColumnIndex(int currentColumnIndex) {
+        columnsInfo().currentColumnIndex(currentColumnIndex);
+        currentParaListInfo().setTextBoxAreaToColumnArea();
     }
 
     public boolean checkHidingEmptyLineAfterNewPage() {
@@ -269,22 +275,20 @@ public class DrawingInput {
         currentParaListInfo().gotoChar(charInfo.index(), charInfo.prePosition());
     }
 
-
     public void gotoParaCharPosition(int paragraphIndex, int characterIndex, int characterPosition) {
         currentParaListInfo().gotoPara(paragraphIndex);
         currentParaListInfo().gotoChar(characterIndex, characterPosition);
+    }
+
+    public void startParallelMultiColumn(int pageNo, int rowIndex) {
+        parallelMultiColumnInfo().startParallelMultiColumn(pageNo, rowIndex);
     }
 
     public ParallelMultiColumnInfo parallelMultiColumnInfo() {
         return currentParaListInfo().parallelMultiColumnInfo();
     }
 
-    public void gotoPage(int pageNo) {
-        pageInfo.pageNo(pageNo);
-    }
-
-    public void gotoColumnIndex(int currentColumnIndex) {
-        columnsInfo().currentColumnIndex(currentColumnIndex);
-        currentParaListInfo().textBoxArea(currentParaListInfo().columnsInfo().currentColumnArea());
+    public void gotoFirstCharOfCurrentRow(InterimOutput output) {
+        gotoChar(output.currentRow().firstChar());
     }
 }

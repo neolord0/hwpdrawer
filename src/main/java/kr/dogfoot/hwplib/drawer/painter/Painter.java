@@ -3,8 +3,8 @@ package kr.dogfoot.hwplib.drawer.painter;
 import kr.dogfoot.hwplib.drawer.DrawingOption;
 import kr.dogfoot.hwplib.drawer.input.DrawingInput;
 import kr.dogfoot.hwplib.drawer.interimoutput.Content;
-import kr.dogfoot.hwplib.drawer.interimoutput.text.Column;
-import kr.dogfoot.hwplib.drawer.interimoutput.text.MultiColumn;
+import kr.dogfoot.hwplib.drawer.interimoutput.text.TextColumn;
+import kr.dogfoot.hwplib.drawer.interimoutput.text.TextRow;
 import kr.dogfoot.hwplib.drawer.painter.background.BackgroundPainter;
 import kr.dogfoot.hwplib.drawer.painter.control.ControlPainter;
 import kr.dogfoot.hwplib.drawer.painter.text.TextPainter;
@@ -160,8 +160,8 @@ public class Painter {
     }
 
     public void paintContent(Content content) throws Exception {
-        for (MultiColumn multiColumn : content.multiColumns()) {
-            for (Column column : multiColumn.columns()) {
+        for (TextRow row : content.rows()) {
+            for (TextColumn column : row.columns()) {
                 controlPainter.paintControls(column.behindChildOutputs());
                 textPainter.paintTextLines(column.paintingTextLines());
                 controlPainter.paintControls(column.nonBehindChildOutputs());
@@ -201,7 +201,6 @@ public class Painter {
                     bottomBorder.getColor());
             line(cellArea.left(), cellArea.bottom(), cellArea.right(), cellArea.bottom());
         }
-
         return this;
     }
 }

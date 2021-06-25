@@ -2,7 +2,7 @@ package kr.dogfoot.hwplib.drawer.paragraph;
 
 import kr.dogfoot.hwplib.drawer.input.DrawingInput;
 import kr.dogfoot.hwplib.drawer.interimoutput.InterimOutput;
-import kr.dogfoot.hwplib.drawer.interimoutput.text.MultiColumn;
+import kr.dogfoot.hwplib.drawer.interimoutput.text.TextRow;
 import kr.dogfoot.hwplib.drawer.painter.PagePainter;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfoBuffer;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
@@ -288,7 +288,7 @@ public class ParaDrawer {
             input.gotoColumnIndex(currentColumnIndex);
             resetForNewPage();
             output.nextPage(input);
-            output.gotoMultiColumn(0).gotoColumnIndex(currentColumnIndex);
+            output.gotoRow(0).gotoColumnIndex(currentColumnIndex);
         } else {
             input.nextPage();
             resetForNewPage();
@@ -309,16 +309,22 @@ public class ParaDrawer {
         }
     }
 
-    public void nextMultiColumn() {
-        distributionMultiColumnRearranger().endParaIndex(-1);
+    public void nextRow() {
+        distributionMultiColumnRearranger().resetEndingParaIndex();
+
         if (input.isBodyText()) {
-            output.gotoLastMultiColumn();
+            output.gotoLastRow();
             input.gotoPage(output.currentPage().pageNo());
-            setColumnDefine(output.multiColumnBottom() + MultiColumn.Gsp);
+            setColumnDefine(output.rowBottom() + TextRow.Gsp);
         } else {
-            setColumnDefine(0);
-        }
-        output.nextMultiColumn(input.columnsInfo());
+            long rowBottom = output.rowBottom();
+            if (rowBottom == -1) {
+                setColumnDefine(0);
+            } else {
+                setColumnDefine(rowBottom + TextRow.Gsp);
+            }
+       }
+        output.nextRow(input.columnsInfo());
 
         resetForNewColumn();
     }
@@ -345,12 +351,31 @@ public class ParaDrawer {
         HWPChar firstChar = input.currentChar();
         if (firstChar.getType() == HWPCharType.ControlExtend &&
                 ((HWPCharControlExtend) firstChar).isColumnDefine()) {
-            input.newMultiColumn((ControlColumnDefine) input.currentPara().getControlList().get(controlExtendCharIndex), startY);
+            input.newRow((ControlColumnDefine) input.currentPara().getControlList().get(controlExtendCharIndex), startY);
             controlExtendCharIndex++;
         } else {
-            input.newMultiColumnWithSameColumnDefine(startY);
+            input.newRowWithPreviousColumnDefine(startY);
             input.previousChar(1);
         }
+    }
+
+    public void gotoFirstColumn() {
+        while (input.columnsInfo().currentColumnIndex() > 0) {
+            input.previousColumn();
+        }
+        while (output.currentRow().currentColumnIndex() > 0) {
+            output.previousColumn();
+        }
+    }
+
+    public void gotoStartCharOfCurrentRow() {
+        input.columnsInfo().setWithPreviousInfo();
+        input.currentParaListInfo().setTextBoxAreaToColumnArea();
+        input.gotoFirstCharOfCurrentRow(output);
+
+        output.currentRow().clear();
+        gotoFirstColumn();
+        resetForNewColumn();
     }
 
     public void nextColumn() {
@@ -359,10 +384,9 @@ public class ParaDrawer {
             input.gotoPage(input.parallelMultiColumnInfo().startingPageNo());
 
             int currentColumnIndex = input.columnsInfo().currentColumnIndex();
-            setColumnDefine(output.currentMultiColumn().area().top());
+            setColumnDefine(output.currentRow().area().top());
             input.columnsInfo().currentColumnIndex(currentColumnIndex);
-            output.currentMultiColumn().gotoColumnIndex(currentColumnIndex);
-
+            output.currentRow().gotoColumnIndex(currentColumnIndex);
 
             input.nextColumn();
             output.nextColumn();
@@ -441,6 +465,7 @@ public class ParaDrawer {
     }
 
     public void checkNewColumnAndPage() throws Exception {
+        System.out.println(input.columnsInfo().currentColumnArea().bottom() + " " + input.columnsInfo().textBoxArea().bottom());
         if (drawingState.isNormal()
                 && (isOverBottom(textLineDrawer.maxCharHeight())
                 || input.columnsInfo().isOverLimitedTextLineCount(output.textLineCount()))) {
@@ -452,7 +477,7 @@ public class ParaDrawer {
                 output.currentColumn().nextChar(textLineDrawer.firstCharInfo());
 
                 if (!input.columnsInfo().lastColumn()) {
-                    if (!output.currentMultiColumn().hadRearrangedDistributionMultiColumn()
+                    if (!output.currentRow().hadRearrangedDistributionMultiColumn()
                             && (distributionMultiColumnRearranger().testing()
                             || input.columnsInfo().isDistributionMultiColumn())) {
                         distributionMultiColumnRearranger().rearrangeFromCurrentColumn();
@@ -464,6 +489,12 @@ public class ParaDrawer {
                         }
                     } else {
                         nextColumn();
+                    }
+                } else {
+                    if (!input.isBodyText()
+                            && input.columnsInfo().isNormalMultiColumn()) {
+
+                        throw new BreakDrawingException().forOverTextBoxArea();
                     }
                 }
             }

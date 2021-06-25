@@ -11,8 +11,8 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.TreeSet;
 
-public class Column {
-    public final static Column[] Zero_Array = new Column[0];
+public class TextColumn {
+    public final static TextColumn[] Zero_Array = new TextColumn[0];
 
     private final Area area;
 
@@ -23,13 +23,18 @@ public class Column {
     private int topLineIndexForHiding;
     private CharInfo nextChar;
 
-    public Column(Area area) {
+    public TextColumn(Area area) {
         this.area = area;
         textLines = new ArrayList<>();
         behindChildOutputs = new TreeSet<>();
         nonBehindChildOutputs = new TreeSet<>();
 
         topLineIndexForHiding = -1;
+    }
+
+
+    public TextLine firstLine() {
+        return textLines.get(0);
     }
 
     public void addTextLine(TextLine textLine) {
@@ -44,13 +49,6 @@ public class Column {
             return null;
         }
         return textLines.get(textLine.index() + 1);
-    }
-
-    public TextLine firstLine() {
-        if (textLines.isEmpty()) {
-            return null;
-        }
-        return textLines.get(0);
     }
 
     public int textLineCount() {
@@ -111,7 +109,6 @@ public class Column {
         }
         return firstTextLine;
     }
-
 
     public TextLine hideTextLineIndex(int topLineIndex) {
         if (topLineIndex < textLineCount()) {
@@ -195,7 +192,6 @@ public class Column {
         }
     }
 
-
     public void clear() {
         textLines.clear();
         behindChildOutputs.clear();
@@ -220,7 +216,6 @@ public class Column {
                 && behindChildOutputs.isEmpty()
                 && nonBehindChildOutputs.isEmpty();
     }
-
 
     public String test(int tabCount) {
         return test(tabCount, false);

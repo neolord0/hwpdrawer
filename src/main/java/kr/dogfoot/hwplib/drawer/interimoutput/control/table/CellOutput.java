@@ -3,8 +3,8 @@ package kr.dogfoot.hwplib.drawer.interimoutput.control.table;
 import kr.dogfoot.hwplib.drawer.interimoutput.Content;
 import kr.dogfoot.hwplib.drawer.interimoutput.Output;
 import kr.dogfoot.hwplib.drawer.interimoutput.control.ControlOutput;
-import kr.dogfoot.hwplib.drawer.interimoutput.text.Column;
-import kr.dogfoot.hwplib.drawer.interimoutput.text.MultiColumn;
+import kr.dogfoot.hwplib.drawer.interimoutput.text.TextColumn;
+import kr.dogfoot.hwplib.drawer.interimoutput.text.TextRow;
 import kr.dogfoot.hwplib.drawer.interimoutput.text.TextLine;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
@@ -65,8 +65,8 @@ public class CellOutput extends Output {
     public void adjustTextBoxAreaAndVerticalAlignment(Area cellArea, Area textBoxArea) {
         long offsetY = offsetY(textBoxArea, verticalAlignment);
 
-        for (MultiColumn multiColumn : content.multiColumns()) {
-            for (Column column : multiColumn.columns()) {
+        for (TextRow multiColumn : content.rows()) {
+            for (TextColumn column : multiColumn.columns()) {
                 for (TextLine line : column.textLines()) {
                     line.area().move(cellArea.left(), cellArea.top()+ offsetY);
                 }

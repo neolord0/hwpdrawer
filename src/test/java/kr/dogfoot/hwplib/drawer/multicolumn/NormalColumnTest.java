@@ -5,7 +5,7 @@ import org.junit.Test;
 
 import java.io.File;
 
-public class GeneralColumnTest {
+public class NormalColumnTest {
     @Test
     public void test_기본_같은크기() throws Exception {
         HWPTester.testAndCompare("testingHWP" + File.separator + "다단" + File.separator + "일반" + File.separator + "기본" + File.separator + "같은크기");
@@ -64,5 +64,15 @@ public class GeneralColumnTest {
     @Test
     public void test_컨트롤안_1() throws Exception {
         HWPTester.testAndCompare("testingHWP" + File.separator + "다단" + File.separator + "일반" + File.separator + "컨트롤 안" + File.separator + "1");
+    }
+
+    @Test
+    public void test_컨트롤안_컨트롤높이보다큰다단_1() throws Exception {
+        HWPTester.testAndCompare("testingHWP" + File.separator + "다단" + File.separator + "일반" + File.separator + "컨트롤 안" + File.separator + "컨트롤높이보다 큰 다단" + File.separator + "1");
+    }
+
+    @Test
+    public void test_컨트롤안_컨트롤높이보다큰다단_2() throws Exception {
+        HWPTester.testAndCompare("testingHWP" + File.separator + "다단" + File.separator + "일반" + File.separator + "컨트롤 안" + File.separator + "컨트롤높이보다 큰 다단" + File.separator + "2");
     }
 }

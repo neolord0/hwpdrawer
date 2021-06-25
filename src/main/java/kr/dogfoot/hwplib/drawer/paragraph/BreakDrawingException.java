@@ -23,7 +23,6 @@ public class BreakDrawingException extends Exception {
 
     public BreakDrawingException forEndingPara() {
         type = Type.ForEndingPara;
-        ;
         return this;
     }
 
@@ -34,6 +33,11 @@ public class BreakDrawingException extends Exception {
 
     public BreakDrawingException forDividingColumn() {
         type = Type.ForEndingTest;
+        return this;
+    }
+
+    public BreakDrawingException forOverTextBoxArea() {
+        type = Type.ForOverTextBoxArea;
         return this;
     }
 
@@ -57,7 +61,8 @@ public class BreakDrawingException extends Exception {
         ForNewPage,
         ForEndingPara,
         ForEndingTest,
-        ForDividingColumn;
+        ForDividingColumn,
+        ForOverTextBoxArea;
 
         public boolean isForNewPage() {
             return this == ForNewPage;
@@ -73,6 +78,10 @@ public class BreakDrawingException extends Exception {
 
         public boolean isForDividingColumn() {
             return this == ForDividingColumn;
+        }
+
+        public boolean isForOverTextBoxArea() {
+            return this == ForOverTextBoxArea;
         }
     }
 }

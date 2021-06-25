@@ -58,7 +58,7 @@ public class GsoPainter {
     }
 
     public void rectangle(GsoOutput gsoOutput) throws Exception {
-        // gsoOutput.applyCalculatedContentHeight();
+        gsoOutput.applyCalculatedContentHeight();
 
         ControlRectangle rectangle = (ControlRectangle) gsoOutput.gso();
         painter.backgroundPainter().paint(((ShapeComponentNormal) (rectangle.getShapeComponent())).getFillInfo(), gsoOutput.controlArea());

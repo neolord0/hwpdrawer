@@ -2,24 +2,24 @@ package kr.dogfoot.hwplib.drawer.input;
 
 public class ParallelMultiColumnInfo {
     private int startingPageNo;
-    private int startingMultiColumnIndex;
+    private int startingRowIndex;
 
     public ParallelMultiColumnInfo() {
         startingPageNo = -1;
-        startingMultiColumnIndex = -1;
+        startingRowIndex = -1;
     }
 
-    public void startParallelMultiColumn(int pageNo, int multiColumnIndex) {
+    public void startParallelMultiColumn(int pageNo, int rowIndex) {
         startingPageNo = pageNo;
-        startingMultiColumnIndex = multiColumnIndex;
+        startingRowIndex = rowIndex;
     }
 
     public int startingPageNo() {
         return startingPageNo;
     }
 
-    public int startingMultiColumnIndex() {
-        return startingMultiColumnIndex;
+    public int startingRowIndex() {
+        return startingRowIndex;
     }
 }
 

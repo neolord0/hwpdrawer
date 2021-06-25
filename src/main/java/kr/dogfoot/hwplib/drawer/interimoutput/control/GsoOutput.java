@@ -1,8 +1,8 @@
 package kr.dogfoot.hwplib.drawer.interimoutput.control;
 
 import kr.dogfoot.hwplib.drawer.interimoutput.Content;
-import kr.dogfoot.hwplib.drawer.interimoutput.text.Column;
-import kr.dogfoot.hwplib.drawer.interimoutput.text.MultiColumn;
+import kr.dogfoot.hwplib.drawer.interimoutput.text.TextColumn;
+import kr.dogfoot.hwplib.drawer.interimoutput.text.TextRow;
 import kr.dogfoot.hwplib.drawer.interimoutput.text.TextLine;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
@@ -53,7 +53,7 @@ public class GsoOutput extends ControlOutput {
 
     public void applyCalculatedContentHeight() {
         if (calculatedContentHeight > textBoxArea().height()) {
-            controlArea.bottom(controlArea.top() +  textMargin.top() + calculatedContentHeight + textMargin.bottom());
+            controlArea.bottom(controlArea.top() + textMargin.top() + calculatedContentHeight + textMargin.bottom());
         }
     }
 
@@ -109,8 +109,8 @@ public class GsoOutput extends ControlOutput {
         Area textBoxArea = textBoxArea();
         long offsetY = offsetY(textBoxArea, verticalAlignment);
 
-        for (MultiColumn multiColumn : content.multiColumns()) {
-            for (Column column : multiColumn.columns()) {
+        for (TextRow multiColumn : content.rows()) {
+            for (TextColumn column : multiColumn.columns()) {
                 for (TextLine line : column.textLines()) {
                     line.area().move(textBoxArea.left(), textBoxArea.top() + offsetY);;
                 }

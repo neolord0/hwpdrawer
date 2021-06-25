@@ -250,4 +250,8 @@ public class ParagraphListInfo {
     public ColumnsInfo columnsInfo() {
         return columnsInfo;
     }
+
+    public void setTextBoxAreaToColumnArea() {
+        textBoxArea(columnsInfo().currentColumnArea());
+    }
 }
