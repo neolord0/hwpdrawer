@@ -20,7 +20,6 @@ public class CellPositionCalculator {
         }
     }
 
-
     public CellPositionCalculator addRowInfo(int rowIndex, int rowSpan, long height) {
         rowInfos.add(new RowInfo(rowIndex, rowSpan, height));
         return this;
@@ -70,7 +69,6 @@ public class CellPositionCalculator {
         }
     }
 
-
     public long height(int rowIndex, int rowSpan) {
         long height = 0;
         for (int index = rowIndex; index < rowIndex + rowSpan; index++) {
@@ -88,7 +86,6 @@ public class CellPositionCalculator {
         }
         return height;
     }
-
 
     public CellPositionCalculator addColumnInfo(int colIndex, int colSpan, long width) {
         cellXs[colIndex + colSpan] = width + cellXs[colIndex];

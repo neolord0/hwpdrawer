@@ -18,7 +18,6 @@ public class HeaderOutput extends Output {
         content = new Content(headerArea);
     }
 
-
     public void adjustHeaderArea() {
         for (TextLine line : content.textLines()) {
             line.area().move(headerArea.left(), headerArea.top());
@@ -55,5 +54,4 @@ public class HeaderOutput extends Output {
         sb.tab(tabCount).append("header - }\n");
         return sb.toString();
     }
-
 }

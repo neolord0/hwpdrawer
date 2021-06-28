@@ -76,5 +76,4 @@ public class FooterOutput extends Output {
         sb.tab(tabCount).append("footer - }\n");
         return sb.toString();
     }
-
 }

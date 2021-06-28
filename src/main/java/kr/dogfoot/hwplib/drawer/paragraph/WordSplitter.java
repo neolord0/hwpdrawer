@@ -16,7 +16,6 @@ public class WordSplitter {
     private boolean hasNewLine;
     private boolean stopAddingChar;
 
-
     public WordSplitter(ParaDrawer paraDrawer, TextLineDrawer textLineDrawer, WordDrawer wordDrawer) {
         this.paraDrawer = paraDrawer;
         this.textLineDrawer = textLineDrawer;
@@ -90,7 +89,6 @@ public class WordSplitter {
         }
     }
 
-
     private void addEachLanguageWord(ArrayList<CharInfo> wordChars, long wordWidth) throws Exception {
         if (wordChars.size() > 0) {
             if (!textLineDrawer.isOverWidth(wordWidth, true)) {
@@ -123,5 +121,4 @@ public class WordSplitter {
             wordChars = new ArrayList<>();
         }
     }
-
 }

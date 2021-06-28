@@ -1,6 +1,6 @@
 package kr.dogfoot.hwplib.drawer.interimoutput.text;
 
-import kr.dogfoot.hwplib.drawer.input.ColumnsInfo;
+import kr.dogfoot.hwplib.drawer.input.paralist.ColumnsInfo;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
@@ -9,7 +9,6 @@ import java.util.ArrayList;
 
 public class TextRow {
     public final static long Gsp = 1200; // 약 4mm
-
     public final static TextRow[] Zero_Array = new TextRow[0];
 
     private Area area;
@@ -19,8 +18,8 @@ public class TextRow {
     private int calculationCount;
 
     public TextRow(ColumnsInfo columnsInfo) {
-        columns = new ArrayList<>();
         area = new Area(columnsInfo.textBoxArea());
+        columns = new ArrayList<>();
 
         for (Area columnArea : columnsInfo.columnAreas()) {
             addNewColumn(columnArea);
@@ -32,11 +31,14 @@ public class TextRow {
     }
 
     public TextRow(Area area) {
+        this.area = null;
         columns = new ArrayList<>();
+
         addNewColumn(area);
 
         currentColumnIndex = 0;
         hadRearrangedDistributionMultiColumn = false;
+        calculationCount = 0;
     }
 
     private void addNewColumn(Area columnArea) {
@@ -64,15 +66,11 @@ public class TextRow {
         return columns.get(currentColumnIndex);
     }
 
-    public int currentColumnIndex() {
-        return currentColumnIndex;
-    }
-
     public void nextColumn() {
         currentColumnIndex++;
     }
 
-    public void gotoColumnIndex(int columnIndex) {
+    public void gotoColumn(int columnIndex) {
         this.currentColumnIndex = columnIndex;
     }
 
@@ -144,5 +142,4 @@ public class TextRow {
         }
         return sb.toString();
     }
-
 }

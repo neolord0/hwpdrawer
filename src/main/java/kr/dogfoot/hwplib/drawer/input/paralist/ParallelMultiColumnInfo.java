@@ -1,4 +1,4 @@
-package kr.dogfoot.hwplib.drawer.input;
+package kr.dogfoot.hwplib.drawer.input.paralist;
 
 public class ParallelMultiColumnInfo {
     private int startingPageNo;

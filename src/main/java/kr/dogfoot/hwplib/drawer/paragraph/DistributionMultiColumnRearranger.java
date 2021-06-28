@@ -34,7 +34,6 @@ public class DistributionMultiColumnRearranger {
         this.endingParaIndex = -1;
     }
 
-
     public void resetEndingParaIndex() {
         endingParaIndex = -1;
     }
@@ -43,7 +42,7 @@ public class DistributionMultiColumnRearranger {
         this.endingParaIndex = endingParaIndex;
     }
 
-    public void rearrangeFromCurrentColumnUntil(int endingParaIndex) throws Exception {
+    public void rearrangeFromCurrentColumnUntilEndingPara(int endingParaIndex) throws Exception {
         this.endingParaIndex = endingParaIndex;
         rearrangeFromCurrentColumn();
     }

@@ -21,10 +21,6 @@ public class TextFlowCalculationResult {
         }
     }
 
-    public void reset() {
-        textPartAreas.clear();
-    }
-
     public Area nextArea() {
         return textPartAreas.poll();
     }

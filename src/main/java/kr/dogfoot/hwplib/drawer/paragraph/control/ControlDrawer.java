@@ -132,7 +132,7 @@ public class ControlDrawer {
             }
         }
 
-        output2.calculateCellPosition();
+        output2.cellPosition().calculate();
 
         output.endTable();
         return output2;

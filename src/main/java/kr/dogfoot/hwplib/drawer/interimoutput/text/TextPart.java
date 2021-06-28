@@ -92,7 +92,6 @@ public class TextPart {
         this.spaceRate = spaceRate;
     }
 
-
     public long textWidthWithExceptingLastSpace() {
         long width = 0;
         int count = charInfos.size();

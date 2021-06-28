@@ -4,10 +4,10 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class CharInfoBuffer {
-    private final Map<Integer, Map<Integer, CharInfo>> map;
+    private final Map<Integer, Map<Integer, CharInfo>> charMap;
 
     public CharInfoBuffer() {
-        map = new TreeMap<>();
+        charMap = new TreeMap<>();
     }
 
     public CharInfo get(int paraIndex, int charIndex) {
@@ -15,11 +15,11 @@ public class CharInfoBuffer {
     }
 
     private Map<Integer, CharInfo> mapForPara(int paraIndex) {
-        if (map.containsKey(paraIndex)) {
-            return map.get(paraIndex);
+        if (charMap.containsKey(paraIndex)) {
+            return charMap.get(paraIndex);
         } else {
             Map<Integer, CharInfo> mapForPara = new TreeMap<>();
-            map.put(paraIndex, mapForPara);
+            charMap.put(paraIndex, mapForPara);
             return mapForPara;
         }
     }
@@ -34,17 +34,17 @@ public class CharInfoBuffer {
     }
 
     public void clearUntilPreviousPara() {
-        if (map.size() < 2) {
+        if (charMap.size() < 2) {
             return;
         }
 
-        Integer paraIndexList[] = map.keySet().toArray(new Integer[0]);
+        Integer paraIndexList[] = charMap.keySet().toArray(new Integer[0]);
         for (int index = 0; index < paraIndexList.length - 1; index++) {
-            map.remove(paraIndexList[index]);
+            charMap.remove(paraIndexList[index]);
         }
     }
 
     public void clear() {
-        map.clear();
+        charMap.clear();
     }
 }

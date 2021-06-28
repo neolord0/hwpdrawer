@@ -28,7 +28,7 @@ public class ParaDrawer {
 
     private final TextLineDrawer textLineDrawer;
     private final WordDrawer wordDrawer;
-    private final ParaDividingProcessor paraDividingProcessor;
+    private final DividingProcessor paraDividingProcessor;
 
     private boolean firstLine;
     private boolean cancelNewLine;
@@ -55,7 +55,7 @@ public class ParaDrawer {
         textLineDrawer = new TextLineDrawer(input, output);
         wordDrawer = new WordDrawer(input, output, this, textLineDrawer, textFlowCalculator);
 
-        paraDividingProcessor = new ParaDividingProcessor(input, output, this);
+        paraDividingProcessor = new DividingProcessor(input, output, this);
 
         currentTextPartArea = new Area();
         textFlowCalculationResult = null;
@@ -69,7 +69,7 @@ public class ParaDrawer {
         }
         resetForNewPara();
 
-        if (input.noText()) {
+        if (input.noChar()) {
             textLineDrawer.setEmptyLineHeight();
             checkNewColumnAndPage();
             saveTextLineAndNewLine();
@@ -285,10 +285,10 @@ public class ParaDrawer {
         if (input.columnsInfo().isParallelMultiColumn()) {
             int currentColumnIndex = input.columnsInfo().currentColumnIndex();
             input.nextPage();
-            input.gotoColumnIndex(currentColumnIndex);
+            input.gotoColumn(currentColumnIndex);
             resetForNewPage();
             output.nextPage(input);
-            output.gotoRow(0).gotoColumnIndex(currentColumnIndex);
+            output.gotoRow(0).gotoColumn(currentColumnIndex);
         } else {
             input.nextPage();
             resetForNewPage();
@@ -303,8 +303,8 @@ public class ParaDrawer {
         textFlowCalculator.resetForNewPage();
 
         if (output.hasControlMovedToNextPage()) {
-            for (InterimOutput.ControlInfo controlInfo : output.controlsMovedToNextPage()) {
-                textFlowCalculator.add(controlInfo.charInfo());
+            for (ControlCharInfo controlCharInfo : output.controlsMovedToNextPage()) {
+                textFlowCalculator.add(controlCharInfo);
             }
         }
     }
@@ -323,8 +323,7 @@ public class ParaDrawer {
             } else {
                 setColumnDefine(rowBottom + TextRow.Gsp);
             }
-       }
-        output.nextRow(input.columnsInfo());
+       }output.nextRow(input.columnsInfo());
 
         resetForNewColumn();
     }
@@ -333,17 +332,18 @@ public class ParaDrawer {
         return paraListDrawer.distributionMultiColumnRearranger();
     }
 
-    public void setSectionDefine() {
+    public ParaDrawer setSectionDefine() {
         input.nextChar();
         HWPChar firstChar = input.currentChar();
 
         if (firstChar.getType() == HWPCharType.ControlExtend &&
                 ((HWPCharControlExtend) firstChar).isSectionDefine()) {
-            input.sectionDefine((ControlSectionDefine) input.currentPara().getControlList().get(0));
+            input.pageInfo().sectionDefine((ControlSectionDefine) input.currentPara().getControlList().get(0));
             controlExtendCharIndex++;
         } else {
             input.previousChar(1);
         }
+        return this;
     }
 
     public void setColumnDefine(long startY) {
@@ -360,18 +360,13 @@ public class ParaDrawer {
     }
 
     public void gotoFirstColumn() {
-        while (input.columnsInfo().currentColumnIndex() > 0) {
-            input.previousColumn();
-        }
-        while (output.currentRow().currentColumnIndex() > 0) {
-            output.previousColumn();
-        }
+        input.gotoFirstColumn();
+        output.gotoFirstColumn();
     }
 
     public void gotoStartCharOfCurrentRow() {
-        input.columnsInfo().setWithPreviousInfo();
-        input.currentParaListInfo().setTextBoxAreaToColumnArea();
-        input.gotoFirstCharOfCurrentRow(output);
+        input.currentParaListInfo().setColumnInfoWithPreviousInfo();
+        input.gotoChar(output.currentRow().firstChar());
 
         output.currentRow().clear();
         gotoFirstColumn();
@@ -380,13 +375,14 @@ public class ParaDrawer {
 
     public void nextColumn() {
         if (input.columnsInfo().isParallelMultiColumn()) {
-            output.gotoStartingParallelMultiColumn(input.parallelMultiColumnInfo());
+            output.gotoPageAndRow(input.parallelMultiColumnInfo().startingPageNo(),
+                    input.parallelMultiColumnInfo().startingRowIndex());
             input.gotoPage(input.parallelMultiColumnInfo().startingPageNo());
 
             int currentColumnIndex = input.columnsInfo().currentColumnIndex();
             setColumnDefine(output.currentRow().area().top());
             input.columnsInfo().currentColumnIndex(currentColumnIndex);
-            output.currentRow().gotoColumnIndex(currentColumnIndex);
+            output.currentRow().gotoColumn(currentColumnIndex);
 
             input.nextColumn();
             output.nextColumn();
@@ -432,10 +428,10 @@ public class ParaDrawer {
 
             checkTextFlow();
 
-            if (textLineDrawer.noDrawingChar() && input.checkHidingEmptyLineAfterNewPage()) {
-                input.descendCountOfHidingEmptyLineAfterNewPage();
+            if (textLineDrawer.noDrawingChar() && input.pageInfo().checkHidingEmptyLineAfterNewPage()) {
+                input.pageInfo().descendCountOfHidingEmptyLineAfterNewPage();
             } else {
-                input.resetCountOfHidingEmptyLineAfterNewPage();
+                input.pageInfo().resetCountOfHidingEmptyLineAfterNewPage();
                 saveTextLine();
                 nextTextPartArea();
             }
@@ -446,7 +442,7 @@ public class ParaDrawer {
     }
 
     private void checkTextFlow() {
-        if (drawingState.isNormal() && !input.noText()) {
+        if (drawingState.isNormal() && !input.noChar()) {
             currentTextPartArea
                     .height(textLineDrawer.maxCharHeight());
 
@@ -465,7 +461,6 @@ public class ParaDrawer {
     }
 
     public void checkNewColumnAndPage() throws Exception {
-        System.out.println(input.columnsInfo().currentColumnArea().bottom() + " " + input.columnsInfo().textBoxArea().bottom());
         if (drawingState.isNormal()
                 && (isOverBottom(textLineDrawer.maxCharHeight())
                 || input.columnsInfo().isOverLimitedTextLineCount(output.textLineCount()))) {

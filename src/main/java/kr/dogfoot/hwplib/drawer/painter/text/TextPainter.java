@@ -37,7 +37,7 @@ public class TextPainter {
     }
 
     private void paintTextLine(TextLine line) throws Exception {
-        for (TextPart part : line) {
+        for (TextPart part : line.parts()) {
             paintTextPart(part);
         }
     }

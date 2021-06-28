@@ -91,6 +91,5 @@ public class FontManager {
         originalFontMap.clear();
         calculatingFontMap.clear();
         drawingFontMap.clear();
-
     }
 }

@@ -6,12 +6,12 @@ import kr.dogfoot.hwplib.drawer.interimoutput.Output;
 import kr.dogfoot.hwplib.drawer.interimoutput.control.GsoOutput;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.header.DivideSort;
 
-public class ParaDividingProcessor {
+public class DividingProcessor {
     private final DrawingInput input;
     private final InterimOutput output;
     private final ParaDrawer paraDrawer;
 
-    public ParaDividingProcessor(DrawingInput input, InterimOutput output, ParaDrawer paraDrawer) {
+    public DividingProcessor(DrawingInput input, InterimOutput output, ParaDrawer paraDrawer) {
         this.input = input;
         this.output = output;
         this.paraDrawer = paraDrawer;
@@ -19,7 +19,6 @@ public class ParaDividingProcessor {
 
     public void process() throws Exception {
         DivideSort divideSort = input.currentPara().getHeader().getDivideSort();
-
         if (divideSort.isDivideSection()) {
             onDividingSection();
         } else if (divideSort.isDivideMultiColumn()) {
@@ -32,15 +31,15 @@ public class ParaDividingProcessor {
     }
 
     private void onDividingSection() throws Exception {
-        paraDrawer.setSectionDefine();
+        paraDrawer
+                .setSectionDefine()
+                .setColumnDefine(input.pageInfo().bodyArea().top());
 
-        input.columnsInfo().set(null, input.pageInfo().bodyArea());
-        paraDrawer.setColumnDefine(input.pageInfo().bodyArea().top());
         input.nextPage();
         output.nextPage(input);
 
         if (input.columnsInfo().isParallelMultiColumn()) {
-            input.startParallelMultiColumn(output.currentPage().pageNo(), output.currentRowIndex());
+            input.parallelMultiColumnInfo().startParallelMultiColumn(output.currentPage().pageNo(), output.currentRowIndex());
         }
     }
 
@@ -51,7 +50,7 @@ public class ParaDividingProcessor {
             if (!distributionMultiColumnRearranger().testing()) {
                 if (input.isBodyText()) {
                     paraDrawer.gotoFirstColumn();
-                    distributionMultiColumnRearranger().rearrangeFromCurrentColumnUntil(input.paraIndex() - 1);
+                    distributionMultiColumnRearranger().rearrangeFromCurrentColumnUntilEndingPara(input.paraIndex() - 1);
                 } else {
                     if (output.currentRow().calculationCount() == 0) {
                         input.columnsInfo().textBoxArea().bottom(input.pageInfo().bodyArea().bottom());
@@ -59,7 +58,7 @@ public class ParaDividingProcessor {
                         output.currentRow().increaseCalculationCount();
                     } else {
                         paraDrawer.gotoFirstColumn();
-                        distributionMultiColumnRearranger().rearrangeFromCurrentColumnUntil(input.paraIndex() - 1);
+                        distributionMultiColumnRearranger().rearrangeFromCurrentColumnUntilEndingPara(input.paraIndex() - 1);
                     }
                 }
             } else {
@@ -68,21 +67,27 @@ public class ParaDividingProcessor {
             }
         } else {
             if (output.currentOutput().type() == Output.Type.Gso) {
-                GsoOutput gsoOutput = (GsoOutput) output.currentOutput();
-                gsoOutput.calculatedContentHeight(output.currentContent().height());
-                gsoOutput.applyCalculatedContentHeight();
-                input.columnsInfo().textBoxArea().bottom(gsoOutput.textBoxArea().height());
+                setCurrentRowBottomToContentHeight();
             }
+
             paraDrawer.nextRow();
 
             if (input.columnsInfo().isParallelMultiColumn()) {
-                input.startParallelMultiColumn(output.currentPage().pageNo(), output.currentRowIndex());
+                input.parallelMultiColumnInfo().startParallelMultiColumn(output.currentPage().pageNo(), output.currentRowIndex());
             }
 
             if (output.textLineCount() > 1) {
                 throw new BreakDrawingException().forDividingColumn();
             }
         }
+    }
+
+    private void setCurrentRowBottomToContentHeight() {
+        GsoOutput gsoOutput = (GsoOutput) output.currentOutput();
+        gsoOutput.calculatedContentHeight(output.currentContent().height());
+        gsoOutput.applyCalculatedContentHeight();
+
+        input.columnsInfo().textBoxArea().bottom(gsoOutput.textBoxArea().height());
     }
 
     private DistributionMultiColumnRearranger distributionMultiColumnRearranger() {
@@ -93,7 +98,7 @@ public class ParaDividingProcessor {
         if (input.columnsInfo().isDistributionMultiColumn()) {
             if (!output.hadRearrangedDistributionMultiColumn() && output.textLineCount() > 1) {
                 paraDrawer.gotoFirstColumn();
-                distributionMultiColumnRearranger().rearrangeFromCurrentColumnUntil(input.paraIndex() - 1);
+                distributionMultiColumnRearranger().rearrangeFromCurrentColumnUntilEndingPara(input.paraIndex() - 1);
             } else {
                 paraDrawer.nextPage();
             }

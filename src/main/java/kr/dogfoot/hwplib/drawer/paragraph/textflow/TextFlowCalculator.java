@@ -73,7 +73,6 @@ public class TextFlowCalculator {
         return new TextFlowCalculationResult(result, textLineArea);
     }
 
-
     public static class Result {
         private final Area[] dividedAreas;
         private long offsetY;

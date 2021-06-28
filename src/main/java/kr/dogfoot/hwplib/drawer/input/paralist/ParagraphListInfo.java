@@ -1,6 +1,8 @@
-package kr.dogfoot.hwplib.drawer.input;
+package kr.dogfoot.hwplib.drawer.input.paralist;
 
+import kr.dogfoot.hwplib.drawer.input.DrawingInput;
 import kr.dogfoot.hwplib.drawer.util.Area;
+import kr.dogfoot.hwplib.object.bodytext.control.ControlColumnDefine;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.Paragraph;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.charshape.CharPositionShapeIdPair;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPChar;
@@ -31,16 +33,12 @@ public class ParagraphListInfo {
     private int charShapeIndex;
     private CharShape charShape;
 
-    private ParallelMultiColumnInfo parallelMultiColumnInfo;
-
     public ParagraphListInfo(DrawingInput input, Paragraph[] paras) {
         this.input = input;
         columnsInfo = new ColumnsInfo(input.pageInfo());
 
         height = 0;
         paraArea = new Area();
-
-        parallelMultiColumnInfo = new ParallelMultiColumnInfo();
 
         this.paras = paras;
         this.paraIndex = 0;
@@ -243,15 +241,37 @@ public class ParagraphListInfo {
         }
     }
 
-    public ParallelMultiColumnInfo parallelMultiColumnInfo() {
-        return parallelMultiColumnInfo;
-    }
-
     public ColumnsInfo columnsInfo() {
         return columnsInfo;
     }
 
-    public void setTextBoxAreaToColumnArea() {
-        textBoxArea(columnsInfo().currentColumnArea());
+    public void setColumnInfoWithPreviousColumnDefine(Area textBoxArea) {
+        columnsInfo.setWithPreviousColumnDefine(textBoxArea);
+        textBoxArea(columnsInfo.currentColumnArea());
+    }
+
+    public void setColumnInfo(ControlColumnDefine columnDefine, Area textBoxArea) {
+        columnsInfo.set(columnDefine, textBoxArea);
+        textBoxArea(columnsInfo.currentColumnArea());
+    }
+
+    public void setColumnInfoWithPreviousInfo() {
+        columnsInfo.setWithPreviousInfo();
+        textBoxArea(columnsInfo.currentColumnArea());
+    }
+
+    public void nextColumn() {
+        columnsInfo.nextColumn();
+        textBoxArea(columnsInfo.currentColumnArea());
+    }
+
+    public void previousColumn() {
+        columnsInfo.previousColumn();
+        textBoxArea(columnsInfo.currentColumnArea());
+    }
+
+    public void gotoColumn(int columnIndex) {
+        columnsInfo.currentColumnIndex(columnIndex);
+        textBoxArea(columnsInfo.currentColumnArea());
     }
 }

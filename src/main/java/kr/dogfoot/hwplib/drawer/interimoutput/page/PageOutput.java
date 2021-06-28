@@ -1,6 +1,6 @@
 package kr.dogfoot.hwplib.drawer.interimoutput.page;
 
-import kr.dogfoot.hwplib.drawer.input.ColumnsInfo;
+import kr.dogfoot.hwplib.drawer.input.paralist.ColumnsInfo;
 import kr.dogfoot.hwplib.drawer.input.PageInfo;
 import kr.dogfoot.hwplib.drawer.interimoutput.Content;
 import kr.dogfoot.hwplib.drawer.interimoutput.Output;
@@ -60,6 +60,10 @@ public class PageOutput extends Output {
 
     public FooterOutput footerOutput() {
         return footerOutput;
+    }
+
+    public void gotoRow(int rowIndex) {
+        content.gotoRow(rowIndex);
     }
 
     @Override

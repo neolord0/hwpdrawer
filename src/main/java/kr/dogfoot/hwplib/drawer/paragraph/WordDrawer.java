@@ -212,6 +212,14 @@ public class WordDrawer {
         }
     }
 
+    public void stopAddingChar() {
+        wordSplitter.stopAddingChar(true);
+    }
+
+    public void continueAddingChar() {
+        wordSplitter.stopAddingChar(false);
+    }
+
     public String test() {
         StringBuilder sb = new StringBuilder();
         for (CharInfo charInfo : charsOfWord) {
@@ -252,13 +260,4 @@ public class WordDrawer {
         }
         return sb.toString();
     }
-
-    public void stopAddingChar() {
-        wordSplitter.stopAddingChar(true);
-    }
-
-    public void continueAddingChar() {
-        wordSplitter.stopAddingChar(false);
-    }
-
 }

@@ -19,6 +19,7 @@ public class PageInfo {
     private ControlFooter evenFooter;
     private ControlFooter oddFooter;
     private int pageNo;
+    private int countOfHidingEmptyLineAfterNewPage;
 
     public PageInfo() {
         pageNo = 0;
@@ -127,5 +128,25 @@ public class PageInfo {
 
     public boolean isHideEmptyLine() {
         return sectionDefine.getHeader().getProperty().isHideEmptyLine();
+    }
+
+    public void setCountOfHidingEmptyLineAfterNewPage() {
+        if (pageNo() > 1 && isHideEmptyLine()) {
+            countOfHidingEmptyLineAfterNewPage = 2;
+        } else {
+            countOfHidingEmptyLineAfterNewPage = 0;
+        }
+    }
+
+    public boolean checkHidingEmptyLineAfterNewPage() {
+        return countOfHidingEmptyLineAfterNewPage > 0;
+    }
+
+    public void descendCountOfHidingEmptyLineAfterNewPage() {
+        countOfHidingEmptyLineAfterNewPage--;
+    }
+
+    public void resetCountOfHidingEmptyLineAfterNewPage() {
+        countOfHidingEmptyLineAfterNewPage = 0;
     }
 }

@@ -101,8 +101,4 @@ public class TableOutput extends ControlOutput {
         return sb.toString();
 
     }
-
-    public void calculateCellPosition() {
-        cellPositionCalculator.calculate();
-    }
 }

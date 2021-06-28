@@ -1,8 +1,7 @@
 package kr.dogfoot.hwplib.drawer.interimoutput;
 
-import kr.dogfoot.hwplib.drawer.input.ColumnsInfo;
+import kr.dogfoot.hwplib.drawer.input.paralist.ColumnsInfo;
 import kr.dogfoot.hwplib.drawer.input.DrawingInput;
-import kr.dogfoot.hwplib.drawer.input.ParallelMultiColumnInfo;
 import kr.dogfoot.hwplib.drawer.interimoutput.control.ControlOutput;
 import kr.dogfoot.hwplib.drawer.interimoutput.control.GsoOutput;
 import kr.dogfoot.hwplib.drawer.interimoutput.control.table.CellOutput;
@@ -18,6 +17,7 @@ import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlTable;
 import kr.dogfoot.hwplib.object.bodytext.control.gso.GsoControl;
 import kr.dogfoot.hwplib.object.bodytext.control.table.Cell;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -41,19 +41,7 @@ public class InterimOutput {
         controlsMovedToNextPage = new ArrayList<>();
     }
 
-    public void addControlMovedToNextPage(ControlOutput output, ControlCharInfo charInfo) {
-        controlsMovedToNextPage.add(new ControlInfo(output, charInfo));
-    }
-
-    public boolean hasControlMovedToNextPage() {
-        return !controlsMovedToNextPage.isEmpty();
-    }
-
-    public ControlInfo[] controlsMovedToNextPage() {
-        return controlsMovedToNextPage.toArray(ControlInfo.Zero_Array);
-    }
-
-    public void nextPage(DrawingInput input) throws Exception {
+    public void nextPage(DrawingInput input) {
         stack.clear();
 
         currentPageNo++;
@@ -62,35 +50,38 @@ public class InterimOutput {
             page = new PageOutput(input.pageInfo(), input.columnsInfo());
             pageMap.put(currentPageNo, page);
 
-            if (!controlsMovedToNextPage.isEmpty()) {
-                for (ControlInfo controlInfo : controlsMovedToNextPage) {
-                    page.content().currentRow().currentColumn().addChildOutput(controlInfo.output);
-                }
-                controlsMovedToNextPage.clear();
-            }
+            addMovedControls(page);
         }
 
         stack.add(page);
     }
 
-
-    public void addEmptyPage(DrawingInput input) {
-        stack.clear();
-
-        currentPageNo++;
-        ColumnsInfo columnsInfo = new ColumnsInfo(input.pageInfo());
-        columnsInfo.set(null, input.pageInfo().bodyArea());
-        PageOutput page = new PageOutput(input.pageInfo(), columnsInfo);
-        pageMap.put(currentPageNo, page);
-
+    private void addMovedControls(PageOutput page) {
         if (!controlsMovedToNextPage.isEmpty()) {
             for (ControlInfo controlInfo : controlsMovedToNextPage) {
                 page.content().currentRow().currentColumn().addChildOutput(controlInfo.output);
             }
             controlsMovedToNextPage.clear();
         }
+    }
+
+    public void addEmptyPage(DrawingInput input) {
+        stack.clear();
+
+        currentPageNo++;
+        PageOutput page = new PageOutput(input.pageInfo(), defaultColumnsInfo(input));
+        pageMap.put(currentPageNo, page);
+
+        addMovedControls(page);
 
         stack.add(page);
+    }
+
+    @NotNull
+    private ColumnsInfo defaultColumnsInfo(DrawingInput input) {
+        ColumnsInfo columnsInfo = new ColumnsInfo(input.pageInfo());
+        columnsInfo.set(null, input.pageInfo().bodyArea());
+        return columnsInfo;
     }
 
     public PageOutput gotoPage(int pageNo) {
@@ -107,10 +98,6 @@ public class InterimOutput {
 
     public PageOutput currentPage() {
         return pageMap.get(currentPageNo);
-    }
-
-    public void clearPages() {
-        pageMap.clear();
     }
 
     public HeaderOutput startHeader() {
@@ -165,18 +152,12 @@ public class InterimOutput {
         stack.pop();
     }
 
-    public void setLastLineInPara() {
-        if (currentContent() != null) {
-            currentContent().currentRow().currentColumn().setLastLineInPara();
-        }
+    public Output currentOutput() {
+        return stack.peek();
     }
 
     public Content currentContent() {
         return currentOutput().content();
-    }
-
-    public Output currentOutput() {
-        return stack.peek();
     }
 
     public TextRow currentRow() {
@@ -185,6 +166,12 @@ public class InterimOutput {
 
     public TextColumn currentColumn() {
         return currentRow().currentColumn();
+    }
+
+    public void setLastLineInPara() {
+        if (currentContent() != null) {
+            currentColumn().setLastLineInPara();
+        }
     }
 
     public void addChildOutput(ControlOutput childOutput) {
@@ -254,6 +241,10 @@ public class InterimOutput {
         currentColumn().clear();
     }
 
+    public void gotoFirstColumn() {
+        currentRow().gotoColumn(0);
+    }
+
     public void nextRow(ColumnsInfo columnsInfo) {
         currentContent().nextRow(columnsInfo);
     }
@@ -274,14 +265,10 @@ public class InterimOutput {
     private void gotoLastPage() {
         PageOutput lastPage = lastPage();
         if (lastPage != null) {
-            gotoPage(lastPage);
+            stack.clear();
+            currentPageNo = lastPage.pageNo();
+            stack.add(lastPage);
         }
-    }
-
-    private void gotoPage(PageOutput lastPage) {
-        stack.clear();
-        currentPageNo = lastPage.pageNo();
-        stack.add(lastPage);
     }
 
     private PageOutput lastPage() {
@@ -292,6 +279,10 @@ public class InterimOutput {
         return null;
     }
 
+    public void gotoPageAndRow(int pageNo, int rowIndex) {
+        gotoPage(pageNo).gotoRow(rowIndex);
+    }
+
     public long rowHeight() {
         return currentContent().rowHeight();
     }
@@ -300,13 +291,24 @@ public class InterimOutput {
         return currentContent().rowBottom();
     }
 
-    public void gotoStartingParallelMultiColumn(ParallelMultiColumnInfo parallelMultiColumnInfo) {
-        gotoPage(parallelMultiColumnInfo.startingPageNo()).content().gotoRow(parallelMultiColumnInfo.startingRowIndex());
+    public void addControlMovedToNextPage(ControlOutput output, ControlCharInfo charInfo) {
+        controlsMovedToNextPage.add(new ControlInfo(output, charInfo));
     }
 
-    public static final class ControlInfo {
-        public static final ControlInfo[] Zero_Array = new ControlInfo[0];
+    public boolean hasControlMovedToNextPage() {
+        return !controlsMovedToNextPage.isEmpty();
+    }
 
+    public ControlCharInfo[] controlsMovedToNextPage() {
+        int count = controlsMovedToNextPage.size();
+        ControlCharInfo[] controls = new ControlCharInfo[count];
+        for (int index = 0; index < count; index++) {
+            controls[index] = controlsMovedToNextPage.get(index).charInfo;
+        }
+        return controls;
+    }
+
+    private static final class ControlInfo {
         private final ControlOutput output;
         private final ControlCharInfo charInfo;
 

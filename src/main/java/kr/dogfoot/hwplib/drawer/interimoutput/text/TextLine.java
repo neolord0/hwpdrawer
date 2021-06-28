@@ -9,10 +9,9 @@ import kr.dogfoot.hwplib.object.docinfo.parashape.Alignment;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class TextLine implements Iterable<TextPart> {
+public class TextLine {
     public static final TextLine[] Zero_Array = new TextLine[0];
 
-    private TextColumn column;
     private int index;
 
     private int paraIndex;
@@ -64,15 +63,6 @@ public class TextLine implements Iterable<TextPart> {
         return null;
     }
 
-    public TextColumn column() {
-        return column;
-    }
-
-    public TextLine column(TextColumn column) {
-        this.column = column;
-        return this;
-    }
-
     public int index() {
         return index;
     }
@@ -100,9 +90,8 @@ public class TextLine implements Iterable<TextPart> {
         return currentTextPart;
     }
 
-    @Override
-    public Iterator<TextPart> iterator() {
-        return parts.iterator();
+    public TextPart[] parts() {
+        return parts.toArray(TextPart.Zero_Array);
     }
 
     public Alignment alignment() {

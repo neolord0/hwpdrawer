@@ -163,7 +163,7 @@ public class Painter {
         for (TextRow row : content.rows()) {
             for (TextColumn column : row.columns()) {
                 controlPainter.paintControls(column.behindChildOutputs());
-                textPainter.paintTextLines(column.paintingTextLines());
+                textPainter.paintTextLines(column.textLines());
                 controlPainter.paintControls(column.nonBehindChildOutputs());
             }
         }

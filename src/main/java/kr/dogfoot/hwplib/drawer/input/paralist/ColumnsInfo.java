@@ -1,5 +1,6 @@
-package kr.dogfoot.hwplib.drawer.input;
+package kr.dogfoot.hwplib.drawer.input.paralist;
 
+import kr.dogfoot.hwplib.drawer.input.PageInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlColumnDefine;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.columndefine.ColumnInfo;
@@ -20,6 +21,8 @@ public class ColumnsInfo {
 
     private boolean processLikeDistributionMultiColumn;
 
+    private ParallelMultiColumnInfo parallelMultiColumnInfo;
+
     public ColumnsInfo(PageInfo pageInfo) {
         this.pageInfo = pageInfo;
         textBoxArea = new Area();
@@ -27,14 +30,16 @@ public class ColumnsInfo {
         areasFromLeft = new ArrayList<>();
         areasFromRight = new ArrayList<>();
         currentColumnIndex = 0;
+
+        parallelMultiColumnInfo = new ParallelMultiColumnInfo();
     }
 
     public void set(ControlColumnDefine columnDefine, Area textBoxArea) {
-        areasFromLeft.clear();
-        areasFromRight.clear();
-
         this.columnDefine = columnDefine;
         this.textBoxArea.set(textBoxArea);
+
+        areasFromLeft.clear();
+        areasFromRight.clear();
 
         currentColumnIndex = 0;
         limitedTextLineCounts = null;
@@ -60,10 +65,6 @@ public class ColumnsInfo {
     }
 
     public void setWithPreviousColumnDefine(Area textBoxArea) {
-        set(columnDefine, textBoxArea);
-    }
-
-    public void set(Area textBoxArea) {
         set(columnDefine, textBoxArea);
     }
 
@@ -223,7 +224,6 @@ public class ColumnsInfo {
         return false;
     }
 
-
     public int currentColumnIndex() {
         return currentColumnIndex;
     }
@@ -254,5 +254,9 @@ public class ColumnsInfo {
             return true;
         }
         return false;
+    }
+
+    public ParallelMultiColumnInfo parallelMultiColumnInfo() {
+        return parallelMultiColumnInfo;
     }
 }

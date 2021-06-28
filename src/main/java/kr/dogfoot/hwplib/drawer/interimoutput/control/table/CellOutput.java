@@ -46,10 +46,6 @@ public class CellOutput extends Output {
         return this;
     }
 
-    public Area textMargin() {
-        return textMargin;
-    }
-
     public Area textBoxArea() {
         if (textMargin == null) {
             return cellArea;

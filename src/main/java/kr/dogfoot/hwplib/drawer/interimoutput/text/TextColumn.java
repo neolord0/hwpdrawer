@@ -32,14 +32,12 @@ public class TextColumn {
         topLineIndexForHiding = -1;
     }
 
-
     public TextLine firstLine() {
         return textLines.get(0);
     }
 
     public void addTextLine(TextLine textLine) {
         textLine
-                .column(this)
                 .index(textLines.size());
         textLines.add(textLine);
     }
@@ -154,18 +152,6 @@ public class TextColumn {
                 nonBehindChildOutputs.remove(controlCharInfo.output());
             }
             result.addDeletedControl(controlCharInfo);
-        }
-    }
-
-    public TextLine[] paintingTextLines() {
-        if (topLineIndexForHiding == -1) {
-            return textLines();
-        } else {
-            TextLine[] arr = new TextLine[topLineIndexForHiding];
-            for (int index = 0; index < topLineIndexForHiding; index++) {
-                arr[index] = textLines.get(index);
-            }
-            return arr;
         }
     }
 
