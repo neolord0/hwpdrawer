@@ -52,7 +52,14 @@ public class Painter {
     }
 
     public Painter graphics2D(Graphics2D graphics2D) {
+        graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+        graphics2D.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
+        graphics2D.setRenderingHint(
+                RenderingHints.KEY_TEXT_ANTIALIASING,
+                RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+
         this.graphics2D = graphics2D;
+
         return this;
     }
 
