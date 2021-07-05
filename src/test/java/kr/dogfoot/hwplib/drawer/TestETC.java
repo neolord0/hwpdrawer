@@ -5,6 +5,8 @@ import kr.dogfoot.hwplib.reader.HWPReader;
 
 import org.junit.Test;
 
+import java.io.File;
+
 public class TestETC {
     @Test
     public void test_2() throws Exception {
@@ -13,7 +15,7 @@ public class TestETC {
 
     @Test
     public void test_3() throws Exception {
-        HWPTester.test("etc");
+        HWPTester.test("etc" + File.separator + "1");
     }
 
     /*
