@@ -32,7 +32,7 @@ public class HWPTester {
         boolean succuess = true;
         int pageNo;
         for (pageNo = 1; pageNo <= pageCount; pageNo++) {
-            String expectedPng = path + File.separator + "ok_page" + pageNo + ".png";
+            String expectedPng = path + File.separator + osname() + File.separator + "ok_page" + pageNo + ".png";
             String actualPng = path + File.separator + "page" + pageNo + ".png";
 
             BufferedImage expectedImage = ImageComparisonUtil.readImageFromResources(expectedPng);
@@ -52,6 +52,15 @@ public class HWPTester {
         Assert.assertTrue(succuess && !(new File(fakeExpectedPng).exists()));
     }
 
+    private static String osname() {
+        String os = System.getProperty("os.name").toLowerCase();
+        if (os.contains("win")) {
+            return "win";
+        } else if (os.contains("mac")) {
+            return "mac";
+        }
+        return "etc";
+    }
     public static void test(String path) throws Exception {
         long startTime = System.currentTimeMillis();
         HWPFile hwpFile = HWPReader.fromFile(path + "/test.hwp");
