@@ -6,7 +6,7 @@ import kr.dogfoot.hwplib.drawer.interimoutput.control.ControlOutput;
 import kr.dogfoot.hwplib.drawer.interimoutput.control.GsoOutput;
 import kr.dogfoot.hwplib.drawer.interimoutput.control.table.CellOutput;
 import kr.dogfoot.hwplib.drawer.interimoutput.control.table.TableOutput;
-import kr.dogfoot.hwplib.drawer.paragraph.ParagraphDrawer;
+import kr.dogfoot.hwplib.drawer.paragraph.ParaListDrawer;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlTable;
@@ -76,7 +76,7 @@ public class ControlDrawer {
                             textBox.getListHeader().getBottomMargin())
                     .verticalAlignment(textBox.getListHeader().getProperty().getTextVerticalAlignment());
 
-            long calculatedContentHeight = drawTextBox(textBox.getParagraphList(), output2.textArea().widthHeight());
+            long calculatedContentHeight = drawTextBox(textBox.getParagraphList(), output2.textBoxArea().widthHeight());
             output2.calculatedContentHeight(calculatedContentHeight);
         }
 
@@ -126,13 +126,13 @@ public class ControlDrawer {
     private TableOutput table(ControlTable table, Area controlArea) throws Exception {
         TableOutput output2 = output.startTable(table, controlArea);
 
-        for(Row row : table.getRowList()) {
+        for (Row row : table.getRowList()) {
             for (Cell cell : row.getCellList()) {
                 drawCell(cell, output2);
             }
         }
 
-        output2.calculateCellPosition();
+        output2.cellPosition().calculate();
 
         output.endTable();
         return output2;
@@ -149,7 +149,7 @@ public class ControlDrawer {
                             cell.getListHeader().getBottomMargin())
                     .verticalAlignment(cell.getListHeader().getProperty().getTextVerticalAlignment());
 
-            long calculatedContentHeight = drawTextBox(cell.getParagraphList(), output2.textArea());
+            long calculatedContentHeight = drawTextBox(cell.getParagraphList(), output2.textBoxArea());
             output2.calculatedContentHeight(calculatedContentHeight);
 
         }
@@ -157,14 +157,8 @@ public class ControlDrawer {
         output.endCell();
     }
 
-    private long drawTextBox(ParagraphList paragraphList, Area textArea) throws Exception {
-        input.startControlParaList(textArea, paragraphList.getParagraphs());
-
-        ParagraphDrawer paragraphDrawer = new ParagraphDrawer(input, output);
-        while (input.nextPara()) {
-            paragraphDrawer.draw(false);
-        }
-
-        return input.endControlParaList();
+    private long drawTextBox(ParagraphList paragraphList, Area textBoxArea) throws Exception {
+        ParaListDrawer paragraphListDrawer = new ParaListDrawer(input, output);
+        return paragraphListDrawer.drawForControl(paragraphList, textBoxArea);
     }
 }

@@ -1,8 +1,8 @@
 package kr.dogfoot.hwplib.drawer.interimoutput.page;
 
 import kr.dogfoot.hwplib.drawer.interimoutput.Content;
-import kr.dogfoot.hwplib.drawer.interimoutput.control.ControlOutput;
 import kr.dogfoot.hwplib.drawer.interimoutput.Output;
+import kr.dogfoot.hwplib.drawer.interimoutput.control.ControlOutput;
 import kr.dogfoot.hwplib.drawer.interimoutput.text.TextLine;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
@@ -18,7 +18,7 @@ public class FooterOutput extends Output {
         this.footerArea = footerArea;
         calculatedContentHeight = 0;
 
-        content = new Content();
+        content = new Content(footerArea);
     }
 
     public void calculatedContentHeight(long calculatedContentHeight) {
@@ -76,5 +76,4 @@ public class FooterOutput extends Output {
         sb.tab(tabCount).append("footer - }\n");
         return sb.toString();
     }
-
 }

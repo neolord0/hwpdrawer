@@ -1,112 +1,117 @@
 package kr.dogfoot.hwplib.drawer.interimoutput;
 
+import kr.dogfoot.hwplib.drawer.input.paralist.ColumnsInfo;
 import kr.dogfoot.hwplib.drawer.interimoutput.control.ControlOutput;
+import kr.dogfoot.hwplib.drawer.interimoutput.text.TextRow;
 import kr.dogfoot.hwplib.drawer.interimoutput.text.TextLine;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
-import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.TextFlowMethod;
 
 import java.util.ArrayList;
-import java.util.Set;
-import java.util.TreeSet;
 
 public class Content {
-    private final ArrayList<TextLine> textLines;
-    private final TreeSet<ControlOutput> behindChildOutputs;
-    private final TreeSet<ControlOutput> nonBehindChildOutputs;
+    private final ArrayList<TextRow> rows;
+    private int currentRowIndex;
 
-    public Content() {
-        textLines = new ArrayList<>();
-        behindChildOutputs = new TreeSet<>();
-        nonBehindChildOutputs = new TreeSet<>();
+    public Content(Area area) {
+        rows = new ArrayList<>();
+
+        TextRow multiColumn = new TextRow(area);
+        rows.add(multiColumn);
+
+        currentRowIndex = 0;
     }
 
-    public void addTextLine(TextLine line) {
-        textLines.add(line);
+    public Content(ColumnsInfo columnsInfo) {
+        rows = new ArrayList<>();
+
+        TextRow multiColumn = new TextRow(columnsInfo);
+        rows.add(multiColumn);
+
+        currentRowIndex = 0;
+    }
+
+    public void nextRow(ColumnsInfo columnsInfo) {
+        if (currentRow() != null && currentRow().empty()) {
+            deleteCurrentRow();
+        }
+
+        currentRowIndex++;
+        if (currentRowIndex >= rows.size()) {
+            TextRow multiColumn = new TextRow(columnsInfo);
+            rows.add(multiColumn);
+        }
+    }
+
+    private void deleteCurrentRow() {
+        rows.remove(currentRowIndex);
+        currentRowIndex--;
+    }
+
+    public int currentRowIndex() {
+        return currentRowIndex;
+    }
+
+    public TextRow gotoRow(int rowIndex) {
+        currentRowIndex = rowIndex;
+        return rows.get(rowIndex);
+    }
+
+    public void gotoLastRow() {
+        currentRowIndex = rows.size() - 1;
+    }
+
+    public TextRow[] rows() {
+        return rows.toArray(TextRow.Zero_Array);
+    }
+
+    public TextRow currentRow() {
+        return rows.get(currentRowIndex);
+    }
+
+    public ControlOutput[] behindChildOutputs() {
+        return currentRow().currentColumn().behindChildOutputs().toArray(ControlOutput.Zero_Array);
+    }
+
+    public ControlOutput[] nonBehindChildOutputs() {
+        return currentRow().currentColumn().nonBehindChildOutputs().toArray(ControlOutput.Zero_Array);
     }
 
     public TextLine[] textLines() {
-        return textLines.toArray(TextLine.Zero_Array);
+        return currentRow().currentColumn().textLines();
     }
 
-    public void setLastTextPartToLastLine() {
-        if (textLines.size() > 0) {
-            textLines.get(textLines.size() - 1).lastLine(true);
+    public long rowHeight() {
+        return currentRow().height();
+    }
+
+    public long rowBottom() {
+        return currentRow().bottom();
+    }
+
+    public int rowCount() {
+        return rows.size();
+    }
+
+    public long height() {
+        long height = 0;
+        for (TextRow row : rows) {
+            if (row.columnCount() > 0) {
+                height += row.height() + TextRow.Gsp;
+            }
         }
-    }
-
-    public void addChildOutput(ControlOutput childOutput) {
-        if (childOutput.textFlowMethod() == TextFlowMethod.BehindText) {
-            behindChildOutputs.add(childOutput);
-        } else {
-            nonBehindChildOutputs.add(childOutput);
-        }
-    }
-
-    public Set<ControlOutput> behindChildOutputs() {
-        return behindChildOutputs;
-    }
-
-    public Set<ControlOutput> nonBehindChildOutputs() {
-        return nonBehindChildOutputs;
+        height -= TextRow.Gsp;
+        return height;
     }
 
     public String test(int tabCount) {
         MyStringBuilder sb = new MyStringBuilder();
-        if (textLines.size() > 0) {
-            sb.tab(tabCount).append("textLines - {\n");
-            for (TextLine line : textLines) {
-                sb.append(line.test(tabCount + 1)).append("\n");
-            }
-            sb.tab(tabCount).append("textLines - }\n");
+        for (TextRow row : rows) {
+            sb.tab(tabCount).append("Row - {\n");
+            sb.append(row.test(tabCount + 1));
+            sb.tab(tabCount).append("Row - }\n");
         }
-
-        if (behindChildOutputs.size() > 0) {
-            sb.tab(tabCount).append("b-controls - {\n");
-            for (ControlOutput controlOutput : behindChildOutputs) {
-                sb.append(controlOutput.test(tabCount + 1));
-            }
-            sb.tab(tabCount).append("b-controls - }\n");
-        }
-
-        if (nonBehindChildOutputs.size() > 0) {
-            sb.tab(tabCount).append("n-controls - {\n");
-            for (ControlOutput controlOutput : nonBehindChildOutputs) {
-                sb.append(controlOutput.test(tabCount + 1));
-            }
-            sb.tab(tabCount).append("n-controls - }\n");
-        }
-
         return sb.toString();
-    }
-
-    public boolean checkRedrawingTextLine(Area area) {
-        for (TextLine textLine : textLines()) {
-            if (textLine.area().overlap(area)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public TextLine deleteRedrawingTextLine(Area area) {
-        TextLine firstTextLine = null;
-        boolean overlapped = false;
-        ArrayList<TextLine> deletings = new ArrayList<>();
-        for (TextLine textLine : textLines()) {
-            if (overlapped == false && textLine.area().overlap(area)) {
-                firstTextLine = textLine;
-                overlapped = true;
-            }
-            if (overlapped == true) {
-                deletings.add(textLine);
-            }
-        }
-
-        for (TextLine deleting : deletings) {
-            textLines.remove(deleting);
-        }
-        return firstTextLine;
     }
 }
 

@@ -40,7 +40,7 @@ public class TextPart {
     }
 
     public boolean lastLine() {
-        return textLine.lastLine();
+        return textLine.lastInPara();
     }
 
     public long maxCharHeight() {
@@ -70,7 +70,7 @@ public class TextPart {
         }
         if (charInfo.type() == CharInfo.Type.Normal
                 || (charInfo.type() == CharInfo.Type.Control && ((ControlCharInfo) charInfo).isLikeLetter())) {
-            textLine.hasDrawingCharacter(true);
+            textLine.hasDrawingChar(true);
         }
     }
 
@@ -91,7 +91,6 @@ public class TextPart {
     public void spaceRate(double spaceRate) {
         this.spaceRate = spaceRate;
     }
-
 
     public long textWidthWithExceptingLastSpace() {
         long width = 0;
@@ -150,7 +149,7 @@ public class TextPart {
 
             }
         }
-        sb.append(" }");
+        sb.append(" }(").append(Integer.toString(charInfos.size())).append(")");
         return sb.toString();
     }
 }

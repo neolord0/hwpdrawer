@@ -20,7 +20,6 @@ public class CharacterSizeGetter {
         graphics2DForCalculating = (Graphics2D) tempImage.getGraphics();
     }
 
-
     public double getCharWidth(String ch, CharShape charShape) {
         graphics2DForCalculating.setFont(FontManager.object().calculatingFont(charShape));
         return graphics2DForCalculating.getFontMetrics().stringWidth(ch);

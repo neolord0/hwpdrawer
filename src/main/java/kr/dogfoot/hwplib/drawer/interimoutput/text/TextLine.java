@@ -1,15 +1,18 @@
 package kr.dogfoot.hwplib.drawer.interimoutput.text;
 
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfo;
+import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
+import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
 import kr.dogfoot.hwplib.object.docinfo.parashape.Alignment;
-import kr.dogfoot.hwplib.drawer.util.Area;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class TextLine implements Iterable<TextPart> {
+public class TextLine {
     public static final TextLine[] Zero_Array = new TextLine[0];
+
+    private int index;
 
     private int paraIndex;
     private Area area;
@@ -19,8 +22,10 @@ public class TextLine implements Iterable<TextPart> {
 
     private Alignment alignment;
     private long maxCharHeight;
-    private boolean lastLine;
-    private boolean hasDrawingCharacter;
+    private boolean lastInPara;
+    private boolean hasDrawingChar;
+
+    private ArrayList<ControlCharInfo> controls;
 
     public TextLine(int paraIndex, Area area) {
         this.paraIndex = paraIndex;
@@ -31,23 +36,23 @@ public class TextLine implements Iterable<TextPart> {
 
         alignment = Alignment.Justify;
         maxCharHeight = -1;
-        lastLine = false;
-        hasDrawingCharacter = false;
+        lastInPara = false;
+        hasDrawingChar = false;
+
+        controls = new ArrayList<>();
+    }
+
+    public void clear() {
+        parts.clear();
+        currentTextPart = null;
+        controls.clear();
     }
 
     public int paraIndex() {
         return paraIndex;
     }
 
-    public int firstCharIndex() {
-        CharInfo firstCharInfo = firstCharInfo();
-        if (firstCharInfo != null) {
-            return firstCharInfo.index();
-        }
-        return -1;
-    }
-
-    private CharInfo firstCharInfo() {
+    public CharInfo firstChar() {
         if (parts.size() > 0) {
             for (TextPart part : parts) {
                 if (part.charInfos().size() > 0) {
@@ -58,12 +63,12 @@ public class TextLine implements Iterable<TextPart> {
         return null;
     }
 
-    public int firstCharPosition() {
-        CharInfo firstCharInfo = firstCharInfo();
-        if (firstCharInfo != null) {
-            return firstCharInfo.position();
-        }
-        return -1;
+    public int index() {
+        return index;
+    }
+
+    public void index(int index) {
+        this.index = index;
     }
 
     public Area area() {
@@ -85,9 +90,8 @@ public class TextLine implements Iterable<TextPart> {
         return currentTextPart;
     }
 
-    @Override
-    public Iterator<TextPart> iterator() {
-        return parts.iterator();
+    public TextPart[] parts() {
+        return parts.toArray(TextPart.Zero_Array);
     }
 
     public Alignment alignment() {
@@ -108,38 +112,47 @@ public class TextLine implements Iterable<TextPart> {
         return this;
     }
 
-    public boolean lastLine() {
-        return lastLine;
+    public boolean lastInPara() {
+        return lastInPara;
     }
 
-    public TextLine lastLine(boolean lastLine) {
-        this.lastLine = lastLine;
+    public TextLine lastInPara(boolean lastLine) {
+        this.lastInPara = lastLine;
         return this;
     }
 
-    public boolean hasDrawingCharacter() {
-        return hasDrawingCharacter;
+    public boolean hasDrawingChar() {
+        return hasDrawingChar;
     }
 
-    public TextLine hasDrawingCharacter(boolean hasDrawingCharacter) {
-        this.hasDrawingCharacter = hasDrawingCharacter;
+    public TextLine hasDrawingChar(boolean hasDrawingCharacter) {
+        this.hasDrawingChar = hasDrawingCharacter;
         return this;
+    }
+
+    public void addControlCharInfo(ControlCharInfo controlCharInfo) {
+        controls.add(controlCharInfo);
+    }
+
+    public ControlCharInfo[] controls() {
+        return controls.toArray(ControlCharInfo.Zero_Array);
     }
 
     public String test(int tabCount) {
         MyStringBuilder sb = new MyStringBuilder();
-        sb.append(String.valueOf(firstCharIndex())).append(" : ");
+        sb.tab(tabCount);
+        sb.append(area).append("-");
+        if (firstChar() != null) {
+            sb.append(String.valueOf(firstChar().paraIndex())).append(":").append(String.valueOf(firstChar().index())).append(" = ");
+        } else {
+            sb.append("-:- = ");
+        }
         if (parts.size() > 0) {
             for (TextPart part : parts) {
-                sb.append(part.test(tabCount)).append(", ");
+                sb.append(part.test(0)).append(", ");
             }
         }
         return sb.toString();
-    }
-
-    public void clear() {
-        parts.clear();
-        currentTextPart = null;
     }
 }
 

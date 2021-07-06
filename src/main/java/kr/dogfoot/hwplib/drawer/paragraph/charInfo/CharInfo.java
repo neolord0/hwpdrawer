@@ -62,6 +62,10 @@ public abstract class CharInfo {
         return this.paraIndex == that.paraIndex && this.index == that.index;
     }
 
+    public int prePosition() {
+        return position - character.getCharSize();
+    }
+
     public enum Type {
         Normal,
         Control

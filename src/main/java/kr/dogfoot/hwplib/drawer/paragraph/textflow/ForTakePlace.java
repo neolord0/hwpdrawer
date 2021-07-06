@@ -62,6 +62,17 @@ public class ForTakePlace {
         return new Result(yOffset, vertRelTo);
     }
 
+    public void delete(ControlCharInfo charInfo) {
+        charInfos.remove(charInfo);
+        updateTakePlaceAreas();
+    }
+
+    private void updateTakePlaceAreas() {
+        takePlaceAreas.clear();
+        for (ControlCharInfo charInfo : charInfos) {
+            addTakePlaceArea(charInfo.areaWithOuterMargin(), charInfo.header().getProperty().getVertRelTo());
+        }
+    }
 
     private static class TakePlaceArea implements Comparable<TakePlaceArea> {
         long top;

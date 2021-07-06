@@ -13,31 +13,36 @@ public class FontLoader {
         return singleObject;
     }
 
-    private final Map<String, String> fontPathMap;
+    private String fontPath;
+    private final Map<String, String> fontFilenameMap;
 
     private FontLoader() {
-        fontPathMap = new HashMap<>();
+        fontFilenameMap = new HashMap<>();
         initialize();
     }
 
+    public void fontPath(String fontPath) {
+        this.fontPath = fontPath;
+    }
+
     private void initialize() {
-        addFontPath("맑은 고딕", "font" + File.separator + "malgun.ttf");
-        addFontPath("바탕", "font" + File.separator + "batang.ttc");
-        addFontPath("나눔고딕", "font" + File.separator + "NanumGothic.ttf");
-        addFontPath("HY헤드라인M", "font" + File.separator + "hy헤드라인m.ttf");
-        addFontPath("휴먼명조", "font" + File.separator + "휴먼명조.ttf");
-        addFontPath("휴먼고딕", "font" + File.separator + "휴먼고딕.TTF");
-        addFontPath("함초롬바탕", "font" + File.separator + "HANBatang.ttf");
-        addFontPath("함초롬돋움", "font" + File.separator + "HANDotum.ttf");
+        addFontFilename("맑은 고딕", "malgun.ttf");
+        addFontFilename("바탕", "batang.ttc");
+        addFontFilename("나눔고딕", "NanumGothic.ttf");
+        addFontFilename("HY헤드라인M", "hy헤드라인m.ttf");
+        addFontFilename("휴먼명조", "휴먼명조.ttf");
+        addFontFilename("휴먼고딕", "휴먼고딕.TTF");
+        addFontFilename("함초롬바탕", "HANBatang.ttf");
+        addFontFilename("함초롬돋움", "HANDotum.ttf");
     }
 
     public Font load(String fontName) {
-        String fontPath = fontPathMap.get(fontName);
-        if (fontPath != null) {
+        String path = fontPath + File.separator + fontFilenameMap.get(fontName);
+        if (path != null) {
             Font font;
             try {
                 font = Font.createFont(Font.TRUETYPE_FONT,
-                        new FileInputStream(fontPath));
+                        new FileInputStream(path));
             } catch (Exception e) {
                 e.printStackTrace();
                 return null;
@@ -47,8 +52,8 @@ public class FontLoader {
         return null;
     }
 
-    public FontLoader addFontPath(String name, String path) {
-        fontPathMap.put(name, path);
+    public FontLoader addFontFilename(String name, String filename) {
+        fontFilenameMap.put(name, filename);
         return this;
     }
 }

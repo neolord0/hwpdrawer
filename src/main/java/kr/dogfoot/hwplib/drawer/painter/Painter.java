@@ -3,6 +3,8 @@ package kr.dogfoot.hwplib.drawer.painter;
 import kr.dogfoot.hwplib.drawer.DrawingOption;
 import kr.dogfoot.hwplib.drawer.input.DrawingInput;
 import kr.dogfoot.hwplib.drawer.interimoutput.Content;
+import kr.dogfoot.hwplib.drawer.interimoutput.text.TextColumn;
+import kr.dogfoot.hwplib.drawer.interimoutput.text.TextRow;
 import kr.dogfoot.hwplib.drawer.painter.background.BackgroundPainter;
 import kr.dogfoot.hwplib.drawer.painter.control.ControlPainter;
 import kr.dogfoot.hwplib.drawer.painter.text.TextPainter;
@@ -34,10 +36,10 @@ public class Painter {
     private final BackgroundPainter backgroundPainter;
 
     public Painter(DrawingInput input) {
-        controlPainter = new ControlPainter(input,this);
+        controlPainter = new ControlPainter(input, this);
 
         textPainter = new TextPainter(this);
-        backgroundPainter = new BackgroundPainter(input,this);
+        backgroundPainter = new BackgroundPainter(input, this);
     }
 
 
@@ -50,7 +52,14 @@ public class Painter {
     }
 
     public Painter graphics2D(Graphics2D graphics2D) {
+        graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+        graphics2D.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
+        graphics2D.setRenderingHint(
+                RenderingHints.KEY_TEXT_ANTIALIASING,
+                RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+
         this.graphics2D = graphics2D;
+
         return this;
     }
 
@@ -103,6 +112,7 @@ public class Painter {
         graphics2D.setColor(Convertor.color(color));
         return this;
     }
+
     public Painter setLineStyle(LineType type, int thickness, Color4Byte color) {
         graphics2D.setStroke(Convertor.stroke(type, thickness));
 
@@ -157,9 +167,13 @@ public class Painter {
     }
 
     public void paintContent(Content content) throws Exception {
-        controlPainter.paintControls(content.behindChildOutputs());
-        textPainter.paintTextLines(content.textLines());
-        controlPainter.paintControls(content.nonBehindChildOutputs());
+        for (TextRow row : content.rows()) {
+            for (TextColumn column : row.columns()) {
+                controlPainter.paintControls(column.behindChildOutputs());
+                textPainter.paintTextLines(column.textLines());
+                controlPainter.paintControls(column.nonBehindChildOutputs());
+            }
+        }
     }
 
     public Painter cellBorder(Area cellArea, BorderFill borderFill) {
@@ -194,7 +208,6 @@ public class Painter {
                     bottomBorder.getColor());
             line(cellArea.left(), cellArea.bottom(), cellArea.right(), cellArea.bottom());
         }
-
         return this;
     }
 }

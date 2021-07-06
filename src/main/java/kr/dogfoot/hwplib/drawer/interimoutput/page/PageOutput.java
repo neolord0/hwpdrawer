@@ -1,5 +1,6 @@
 package kr.dogfoot.hwplib.drawer.interimoutput.page;
 
+import kr.dogfoot.hwplib.drawer.input.paralist.ColumnsInfo;
 import kr.dogfoot.hwplib.drawer.input.PageInfo;
 import kr.dogfoot.hwplib.drawer.interimoutput.Content;
 import kr.dogfoot.hwplib.drawer.interimoutput.Output;
@@ -7,9 +8,10 @@ import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
 
 public class PageOutput extends Output {
+    public final static PageOutput[] Zero_Array = new PageOutput[0];
+
     private final int pageNo;
     private final Area paperArea;
-    private final Area[] columnAreas;
 
     private final Area headerArea;
     private final Area footerArea;
@@ -18,14 +20,13 @@ public class PageOutput extends Output {
     private HeaderOutput headerOutput;
     private FooterOutput footerOutput;
 
-    public PageOutput(PageInfo pageInfo) {
+    public PageOutput(PageInfo pageInfo, ColumnsInfo columnsInfo) {
         pageNo = pageInfo.pageNo();
         paperArea = pageInfo.paperArea();
-        columnAreas = pageInfo.columnAreas();
         headerArea = pageInfo.headerArea();
         footerArea = pageInfo.footerArea();
 
-        content = new Content();
+        content = new Content(columnsInfo);
         headerOutput = null;
         footerOutput = null;
     }
@@ -36,10 +37,6 @@ public class PageOutput extends Output {
 
     public Area paperArea() {
         return paperArea;
-    }
-
-    public Area[] columnAreas() {
-        return columnAreas;
     }
 
     @Override
@@ -65,6 +62,10 @@ public class PageOutput extends Output {
         return footerOutput;
     }
 
+    public void gotoRow(int rowIndex) {
+        content.gotoRow(rowIndex);
+    }
+
     @Override
     public Type type() {
         return Type.Page;
@@ -73,7 +74,7 @@ public class PageOutput extends Output {
     @Override
     public String test(int tabCount) {
         MyStringBuilder sb = new MyStringBuilder();
-        sb.tab(tabCount).append("page - {\n");
+        sb.tab(tabCount).append("page ").append(Integer.toString(pageNo)).append(" - {\n");
         if (headerOutput != null) {
             sb.append(headerOutput.test(tabCount + 1));
         }

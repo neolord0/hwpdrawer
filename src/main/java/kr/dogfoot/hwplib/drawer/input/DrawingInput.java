@@ -1,12 +1,14 @@
 package kr.dogfoot.hwplib.drawer.input;
 
+import kr.dogfoot.hwplib.drawer.input.paralist.ColumnsInfo;
+import kr.dogfoot.hwplib.drawer.input.paralist.ParagraphListInfo;
+import kr.dogfoot.hwplib.drawer.input.paralist.ParallelMultiColumnInfo;
+import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.HWPFile;
 import kr.dogfoot.hwplib.object.bindata.EmbeddedBinaryData;
 import kr.dogfoot.hwplib.object.bodytext.Section;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlColumnDefine;
-import kr.dogfoot.hwplib.object.bodytext.control.ControlSectionDefine;
-import kr.dogfoot.hwplib.object.bodytext.control.ControlType;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.Paragraph;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPChar;
 import kr.dogfoot.hwplib.object.docinfo.BinData;
@@ -29,7 +31,6 @@ public class DrawingInput {
 
     private Section section;
     private final PageInfo pageInfo;
-    private int countOfHidingEmptyLineAfterNewPage;
 
     private ParagraphListInfo bodyTextParaListInfo;
     private final Stack<ParagraphListInfo> paraListInfoStack;
@@ -71,7 +72,7 @@ public class DrawingInput {
                 image = ImageIO.read(is);
                 imageMap.put(binData.getBinDataID(), image);
             } catch (IOException e) {
-                 e.printStackTrace();
+                e.printStackTrace();
                 image = null;
             }
 
@@ -82,7 +83,7 @@ public class DrawingInput {
 
     private EmbeddedBinaryData embeddedBinaryData(int binDataID) {
         String name = "BIN" + String.format("%04X", binDataID);
-        for (EmbeddedBinaryData embeddedBinaryData  : hwpFile.getBinData().getEmbeddedBinaryDataList()) {
+        for (EmbeddedBinaryData embeddedBinaryData : hwpFile.getBinData().getEmbeddedBinaryDataList()) {
             if (embeddedBinaryData.getName().startsWith(name)) {
                 return embeddedBinaryData;
             }
@@ -94,73 +95,64 @@ public class DrawingInput {
         return section;
     }
 
-    public DrawingInput section(Section section) throws Exception {
+    public DrawingInput section(Section section) {
         this.section = section;
-        setSectionColumnDefine();
         return this;
-    }
-
-    private void setSectionColumnDefine() throws Exception {
-        Paragraph firstPara = section.getParagraph(0);
-        if (firstPara == null) {
-            throw new Exception("섹션에는 하나 이상의 문단이 있어야 함.");
-        } else {
-            if (firstPara.getControlList() == null ||
-                    firstPara.getControlList().get(0) == null ||
-                    firstPara.getControlList().get(0).getType() != ControlType.SectionDefine) {
-                throw new Exception("섹션의 첫 문단의 첫번째 컨트롤은 섹션 정의 컨트롤이어야 함.");
-            }
-        }
-        pageInfo.sectionDefine((ControlSectionDefine) firstPara.getControlList().get(0));
-        pageInfo.columnDefine((ControlColumnDefine) firstPara.getControlList().get(1));
     }
 
     public PageInfo pageInfo() {
         return pageInfo;
     }
 
-    public void newPage() {
-        pageInfo
-                .resetColumn()
-                .increasePageNo();
+    public void nextPage() {
+        pageInfo.increasePageNo();
 
+        pageInfo.setCountOfHidingEmptyLineAfterNewPage();
 
-        if (pageInfo.pageNo() > 1 && pageInfo.isHideEmptyLine()) {
-            countOfHidingEmptyLineAfterNewPage = 2;
+        if (bodyTextParaListInfo != null) {
+            bodyTextParaListInfo.setColumnInfoWithPreviousColumnDefine(new Area(pageInfo.bodyArea()));
         } else {
-            countOfHidingEmptyLineAfterNewPage = 0;
+            currentParaListInfo().columnsInfo().reset();
         }
-
-        bodyTextParaListInfo.bodyArea(pageInfo.columnArea());
-        /*
-        if (bodyTextParaListInfo.currentPara() != null) {
-            bodyTextParaListInfo.resetParaStartY();
-        }
-
-         */
     }
 
-    public void newColumn() {
-        pageInfo.nextColumn();
-        currentParaListInfo().bodyArea(pageInfo.columnArea());
+    public void gotoPage(int pageNo) {
+        pageInfo.pageNo(pageNo);
     }
 
-    public boolean checkHidingEmptyLineAfterNewPage() {
-        return countOfHidingEmptyLineAfterNewPage > 0;
+    public ColumnsInfo columnsInfo() {
+        return currentParaListInfo().columnsInfo();
     }
 
-    public void descendCountOfHidingEmptyLineAfterNewPage() {
-        countOfHidingEmptyLineAfterNewPage--;
+    public void newRow(ControlColumnDefine columnDefine, long startY) {
+        currentParaListInfo()
+                .setColumnInfo(columnDefine, new Area(currentParaListInfo().columnsInfo().textBoxArea()).top(startY));
     }
 
-    public void resetCountOfHidingEmptyLineAfterNewPage() {
-        countOfHidingEmptyLineAfterNewPage = 0;
+    public void newRowWithPreviousColumnDefine(long startY) {
+        currentParaListInfo()
+                .setColumnInfoWithPreviousColumnDefine(new Area(currentParaListInfo().columnsInfo().textBoxArea()).top(startY));
+    }
+
+    public void nextColumn() {
+        currentParaListInfo().nextColumn();
+    }
+
+    public void previousColumn() {
+        currentParaListInfo().previousColumn();
+    }
+
+    public void gotoColumn(int columnIndex) {
+        currentParaListInfo().gotoColumn(columnIndex);
+    }
+
+    public void gotoFirstColumn() {
+        gotoColumn(0);
     }
 
     public DrawingInput startBodyTextParaList(Paragraph[] paras) {
-        ParagraphListInfo paragraphListInfo = new ParagraphListInfo(this)
-                .bodyText(true)
-                .paras(paras);
+        ParagraphListInfo paragraphListInfo = new ParagraphListInfo(this, paras)
+                .forBodyText();
         paraListInfoStack.push(paragraphListInfo);
 
         bodyTextParaListInfo = paragraphListInfo;
@@ -172,10 +164,9 @@ public class DrawingInput {
         bodyTextParaListInfo = null;
     }
 
-    public void startControlParaList(Area textArea, Paragraph[] paras) {
-        ParagraphListInfo paraListInfo = new ParagraphListInfo(this, textArea)
-                .bodyText(false)
-                .paras(paras);
+    public void startControlParaList(Area textBoxArea, Paragraph[] paras) {
+        ParagraphListInfo paraListInfo = new ParagraphListInfo(this, paras)
+                .forControl(textBoxArea);
         paraListInfoStack.push(paraListInfo);
     }
 
@@ -220,7 +211,7 @@ public class DrawingInput {
         return currentParaListInfo().paraShape();
     }
 
-    public boolean noText() {
+    public boolean noChar() {
         return currentPara().getText() == null || currentPara().getText().getCharList().size() == 0;
     }
 
@@ -232,9 +223,9 @@ public class DrawingInput {
         return currentParaListInfo().currentChar();
     }
 
-    public boolean beforeChar(int count) {
+    public boolean previousChar(int count) {
         for (int index = 0; index < count; index++) {
-            if (!currentParaListInfo().beforeChar()) {
+            if (!currentParaListInfo().previousChar()) {
                 return false;
             }
         }
@@ -253,12 +244,22 @@ public class DrawingInput {
         return currentParaListInfo().charShape();
     }
 
-    public void gotoCharPosition(int lineFirstCharIndex, int lineFirstCharPosition) {
-        currentParaListInfo().gotoChar(lineFirstCharIndex, lineFirstCharPosition);
+    public void gotoCharInPara(CharInfo charInfo) {
+        currentParaListInfo().gotoChar(charInfo.index(), charInfo.prePosition());
+    }
+
+    public void gotoChar(CharInfo charInfo) {
+        currentParaListInfo().gotoPara(charInfo.paraIndex());
+        currentParaListInfo().gotoChar(charInfo.index(), charInfo.prePosition());
     }
 
     public void gotoParaCharPosition(int paragraphIndex, int characterIndex, int characterPosition) {
         currentParaListInfo().gotoPara(paragraphIndex);
         currentParaListInfo().gotoChar(characterIndex, characterPosition);
     }
+
+    public ParallelMultiColumnInfo parallelMultiColumnInfo() {
+        return columnsInfo().parallelMultiColumnInfo();
+    }
+
 }

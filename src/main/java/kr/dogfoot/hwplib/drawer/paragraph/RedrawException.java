@@ -24,7 +24,7 @@ public class RedrawException extends Exception {
     public int charPosition() {
         return charPosition;
     }
-    
+
     public long startY() {
         return startY;
     }

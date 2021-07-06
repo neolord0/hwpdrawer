@@ -17,18 +17,18 @@ public class ParagraphTest {
     }
 
     @Test
-    public void test_문단모양_줄나눔() throws Exception {
-        HWPTester.testAndCompare("testingHWP" + File.separator + "문단모양" + File.separator + "줄나눔");
+    public void test_문단모양_줄나눔1() throws Exception {
+        HWPTester.testAndCompare("testingHWP" + File.separator + "문단모양" + File.separator + "줄나눔" + File.separator + "1");
     }
 
     @Test
     public void test_문단모양_줄나눔2() throws Exception {
-        HWPTester.testAndCompare("testingHWP" + File.separator + "문단모양" + File.separator + "줄나눔2");
+        HWPTester.testAndCompare("testingHWP" + File.separator + "문단모양" + File.separator + "줄나눔" + File.separator + "2");
     }
 
     @Test
     public void test_문단모양_줄나눔3() throws Exception {
-        HWPTester.testAndCompare("testingHWP" + File.separator + "문단모양" + File.separator + "줄나눔3");
+        HWPTester.testAndCompare("testingHWP" + File.separator + "문단모양" + File.separator + "줄나눔" + File.separator + "3");
     }
 
     @Test
@@ -37,22 +37,22 @@ public class ParagraphTest {
     }
 
     @Test
-    public void test_문단모양_가로정렬() throws Exception {
-        HWPTester.testAndCompare("testingHWP" + File.separator + "문단모양" + File.separator + "가로정렬");
+    public void test_문단모양_가로정렬() throws Exception {
+        HWPTester.testAndCompare("testingHWP" + File.separator + "문단모양" + File.separator + "가로정렬");
     }
 
     @Test
-    public void test_문단모양_왼쪽오른쪽여백() throws Exception {
-        HWPTester.testAndCompare("testingHWP" + File.separator + "문단모양" + File.separator + "왼쪽오른쪽여백");
+    public void test_문단모양_왼쪽오른쪽여백() throws Exception {
+        HWPTester.testAndCompare("testingHWP" + File.separator + "문단모양" + File.separator + "왼쪽오른쪽여백");
     }
 
     @Test
-    public void test_문단모양_들여쓰기내어쓰기1() throws Exception {
-        HWPTester.testAndCompare("testingHWP" + File.separator + "문단모양" + File.separator + "들여쓰기내어쓰기1");
+    public void test_문단모양_들여쓰기내어쓰기1() throws Exception {
+        HWPTester.testAndCompare("testingHWP" + File.separator + "문단모양" + File.separator + "들여쓰기내어쓰기" + File.separator + "1");
     }
 
     @Test
-    public void test_문단모양_들여쓰기내어쓰기2() throws Exception {
-        HWPTester.testAndCompare("testingHWP" + File.separator + "문단모양" + File.separator + "들여쓰기내어쓰기2");
+    public void test_문단모양_들여쓰기내어쓰기2() throws Exception {
+        HWPTester.testAndCompare("testingHWP" + File.separator + "문단모양" + File.separator + "들여쓰기내어쓰기" + File.separator + "2");
     }
 }

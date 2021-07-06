@@ -40,7 +40,7 @@ public class TablePainter {
                         lh.getRightMargin(),
                         lh.getBottomMargin());
                 cellOutput
-                        .adjustTextAreaAndVerticalAlignment(cellArea, textArea);
+                        .adjustTextBoxAreaAndVerticalAlignment(cellArea, textArea);
 
                 painter.paintContent(cellOutput.content());
             }

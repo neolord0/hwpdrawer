@@ -11,7 +11,7 @@ import java.io.UnsupportedEncodingException;
 public class NormalCharInfo extends CharInfo {
     private double width;
 
-    public NormalCharInfo(HWPChar character, CharShape charShape, int paraIndex,  int index, int position) {
+    public NormalCharInfo(HWPChar character, CharShape charShape, int paraIndex, int index, int position) {
         super(character, charShape, paraIndex, index, position);
     }
 

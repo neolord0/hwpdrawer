@@ -24,6 +24,9 @@ public class Area implements Comparable<Area> {
         this.bottom = other.bottom;
     }
 
+    public Area() {
+    }
+
     public long left() {
         return left;
     }
@@ -167,18 +170,19 @@ public class Area implements Comparable<Area> {
             return -1;
     }
 
-    public void set(Area other) {
+    public Area set(Area other) {
         left = other.left;
         top = other.top;
         right = other.right;
         bottom = other.bottom;
+        return this;
     }
 
     public boolean overlap(Area other) {
         boolean xOverlap = valueInRange(left, other.left, other.right)
                 || valueInRange(other.left, left, right);
         boolean yOverlap = valueInRange(top, other.top, other.bottom)
-                || valueInRange(other.top(), top,  bottom);
+                || valueInRange(other.top(), top, bottom);
         return xOverlap && yOverlap;
     }
 

@@ -58,18 +58,19 @@ public class GsoPainter {
     }
 
     public void rectangle(GsoOutput gsoOutput) throws Exception {
-        ControlRectangle rectangle = (ControlRectangle) gsoOutput.gso();
-        painter.backgroundPainter().paint(((ShapeComponentNormal)(rectangle.getShapeComponent())).getFillInfo(), gsoOutput.controlArea());
+        gsoOutput.applyCalculatedContentHeight();
 
-        boolean drawLine = setBorderLine(((ShapeComponentNormal)(rectangle.getShapeComponent())).getLineInfo());
+        ControlRectangle rectangle = (ControlRectangle) gsoOutput.gso();
+        painter.backgroundPainter().paint(((ShapeComponentNormal) (rectangle.getShapeComponent())).getFillInfo(), gsoOutput.controlArea());
+
+        boolean drawLine = setBorderLine(((ShapeComponentNormal) (rectangle.getShapeComponent())).getLineInfo());
 
         if (drawLine) {
             painter.rectangle(gsoOutput.controlArea(), false);
         }
 
-        gsoOutput.adjustTextAreaAndVerticalAlignment();
+        gsoOutput.adjustTextBoxAreaAndVerticalAlignment();
         painter.paintContent(gsoOutput.content());
-
     }
 
     public void ellipse(GsoOutput gsoOutput) {

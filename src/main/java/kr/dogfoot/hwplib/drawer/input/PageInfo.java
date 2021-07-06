@@ -1,7 +1,7 @@
 package kr.dogfoot.hwplib.drawer.input;
 
+import kr.dogfoot.hwplib.drawer.interimoutput.page.PageOutput;
 import kr.dogfoot.hwplib.drawer.util.Area;
-import kr.dogfoot.hwplib.object.bodytext.control.ControlColumnDefine;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlFooter;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlHeader;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlSectionDefine;
@@ -14,17 +14,14 @@ public class PageInfo {
     private Area footerArea;
     private Area bodyArea;
 
-    private ColumnsInfo columnsInfo;
-
     private ControlHeader evenHeader;
     private ControlHeader oddHeader;
     private ControlFooter evenFooter;
     private ControlFooter oddFooter;
     private int pageNo;
+    private int countOfHidingEmptyLineAfterNewPage;
 
     public PageInfo() {
-        columnsInfo = new ColumnsInfo(this);
-
         pageNo = 0;
     }
 
@@ -63,10 +60,6 @@ public class PageInfo {
                 .top(paperArea.bottom() - pageDef.getBottomMargin() - pageDef.getFooterMargin());
     }
 
-    public void columnDefine(ControlColumnDefine columnDefine) {
-        columnsInfo.columnDefine(columnDefine);
-    }
-
     public Area paperArea() {
         return paperArea;
     }
@@ -74,28 +67,6 @@ public class PageInfo {
     public Area bodyArea() {
         return bodyArea;
     }
-
-    public Area[] columnAreas() {
-        return columnsInfo.columnAreas();
-    }
-
-    public Area columnArea() {
-        return columnsInfo.columnArea();
-    }
-
-    public boolean lastColumn() {
-        return columnsInfo.lastColumn();
-    }
-
-    public void nextColumn() {
-        columnsInfo.nextColumn();
-    }
-
-    public PageInfo resetColumn() {
-        columnsInfo.resetColumn();
-        return this;
-    }
-
 
     public Area headerArea() {
         return headerArea;
@@ -129,15 +100,15 @@ public class PageInfo {
         evenFooter = oddFooter = bothFooter;
     }
 
-    public ControlHeader header() {
-        if (pageNo % 2 == 0) {
+    public ControlHeader header(PageOutput pageOutput) {
+        if (pageOutput.pageNo() % 2 == 0) {
             return evenHeader;
         }
         return oddHeader;
     }
 
-    public ControlFooter footer() {
-        if (pageNo % 2 == 0) {
+    public ControlFooter footer(PageOutput pageOutput) {
+        if (pageOutput.pageNo() % 2 == 0) {
             return evenFooter;
         }
         return oddFooter;
@@ -147,11 +118,35 @@ public class PageInfo {
         return pageNo;
     }
 
+    public void pageNo(int pageNo) {
+        this.pageNo = pageNo;
+    }
+
     public void increasePageNo() {
         pageNo++;
     }
 
     public boolean isHideEmptyLine() {
         return sectionDefine.getHeader().getProperty().isHideEmptyLine();
+    }
+
+    public void setCountOfHidingEmptyLineAfterNewPage() {
+        if (pageNo() > 1 && isHideEmptyLine()) {
+            countOfHidingEmptyLineAfterNewPage = 2;
+        } else {
+            countOfHidingEmptyLineAfterNewPage = 0;
+        }
+    }
+
+    public boolean checkHidingEmptyLineAfterNewPage() {
+        return countOfHidingEmptyLineAfterNewPage > 0;
+    }
+
+    public void descendCountOfHidingEmptyLineAfterNewPage() {
+        countOfHidingEmptyLineAfterNewPage--;
+    }
+
+    public void resetCountOfHidingEmptyLineAfterNewPage() {
+        countOfHidingEmptyLineAfterNewPage = 0;
     }
 }

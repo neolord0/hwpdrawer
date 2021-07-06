@@ -1,8 +1,8 @@
 package kr.dogfoot.hwplib.drawer.painter.text;
 
 import kr.dogfoot.hwplib.drawer.interimoutput.text.TextLine;
-import kr.dogfoot.hwplib.drawer.painter.Painter;
 import kr.dogfoot.hwplib.drawer.interimoutput.text.TextPart;
+import kr.dogfoot.hwplib.drawer.painter.Painter;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfo;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.NormalCharInfo;
@@ -30,12 +30,14 @@ public class TextPainter {
 
     public void paintTextLines(TextLine[] lines) throws Exception {
         for (TextLine line : lines) {
-            paintTextLine(line);
+            if (line.hasDrawingChar()) {
+                paintTextLine(line);
+            }
         }
     }
 
     private void paintTextLine(TextLine line) throws Exception {
-        for (TextPart part : line) {
+        for (TextPart part : line.parts()) {
             paintTextPart(part);
         }
     }
@@ -195,7 +197,7 @@ public class TextPainter {
                         && ((ControlCharInfo) charInfo).isLikeLetter()) {
                     ControlCharInfo controlCharInfo = (ControlCharInfo) charInfo;
                     Area area = controlArea(part, controlCharInfo);
-                    // todo table
+
                     if (controlCharInfo.output() != null) {
                         controlCharInfo.output().controlArea(area);
                         painter.controlPainter().paintControl(controlCharInfo.output());

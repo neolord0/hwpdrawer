@@ -36,9 +36,9 @@ public class PositionCalculator {
                 return info.pageInfo().bodyArea().width() * width / 10000;
             case Column:
                 // todo
-                    return info.paraArea().width() * width / 10000;
+                return info.paraArea().width() * width / 10000;
             case Para:
-                    return info.paraArea().width() * width / 10000;
+                return info.paraArea().width() * width / 10000;
             case Absolute:
                 return width;
         }

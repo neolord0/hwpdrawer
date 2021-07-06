@@ -1,8 +1,8 @@
 package kr.dogfoot.hwplib.drawer.interimoutput.page;
 
 import kr.dogfoot.hwplib.drawer.interimoutput.Content;
-import kr.dogfoot.hwplib.drawer.interimoutput.control.ControlOutput;
 import kr.dogfoot.hwplib.drawer.interimoutput.Output;
+import kr.dogfoot.hwplib.drawer.interimoutput.control.ControlOutput;
 import kr.dogfoot.hwplib.drawer.interimoutput.text.TextLine;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
@@ -15,10 +15,8 @@ public class HeaderOutput extends Output {
 
     public HeaderOutput(Area headerArea) {
         this.headerArea = headerArea;
-
-        content = new Content();
+        content = new Content(headerArea);
     }
-
 
     public void adjustHeaderArea() {
         for (TextLine line : content.textLines()) {
@@ -56,5 +54,4 @@ public class HeaderOutput extends Output {
         sb.tab(tabCount).append("header - }\n");
         return sb.toString();
     }
-
 }

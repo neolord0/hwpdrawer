@@ -1,8 +1,10 @@
 package kr.dogfoot.hwplib.drawer.interimoutput.control.table;
 
 import kr.dogfoot.hwplib.drawer.interimoutput.Content;
-import kr.dogfoot.hwplib.drawer.interimoutput.control.ControlOutput;
 import kr.dogfoot.hwplib.drawer.interimoutput.Output;
+import kr.dogfoot.hwplib.drawer.interimoutput.control.ControlOutput;
+import kr.dogfoot.hwplib.drawer.interimoutput.text.TextColumn;
+import kr.dogfoot.hwplib.drawer.interimoutput.text.TextRow;
 import kr.dogfoot.hwplib.drawer.interimoutput.text.TextLine;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
@@ -32,7 +34,7 @@ public class CellOutput extends Output {
         textMargin = null;
         verticalAlignment = TextVerticalAlignment.Top;
 
-        content = new Content();
+        content = new Content(cellArea);
     }
 
     public Cell cell() {
@@ -44,7 +46,7 @@ public class CellOutput extends Output {
         return this;
     }
 
-    public Area textArea() {
+    public Area textBoxArea() {
         if (textMargin == null) {
             return cellArea;
         } else {
@@ -56,14 +58,18 @@ public class CellOutput extends Output {
         }
     }
 
-    public void adjustTextAreaAndVerticalAlignment(Area cellArea, Area textArea) {
-        long offsetY = offsetY(textArea, verticalAlignment);
+    public void adjustTextBoxAreaAndVerticalAlignment(Area cellArea, Area textBoxArea) {
+        long offsetY = offsetY(textBoxArea, verticalAlignment);
 
-        for (TextLine line : content.textLines()) {
-            line.area().moveY(offsetY);
+        for (TextRow multiColumn : content.rows()) {
+            for (TextColumn column : multiColumn.columns()) {
+                for (TextLine line : column.textLines()) {
+                    line.area().move(cellArea.left(), cellArea.top()+ offsetY);
+                }
+            }
         }
 
-        move(cellArea.left(), cellArea.top());
+        move(cellArea.left(), cellArea.top()+ offsetY);
     }
 
     private long offsetY(Area textArea, TextVerticalAlignment verticalAlignment) {
@@ -82,10 +88,6 @@ public class CellOutput extends Output {
 
     public void move(long offsetX, long offsetY) {
         cellArea.move(offsetX, offsetY);
-
-        for (TextLine line : content.textLines()) {
-            line.area().move(offsetX, offsetY);
-        }
 
         for (ControlOutput controlOutput : content.behindChildOutputs()) {
             if (controlOutput.vertRelTo() == VertRelTo.Para) {
@@ -115,9 +117,8 @@ public class CellOutput extends Output {
 
     public void processAtAddingChildOutput(ControlOutput childOutput) {
         if (childOutput.vertRelTo() == VertRelTo.Para) {
-            calculatedContentHeight(childOutput.controlArea().bottom() - textArea().top());
+            calculatedContentHeight(childOutput.controlArea().bottom() - textBoxArea().top());
         }
-
     }
 
     @Override
@@ -133,7 +134,7 @@ public class CellOutput extends Output {
     @Override
     public String test(int tabCount) {
         MyStringBuilder sb = new MyStringBuilder();
-        sb.tab(tabCount).append("cell - {" ).append(cellArea).append("\n");
+        sb.tab(tabCount).append("cell - {").append(cellArea).append("\n");
         sb.append(content.test(tabCount + 1));
         sb.tab(tabCount).append("cell - }\n");
         return sb.toString();

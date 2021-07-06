@@ -1,10 +1,14 @@
 package kr.dogfoot.hwplib.drawer.paragraph.textflow;
 
-import kr.dogfoot.hwplib.drawer.paragraph.ParagraphDrawer;
+import kr.dogfoot.hwplib.drawer.paragraph.ParaDrawer;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.TextFlowMethod;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.VertRelTo;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class TextFlowCalculator {
     private final ForTakePlace forTakePlace;
@@ -23,6 +27,14 @@ public class TextFlowCalculator {
         }
     }
 
+    public void delete(ControlCharInfo controlCharInfo) {
+        if (controlCharInfo.textFlowMethod() == TextFlowMethod.TakePlace) {
+            forTakePlace.delete(controlCharInfo);
+        } else if (controlCharInfo.textFlowMethod() == TextFlowMethod.FitWithText) {
+            forFitWithText.delete(controlCharInfo);
+        }
+    }
+
     public boolean alreadyAdded(ControlCharInfo controlCharInfo) {
         if (controlCharInfo.textFlowMethod() == TextFlowMethod.TakePlace) {
             return forTakePlace.alreadyAdded(controlCharInfo);
@@ -32,41 +44,45 @@ public class TextFlowCalculator {
         return false;
     }
 
-    public void reset() {
-        forTakePlace.reset();
+    public void resetForNewPage() {
         forFitWithText.reset();
     }
 
-    public Result calculate(Area textLineArea) {
+    public void resetForNewColumn() {
+        forTakePlace.reset();
+    }
+
+    public TextFlowCalculationResult calculate(Area textLineArea) {
         Area tempTextLineArea = new Area(textLineArea);
         ForTakePlace.Result resultForTopBottom = forTakePlace.calculate(tempTextLineArea);
         tempTextLineArea.moveY(resultForTopBottom.yOffset());
 
         Result result = forFitWithText.calculate(tempTextLineArea);
         if (result.dividedAreas == null) {
-            result.nextState = ParagraphDrawer.DrawingState.StartRedrawing;
+            result.nextState = ParaDrawer.DrawingState.StartRedrawing;
         } else if (result.dividedAreas().length == 1 && result.dividedAreas()[0].equals(tempTextLineArea)) {
-            result.nextState = ParagraphDrawer.DrawingState.Normal;
+            result.nextState = ParaDrawer.DrawingState.Normal;
         } else {
-            result.nextState = ParagraphDrawer.DrawingState.StartRecalculating;
+            result.nextState = ParaDrawer.DrawingState.StartRecalculating;
         }
         result.offsetY += resultForTopBottom.yOffset();
         if (resultForTopBottom.yOffset() > 0 && resultForTopBottom.vertRelTo() == VertRelTo.Para) {
             result.cancelNewLine = true;
         }
-        return result;
+
+        return new TextFlowCalculationResult(result, textLineArea);
     }
 
     public static class Result {
         private final Area[] dividedAreas;
         private long offsetY;
-        private ParagraphDrawer.DrawingState nextState;
+        private ParaDrawer.DrawingState nextState;
         private boolean cancelNewLine;
 
         public Result(Area[] dividedAreas, long offsetY) {
             this.dividedAreas = dividedAreas;
             this.offsetY = offsetY;
-            nextState = ParagraphDrawer.DrawingState.Normal;
+            nextState = ParaDrawer.DrawingState.Normal;
             cancelNewLine = false;
         }
 
@@ -78,7 +94,7 @@ public class TextFlowCalculator {
             return offsetY;
         }
 
-        public ParagraphDrawer.DrawingState nextState() {
+        public ParaDrawer.DrawingState nextState() {
             return nextState;
         }
 
@@ -86,4 +102,5 @@ public class TextFlowCalculator {
             return cancelNewLine;
         }
     }
+
 }

@@ -6,7 +6,8 @@
 
     <groupId>kr.dogfoot</groupId>
     <artifactId>hwpdrawer</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.0</version>
+    <packaging>jar</packaging>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
@@ -19,6 +20,14 @@
             <groupId>org.apache.poi</groupId>
             <artifactId>poi</artifactId>
             <version>4.1.0</version>
+        </dependency>
+
+        <dependency>
+            <scope>system</scope>
+            <groupId>custom</groupId>
+            <artifactId>hwplib</artifactId>
+            <version>1.0.4</version>
+            <systemPath>${project.basedir}/lib/hwplib-1.0.4.jar</systemPath>
         </dependency>
 
         <dependency>

@@ -12,13 +12,13 @@ public class CharacterTest {
     }
 
     @Test
-    public void test_글자모양_글자크기() throws Exception {
-        HWPTester.testAndCompare("testingHWP" + File.separator + "글자모양" + File.separator + "글자크기");
+    public void test_글자모양_글자크기1() throws Exception {
+        HWPTester.testAndCompare("testingHWP" + File.separator + "글자모양" + File.separator + "글자크기" + File.separator + "1");
     }
 
     @Test
-    public void test_글자모양_글자크기2() throws Exception {
-        HWPTester.testAndCompare("testingHWP" + File.separator + "글자모양" + File.separator + "글자크기2");
+    public void test_글자모양_글자크기2() throws Exception {
+        HWPTester.testAndCompare("testingHWP" + File.separator + "글자모양" + File.separator + "글자크기" + File.separator + "2");
     }
 
     @Test
@@ -42,7 +42,7 @@ public class CharacterTest {
     }
 
     @Test
-    public void test_글자모양_글자색_크기() throws Exception {
-        HWPTester.testAndCompare("testingHWP" + File.separator + "글자모양" + File.separator + "글자색_크기");
+    public void test_글자모양_글자색_크기() throws Exception {
+        HWPTester.testAndCompare("testingHWP" + File.separator + "글자모양" + File.separator + "글자색_크기");
     }
 }

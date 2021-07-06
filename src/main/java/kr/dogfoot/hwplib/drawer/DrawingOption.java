@@ -2,6 +2,8 @@ package kr.dogfoot.hwplib.drawer;
 
 public class DrawingOption {
     private String directoryToSave;
+    private String fontPath;
+
     private int zoomRate;
     private int offsetX;
     private int offsetY;
@@ -44,4 +46,12 @@ public class DrawingOption {
         return this;
     }
 
+    public String fontPath() {
+        return fontPath;
+    }
+
+    public DrawingOption fontPath(String fontPath) {
+        this.fontPath = fontPath;
+        return this;
+    }
 }
