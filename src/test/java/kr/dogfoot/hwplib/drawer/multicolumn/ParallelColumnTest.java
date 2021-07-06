@@ -18,11 +18,11 @@ public class ParallelColumnTest {
 
     @Test
     public void test_페이지넘어1() throws Exception {
-        HWPTester.testAndCompare("testingHWP" + File.separator + "다단" + File.separator + "평행" + File.separator + "페이지넘어" + File.separator + "1");
+        HWPTester.testAndCompare("testingHWP" + File.separator + "다단" + File.separator + "평행" + File.separator + "페이지넘어" + File.separator + "1");
     }
 
     @Test
     public void test_페이지넘어2() throws Exception {
-        HWPTester.testAndCompare("testingHWP" + File.separator + "다단" + File.separator + "평행" + File.separator + "페이지넘어" + File.separator + "2");
+        HWPTester.testAndCompare("testingHWP" + File.separator + "다단" + File.separator + "평행" + File.separator + "페이지넘어" + File.separator + "2");
     }
 }

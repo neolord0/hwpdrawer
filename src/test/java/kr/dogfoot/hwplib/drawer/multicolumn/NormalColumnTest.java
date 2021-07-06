@@ -28,51 +28,51 @@ public class NormalColumnTest {
 
     @Test
     public void test_단나누기_1() throws Exception {
-        HWPTester.testAndCompare("testingHWP" + File.separator + "다단" + File.separator + "일반" + File.separator + "단나누기" + File.separator + "1");
+        HWPTester.testAndCompare("testingHWP" + File.separator + "다단" + File.separator + "일반" + File.separator + "단나누기" + File.separator + "1");
     }
 
     @Test
     public void test_단나누기_2() throws Exception {
-        HWPTester.testAndCompare("testingHWP" + File.separator + "다단" + File.separator + "일반" + File.separator + "단나누기" + File.separator + "2");
+        HWPTester.testAndCompare("testingHWP" + File.separator + "다단" + File.separator + "일반" + File.separator + "단나누기" + File.separator + "2");
     }
 
     @Test
-    public void test_다단설정나누깅_1() throws Exception {
-        HWPTester.testAndCompare("testingHWP" + File.separator + "다단" + File.separator + "일반" + File.separator + "다단설정나누기" + File.separator + "1");
+    public void test_다단설정나누기_1() throws Exception {
+        HWPTester.testAndCompare("testingHWP" + File.separator + "다단" + File.separator + "일반" + File.separator + "다단설정나누기" + File.separator + "1");
     }
 
     @Test
-    public void test_다단설정나누기_2() throws Exception {
-        HWPTester.testAndCompare("testingHWP" + File.separator + "다단" + File.separator + "일반" + File.separator + "다단설정나누기" + File.separator + "2");
+    public void test_다단설정나누기_2() throws Exception {
+        HWPTester.testAndCompare("testingHWP" + File.separator + "다단" + File.separator + "일반" + File.separator + "다단설정나누기" + File.separator + "2");
     }
 
     @Test
-    public void test_다단설정나누기_3() throws Exception {
-        HWPTester.testAndCompare("testingHWP" + File.separator + "다단" + File.separator + "일반" + File.separator + "다단설정나누기" + File.separator + "3");
+    public void test_다단설정나누기_3() throws Exception {
+        HWPTester.testAndCompare("testingHWP" + File.separator + "다단" + File.separator + "일반" + File.separator + "다단설정나누기" + File.separator + "3");
     }
 
     @Test
-    public void test_컨트롤포함_단기준으로_앞으로() throws Exception {
-        HWPTester.testAndCompare("testingHWP" + File.separator + "다단" + File.separator + "일반" + File.separator + "컨트롤 포함" + File.separator + "단기준으로" + File.separator + "앞으로");
+    public void test_컨트롤포함_단기준으로_앞으로() throws Exception {
+        HWPTester.testAndCompare("testingHWP" + File.separator + "다단" + File.separator + "일반" + File.separator + "컨트롤 포함" + File.separator + "단기준으로" + File.separator + "앞으로");
     }
 
     @Test
-    public void test_컨트롤포함_단기준으로_어울림_자리차지() throws Exception {
-        HWPTester.testAndCompare("testingHWP" + File.separator + "다단" + File.separator + "일반" + File.separator + "컨트롤 포함" + File.separator + "단기준으로" + File.separator + "어울림_자리차지");
+    public void test_컨트롤포함_단기준으로_어울림_자리차지() throws Exception {
+        HWPTester.testAndCompare("testingHWP" + File.separator + "다단" + File.separator + "일반" + File.separator + "컨트롤 포함" + File.separator + "단기준으로" + File.separator + "어울림_자리차지");
     }
 
     @Test
-    public void test_컨트롤안_1() throws Exception {
+    public void test_컨트롤안_1() throws Exception {
         HWPTester.testAndCompare("testingHWP" + File.separator + "다단" + File.separator + "일반" + File.separator + "컨트롤 안" + File.separator + "1");
     }
 
     @Test
-    public void test_컨트롤안_컨트롤높이보다큰다단_1() throws Exception {
-        HWPTester.testAndCompare("testingHWP" + File.separator + "다단" + File.separator + "일반" + File.separator + "컨트롤 안" + File.separator + "컨트롤높이보다 큰 다단" + File.separator + "1");
+    public void test_컨트롤안_컨트롤높이보다큰다단_1() throws Exception {
+        HWPTester.testAndCompare("testingHWP" + File.separator + "다단" + File.separator + "일반" + File.separator + "컨트롤 안" + File.separator + "컨트롤높이보다 큰 다단" + File.separator + "1");
     }
 
     @Test
-    public void test_컨트롤안_컨트롤높이보다큰다단_2() throws Exception {
-        HWPTester.testAndCompare("testingHWP" + File.separator + "다단" + File.separator + "일반" + File.separator + "컨트롤 안" + File.separator + "컨트롤높이보다 큰 다단" + File.separator + "2");
+    public void test_컨트롤안_컨트롤높이보다큰다단_2() throws Exception {
+        HWPTester.testAndCompare("testingHWP" + File.separator + "다단" + File.separator + "일반" + File.separator + "컨트롤 안" + File.separator + "컨트롤높이보다 큰 다단" + File.separator + "2");
     }
 }

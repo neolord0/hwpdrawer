@@ -17,7 +17,7 @@ public class LabelTest {
     }
 
     @Test
-    public void test_글상자_안에_글상자() throws Exception {
-        HWPTester.testAndCompare("testingHWP" + File.separator + "컨트롤" + File.separator + "글상자" + File.separator + "글상자안에글상자");
+    public void test_글상자안에글상자() throws Exception {
+        HWPTester.testAndCompare("testingHWP" + File.separator + "컨트롤" + File.separator + "글상자" + File.separator + "글상자안에글상자");
     }
 }

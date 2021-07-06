@@ -11,7 +11,7 @@ public class ETCTest {
     }
 
     @Test
-    public void test_헤더풋터() throws Exception {
-        HWPTester.testAndCompare("testingHWP" + File.separator + "기타" + File.separator + "헤더풋터");
+    public void test_헤더풋터() throws Exception {
+        HWPTester.testAndCompare("testingHWP" + File.separator + "기타" + File.separator + "헤더풋터");
     }
 }
