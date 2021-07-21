@@ -26,8 +26,8 @@
             <scope>system</scope>
             <groupId>custom</groupId>
             <artifactId>hwplib</artifactId>
-            <version>1.0.4</version>
-            <systemPath>${project.basedir}/lib/hwplib-1.0.4.jar</systemPath>
+            <version>1.0.5</version>
+            <systemPath>${project.basedir}/lib/hwplib-1.0.5.jar</systemPath>
         </dependency>
 
         <dependency>

@@ -20,13 +20,10 @@ public class TestETC {
     }
     */
 
-    /*
     @org.junit.Test
-    public void test_1() throws Exception {
-        HWPTester.test("etc" + File.separator + "2");
+    public void test_4() throws Exception {
+        HWPTester.test("etc" + File.separator + "4");
     }
-
-     */
 
     /*
     @org.junit.Test

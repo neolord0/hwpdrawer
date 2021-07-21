@@ -8,6 +8,7 @@ import kr.dogfoot.hwplib.drawer.interimoutput.control.table.CellOutput;
 import kr.dogfoot.hwplib.drawer.interimoutput.control.table.TableOutput;
 import kr.dogfoot.hwplib.drawer.paragraph.ParaListDrawer;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.ControlCharInfo;
+import kr.dogfoot.hwplib.drawer.paragraph.control.table.TableDrawer;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlTable;
 import kr.dogfoot.hwplib.object.bodytext.control.gso.*;
@@ -15,14 +16,18 @@ import kr.dogfoot.hwplib.object.bodytext.control.gso.textbox.TextBox;
 import kr.dogfoot.hwplib.object.bodytext.control.table.Cell;
 import kr.dogfoot.hwplib.object.bodytext.control.table.Row;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.ParagraphList;
+import org.apache.poi.ss.formula.functions.T;
 
 public class ControlDrawer {
     private final DrawingInput input;
     private final InterimOutput output;
+    private final TableDrawer tableDrawer;
 
     public ControlDrawer(DrawingInput input, InterimOutput output) {
         this.input = input;
         this.output = output;
+
+        tableDrawer = new TableDrawer(input, output);
     }
 
     public ControlOutput draw(ControlCharInfo controlCharInfo) throws Exception {

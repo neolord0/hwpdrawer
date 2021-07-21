@@ -28,12 +28,13 @@ public class TableOutput extends ControlOutput {
         ListHeaderForCell lh = cellOutput.cell().getListHeader();
         cellOutputs[lh.getColIndex()][lh.getRowIndex()] = cellOutput;
 
-        cellPositionCalculator
-                .addColumnInfo(lh.getColIndex(), lh.getColSpan(), lh.getWidth())
-                .addRowInfo(
-                        lh.getRowIndex(),
-                        lh.getRowSpan(),
-                        Math.max(cellOutput.calculatedHeight(), lh.getHeight()));
+        cellPositionCalculator.addInfo(
+                lh.getColIndex(),
+                lh.getColSpan(),
+                lh.getRowIndex(),
+                lh.getRowSpan(),
+                lh.getWidth(),
+                Math.max(cellOutput.calculatedHeight(), lh.getHeight()));
     }
 
     public CellOutput[][] cellOutputs() {

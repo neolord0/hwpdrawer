@@ -2,6 +2,7 @@ package kr.dogfoot.hwplib.drawer.input.paralist;
 
 import kr.dogfoot.hwplib.drawer.input.DrawingInput;
 import kr.dogfoot.hwplib.drawer.util.Area;
+import kr.dogfoot.hwplib.drawer.util.TextPosition;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlColumnDefine;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.Paragraph;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.charshape.CharPositionShapeIdPair;
@@ -18,7 +19,9 @@ public class ParagraphListInfo {
     private Paragraph[] paras;
     private int paraIndex;
 
-    private boolean isBodyText;
+    private ParagraphListInfoSort sort;
+    private long cellTopInPage;
+
     private ParaShape paraShape;
 
     private long height;
@@ -45,12 +48,21 @@ public class ParagraphListInfo {
     }
 
     public ParagraphListInfo forBodyText() {
-        this.isBodyText = true;
+        sort = ParagraphListInfoSort.ForBody;
         return this;
     }
 
     public ParagraphListInfo forControl(Area textBoxArea) {
-        this.isBodyText = false;
+        sort = ParagraphListInfoSort.ForControl;
+        columnsInfo.set(null, textBoxArea);
+        textBoxArea(textBoxArea);
+        return this;
+    }
+
+    public ParagraphListInfo forCell(Area textBoxArea, long cellTopInPage) {
+        sort = ParagraphListInfoSort.ForCell;
+        this.cellTopInPage = cellTopInPage;
+
         columnsInfo.set(null, textBoxArea);
         textBoxArea(textBoxArea);
         return this;
@@ -64,10 +76,6 @@ public class ParagraphListInfo {
         }
     }
 
-    public boolean bodyText() {
-        return isBodyText;
-    }
-
     public boolean nextPara() {
         if (paraIndex < paras.length) {
             currentPara = paras[paraIndex];
@@ -78,10 +86,10 @@ public class ParagraphListInfo {
         }
     }
 
-    public boolean gotoPara(int paraIndex) {
-        if (paraIndex < paras.length) {
-            currentPara = paras[paraIndex];
-            this.paraIndex = paraIndex + 1;
+    public boolean gotoPara(TextPosition position) {
+        if (position.paraIndex() < paras.length) {
+            currentPara = paras[position.paraIndex()];
+            this.paraIndex = position.paraIndex() + 1;
             return true;
         } else {
             return false;
@@ -147,7 +155,15 @@ public class ParagraphListInfo {
     }
 
     public boolean isBodyText() {
-        return isBodyText;
+        return sort == ParagraphListInfoSort.ForBody;
+    }
+
+    public boolean isCellText() {
+        return sort == ParagraphListInfoSort.ForCell;
+    }
+
+    public long cellTopInPage() {
+        return cellTopInPage;
     }
 
     public ParaShape paraShape() {
@@ -161,11 +177,6 @@ public class ParagraphListInfo {
     public Area paraArea() {
         setParaArea();
         return paraArea;
-    }
-
-    public void resetParaStartY() {
-        paraStartY = 0;
-        setParaArea();
     }
 
     public void resetParaStartY(long startY) {
@@ -227,15 +238,15 @@ public class ParagraphListInfo {
         return charPosition;
     }
 
-    public void gotoChar(int charIndex, int charPosition) {
-        this.charIndex = charIndex;
+    public void gotoChar(TextPosition position) {
+        charIndex = position.charIndex();
         if (charIndex == 0) {
             character = null;
             charShapeIndex = -1;
             setCharShape();
         } else {
             character = currentPara().getText().getCharList().get(charIndex - 1);
-            this.charPosition = charPosition - character.getCharSize();
+            this.charPosition = position.charPosition() - character.getCharSize();
             setCharShape();
             this.charPosition += character.getCharSize();
         }
@@ -273,5 +284,11 @@ public class ParagraphListInfo {
     public void gotoColumn(int columnIndex) {
         columnsInfo.currentColumnIndex(columnIndex);
         textBoxArea(columnsInfo.currentColumnArea());
+    }
+
+    private  enum ParagraphListInfoSort {
+        ForBody,
+        ForControl,
+        ForCell
     }
 }

@@ -3,12 +3,16 @@ package kr.dogfoot.hwplib.drawer.interimoutput.control.table;
 import java.util.ArrayList;
 
 public class CellPositionCalculator {
+    private final long[] currentCellTop;
+
     private final long[] cellXs;
 
     private final long[] rowHeights;
     private final ArrayList<RowInfo> rowInfos;
 
     public CellPositionCalculator(int columnCount, int rowCount) {
+        currentCellTop = new long[columnCount];
+
         cellXs = new long[columnCount + 1];
         cellXs[0] = 0;
 
@@ -20,7 +24,23 @@ public class CellPositionCalculator {
         }
     }
 
-    public CellPositionCalculator addRowInfo(int rowIndex, int rowSpan, long height) {
+    public void addInfo(int colIndex, int colSpan, int rowIndex, int rowSpan, long width, long height) {
+        addColumnInfo(colIndex, colSpan, width);
+        addRowInfo(rowIndex, rowSpan, height);
+        setCurrentCellTop(colIndex, colSpan, height);
+    }
+
+    private void setCurrentCellTop(int colIndex, int colSpan, long height) {
+        for (int index = colIndex; index < colIndex + colSpan; index++) {
+            currentCellTop[index] += height;
+        }
+    }
+
+    public long currentCellTop(int colIndex) {
+        return currentCellTop[colIndex];
+    }
+
+    private CellPositionCalculator addRowInfo(int rowIndex, int rowSpan, long height) {
         rowInfos.add(new RowInfo(rowIndex, rowSpan, height));
         return this;
     }
@@ -87,13 +107,21 @@ public class CellPositionCalculator {
         return height;
     }
 
-    public CellPositionCalculator addColumnInfo(int colIndex, int colSpan, long width) {
+    private CellPositionCalculator addColumnInfo(int colIndex, int colSpan, long width) {
         cellXs[colIndex + colSpan] = width + cellXs[colIndex];
         return this;
     }
 
     public long x(int colIndex) {
         return cellXs[colIndex];
+    }
+
+    public long totalHeight() {
+        long totalHeight = 0;
+        for (long height : rowHeights) {
+            totalHeight += height;
+        }
+        return totalHeight;
     }
 
     private static class RowInfo {

@@ -69,7 +69,9 @@ public class HWPTester {
                 new DrawingOption()
                         .directoryToSave(path)
                         .fontPath("font")
-                        .zoomRate(80));
+                        .zoomRate(80)
+                        .auxiliaryLine(true));
+
 
         long endTime = System.currentTimeMillis();
         System.out.println(path + " : " + (endTime - startTime) + "ms, pageCount = " + pageCount);

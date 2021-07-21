@@ -3,8 +3,9 @@ package kr.dogfoot.hwplib.drawer.input;
 import kr.dogfoot.hwplib.drawer.input.paralist.ColumnsInfo;
 import kr.dogfoot.hwplib.drawer.input.paralist.ParagraphListInfo;
 import kr.dogfoot.hwplib.drawer.input.paralist.ParallelMultiColumnInfo;
-import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfo;
+import kr.dogfoot.hwplib.drawer.paragraph.control.table.TableDrawResult;
 import kr.dogfoot.hwplib.drawer.util.Area;
+import kr.dogfoot.hwplib.drawer.util.TextPosition;
 import kr.dogfoot.hwplib.object.HWPFile;
 import kr.dogfoot.hwplib.object.bindata.EmbeddedBinaryData;
 import kr.dogfoot.hwplib.object.bodytext.Section;
@@ -21,6 +22,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Stack;
 
@@ -35,10 +37,14 @@ public class DrawingInput {
     private ParagraphListInfo bodyTextParaListInfo;
     private final Stack<ParagraphListInfo> paraListInfoStack;
 
+    private final ArrayList<TableDrawResult> splitTableDrawResults;
+
     public DrawingInput() {
         imageMap = new HashMap<>();
         pageInfo = new PageInfo();
         paraListInfoStack = new Stack<>();
+
+        splitTableDrawResults = new ArrayList<>();
     }
 
     public HWPFile hwpFile() {
@@ -175,12 +181,28 @@ public class DrawingInput {
         return paraListInfo.height();
     }
 
+    public void startCellParaList(Area textBoxArea, Paragraph[] paras, long cellTopInPage) {
+        ParagraphListInfo paraListInfo = new ParagraphListInfo(this, paras)
+                .forCell(textBoxArea, cellTopInPage);
+        paraListInfoStack.push(paraListInfo);
+    }
+
+    public long endCellParaList() {
+        ParagraphListInfo paraListInfo = paraListInfoStack.pop();
+        return paraListInfo.height();
+    }
+
+
     public ParagraphListInfo currentParaListInfo() {
         return paraListInfoStack.peek();
     }
 
     public boolean isBodyText() {
         return currentParaListInfo().isBodyText();
+    }
+
+    public boolean isCellText() {
+        return currentParaListInfo().isCellText();
     }
 
     public Area paraArea() {
@@ -244,22 +266,25 @@ public class DrawingInput {
         return currentParaListInfo().charShape();
     }
 
-    public void gotoCharInPara(CharInfo charInfo) {
-        currentParaListInfo().gotoChar(charInfo.index(), charInfo.prePosition());
+    public void gotoCharPositionInPara(TextPosition position) {
+        currentParaListInfo().gotoChar(position);
     }
 
-    public void gotoChar(CharInfo charInfo) {
-        currentParaListInfo().gotoPara(charInfo.paraIndex());
-        currentParaListInfo().gotoChar(charInfo.index(), charInfo.prePosition());
-    }
 
-    public void gotoParaCharPosition(int paragraphIndex, int characterIndex, int characterPosition) {
-        currentParaListInfo().gotoPara(paragraphIndex);
-        currentParaListInfo().gotoChar(characterIndex, characterPosition);
+    public void gotoParaCharPosition(TextPosition position) {
+        currentParaListInfo().gotoPara(position);
+        currentParaListInfo().gotoChar(position);
     }
 
     public ParallelMultiColumnInfo parallelMultiColumnInfo() {
         return columnsInfo().parallelMultiColumnInfo();
     }
 
+    public void addSplitTableDrawResult(TableDrawResult tableDrawResult) {
+        splitTableDrawResults.add(tableDrawResult);
+    }
+
+    public boolean hasSplitTables() {
+        return !splitTableDrawResults.isEmpty();
+    }
 }

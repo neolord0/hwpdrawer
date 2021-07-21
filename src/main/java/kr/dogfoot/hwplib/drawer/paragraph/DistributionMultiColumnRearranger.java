@@ -103,10 +103,10 @@ public class DistributionMultiColumnRearranger {
         TextLine firstLine = output.hideTextLine(testingLineCounts[input.columnsInfo().currentColumnIndex()] - 1);
         TextLine secondLine = output.currentColumn().nextLine(firstLine);
         if (secondLine != null && secondLine.firstChar() != null) {
-            input.gotoChar(secondLine.firstChar());
+            input.gotoParaCharPosition(secondLine.firstChar().position());
         } else {
             if (output.currentColumn().nextChar() != null) {
-                input.gotoChar(output.currentColumn().nextChar());
+                input.gotoParaCharPosition(output.currentColumn().nextChar().position());
             }
         }
 
@@ -123,8 +123,8 @@ public class DistributionMultiColumnRearranger {
         } catch (BreakDrawingException e) {
             switch (e.type()) {
                 case ForNewPage:
-                    paraIndexAtOverPage = e.paraIndex();
-                    charIndexAtOverPage = e.charIndex();
+                    paraIndexAtOverPage = e.position().paraIndex();;
+                    charIndexAtOverPage = e.position().charIndex();
                     overPage = true;
                     break;
                 case ForEndingPara:
@@ -203,12 +203,12 @@ public class DistributionMultiColumnRearranger {
         output.resetHidingTextLineIndex();
         TextColumn.ResultDeleteTextLineIndex result = output.deleteTextLineIndex(input.columnsInfo().limitedTextLineCount());
         if (result != null) {
-            input.gotoChar(result.topLine().firstChar());
+            input.gotoParaCharPosition(result.topLine().firstChar().position());
             for (ControlCharInfo controlCharInfo : result.deletedControls()) {
                 paraDrawer.textFlowCalculator().delete(controlCharInfo);
             }
         } else {
-            input.gotoChar(output.currentColumn().nextChar());
+            input.gotoParaCharPosition(output.currentColumn().nextChar().position());
         }
         paraDrawer.nextColumn();
 

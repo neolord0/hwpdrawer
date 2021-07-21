@@ -10,6 +10,7 @@ import kr.dogfoot.hwplib.drawer.paragraph.charInfo.NormalCharInfo;
 import kr.dogfoot.hwplib.drawer.paragraph.textflow.TextFlowCalculationResult;
 import kr.dogfoot.hwplib.drawer.paragraph.textflow.TextFlowCalculator;
 import kr.dogfoot.hwplib.drawer.util.Area;
+import kr.dogfoot.hwplib.drawer.util.TextPosition;
 import kr.dogfoot.hwplib.object.bodytext.control.*;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPChar;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPCharControlExtend;
@@ -253,7 +254,7 @@ public class ParaDrawer {
     }
 
     private void startRecalculatingTextLine() {
-        input.gotoCharInPara(textLineDrawer.firstCharInfo());
+        input.gotoCharPositionInPara(textLineDrawer.firstCharInfo().position());
 
         currentTextPartArea.set(textFlowCalculationResult.nextArea());
         textLineDrawer
@@ -263,7 +264,7 @@ public class ParaDrawer {
     }
 
     private void startRedrawingTextLine() {
-        input.gotoCharInPara(textLineDrawer.firstCharInfo());
+        input.gotoCharPositionInPara(textLineDrawer.firstCharInfo().position());
         textLineDrawer
                 .reset(currentTextPartArea)
                 .addNewTextPart(0, currentTextPartArea.width());
@@ -276,7 +277,7 @@ public class ParaDrawer {
 
     public void nextPage() throws Exception {
         if (forDistributionMultiColumn) {
-            throw new BreakDrawingException(input.paraIndex(), input.charIndex(), input.charPosition()).forNewPage();
+            throw new BreakDrawingException(new TextPosition(input.paraIndex(), input.charIndex(), input.charPosition())).forNewPage();
         }
 
         charInfoBuffer().clearUntilPreviousPara();
@@ -366,7 +367,15 @@ public class ParaDrawer {
 
     public void gotoStartCharOfCurrentRow() {
         input.currentParaListInfo().setColumnInfoWithPreviousInfo();
-        input.gotoChar(output.currentRow().firstChar());
+
+        if (output.currentRow().firstChar() == null) {
+            input.gotoParaCharPosition(TextPosition.ParaList_Start_Position);
+        } else{
+            input.gotoParaCharPosition(output.currentRow().firstChar().position());
+        }
+
+
+        input.gotoParaCharPosition(output.currentRow().firstChar().position());
 
         output.currentRow().clear();
         gotoFirstColumn();
@@ -483,14 +492,34 @@ public class ParaDrawer {
                             wordDrawer.stopAddingChar();
                         }
                     } else {
-                        nextColumn();
+                        if (input.isCellText()) {
+                            throw new BreakDrawingException().forOverTextBoxArea();
+                        } else {
+                            nextColumn();
+                        }
                     }
                 } else {
+                    if (input.isCellText()
+                            && !input.columnsInfo().isNormalMultiColumn()) {
+                        if (input.pageInfo().bodyArea().bottom() < currentTextPartArea.top() + textLineDrawer.maxCharHeight() + input.currentParaListInfo().cellTopInPage()) {
+                            if (textLineDrawer.firstCharInfo() != null) {
+                                throw new BreakDrawingException(textLineDrawer.firstCharInfo().position()).forOverPage(textLineDrawer.firstCharInfo());
+                            } else {
+                                throw new BreakDrawingException(TextPosition.ParaList_Start_Position).forOverPage(textLineDrawer.firstCharInfo());
+                            }
+                        }
+                    } else if (!input.isBodyText()
+                            && input.columnsInfo().isNormalMultiColumn()) {
+                        throw new BreakDrawingException().forOverTextBoxArea();
+                    }
+                    /*
                     if (!input.isBodyText()
                             && input.columnsInfo().isNormalMultiColumn()) {
 
                         throw new BreakDrawingException().forOverTextBoxArea();
                     }
+
+                     */
                 }
             }
         }

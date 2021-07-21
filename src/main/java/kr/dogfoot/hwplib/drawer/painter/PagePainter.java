@@ -16,6 +16,7 @@ public class PagePainter {
     private final DrawingInput input;
     private final InterimOutput output;
     private final Painter painter;
+    private DrawingOption option;
     private int pageCount;
 
     public PagePainter(DrawingInput input, InterimOutput output) {
@@ -26,6 +27,7 @@ public class PagePainter {
     }
 
     public PagePainter option(DrawingOption option) {
+        this.option = option;
         painter.option(option);
         return this;
     }
@@ -43,6 +45,10 @@ public class PagePainter {
 
         painter
                 .graphics2D((Graphics2D) pageImage.getGraphics());
+
+        if (option.auxiliaryLine()) {
+            painter.testLineStyle().rectangle(pageOutput.bodyArea(), false);
+        }
 
         if (pageOutput.headerOutput() != null) {
             painter.paintContent(pageOutput.headerOutput().content());

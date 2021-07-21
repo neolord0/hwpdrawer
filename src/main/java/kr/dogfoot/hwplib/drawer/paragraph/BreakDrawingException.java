@@ -1,20 +1,24 @@
 package kr.dogfoot.hwplib.drawer.paragraph;
 
+import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfo;
+import kr.dogfoot.hwplib.drawer.util.TextPosition;
+
 public class BreakDrawingException extends Exception {
     private Type type;
-    private int paraIndex;
-    private int charIndex;
-    private int charPosition;
+    private TextPosition position;
 
     public BreakDrawingException() {
-        this(0, 0, 0);
+        this(TextPosition.ParaList_Start_Position);
     }
 
     public BreakDrawingException(int paraIndex, int charIndex, int charPosition) {
-        this.paraIndex = paraIndex;
-        this.charIndex = charIndex;
-        this.charPosition = charPosition;
+        position = new TextPosition(paraIndex, charIndex, charPosition);
     }
+
+    public BreakDrawingException(TextPosition position) {
+        this.position = position;
+    }
+
 
     public BreakDrawingException forNewPage() {
         type = Type.ForNewPage;
@@ -41,20 +45,17 @@ public class BreakDrawingException extends Exception {
         return this;
     }
 
+    public BreakDrawingException forOverPage(CharInfo firstCharForNextPage) {
+        type = Type.ForOverPage;
+        return this;
+    }
+
     public Type type() {
         return type;
     }
 
-    public int paraIndex() {
-        return paraIndex;
-    }
-
-    public int charIndex() {
-        return charIndex;
-    }
-
-    public int charPosition() {
-        return charPosition;
+    public TextPosition position() {
+        return position;
     }
 
     public enum Type {
@@ -62,7 +63,8 @@ public class BreakDrawingException extends Exception {
         ForEndingPara,
         ForEndingTest,
         ForDividingColumn,
-        ForOverTextBoxArea;
+        ForOverTextBoxArea,
+        ForOverPage;
 
         public boolean isForNewPage() {
             return this == ForNewPage;
@@ -82,6 +84,10 @@ public class BreakDrawingException extends Exception {
 
         public boolean isForOverTextBoxArea() {
             return this == ForOverTextBoxArea;
+        }
+
+        public boolean isForOverPage() {
+            return this == ForOverPage;
         }
     }
 }

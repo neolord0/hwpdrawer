@@ -5,6 +5,7 @@ import kr.dogfoot.hwplib.drawer.interimoutput.InterimOutput;
 import kr.dogfoot.hwplib.drawer.interimoutput.page.FooterOutput;
 import kr.dogfoot.hwplib.drawer.painter.PagePainter;
 import kr.dogfoot.hwplib.drawer.paragraph.charInfo.CharInfoBuffer;
+import kr.dogfoot.hwplib.drawer.paragraph.control.table.CellDrawResult;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.ParagraphListInterface;
 
@@ -41,7 +42,7 @@ public class ParaListDrawer {
                 paraDrawer.draw(redraw);
                 redraw = false;
             } catch (RedrawException e) {
-                input.gotoParaCharPosition(e.paraIndex(), e.charIndex(), e.charPosition());
+                input.gotoParaCharPosition(e.position());
                 input.currentParaListInfo().resetParaStartY(e.startY());
                 redraw = true;
             }
@@ -122,6 +123,49 @@ public class ParaListDrawer {
         }
         input.endControlParaList();
         return output.currentContent().height();
+    }
+
+    public CellDrawResult drawForCell(ParagraphListInterface paraList, Area textBoxArea, long cellTopInPage) throws Exception {
+        input.startCellParaList(textBoxArea, paraList.getParagraphs(), cellTopInPage);
+
+        CellDrawResult result = new CellDrawResult();
+        boolean redraw = false;
+        boolean boolOverPage = false;
+        while (redraw || input.nextPara()) {
+            try {
+                paraDrawer.draw(redraw);
+                redraw = false;
+            } catch (RedrawException e) {
+                redraw = true;
+            } catch (BreakDrawingException e) {
+                if (e.type().isForOverTextBoxArea()) {
+                    input.columnsInfo().textBoxArea().bottom(input.pageInfo().bodyArea().bottom());
+                    paraDrawer.gotoStartCharOfCurrentRow();
+                    input.columnsInfo().processLikeDistributionMultiColumn(true);
+                    redraw = true;
+                } else if (e.type().isForOverPage()) {
+                    result
+                            .split(true)
+                            .splitPosition(e.position());
+                    break;
+                } else {
+                    throw e;
+                }
+            }
+        }
+
+        if (!output.hadRearrangedDistributionMultiColumn()) {
+            if (!input.columnsInfo().lastColumn()) {
+                if (input.columnsInfo().isDistributionMultiColumn()
+                        || input.columnsInfo().processLikeDistributionMultiColumn()){
+                    distributionMultiColumnRearranger.rearrangeFromCurrentColumn();
+                }
+
+            }
+        }
+
+        input.endCellParaList();
+        return result.height(output.currentContent().height());
     }
 
     public void redraw(int endParaIndex) throws Exception {

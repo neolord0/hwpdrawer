@@ -8,10 +8,13 @@ public class DrawingOption {
     private int offsetX;
     private int offsetY;
 
+    private boolean auxiliaryLine;
+
     public DrawingOption() {
         zoomRate = 100;
         offsetX = 0;
         offsetY = 0;
+        auxiliaryLine = false;
     }
 
     public String directoryToSave() {
@@ -53,5 +56,14 @@ public class DrawingOption {
     public DrawingOption fontPath(String fontPath) {
         this.fontPath = fontPath;
         return this;
+    }
+
+    public DrawingOption auxiliaryLine(boolean auxiliaryLine) {
+        this.auxiliaryLine = auxiliaryLine;
+        return this;
+    }
+
+    public boolean auxiliaryLine() {
+        return auxiliaryLine;
     }
 }

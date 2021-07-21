@@ -1,5 +1,6 @@
 package kr.dogfoot.hwplib.drawer.paragraph.charInfo;
 
+import kr.dogfoot.hwplib.drawer.util.TextPosition;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPChar;
 import kr.dogfoot.hwplib.object.docinfo.CharShape;
 
@@ -38,10 +39,6 @@ public abstract class CharInfo {
         return index;
     }
 
-    public int position() {
-        return position;
-    }
-
     public long x() {
         return x;
     }
@@ -64,6 +61,10 @@ public abstract class CharInfo {
 
     public int prePosition() {
         return position - character.getCharSize();
+    }
+
+    public TextPosition position() {
+        return new TextPosition(paraIndex, index, prePosition());
     }
 
     public enum Type {

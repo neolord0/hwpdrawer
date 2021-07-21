@@ -12,7 +12,7 @@ public class PageOutput extends Output {
 
     private final int pageNo;
     private final Area paperArea;
-
+    private final Area bodyArea;
     private final Area headerArea;
     private final Area footerArea;
 
@@ -23,6 +23,7 @@ public class PageOutput extends Output {
     public PageOutput(PageInfo pageInfo, ColumnsInfo columnsInfo) {
         pageNo = pageInfo.pageNo();
         paperArea = pageInfo.paperArea();
+        bodyArea = pageInfo.bodyArea();
         headerArea = pageInfo.headerArea();
         footerArea = pageInfo.footerArea();
 
@@ -37,6 +38,10 @@ public class PageOutput extends Output {
 
     public Area paperArea() {
         return paperArea;
+    }
+
+    public Area bodyArea() {
+        return bodyArea;
     }
 
     @Override

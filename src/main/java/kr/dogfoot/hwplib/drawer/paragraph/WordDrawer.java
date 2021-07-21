@@ -154,10 +154,17 @@ public class WordDrawer {
 
                         TextLine firstRedrawingTextLine = output.deleteRedrawingTextLine(controlCharInfo.areaWithOuterMargin());
 
-                        throw new RedrawException(firstRedrawingTextLine.paraIndex(),
-                                firstRedrawingTextLine.firstChar().index(),
-                                firstRedrawingTextLine.firstChar().position(),
-                                firstRedrawingTextLine.area().top());
+                        if (firstRedrawingTextLine.firstChar() != null) {
+                            throw new RedrawException(firstRedrawingTextLine.paraIndex(),
+                                    firstRedrawingTextLine.firstChar().index(),
+                                    firstRedrawingTextLine.firstChar().prePosition(),
+                                    firstRedrawingTextLine.area().top());
+                        } else {
+                            if (firstRedrawingTextLine.firstChar() != null) {
+                                throw new RedrawException(firstRedrawingTextLine.paraIndex(), 0, 0,
+                                        firstRedrawingTextLine.area().top());
+                            }
+                        }
                     }
                 } else {
                     textFlowCalculator.add(controlCharInfo);
