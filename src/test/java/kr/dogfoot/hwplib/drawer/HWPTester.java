@@ -61,6 +61,8 @@ public class HWPTester {
         }
         return "etc";
     }
+
+
     public static void test(String path) throws Exception {
         long startTime = System.currentTimeMillis();
         HWPFile hwpFile = HWPReader.fromFile(path + "/test.hwp");
@@ -72,6 +74,22 @@ public class HWPTester {
                         .zoomRate(80)
                         .auxiliaryLine(true));
 
+
+        long endTime = System.currentTimeMillis();
+        System.out.println(path + " : " + (endTime - startTime) + "ms, pageCount = " + pageCount);
+    }
+
+    public static void testHTML(String path) throws Exception {
+        long startTime = System.currentTimeMillis();
+        HWPFile hwpFile = HWPReader.fromFile(path + "/test.hwp");
+
+        int pageCount = HWPDrawer.draw(hwpFile,
+                new DrawingOption()
+                        .outputType(DrawingOption.OutputType.HTML)
+                        .directoryToSave(path)
+                        .fontPath("font")
+                        .zoomRate(80)
+                        .auxiliaryLine(false));
 
         long endTime = System.currentTimeMillis();
         System.out.println(path + " : " + (endTime - startTime) + "ms, pageCount = " + pageCount);

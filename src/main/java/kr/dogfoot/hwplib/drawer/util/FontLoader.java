@@ -14,6 +14,8 @@ public class FontLoader {
     }
 
     private String fontPath;
+
+    private String defaultFontName;
     private final Map<String, String> fontFilenameMap;
 
     private FontLoader() {
@@ -26,8 +28,11 @@ public class FontLoader {
     }
 
     private void initialize() {
-        addFontFilename("맑은 고딕", "malgun.ttf");
+        defaultFontName = "새굴림";
+
+        addFontFilename("새굴림", "NGULIM.TTF");
         addFontFilename("바탕", "batang.ttc");
+        addFontFilename("맑은 고딕", "malgun.ttf");
         addFontFilename("나눔고딕", "NanumGothic.ttf");
         addFontFilename("HY헤드라인M", "hy헤드라인m.ttf");
         addFontFilename("휴먼명조", "휴먼명조.ttf");
@@ -37,8 +42,9 @@ public class FontLoader {
     }
 
     public Font load(String fontName) {
-        String path = fontPath + File.separator + fontFilenameMap.get(fontName);
+        String path = fontFilenameMap.get(fontName);
         if (path != null) {
+            path = fontPath + File.separator + fontFilenameMap.get(fontName);
             Font font;
             try {
                 font = Font.createFont(Font.TRUETYPE_FONT,
@@ -50,6 +56,10 @@ public class FontLoader {
             return font;
         }
         return null;
+    }
+
+    public Font loadDefault() {
+        return load(defaultFontName);
     }
 
     public FontLoader addFontFilename(String name, String filename) {

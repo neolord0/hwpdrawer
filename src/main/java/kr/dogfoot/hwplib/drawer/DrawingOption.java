@@ -1,6 +1,7 @@
 package kr.dogfoot.hwplib.drawer;
 
 public class DrawingOption {
+    private OutputType outputType;
     private String directoryToSave;
     private String fontPath;
 
@@ -11,10 +12,20 @@ public class DrawingOption {
     private boolean auxiliaryLine;
 
     public DrawingOption() {
+        outputType = OutputType.Image;
         zoomRate = 100;
         offsetX = 0;
         offsetY = 0;
         auxiliaryLine = false;
+    }
+
+    public OutputType outputType() {
+        return outputType;
+    }
+
+    public DrawingOption outputType(OutputType outputType) {
+        this.outputType = outputType;
+        return this;
     }
 
     public String directoryToSave() {
@@ -65,5 +76,10 @@ public class DrawingOption {
 
     public boolean auxiliaryLine() {
         return auxiliaryLine;
+    }
+
+    public enum OutputType {
+        Image,
+        HTML,
     }
 }

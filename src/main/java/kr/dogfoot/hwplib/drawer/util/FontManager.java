@@ -18,11 +18,13 @@ public class FontManager {
 
     private DocInfo docInfo;
 
+    private Font defaultFont;
     private final Map<String, Font> originalFontMap;
     private final Map<CharShape, Font> calculatingFontMap;
     private final Map<CharShape, Font> drawingFontMap;
 
     private FontManager() {
+        defaultFont = null;
         originalFontMap = new HashMap<>();
         calculatingFontMap = new HashMap<>();
         drawingFontMap = new HashMap<>();
@@ -77,6 +79,12 @@ public class FontManager {
         Font font = originalFontMap.get(faceName);
         if (font == null) {
             font = FontLoader.object().load(faceName);
+            if (font == null) {
+                if(defaultFont == null) {
+                    defaultFont = FontLoader.object().loadDefault();
+                }
+                font = defaultFont;
+            }
             originalFontMap.put(faceName, font);
         }
         return font;

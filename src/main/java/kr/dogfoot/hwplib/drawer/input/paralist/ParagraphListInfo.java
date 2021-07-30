@@ -20,7 +20,6 @@ public class ParagraphListInfo {
     private int paraIndex;
 
     private ParagraphListInfoSort sort;
-    private long cellTopInPage;
 
     private ParaShape paraShape;
 
@@ -36,6 +35,12 @@ public class ParagraphListInfo {
     private int charShapeIndex;
     private CharShape charShape;
 
+    private boolean ignoreNextPage;
+
+    private boolean canSplitCell;
+    private long cellTopInPage;
+    private long tableOuterMarginBottom;
+
     public ParagraphListInfo(DrawingInput input, Paragraph[] paras) {
         this.input = input;
         columnsInfo = new ColumnsInfo(input.pageInfo());
@@ -45,6 +50,7 @@ public class ParagraphListInfo {
 
         this.paras = paras;
         this.paraIndex = 0;
+        ignoreNextPage = false;
     }
 
     public ParagraphListInfo forBodyText() {
@@ -59,10 +65,11 @@ public class ParagraphListInfo {
         return this;
     }
 
-    public ParagraphListInfo forCell(Area textBoxArea, long cellTopInPage) {
+    public ParagraphListInfo forCell(Area textBoxArea, boolean canSplitCell, long cellTopInPage, long tableOuterMarginBottom) {
         sort = ParagraphListInfoSort.ForCell;
+        this.canSplitCell = canSplitCell;
         this.cellTopInPage = cellTopInPage;
-
+        this.tableOuterMarginBottom = tableOuterMarginBottom;
         columnsInfo.set(null, textBoxArea);
         textBoxArea(textBoxArea);
         return this;
@@ -78,12 +85,20 @@ public class ParagraphListInfo {
 
     public boolean nextPara() {
         if (paraIndex < paras.length) {
-            currentPara = paras[paraIndex];
-            paraIndex++;
+            if (!ignoreNextPage) {
+                currentPara = paras[paraIndex];
+                paraIndex++;
+            } else {
+                ignoreNextPage = false;
+            }
             return true;
         } else {
             return false;
         }
+    }
+
+    public void ignoreNextPage() {
+        ignoreNextPage = true;
     }
 
     public boolean gotoPara(TextPosition position) {
@@ -162,8 +177,17 @@ public class ParagraphListInfo {
         return sort == ParagraphListInfoSort.ForCell;
     }
 
+
+    public boolean canSplitCell() {
+        return canSplitCell;
+    }
+
     public long cellTopInPage() {
         return cellTopInPage;
+    }
+
+    public long tableOuterMarginBottom() {
+        return tableOuterMarginBottom;
     }
 
     public ParaShape paraShape() {

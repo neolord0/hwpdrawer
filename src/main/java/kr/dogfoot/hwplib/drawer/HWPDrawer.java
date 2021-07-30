@@ -1,9 +1,12 @@
 package kr.dogfoot.hwplib.drawer;
 
+import kr.dogfoot.hwplib.drawer.drawer.control.table.TableDrawResult;
 import kr.dogfoot.hwplib.drawer.input.DrawingInput;
-import kr.dogfoot.hwplib.drawer.interimoutput.InterimOutput;
-import kr.dogfoot.hwplib.drawer.painter.PagePainter;
-import kr.dogfoot.hwplib.drawer.paragraph.ParaListDrawer;
+import kr.dogfoot.hwplib.drawer.output.InterimOutput;
+import kr.dogfoot.hwplib.drawer.painter.html.PagePainterForHTML;
+import kr.dogfoot.hwplib.drawer.painter.image.PagePainterForImage;
+import kr.dogfoot.hwplib.drawer.drawer.ParaListDrawer;
+import kr.dogfoot.hwplib.drawer.drawer.control.table.TableDrawer;
 import kr.dogfoot.hwplib.drawer.util.Convertor;
 import kr.dogfoot.hwplib.drawer.util.FontLoader;
 import kr.dogfoot.hwplib.drawer.util.FontManager;
@@ -25,13 +28,12 @@ public class HWPDrawer {
     private DrawingOption option;
     private DrawingInput input;
     private InterimOutput output;
-    private PagePainter pagePainter;
+    private int pageCount;
 
     private HWPDrawer() {
         option = null;
         input = null;
         output = null;
-        pagePainter = null;
     }
 
     private void drawFile(HWPFile hwpFile, DrawingOption option) throws Exception {
@@ -42,38 +44,63 @@ public class HWPDrawer {
                 .hwpFile(hwpFile);
         output = new InterimOutput();
 
-        pagePainter = new PagePainter(input, output)
-                .option(option);
 
         for (Section section : input.hwpFile().getBodyText().getSectionList()) {
             drawSection(section);
         }
 
-        if (output.hasControlMovedToNextPage()) {
+        if (output.hasControlMovedToNextPage() ||
+            input.hasSplitTables()) {
             drawAddedPage();
         }
 
-        pagePainter.saveAllPages();
+        switch (option.outputType()) {
+        case Image: {
+                PagePainterForImage pagePainter = new PagePainterForImage(input, output)
+                        .option(option);
+                pagePainter.saveAllPages();
+                pageCount = pagePainter.pageCount();
+            }
+            break;
+        case HTML: {
+                PagePainterForHTML pagePainter = new PagePainterForHTML(input, output)
+                        .option(option);
+                pagePainter.saveAllPages();
+                pageCount = pagePainter.pageCount();
+            }
+            break;
+        }
+    }
 
+    private void drawSection(Section section) throws Exception {
+        input.section(section);
+
+        ParaListDrawer paraListDrawer = new ParaListDrawer(input, output);
+        paraListDrawer.drawForBodyText(section);
     }
 
     private void drawAddedPage() throws Exception {
         input.pageInfo()
                 .increasePageNo();
         output.addEmptyPage(input);
-        ParaListDrawer.drawHeaderFooter(input, output);
 
+        ParaListDrawer.drawHeaderFooter(input, output);
+        drawSplitTable();
     }
 
-    private void drawSection(Section section) throws Exception {
-        input.section(section);
+    private void drawSplitTable() throws Exception {
+        TableDrawer drawer = new TableDrawer(input, output);
 
-        ParaListDrawer paraListDrawer = new ParaListDrawer(input, output, pagePainter);
-        paraListDrawer.drawForBodyText(section);
+        for (TableDrawResult splitTableDrawResult : input.splitTableDrawResults()) {
+            TableDrawResult splitTableDrawResult2  = drawer.drawSplitTable(splitTableDrawResult);
+            output.addChildOutput(splitTableDrawResult2.tableOutputForCurrentPage());
+        }
+
+        input.clearSplitTableDrawResults();
     }
 
     private int pageCount() {
-        return pagePainter.pageCount();
+        return pageCount;
     }
 }
 

@@ -1,6 +1,6 @@
 package kr.dogfoot.hwplib.drawer.input;
 
-import kr.dogfoot.hwplib.drawer.interimoutput.page.PageOutput;
+import kr.dogfoot.hwplib.drawer.output.page.PageOutput;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlFooter;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlHeader;

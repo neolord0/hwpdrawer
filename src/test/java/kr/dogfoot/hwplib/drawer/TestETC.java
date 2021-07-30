@@ -1,8 +1,5 @@
 package kr.dogfoot.hwplib.drawer;
 
-import kr.dogfoot.hwplib.object.HWPFile;
-import kr.dogfoot.hwplib.reader.HWPReader;
-
 import org.junit.Test;
 
 import java.io.File;
@@ -14,15 +11,29 @@ public class TestETC {
         HWPFile hwp = HWPReader.fromFile("etc/a.hwp");
     }
 
+
     @Test
     public void test_3() throws Exception {
         HWPTester.test("etc" + File.separator + "1");
     }
-    */
 
-    @org.junit.Test
+
+
+    @Test
     public void test_4() throws Exception {
         HWPTester.test("etc" + File.separator + "4");
+    }
+
+    @Test
+    public void test_5() throws Exception {
+        HWPTester.test("etc" + File.separator + "5");
+    }
+    */
+
+    @Test
+    public void test_html() throws Exception {
+
+        HWPTester.testHTML("etc" + File.separator + "html");
     }
 
     /*
