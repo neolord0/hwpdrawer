@@ -9,14 +9,15 @@ import kr.dogfoot.hwplib.drawer.drawer.ParaListDrawer;
 import kr.dogfoot.hwplib.drawer.util.TextPosition;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlTable;
 import kr.dogfoot.hwplib.object.bodytext.control.table.Cell;
-import kr.dogfoot.hwplib.object.bodytext.control.table.DivideAtPageBoundary;
+import kr.dogfoot.hwplib.object.bodytext.control.table.ListHeaderForCell;
 import kr.dogfoot.hwplib.object.bodytext.control.table.Row;
 
 public class TableDrawer {
     private final DrawingInput input;
     private final InterimOutput output;
 
-    private CellDrawState[] stateForEchoColumn;
+    private TableOutput tableOutput;
+    private CellDrawState[] statesForEchoColumn;
 
 
     public TableDrawer(DrawingInput input, InterimOutput output) {
@@ -24,169 +25,181 @@ public class TableDrawer {
         this.output = output;
     }
 
-    public TableDrawResult draw(ControlCharInfo controlCharInfo) throws Exception {
-        ControlTable table = (ControlTable) controlCharInfo.control();
+    public TableResult draw(ControlCharInfo controlCharInfo) throws Exception {
+        initializeStatesForEchoColumn((ControlTable) controlCharInfo.control());
 
-        TableOutput tableOutput = output.startTable(table, controlCharInfo.areaWithoutOuterMargin());
+        tableOutput = output.startTable((ControlTable) controlCharInfo.control(), controlCharInfo.areaWithoutOuterMargin());
+        TableResult result = new TableResult(controlCharInfo).tableOutputForCurrentPage(tableOutput);
 
-        TableDrawResult drawResult = new TableDrawResult(controlCharInfo);
-        drawResult.tableOutputForCurrentPage(tableOutput);
-
-        boolean canSplitCell = canSplitCell(table);
-        
-        stateForEchoColumn = new CellDrawState[table.getTable().getColumnCount()];
-
-        int rowSize = table.getRowList().size();
+        int rowSize = tableOutput.table().getRowList().size();
         for (int rowIndex = 0; rowIndex < rowSize; rowIndex++) {
-            Row row = table.getRowList().get(rowIndex);
+            if (stopDrawRow()) {
+                break;
+            }
 
             boolean drawingRowCompletely = true;
-            boolean stopDrawRow = false;
 
+            Row row = tableOutput.table().getRowList().get(rowIndex);
             for (Cell cell : row.getCellList()) {
                 if (canDrawCell(cell)) {
-                    CellDrawResult result = drawCell(cell, tableOutput, canSplitCell, null);
-                    setStateForEchoColumn(result.split(),  cell);
+                    CellResult cellResult = drawCell(cell, null);
+                    setStatesForEchoColumn(cellResult);
 
-                    if (result.split()) {
-                        drawResult.addSplitCellDrawResult(result);
+                    result.addCellResult(cellResult);
+
+                    if (cellResult.split()) {
                         drawingRowCompletely = false;
                     }
-                } else {
-                    stopDrawRow = true;
                 }
             }
 
             if (drawingRowCompletely == false) {
-                drawResult.startRowIndexForNextPage(rowIndex);
-            }
-
-            if (stopDrawRow == true) {
-                break;
+                result.splitStartRowIndex(rowIndex);
             }
         }
 
         tableOutput.cellPosition().calculate();
         tableOutput.areaWithoutOuterMargin().height(tableOutput.cellPosition().totalHeight());
+
         output.endTable();
-        return drawResult;
+        return result;
     }
 
-    private boolean canSplitCell(ControlTable table) {
-        return !table.getHeader().getProperty().isLikeWord() &&
-                table.getTable().getProperty().getDivideAtPageBoundary() == DivideAtPageBoundary.Divide;
+    private void initializeStatesForEchoColumn(ControlTable table) {
+        statesForEchoColumn = new CellDrawState[table.getTable().getColumnCount()];
     }
 
-    private boolean canDrawCell(Cell cell) {
-        for (int colIndex = cell.getListHeader().getColIndex();
-             colIndex < cell.getListHeader().getColIndex() + cell.getListHeader().getColSpan();
-             colIndex++) {
-            if (!(stateForEchoColumn[colIndex] == null || stateForEchoColumn[colIndex] == CellDrawState.Complete)) {
+    private boolean stopDrawRow() {
+        for (CellDrawState state : statesForEchoColumn) {
+            if (state != CellDrawState.Partially) {
                 return false;
             }
         }
         return true;
     }
 
-    private void setStateForEchoColumn(boolean split, Cell cell) {
-        CellDrawState state = (split) ? CellDrawState.Partially : CellDrawState.Complete;
+    private boolean canDrawCell(Cell cell) {
         for (int colIndex = cell.getListHeader().getColIndex();
              colIndex < cell.getListHeader().getColIndex() + cell.getListHeader().getColSpan();
              colIndex++) {
-            stateForEchoColumn[colIndex] = state;
+            if (!(statesForEchoColumn[colIndex] == null || statesForEchoColumn[colIndex] == CellDrawState.Complete)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void setStatesForEchoColumn(CellResult result) {
+        CellDrawState state = (result.split()) ? CellDrawState.Partially : CellDrawState.Complete;
+        for (int colIndex = result.cell().getListHeader().getColIndex();
+             colIndex < result.cell().getListHeader().getColIndex() + result.cell().getListHeader().getColSpan();
+             colIndex++) {
+            statesForEchoColumn[colIndex] = state;
         }
     }
 
-    private CellDrawResult drawCell(Cell cell, TableOutput tableOutput, boolean canSplitCell, TextPosition fromPosition) throws Exception {
-        long cellTopInPage = tableOutput.cellPosition().currentCellTop(cell.getListHeader().getColIndex())  + tableOutput.areaWithoutOuterMargin().top();
-
-        CellDrawResult result = null;
-        CellOutput cellOutput = output.startCell(cell, tableOutput);
+    private CellResult drawCell(Cell cell, TextPosition fromPosition) throws Exception {
 
         if (cell.getParagraphList() != null) {
-            cellOutput
-                    .textMargin(
-                            cell.getListHeader().getLeftMargin(),
-                            cell.getListHeader().getTopMargin(),
-                            cell.getListHeader().getRightMargin(),
-                            cell.getListHeader().getBottomMargin())
-                    .verticalAlignment(cell.getListHeader().getProperty().getTextVerticalAlignment());
+            long topInPage = tableOutput.cellPosition().currentCellTop(cell.getListHeader().getColIndex())  + tableOutput.areaWithoutOuterMargin().top();
+            ListHeaderForCell lh = cell.getListHeader();
 
-            result = new ParaListDrawer(input, output).drawForCell(cell.getParagraphList(),
+            CellOutput cellOutput = output.startCell(cell, tableOutput)
+                    .textMargin(lh.getLeftMargin(), lh.getTopMargin(), lh.getRightMargin(), lh.getBottomMargin())
+                    .verticalAlignment(lh.getProperty().getTextVerticalAlignment());
+
+            CellResult result = new ParaListDrawer(input, output).drawForCell(cell.getParagraphList(),
                     cellOutput.textBoxArea(),
-                    canSplitCell,
-                    cellTopInPage,
+                    tableOutput.canSplitCell(),
+                    topInPage,
                     tableOutput.table().getHeader().getOutterMarginBottom(),
                     fromPosition);
+            result.cell(cell);
+
+            checkCrossPage(topInPage, lh, result);
 
             cellOutput.calculatedContentHeight(result.height());
+
+            output.endCell();
+            tableOutput.addCell(cellOutput);
+
+            return result;
+        } else {
+            return new CellResult()
+                    .cell(cell)
+                    .height(cell.getListHeader().getHeight());
         }
-
-        tableOutput.addCell(cellOutput);
-        output.endCell();
-
-        result.cell(cell);
-        return result;
     }
 
-    public TableDrawResult drawSplitTable(TableDrawResult splitTableDrawResult) throws Exception {
-        setSplitTableTop(splitTableDrawResult);
 
-        ControlTable table = splitTableDrawResult.table();
-        TableOutput tableOutput = output.startTable(table, splitTableDrawResult.areaWithoutOuterMargin());
+    private void checkCrossPage(long topInPage, ListHeaderForCell lh, CellResult result) {
+        long tableOuterMarginBottom = tableOutput.table().getHeader().getOutterMarginBottom();
+        if (lh.getHeight() + topInPage + tableOuterMarginBottom > input.pageInfo().bodyArea().bottom()) {
+            long heightWithMargin = input.pageInfo().bodyArea().bottom() - tableOuterMarginBottom - topInPage;
+            result
+                    .height(heightWithMargin - (lh.getTopMargin() + lh.getBottomMargin()))
+                    .split(true);
+            result.nextPartHeight(lh.getHeight() - heightWithMargin);
+            lh.setHeight(0);
+        }
+    }
 
-        boolean canSplitCell = canSplitCell(table);
+    public TableResult drawSplitTable(TableResult splitTableResult) throws Exception {
+        setSplitTableTop(splitTableResult);
+        initializeStatesForEchoColumn(splitTableResult.table());
 
-        TableDrawResult drawResult = new TableDrawResult(splitTableDrawResult.controlCharInfo());
-        drawResult.tableOutputForCurrentPage(tableOutput);
+        tableOutput = output.startTable(splitTableResult.table(), splitTableResult.areaWithoutOuterMargin())
+                .split(true);
+        TableResult result = new TableResult(splitTableResult.controlCharInfo()).tableOutputForCurrentPage(tableOutput);
 
-        stateForEchoColumn = new CellDrawState[table.getTable().getColumnCount()];
-
-        int rowSize = table.getRowList().size();
-        for (int rowIndex = splitTableDrawResult.startRowIndexForNextPage(); rowIndex < rowSize; rowIndex++) {
-            Row row = table.getRowList().get(rowIndex);
+        int rowSize = tableOutput.table().getRowList().size();
+        for (int rowIndex = splitTableResult.splitStartRowIndex(); rowIndex < rowSize; rowIndex++) {
+            if (stopDrawRow()) {
+                break;
+            }
 
             boolean drawingRowCompletely = true;
-            boolean stopDrawRow = false;
-            TextPosition splitPosition = null;
 
+            Row row = tableOutput.table().getRowList().get(rowIndex);
             for (Cell cell : row.getCellList()) {
                 if (canDrawCell(cell)) {
-                    CellDrawResult cellDrawResult = splitTableDrawResult.splitCellDrawResult(cell);
-                    if (cellDrawResult != null) {
-                        splitPosition = cellDrawResult.splitPosition();
+                    CellResult drawCellResult = splitTableResult.cellResult(cell);
+
+                    TextPosition splitPosition = null;
+                    if (drawCellResult != null) {
+                        if (!drawCellResult.split()) {
+                            break;
+                        } else {
+                            splitPosition = drawCellResult.splitPosition();
+                            cell.getListHeader().setHeight(drawCellResult.nextPartHeight());
+                        }
                     } else {
                         splitPosition = null;
                     }
 
-                    CellDrawResult result = drawCell(cell, tableOutput, canSplitCell, splitPosition);
-                    setStateForEchoColumn(result.split(),  cell);
+                    CellResult cellResult = drawCell(cell, splitPosition);
+                    setStatesForEchoColumn(cellResult);
 
-                    if (result.split()) {
-                        drawResult.addSplitCellDrawResult(result);
+                    result.addCellResult(cellResult);
+
+                    if (cellResult.split()) {
                         drawingRowCompletely = false;
                     }
-                } else {
-                    stopDrawRow = true;
                 }
             }
 
             if (drawingRowCompletely == false) {
-                drawResult.startRowIndexForNextPage(rowIndex);
-            }
-
-            if (stopDrawRow == true) {
-                break;
+                result.splitStartRowIndex(rowIndex);
             }
         }
 
         tableOutput.cellPosition().calculate();
         tableOutput.areaWithoutOuterMargin().height(tableOutput.cellPosition().totalHeight());
         output.endTable();
-        return drawResult;
+        return result;
     }
 
-    private void setSplitTableTop(TableDrawResult splitTableDrawResult) {
+    private void setSplitTableTop(TableResult splitTableDrawResult) {
         splitTableDrawResult.areaWithOuterMargin()
                 .top(input.pageInfo().bodyArea().top())
                 .height(0);
@@ -195,36 +208,8 @@ public class TableDrawer {
                 .height(0);
     }
 
-    public static CellOutput drawCell(Cell cell, DrawingInput input, InterimOutput output) throws Exception {
-        CellOutput cellOutput = output.startCell(cell, null);
-
-        if (cell.getParagraphList() != null) {
-            cellOutput
-                    .textMargin(
-                            cell.getListHeader().getLeftMargin(),
-                            cell.getListHeader().getTopMargin(),
-                            cell.getListHeader().getRightMargin(),
-                            cell.getListHeader().getBottomMargin())
-                    .verticalAlignment(cell.getListHeader().getProperty().getTextVerticalAlignment());
-
-            CellDrawResult result = new ParaListDrawer(input, output)
-                                .drawForCell(cell.getParagraphList(),
-                                        cellOutput.textBoxArea(),
-                                        false,
-                                        0,
-                                        0,
-                                        new TextPosition(0, 0, 0));
-
-            cellOutput.calculatedContentHeight(result.height());
-        }
-
-        output.endCell();
-        return cellOutput;
-    }
-
     public enum CellDrawState {
         Complete,
-        Partially,
-        No
+        Partially
     }
 }

@@ -45,6 +45,7 @@ public class TextLine {
         parts.clear();
         currentTextPart = null;
         controls.clear();
+        hasDrawingChar = false;
     }
 
     public int paraIndex() {

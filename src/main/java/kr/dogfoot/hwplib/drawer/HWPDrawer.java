@@ -1,6 +1,6 @@
 package kr.dogfoot.hwplib.drawer;
 
-import kr.dogfoot.hwplib.drawer.drawer.control.table.TableDrawResult;
+import kr.dogfoot.hwplib.drawer.drawer.control.table.TableResult;
 import kr.dogfoot.hwplib.drawer.input.DrawingInput;
 import kr.dogfoot.hwplib.drawer.output.InterimOutput;
 import kr.dogfoot.hwplib.drawer.painter.html.PagePainterForHTML;
@@ -25,19 +25,17 @@ public class HWPDrawer {
         return drawer.pageCount();
     }
 
-    private DrawingOption option;
     private DrawingInput input;
     private InterimOutput output;
+
     private int pageCount;
 
     private HWPDrawer() {
-        option = null;
         input = null;
         output = null;
     }
 
     private void drawFile(HWPFile hwpFile, DrawingOption option) throws Exception {
-        this.option = option;
         Convertor.option(option);
 
         input = new DrawingInput()
@@ -91,8 +89,8 @@ public class HWPDrawer {
     private void drawSplitTable() throws Exception {
         TableDrawer drawer = new TableDrawer(input, output);
 
-        for (TableDrawResult splitTableDrawResult : input.splitTableDrawResults()) {
-            TableDrawResult splitTableDrawResult2  = drawer.drawSplitTable(splitTableDrawResult);
+        for (TableResult splitTableDrawResult : input.splitTableDrawResults()) {
+            TableResult splitTableDrawResult2  = drawer.drawSplitTable(splitTableDrawResult);
             output.addChildOutput(splitTableDrawResult2.tableOutputForCurrentPage());
         }
 

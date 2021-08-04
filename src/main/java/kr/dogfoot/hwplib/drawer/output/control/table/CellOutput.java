@@ -102,8 +102,9 @@ public class CellOutput extends Output {
         }
     }
 
-    public void verticalAlignment(TextVerticalAlignment verticalAlignment) {
+    public CellOutput verticalAlignment(TextVerticalAlignment verticalAlignment) {
         this.verticalAlignment = verticalAlignment;
+        return this;
     }
 
     public void calculatedContentHeight(long calculatedContentHeight) {
@@ -111,8 +112,8 @@ public class CellOutput extends Output {
                 Math.max(this.calculatedContentHeight, calculatedContentHeight);
     }
 
-    public long calculatedHeight() {
-        return calculatedContentHeight + cell.getListHeader().getTopMargin() + cell.getListHeader().getBottomMargin();
+    public long calculatedContentHeight() {
+        return calculatedContentHeight;
     }
 
     public void processAtAddingChildOutput(ControlOutput childOutput) {

@@ -54,7 +54,7 @@ public class TablePainter {
         ListHeaderForCell lh = cellOutput.cell().getListHeader();
         Area cellArea = new Area(0, 0,
                 lh.getWidth(),
-                Math.max(cellOutput.calculatedHeight(), lh.getHeight()));
+                Math.max(cellOutput.calculatedContentHeight(), lh.getHeight()));
 
         BorderFill borderFill = input.borderFill(lh.getBorderFillId());
         painter.startCellDiv(cellArea, borderFill, false);

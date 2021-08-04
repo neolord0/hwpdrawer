@@ -6,7 +6,7 @@ import kr.dogfoot.hwplib.drawer.output.control.ControlOutput;
 import kr.dogfoot.hwplib.drawer.output.control.GsoOutput;
 import kr.dogfoot.hwplib.drawer.drawer.ParaListDrawer;
 import kr.dogfoot.hwplib.drawer.drawer.charInfo.ControlCharInfo;
-import kr.dogfoot.hwplib.drawer.drawer.control.table.TableDrawResult;
+import kr.dogfoot.hwplib.drawer.drawer.control.table.TableResult;
 import kr.dogfoot.hwplib.drawer.drawer.control.table.TableDrawer;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.control.gso.*;
@@ -53,7 +53,7 @@ public class ControlDrawer {
                 }
                 break;
             case Table:
-                TableDrawResult tableDrawResult = tableDrawer.draw(controlCharInfo);
+                TableResult tableDrawResult = tableDrawer.draw(controlCharInfo);
                 if (tableDrawResult.split()) {
                     input.addSplitTableDrawResult(tableDrawResult);
                 }

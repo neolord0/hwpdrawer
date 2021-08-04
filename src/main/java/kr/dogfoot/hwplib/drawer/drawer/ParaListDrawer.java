@@ -4,7 +4,7 @@ import kr.dogfoot.hwplib.drawer.input.DrawingInput;
 import kr.dogfoot.hwplib.drawer.output.InterimOutput;
 import kr.dogfoot.hwplib.drawer.output.page.FooterOutput;
 import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfoBuffer;
-import kr.dogfoot.hwplib.drawer.drawer.control.table.CellDrawResult;
+import kr.dogfoot.hwplib.drawer.drawer.control.table.CellResult;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.TextPosition;
 import kr.dogfoot.hwplib.object.bodytext.ParagraphListInterface;
@@ -119,19 +119,23 @@ public class ParaListDrawer {
         return output.currentContent().height();
     }
 
-    public CellDrawResult drawForCell(ParagraphListInterface paraList, Area textBoxArea, boolean canSplitCell, long cellTopInPage, long tableOuterMarginBottom, TextPosition fromPosition) throws Exception {
+    public CellResult drawForCell(ParagraphListInterface paraList, Area textBoxArea, boolean canSplitCell, long cellTopInPage, long tableOuterMarginBottom, TextPosition fromPosition) throws Exception {
         input.startCellParaList(textBoxArea, paraList.getParagraphs(), canSplitCell, cellTopInPage, tableOuterMarginBottom);
 
         if (fromPosition != null) {
-            input.gotoParaCharPositionWithIgnoreNextPara(fromPosition);
+            input.gotoParaWithIgnoreNextPara(fromPosition);
         }
 
-        CellDrawResult result = new CellDrawResult();
+        CellResult result = new CellResult();
+
         boolean redraw = false;
-        boolean boolOverPage = false;
         while (redraw || input.nextPara()) {
             try {
-                paraDrawer.draw(redraw);
+                if (fromPosition != null && fromPosition.paraIndex() == input.paraIndex()) {
+                    paraDrawer.draw(redraw, fromPosition);
+                } else {
+                    paraDrawer.draw(redraw);
+                }
                 redraw = false;
             } catch (RedrawException e) {
                 redraw = true;
@@ -139,7 +143,6 @@ public class ParaListDrawer {
                 if (e.type().isForOverTextBoxArea()) {
                     input.columnsInfo().textBoxArea().bottom(input.pageInfo().bodyArea().bottom());
                     paraDrawer.gotoStartCharOfCurrentRow();
-                    input.columnsInfo().processLikeDistributionMultiColumn(true);
                     redraw = true;
                 } else if (e.type().isForOverPage()) {
                     result

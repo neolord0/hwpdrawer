@@ -3,7 +3,7 @@ package kr.dogfoot.hwplib.drawer.input;
 import kr.dogfoot.hwplib.drawer.input.paralist.ColumnsInfo;
 import kr.dogfoot.hwplib.drawer.input.paralist.ParagraphListInfo;
 import kr.dogfoot.hwplib.drawer.input.paralist.ParallelMultiColumnInfo;
-import kr.dogfoot.hwplib.drawer.drawer.control.table.TableDrawResult;
+import kr.dogfoot.hwplib.drawer.drawer.control.table.TableResult;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.TextPosition;
 import kr.dogfoot.hwplib.object.HWPFile;
@@ -37,7 +37,7 @@ public class DrawingInput {
     private ParagraphListInfo bodyTextParaListInfo;
     private final Stack<ParagraphListInfo> paraListInfoStack;
 
-    private final ArrayList<TableDrawResult> splitTableDrawResults;
+    private final ArrayList<TableResult> splitTableDrawResults;
 
     public DrawingInput() {
         imageMap = new HashMap<>();
@@ -275,16 +275,16 @@ public class DrawingInput {
         currentParaListInfo().gotoChar(position);
     }
 
-    public void gotoParaCharPositionWithIgnoreNextPara(TextPosition position) {
+    public void gotoParaWithIgnoreNextPara(TextPosition position) {
         currentParaListInfo().gotoPara(position);
-        currentParaListInfo().gotoChar(position);
-        currentParaListInfo().ignoreNextPage();
+        currentParaListInfo().ignoreNextPara();
     }
+
     public ParallelMultiColumnInfo parallelMultiColumnInfo() {
         return columnsInfo().parallelMultiColumnInfo();
     }
 
-    public void addSplitTableDrawResult(TableDrawResult tableDrawResult) {
+    public void addSplitTableDrawResult(TableResult tableDrawResult) {
         splitTableDrawResults.add(tableDrawResult);
     }
 
@@ -292,12 +292,13 @@ public class DrawingInput {
         return !splitTableDrawResults.isEmpty();
     }
 
-    public TableDrawResult[] splitTableDrawResults() {
-        return splitTableDrawResults.toArray(TableDrawResult.ZeroArray);
+    public TableResult[] splitTableDrawResults() {
+        return splitTableDrawResults.toArray(TableResult.ZeroArray);
     }
 
     public void clearSplitTableDrawResults() {
         splitTableDrawResults.clear();
     }
+
 }
 

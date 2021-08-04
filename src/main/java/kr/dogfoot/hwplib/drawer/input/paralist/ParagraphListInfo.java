@@ -35,7 +35,7 @@ public class ParagraphListInfo {
     private int charShapeIndex;
     private CharShape charShape;
 
-    private boolean ignoreNextPage;
+    private boolean ignoreNextPara;
 
     private boolean canSplitCell;
     private long cellTopInPage;
@@ -50,7 +50,7 @@ public class ParagraphListInfo {
 
         this.paras = paras;
         this.paraIndex = 0;
-        ignoreNextPage = false;
+        ignoreNextPara = false;
     }
 
     public ParagraphListInfo forBodyText() {
@@ -84,21 +84,22 @@ public class ParagraphListInfo {
     }
 
     public boolean nextPara() {
-        if (paraIndex < paras.length) {
-            if (!ignoreNextPage) {
-                currentPara = paras[paraIndex];
-                paraIndex++;
-            } else {
-                ignoreNextPage = false;
-            }
+        if (ignoreNextPara) {
+            ignoreNextPara = false;
             return true;
         } else {
-            return false;
+            if (paraIndex < paras.length) {
+                currentPara = paras[paraIndex];
+                paraIndex++;
+                return true;
+            } else {
+                return false;
+            }
         }
     }
 
-    public void ignoreNextPage() {
-        ignoreNextPage = true;
+    public void ignoreNextPara() {
+        ignoreNextPara = true;
     }
 
     public boolean gotoPara(TextPosition position) {

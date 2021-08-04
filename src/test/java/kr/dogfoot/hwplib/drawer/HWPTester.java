@@ -62,7 +62,6 @@ public class HWPTester {
         return "etc";
     }
 
-
     public static void test(String path) throws Exception {
         long startTime = System.currentTimeMillis();
         HWPFile hwpFile = HWPReader.fromFile(path + "/test.hwp");

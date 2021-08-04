@@ -1,6 +1,6 @@
 package kr.dogfoot.hwplib.drawer.drawer;
 
-import kr.dogfoot.hwplib.drawer.drawer.control.table.TableDrawResult;
+import kr.dogfoot.hwplib.drawer.drawer.control.table.TableResult;
 import kr.dogfoot.hwplib.drawer.drawer.control.table.TableDrawer;
 import kr.dogfoot.hwplib.drawer.input.DrawingInput;
 import kr.dogfoot.hwplib.drawer.output.InterimOutput;
@@ -79,6 +79,25 @@ public class ParaDrawer {
         endPara();
     }
 
+    public void draw(boolean redraw, TextPosition startPosition) throws Exception {
+        controlExtendCharIndex = 0;
+
+        if (redraw == false) {
+            startPara();
+            input.gotoCharPositionInPara(startPosition);
+        }
+        resetForNewPara();
+
+        if (input.noChar()) {
+            textLineDrawer.setEmptyLineHeight();
+            saveTextLineAndNewLine();
+            checkNewColumnAndPage();
+        } else {
+            chars();
+        }
+
+        endPara();
+    }
 
     private void startPara() throws Exception {
         input.startPara();
@@ -313,16 +332,16 @@ public class ParaDrawer {
     private void drawSplitTables() throws Exception {
         TableDrawer drawer = new TableDrawer(input, output);
 
-        ArrayList<TableDrawResult> newSplitTableDrawResults = new ArrayList<>();
-        for (TableDrawResult splitTableDrawResult : input.splitTableDrawResults()) {
-            TableDrawResult splitTableDrawResult2 = drawer.drawSplitTable(splitTableDrawResult);
+        ArrayList<TableResult> newSplitTableDrawResults = new ArrayList<>();
+        for (TableResult splitTableDrawResult : input.splitTableDrawResults()) {
+            TableResult splitTableDrawResult2 = drawer.drawSplitTable(splitTableDrawResult);
             newSplitTableDrawResults.add(splitTableDrawResult2);
 
             textFlowCalculator.delete(splitTableDrawResult.controlCharInfo());
         }
         input.clearSplitTableDrawResults();
 
-        for (TableDrawResult newSplitTableDrawResult : newSplitTableDrawResults) {
+        for (TableResult newSplitTableDrawResult : newSplitTableDrawResults) {
             wordDrawer.addControlOutput(newSplitTableDrawResult.controlCharInfo(), newSplitTableDrawResult.tableOutputForCurrentPage());
 
             if (newSplitTableDrawResult.split()) {
@@ -520,17 +539,19 @@ public class ParaDrawer {
                         nextColumn();
                     }
                 } else {
-                    if (input.isCellText() && input.currentParaListInfo().canSplitCell() && input.pageInfo().bodyArea() != null) {
-                        if (isOverPageBottomForCell(textLineDrawer.maxCharHeight(), input.currentParaListInfo().cellTopInPage(), input.currentParaListInfo().tableOuterMarginBottom())) {
-                            if (textLineDrawer.firstCharInfo() != null) {
-                                throw new BreakDrawingException(textLineDrawer.firstCharInfo().position()).forOverPage();
-                            } else {
-                                throw new BreakDrawingException(new TextPosition(textLineDrawer.paraIndex(), 0, 0)).forOverPage();
-                            }
-                        }
-                    } else if (!input.isBodyText() && input.columnsInfo().isNormalMultiColumn()) {
+                    if (!input.isBodyText() && input.columnsInfo().isNormalMultiColumn()) {
                         throw new BreakDrawingException().forOverTextBoxArea();
                     }
+                }
+            }
+        }
+
+        if (input.isCellText() && input.currentParaListInfo().canSplitCell()) {
+            if (isOverPageBottomForCell(textLineDrawer.maxCharHeight(), input.currentParaListInfo().cellTopInPage(), input.currentParaListInfo().tableOuterMarginBottom())) {
+                if (textLineDrawer.firstCharInfo() != null) {
+                    throw new BreakDrawingException(textLineDrawer.firstCharInfo().position()).forOverPage();
+                } else {
+                    throw new BreakDrawingException(new TextPosition(textLineDrawer.paraIndex(), 0, 0)).forOverPage();
                 }
             }
         }

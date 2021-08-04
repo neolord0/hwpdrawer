@@ -3,21 +3,23 @@ package kr.dogfoot.hwplib.drawer.drawer.control.table;
 import kr.dogfoot.hwplib.drawer.util.TextPosition;
 import kr.dogfoot.hwplib.object.bodytext.control.table.Cell;
 
-public class CellDrawResult {
+public class CellResult {
     private Cell cell;
     private boolean split;
     private long height;
     private TextPosition splitPosition;
+    private long nextPartHeight;
 
-    public CellDrawResult() {
+    public CellResult() {
         split = false;
+        nextPartHeight = 0;
     }
 
     public boolean split() {
         return split;
     }
 
-    public CellDrawResult split(boolean split) {
+    public CellResult split(boolean split) {
         this.split = split;
         return this;
     }
@@ -26,7 +28,7 @@ public class CellDrawResult {
         return height;
     }
 
-    public CellDrawResult height(long height) {
+    public CellResult height(long height) {
         this.height = height;
         return this;
     }
@@ -43,7 +45,19 @@ public class CellDrawResult {
         return cell;
     }
 
-    public void cell(Cell cell) {
+    public CellResult cell(Cell cell) {
         this.cell = cell;
+        return this;
     }
+
+    public long nextPartHeight() {
+        return nextPartHeight;
+    }
+
+    public void nextPartHeight(long nextPartHeight) {
+        this.nextPartHeight = nextPartHeight;
+    }
+
 }
+
+

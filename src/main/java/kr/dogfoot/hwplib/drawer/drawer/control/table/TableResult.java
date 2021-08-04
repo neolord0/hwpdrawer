@@ -9,29 +9,30 @@ import kr.dogfoot.hwplib.object.bodytext.control.table.Cell;
 import java.util.HashMap;
 import java.util.Map;
 
-public class TableDrawResult {
-    public static TableDrawResult[] ZeroArray = new TableDrawResult[0];
+public class TableResult {
+    public static TableResult[] ZeroArray = new TableResult[0];
 
     private TableOutput tableOutputForCurrentPage;
 
     private ControlCharInfo controlCharInfo;
-    private Map<Cell, CellDrawResult> splitCellDrawResults;
-    private int startRowIndexForNextPage;
+    private Map<Cell, CellResult> cellResults;
+    private int splitStartRowIndex;
 
-    public TableDrawResult(ControlCharInfo controlCharInfo) {
+    public TableResult(ControlCharInfo controlCharInfo) {
         tableOutputForCurrentPage = null;
 
         this.controlCharInfo = controlCharInfo;
-        splitCellDrawResults = new HashMap<>();
-        startRowIndexForNextPage = -1;
+        cellResults = new HashMap<>();
+        splitStartRowIndex = -1;
     }
 
     public TableOutput tableOutputForCurrentPage() {
         return tableOutputForCurrentPage;
     }
 
-    public void tableOutputForCurrentPage(TableOutput tableOutputForCurrentPage) {
+    public TableResult tableOutputForCurrentPage(TableOutput tableOutputForCurrentPage) {
         this.tableOutputForCurrentPage = tableOutputForCurrentPage;
+        return this;
     }
 
     public ControlCharInfo controlCharInfo() {
@@ -50,23 +51,27 @@ public class TableDrawResult {
         return controlCharInfo.areaWithOuterMargin();
     }
 
-    public void addSplitCellDrawResult(CellDrawResult splitCellDrawResult) {
-        splitCellDrawResults.put(splitCellDrawResult.cell(), splitCellDrawResult);
-    }
-
     public boolean split() {
-        return startRowIndexForNextPage > 0;
+        return splitStartRowIndex >= 0;
     }
 
-    public int startRowIndexForNextPage() {
-        return startRowIndexForNextPage;
+    public int splitStartRowIndex() {
+        return splitStartRowIndex;
     }
 
-    public void startRowIndexForNextPage(int startRowIndexForNextPage) {
-        this.startRowIndexForNextPage = startRowIndexForNextPage;
+    public void splitStartRowIndex(int splitStartRowIndex) {
+        if (this.splitStartRowIndex == -1) {
+            this.splitStartRowIndex = splitStartRowIndex;
+        } else {
+            this.splitStartRowIndex = Math.min(splitStartRowIndex, this.splitStartRowIndex);
+        }
     }
 
-    public CellDrawResult splitCellDrawResult(Cell cell) {
-        return splitCellDrawResults.get(cell);
+    public void addCellResult(CellResult cellResult) {
+        cellResults.put(cellResult.cell(), cellResult);
+    }
+
+    public CellResult cellResult(Cell cell) {
+        return cellResults.get(cell);
     }
 }

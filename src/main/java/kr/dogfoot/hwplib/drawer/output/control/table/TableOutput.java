@@ -7,6 +7,7 @@ import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlTable;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.TextFlowMethod;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.VertRelTo;
+import kr.dogfoot.hwplib.object.bodytext.control.table.DivideAtPageBoundary;
 import kr.dogfoot.hwplib.object.bodytext.control.table.ListHeaderForCell;
 
 public class TableOutput extends ControlOutput {
@@ -15,6 +16,8 @@ public class TableOutput extends ControlOutput {
 
     private final CellOutput[][] cellOutputs;
 
+    private boolean split;
+
     public TableOutput(ControlTable table, Area areaWithoutOuterMargin) {
         this.table = table;
         this.areaWithoutOuterMargin = new Area(areaWithoutOuterMargin);
@@ -22,6 +25,7 @@ public class TableOutput extends ControlOutput {
         this.cellOutputs = new CellOutput[table.getTable().getColumnCount()][table.getTable().getRowCount()];
 
         cellPositionCalculator = new CellPositionCalculator(table.getTable().getColumnCount(), table.getTable().getRowCount());
+        split = false;
     }
 
     public void addCell(CellOutput cellOutput) {
@@ -34,7 +38,7 @@ public class TableOutput extends ControlOutput {
                 lh.getRowIndex(),
                 lh.getRowSpan(),
                 lh.getWidth(),
-                Math.max(cellOutput.calculatedHeight(), lh.getHeight()));
+                Math.max(cellOutput.calculatedContentHeight() + lh.getTopMargin() + lh.getBottomMargin(), lh.getHeight()));
     }
 
     public CellOutput[][] cellOutputs() {
@@ -45,9 +49,28 @@ public class TableOutput extends ControlOutput {
         return cellPositionCalculator;
     }
 
+    public boolean canSplitCell() {
+        return !table.getHeader().getProperty().isLikeWord() &&
+                table.getTable().getProperty().getDivideAtPageBoundary() == DivideAtPageBoundary.Divide;
+    }
+
+
+    public boolean split() {
+        return split;
+    }
+
+    public TableOutput split(boolean split) {
+        this.split = split;
+        return this;
+    }
+
     @Override
     public int zOrder() {
-        return table.getHeader().getzOrder();
+        if (split == true) {
+            return table.getHeader().getzOrder() - 100;
+        } else {
+            return table.getHeader().getzOrder();
+        }
     }
 
     @Override
