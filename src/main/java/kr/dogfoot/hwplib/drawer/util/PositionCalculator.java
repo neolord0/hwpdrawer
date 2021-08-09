@@ -14,7 +14,7 @@ public class PositionCalculator {
     private DrawingInput info;
     private CtrlHeaderGso gsoHeader;
 
-    public Area area(CtrlHeaderGso gsoHeader, DrawingInput info) {
+    public Area area(CtrlHeaderGso gsoHeader, DrawingInput info, Area currentTextPartArea) {
         this.info = info;
         this.gsoHeader = gsoHeader;
 
@@ -22,7 +22,7 @@ public class PositionCalculator {
         if (!gsoHeader.getProperty().isLikeWord()) {
             area
                     .move(xOffset(area.width()) + gsoHeader.getOutterMarginLeft(),
-                            yOffset(area.height()) + gsoHeader.getOutterMarginTop());
+                            yOffset(area.height(), currentTextPartArea) + gsoHeader.getOutterMarginTop());
         }
         return area;
     }
@@ -94,7 +94,7 @@ public class PositionCalculator {
         return criterionArea.left() + xOffset;
     }
 
-    private long yOffset(long height) {
+    private long yOffset(long height, Area currentTextPartArea) {
         Area criterionArea = null;
         switch (gsoHeader.getProperty().getVertRelTo()) {
             case Paper:
@@ -104,7 +104,7 @@ public class PositionCalculator {
                 criterionArea = info.pageInfo().bodyArea();
                 break;
             case Para:
-                criterionArea = info.paraArea();
+                criterionArea = currentTextPartArea;
                 break;
         }
 

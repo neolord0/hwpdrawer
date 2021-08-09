@@ -1,5 +1,6 @@
 package kr.dogfoot.hwplib.drawer.output;
 
+import jdk.internal.org.objectweb.asm.util.ASMifiable;
 import kr.dogfoot.hwplib.drawer.input.paralist.ColumnsInfo;
 import kr.dogfoot.hwplib.drawer.input.DrawingInput;
 import kr.dogfoot.hwplib.drawer.output.control.ControlOutput;
@@ -19,6 +20,7 @@ import kr.dogfoot.hwplib.object.bodytext.control.gso.GsoControl;
 import kr.dogfoot.hwplib.object.bodytext.control.table.Cell;
 import org.jetbrains.annotations.NotNull;
 
+import javax.xml.soap.SAAJMetaFactory;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Stack;
@@ -174,20 +176,33 @@ public class InterimOutput {
         }
     }
 
-    public void addChildOutput(ControlOutput childOutput) {
-        if (currentContent() != null) {
+    public boolean addChildOutput(ControlOutput childOutput) {
+        if (currentOutput().type() == Output.Type.Cell) {
+            return addChildOutputToCell(childOutput);
+        } else {
             currentColumn().addChildOutput(childOutput);
-        }
 
-        if (currentOutput().type() == Output.Type.Gso) {
-            GsoOutput gsoOutput = (GsoOutput) currentOutput();
-            gsoOutput.processAtAddingChildOutput(childOutput);
-        } else if (currentOutput().type() == Output.Type.Cell) {
-            CellOutput cellOutput = (CellOutput) currentOutput();
+            if (currentOutput().type() == Output.Type.Gso) {
+                GsoOutput gsoOutput = (GsoOutput) currentOutput();
+                gsoOutput.processAtAddingChildOutput(childOutput);
+            } else if (currentOutput().type() == Output.Type.Footer) {
+                FooterOutput footerOutput = (FooterOutput) currentOutput();
+                footerOutput.processAtAddingChildOutput(childOutput);
+            }
+            return true;
+        }
+    }
+
+    private boolean addChildOutputToCell(ControlOutput childOutput) {
+        CellOutput cellOutput = (CellOutput) currentOutput();
+        long cellTopInPage = cellOutput.tableOutput().cellPosition().currentCellTop(cellOutput.cell().getListHeader().getColIndex())  + cellOutput.tableOutput().areaWithoutOuterMargin().top();
+        if (cellOutput.tableOutput().canSplitCell() && currentPage().bodyArea().bottom() < (childOutput.areaWithoutOuterMargin().bottom() + cellTopInPage)) {
+            cellOutput.addChildControlCrossingPage(childOutput);
+            return false;
+        } else {
+            currentColumn().addChildOutput(childOutput);
             cellOutput.processAtAddingChildOutput(childOutput);
-        } else if (currentOutput().type() == Output.Type.Footer) {
-            FooterOutput footerOutput = (FooterOutput) currentOutput();
-            footerOutput.processAtAddingChildOutput(childOutput);
+            return true;
         }
     }
 

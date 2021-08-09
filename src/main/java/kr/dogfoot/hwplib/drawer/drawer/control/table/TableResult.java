@@ -14,14 +14,12 @@ public class TableResult {
 
     private TableOutput tableOutputForCurrentPage;
 
-    private ControlCharInfo controlCharInfo;
     private Map<Cell, CellResult> cellResults;
     private int splitStartRowIndex;
 
-    public TableResult(ControlCharInfo controlCharInfo) {
+    public TableResult() {
         tableOutputForCurrentPage = null;
 
-        this.controlCharInfo = controlCharInfo;
         cellResults = new HashMap<>();
         splitStartRowIndex = -1;
     }
@@ -35,20 +33,16 @@ public class TableResult {
         return this;
     }
 
-    public ControlCharInfo controlCharInfo() {
-        return controlCharInfo;
-    }
-
     public ControlTable table() {
-        return (ControlTable) controlCharInfo.control();
+        return tableOutputForCurrentPage.table();
     }
 
     public Area areaWithoutOuterMargin() {
-        return controlCharInfo.areaWithoutOuterMargin();
+        return tableOutputForCurrentPage.controlCharInfo().areaWithoutOuterMargin();
     }
 
     public Area areaWithOuterMargin() {
-        return controlCharInfo.areaWithOuterMargin();
+        return tableOutputForCurrentPage.controlCharInfo().areaWithOuterMargin();
     }
 
     public boolean split() {

@@ -62,8 +62,13 @@ public class TextRow {
         return columns.toArray(TextColumn.Zero_Array);
     }
 
+
     public TextColumn currentColumn() {
         return columns.get(currentColumnIndex);
+    }
+
+    public TextColumn firstCol() {
+        return columns.get(0);
     }
 
     public void nextColumn() {
@@ -142,4 +147,5 @@ public class TextRow {
         }
         return sb.toString();
     }
+
 }

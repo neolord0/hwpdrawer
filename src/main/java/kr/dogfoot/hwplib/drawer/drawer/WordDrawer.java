@@ -2,6 +2,7 @@ package kr.dogfoot.hwplib.drawer.drawer;
 
 import kr.dogfoot.hwplib.drawer.input.DrawingInput;
 import kr.dogfoot.hwplib.drawer.output.InterimOutput;
+import kr.dogfoot.hwplib.drawer.output.Output;
 import kr.dogfoot.hwplib.drawer.output.control.ControlOutput;
 import kr.dogfoot.hwplib.drawer.output.text.TextLine;
 import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfo;
@@ -134,12 +135,11 @@ public class WordDrawer {
 
     private void addControlChar(ControlCharInfo controlCharInfo) throws Exception {
         ControlOutput output2 = controlDrawer.draw(controlCharInfo);
-        controlCharInfo.output(output2);
-
-        addControlOutput(controlCharInfo, output2);
+        addControlOutput(output2);
     }
 
-    public void addControlOutput(ControlCharInfo controlCharInfo, ControlOutput output2) throws RedrawException {
+    public void addControlOutput(ControlOutput output2) throws RedrawException {
+        ControlCharInfo controlCharInfo = output2.controlCharInfo();
         if (controlCharInfo.isLikeLetter()) {
             textLineDrawer.addChar(controlCharInfo);
             return;
@@ -152,8 +152,9 @@ public class WordDrawer {
                     if (isOver75PercentOfPageHeight(paraDrawer.currentTextPartArea().bottom())) {
                         output.addControlMovedToNextPage(output2, controlCharInfo);
                     } else {
-                        textFlowCalculator.add(controlCharInfo, output2.areaWithOuterMargin());
-                        output.addChildOutput(output2);
+                        if (output.addChildOutput(output2)) {
+                            textFlowCalculator.add(controlCharInfo, output2.areaWithOuterMargin());
+                        }
 
                         TextLine firstRedrawingTextLine = output.deleteRedrawingTextLine(controlCharInfo.areaWithOuterMargin());
 
@@ -170,8 +171,9 @@ public class WordDrawer {
                         }
                     }
                 } else {
-                    textFlowCalculator.add(controlCharInfo, output2.areaWithOuterMargin());
-                    output.addChildOutput(output2);
+                    if (output.addChildOutput(output2)) {
+                        textFlowCalculator.add(controlCharInfo, output2.areaWithOuterMargin());
+                    }
                 }
             }
         } else {
@@ -217,7 +219,7 @@ public class WordDrawer {
     public void adjustControlAreaAtNewPage() {
         for (CharInfo charInfo : charsOfWord) {
             if (charInfo.type() == CharInfo.Type.Control) {
-                ((ControlCharInfo) charInfo).area(input);
+                ((ControlCharInfo) charInfo).area(input, paraDrawer.currentTextPartArea());
             }
         }
     }

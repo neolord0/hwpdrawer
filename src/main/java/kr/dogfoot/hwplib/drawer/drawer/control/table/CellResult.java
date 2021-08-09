@@ -1,5 +1,7 @@
 package kr.dogfoot.hwplib.drawer.drawer.control.table;
 
+import kr.dogfoot.hwplib.drawer.output.control.ControlOutput;
+import kr.dogfoot.hwplib.drawer.output.control.table.CellOutput;
 import kr.dogfoot.hwplib.drawer.util.TextPosition;
 import kr.dogfoot.hwplib.object.bodytext.control.table.Cell;
 
@@ -9,6 +11,7 @@ public class CellResult {
     private long height;
     private TextPosition splitPosition;
     private long nextPartHeight;
+    private CellOutput cellOutput;
 
     public CellResult() {
         split = false;
@@ -58,6 +61,13 @@ public class CellResult {
         this.nextPartHeight = nextPartHeight;
     }
 
+    public CellOutput cellOutput() {
+        return cellOutput;
+    }
+
+    public void cellOutput(CellOutput cellOutput) {
+        this.cellOutput = cellOutput;
+    }
 }
 
 

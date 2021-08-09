@@ -12,6 +12,8 @@ import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.VertRelTo;
 import kr.dogfoot.hwplib.object.bodytext.control.gso.textbox.TextVerticalAlignment;
 import kr.dogfoot.hwplib.object.bodytext.control.table.Cell;
 
+import java.util.ArrayList;
+
 public class CellOutput extends Output {
     private final TableOutput tableOutput;
     private final Cell cell;
@@ -22,6 +24,7 @@ public class CellOutput extends Output {
     private long calculatedContentHeight;
 
     private final Content content;
+    private final ArrayList<ControlOutput> childControlsCrossingPage;
 
     public CellOutput(TableOutput tableOutput, Cell cell) {
         this.tableOutput = tableOutput;
@@ -35,6 +38,12 @@ public class CellOutput extends Output {
         verticalAlignment = TextVerticalAlignment.Top;
 
         content = new Content(cellArea);
+
+        childControlsCrossingPage = new ArrayList<>();
+    }
+
+    public TableOutput tableOutput() {
+        return tableOutput;
     }
 
     public Cell cell() {
@@ -122,6 +131,18 @@ public class CellOutput extends Output {
         }
     }
 
+    public void addChildControlCrossingPage(ControlOutput childOutput) {
+        childControlsCrossingPage.add(childOutput);
+    }
+
+    public boolean hasChildControlCrossingPage() {
+        return !childControlsCrossingPage.isEmpty();
+    }
+
+    public ControlOutput[] childControlsCrossingPage() {
+        return childControlsCrossingPage.toArray(ControlOutput.Zero_Array);
+    }
+
     @Override
     public Content content() {
         return content;
@@ -140,4 +161,5 @@ public class CellOutput extends Output {
         sb.tab(tabCount).append("cell - }\n");
         return sb.toString();
     }
+
 }

@@ -2,6 +2,7 @@ package kr.dogfoot.hwplib.drawer.drawer;
 
 import kr.dogfoot.hwplib.drawer.input.DrawingInput;
 import kr.dogfoot.hwplib.drawer.output.InterimOutput;
+import kr.dogfoot.hwplib.drawer.output.control.ControlOutput;
 import kr.dogfoot.hwplib.drawer.output.page.FooterOutput;
 import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfoBuffer;
 import kr.dogfoot.hwplib.drawer.drawer.control.table.CellResult;
@@ -119,8 +120,15 @@ public class ParaListDrawer {
         return output.currentContent().height();
     }
 
-    public CellResult drawForCell(ParagraphListInterface paraList, Area textBoxArea, boolean canSplitCell, long cellTopInPage, long tableOuterMarginBottom, TextPosition fromPosition) throws Exception {
-        input.startCellParaList(textBoxArea, paraList.getParagraphs(), canSplitCell, cellTopInPage, tableOuterMarginBottom);
+    public CellResult drawForCell(ParagraphListInterface paraList,
+                                  Area textBoxArea,
+                                  boolean canSplit,
+                                  long topInPage,
+                                  long bottomMargin,
+                                  TextPosition fromPosition,
+                                  ControlOutput[] childControlsCrossingPage) throws Exception {
+
+        input.startCellParaList(textBoxArea, paraList.getParagraphs(), canSplit,  topInPage, bottomMargin);
 
         if (fromPosition != null) {
             input.gotoParaWithIgnoreNextPara(fromPosition);
@@ -132,7 +140,7 @@ public class ParaListDrawer {
         while (redraw || input.nextPara()) {
             try {
                 if (fromPosition != null && fromPosition.paraIndex() == input.paraIndex()) {
-                    paraDrawer.draw(redraw, fromPosition);
+                    paraDrawer.draw(redraw, fromPosition, childControlsCrossingPage);
                 } else {
                     paraDrawer.draw(redraw);
                 }

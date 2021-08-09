@@ -6,6 +6,7 @@ import kr.dogfoot.hwplib.drawer.output.text.TextLine;
 import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfo;
 import kr.dogfoot.hwplib.drawer.drawer.charInfo.ControlCharInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
+import kr.dogfoot.hwplib.drawer.util.TextPosition;
 import kr.dogfoot.hwplib.object.docinfo.ParaShape;
 
 
@@ -59,6 +60,14 @@ public class TextLineDrawer {
 
     public void firstCharInfo(CharInfo firstCharInfo) {
         this.firstCharInfo = firstCharInfo;
+    }
+
+    public TextPosition firstCharPosition() {
+        if (firstCharInfo != null) {
+            return firstCharInfo.position();
+        } else {
+            return new TextPosition(paraIndex(), 0, 0);
+        }
     }
 
     public void addNewTextPart(long startX, long width) {
@@ -156,10 +165,6 @@ public class TextLineDrawer {
         output.addTextLine(textLine);
     }
 
-    public String test() {
-        return textLine.test(0);
-    }
-
     public long lineHeight() {
         return lineHeight;
     }
@@ -176,5 +181,10 @@ public class TextLineDrawer {
     public void addControlCharInfo(ControlCharInfo controlCharInfo) {
         textLine.addControlCharInfo(controlCharInfo);
     }
+
+    public String test() {
+        return textLine.test(0);
+    }
+
 }
 

@@ -37,9 +37,7 @@ public class ParagraphListInfo {
 
     private boolean ignoreNextPara;
 
-    private boolean canSplitCell;
-    private long cellTopInPage;
-    private long tableOuterMarginBottom;
+    private CellInfo cellInfo;
 
     public ParagraphListInfo(DrawingInput input, Paragraph[] paras) {
         this.input = input;
@@ -51,6 +49,8 @@ public class ParagraphListInfo {
         this.paras = paras;
         this.paraIndex = 0;
         ignoreNextPara = false;
+
+        cellInfo = null;
     }
 
     public ParagraphListInfo forBodyText() {
@@ -59,19 +59,20 @@ public class ParagraphListInfo {
     }
 
     public ParagraphListInfo forControl(Area textBoxArea) {
-        sort = ParagraphListInfoSort.ForControl;
         columnsInfo.set(null, textBoxArea);
         textBoxArea(textBoxArea);
+
+        sort = ParagraphListInfoSort.ForControl;
         return this;
     }
 
-    public ParagraphListInfo forCell(Area textBoxArea, boolean canSplitCell, long cellTopInPage, long tableOuterMarginBottom) {
-        sort = ParagraphListInfoSort.ForCell;
-        this.canSplitCell = canSplitCell;
-        this.cellTopInPage = cellTopInPage;
-        this.tableOuterMarginBottom = tableOuterMarginBottom;
+    public ParagraphListInfo forCell(Area textBoxArea, boolean canSplit, long topInPage, long bottomMargin) {
         columnsInfo.set(null, textBoxArea);
         textBoxArea(textBoxArea);
+
+        this.cellInfo = new CellInfo(canSplit, topInPage, bottomMargin);
+
+        sort = ParagraphListInfoSort.ForCell;
         return this;
     }
 
@@ -178,17 +179,8 @@ public class ParagraphListInfo {
         return sort == ParagraphListInfoSort.ForCell;
     }
 
-
-    public boolean canSplitCell() {
-        return canSplitCell;
-    }
-
-    public long cellTopInPage() {
-        return cellTopInPage;
-    }
-
-    public long tableOuterMarginBottom() {
-        return tableOuterMarginBottom;
+    public CellInfo cellInfo() {
+        return cellInfo;
     }
 
     public ParaShape paraShape() {
@@ -310,6 +302,31 @@ public class ParagraphListInfo {
         columnsInfo.currentColumnIndex(columnIndex);
         textBoxArea(columnsInfo.currentColumnArea());
     }
+
+    public static class CellInfo {
+        private boolean canSplit;
+        private long topInPage;
+        private long bottomMargin;
+
+        public CellInfo(boolean canSplit, long topInPage, long bottomMargin) {
+            this.canSplit = canSplit;
+            this.topInPage = topInPage;
+            this.bottomMargin = bottomMargin;
+        }
+
+        public boolean canSplit() {
+            return canSplit;
+        }
+
+        public long topInPage() {
+            return topInPage;
+        }
+
+        public long bottomMargin() {
+            return bottomMargin;
+        }
+    }
+
 
     private  enum ParagraphListInfoSort {
         ForBody,

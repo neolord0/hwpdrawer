@@ -3,6 +3,7 @@ package kr.dogfoot.hwplib.drawer.drawer.control.table;
 import kr.dogfoot.hwplib.drawer.drawer.charInfo.ControlCharInfo;
 import kr.dogfoot.hwplib.drawer.input.DrawingInput;
 import kr.dogfoot.hwplib.drawer.output.InterimOutput;
+import kr.dogfoot.hwplib.drawer.output.control.ControlOutput;
 import kr.dogfoot.hwplib.drawer.output.control.table.CellOutput;
 import kr.dogfoot.hwplib.drawer.output.control.table.TableOutput;
 import kr.dogfoot.hwplib.drawer.drawer.ParaListDrawer;
@@ -29,7 +30,7 @@ public class TableDrawer {
         initializeStatesForEchoColumn((ControlTable) controlCharInfo.control());
 
         tableOutput = output.startTable((ControlTable) controlCharInfo.control(), controlCharInfo.areaWithoutOuterMargin());
-        TableResult result = new TableResult(controlCharInfo).tableOutputForCurrentPage(tableOutput);
+        TableResult result = new TableResult().tableOutputForCurrentPage(tableOutput);
 
         int rowSize = tableOutput.table().getRowList().size();
         for (int rowIndex = 0; rowIndex < rowSize; rowIndex++) {
@@ -42,7 +43,7 @@ public class TableDrawer {
             Row row = tableOutput.table().getRowList().get(rowIndex);
             for (Cell cell : row.getCellList()) {
                 if (canDrawCell(cell)) {
-                    CellResult cellResult = drawCell(cell, null);
+                    CellResult cellResult = drawCell(cell, null, ControlOutput.Zero_Array);
                     setStatesForEchoColumn(cellResult);
 
                     result.addCellResult(cellResult);
@@ -98,10 +99,10 @@ public class TableDrawer {
         }
     }
 
-    private CellResult drawCell(Cell cell, TextPosition fromPosition) throws Exception {
-
+    private CellResult drawCell(Cell cell, TextPosition fromPosition, ControlOutput[] childControlsCrossingPage) throws Exception {
         if (cell.getParagraphList() != null) {
-            long topInPage = tableOutput.cellPosition().currentCellTop(cell.getListHeader().getColIndex())  + tableOutput.areaWithoutOuterMargin().top();
+            long topInPage = tableOutput.cellPosition().currentCellTop(cell.getListHeader().getColIndex())
+                    + tableOutput.areaWithoutOuterMargin().top();
             ListHeaderForCell lh = cell.getListHeader();
 
             CellOutput cellOutput = output.startCell(cell, tableOutput)
@@ -112,9 +113,13 @@ public class TableDrawer {
                     cellOutput.textBoxArea(),
                     tableOutput.canSplitCell(),
                     topInPage,
-                    tableOutput.table().getHeader().getOutterMarginBottom(),
-                    fromPosition);
-            result.cell(cell);
+                    lh.getBottomMargin() + tableOutput.table().getHeader().getOutterMarginBottom(),
+                    fromPosition,
+                    childControlsCrossingPage);
+
+            result
+                    .cell(cell)
+                    .cellOutput(cellOutput);
 
             checkCrossPage(topInPage, lh, result);
 
@@ -130,7 +135,6 @@ public class TableDrawer {
                     .height(cell.getListHeader().getHeight());
         }
     }
-
 
     private void checkCrossPage(long topInPage, ListHeaderForCell lh, CellResult result) {
         long tableOuterMarginBottom = tableOutput.table().getHeader().getOutterMarginBottom();
@@ -150,7 +154,7 @@ public class TableDrawer {
 
         tableOutput = output.startTable(splitTableResult.table(), splitTableResult.areaWithoutOuterMargin())
                 .split(true);
-        TableResult result = new TableResult(splitTableResult.controlCharInfo()).tableOutputForCurrentPage(tableOutput);
+        TableResult result = new TableResult().tableOutputForCurrentPage(tableOutput);
 
         int rowSize = tableOutput.table().getRowList().size();
         for (int rowIndex = splitTableResult.splitStartRowIndex(); rowIndex < rowSize; rowIndex++) {
@@ -166,18 +170,18 @@ public class TableDrawer {
                     CellResult drawCellResult = splitTableResult.cellResult(cell);
 
                     TextPosition splitPosition = null;
+                    ControlOutput[] childControlsCrossingPage = ControlOutput.Zero_Array;
                     if (drawCellResult != null) {
                         if (!drawCellResult.split()) {
                             break;
                         } else {
                             splitPosition = drawCellResult.splitPosition();
+                            childControlsCrossingPage = drawCellResult.cellOutput().childControlsCrossingPage();
                             cell.getListHeader().setHeight(drawCellResult.nextPartHeight());
                         }
-                    } else {
-                        splitPosition = null;
                     }
 
-                    CellResult cellResult = drawCell(cell, splitPosition);
+                    CellResult cellResult = drawCell(cell, splitPosition, childControlsCrossingPage);
                     setStatesForEchoColumn(cellResult);
 
                     result.addCellResult(cellResult);

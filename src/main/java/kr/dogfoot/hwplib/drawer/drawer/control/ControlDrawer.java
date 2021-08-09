@@ -26,30 +26,41 @@ public class ControlDrawer {
     }
 
     public ControlOutput draw(ControlCharInfo controlCharInfo) throws Exception {
+        ControlOutput controlOutput = null;
         switch (controlCharInfo.control().getType()) {
             case Gso:
                 GsoControl gso = (GsoControl) controlCharInfo.control();
                 switch (gso.getGsoType()) {
                     case Line:
-                        return line((ControlLine) gso, controlCharInfo.areaWithoutOuterMargin());
+                        controlOutput = line((ControlLine) gso, controlCharInfo.areaWithoutOuterMargin());
+                        break;
                     case Rectangle:
-                        return rectangle((ControlRectangle) gso, controlCharInfo.areaWithoutOuterMargin());
+                        controlOutput = rectangle((ControlRectangle) gso, controlCharInfo.areaWithoutOuterMargin());
+                        break;
                     case Ellipse:
-                        return ellipse((ControlEllipse) gso, controlCharInfo.areaWithoutOuterMargin());
+                        controlOutput = ellipse((ControlEllipse) gso, controlCharInfo.areaWithoutOuterMargin());
+                        break;
                     case Arc:
-                        return arc((ControlArc) gso, controlCharInfo.areaWithoutOuterMargin());
+                        controlOutput = arc((ControlArc) gso, controlCharInfo.areaWithoutOuterMargin());
+                        break;
                     case Polygon:
-                        return polygon((ControlArc) gso, controlCharInfo.areaWithoutOuterMargin());
+                        controlOutput = polygon((ControlArc) gso, controlCharInfo.areaWithoutOuterMargin());
+                        break;
                     case Curve:
-                        return curve((ControlArc) gso, controlCharInfo.areaWithoutOuterMargin());
+                        controlOutput = curve((ControlArc) gso, controlCharInfo.areaWithoutOuterMargin());
+                        break;
                     case Picture:
-                        return picture((ControlPicture) gso, controlCharInfo.areaWithoutOuterMargin());
+                        controlOutput = picture((ControlPicture) gso, controlCharInfo.areaWithoutOuterMargin());
+                        break;
                     case OLE:
-                        return ole((ControlOLE) gso, controlCharInfo.areaWithoutOuterMargin());
+                        controlOutput = ole((ControlOLE) gso, controlCharInfo.areaWithoutOuterMargin());
+                        break;
                     case Container:
-                        return container((ControlContainer) gso, controlCharInfo.areaWithoutOuterMargin());
+                        controlOutput = container((ControlContainer) gso, controlCharInfo.areaWithoutOuterMargin());
+                        break;
                     case ObjectLinkLine:
-                        return objectLinkLine((ControlObjectLinkLine) gso, controlCharInfo.areaWithoutOuterMargin());
+                        controlOutput = objectLinkLine((ControlObjectLinkLine) gso, controlCharInfo.areaWithoutOuterMargin());
+                        break;
                 }
                 break;
             case Table:
@@ -57,9 +68,15 @@ public class ControlDrawer {
                 if (tableDrawResult.split()) {
                     input.addSplitTableDrawResult(tableDrawResult);
                 }
-                return tableDrawResult.tableOutputForCurrentPage();
+                controlOutput = tableDrawResult.tableOutputForCurrentPage();
+                break;
         }
-        return null;
+
+        if (controlOutput != null) {
+            controlOutput.controlCharInfo(controlCharInfo);
+            controlCharInfo.output(controlOutput);
+        }
+        return controlOutput;
     }
 
     private GsoOutput line(ControlLine line, Area areaWithoutOuterMargin) {

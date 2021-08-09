@@ -6,6 +6,7 @@ import kr.dogfoot.hwplib.drawer.output.text.TextRow;
 import kr.dogfoot.hwplib.drawer.output.text.TextLine;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
+import org.apache.poi.ss.formula.functions.T;
 
 import java.util.ArrayList;
 
@@ -46,6 +47,10 @@ public class Content {
     private void deleteCurrentRow() {
         rows.remove(currentRowIndex);
         currentRowIndex--;
+    }
+
+    public TextRow firstRow() {
+        return rows.get(0);
     }
 
     public int currentRowIndex() {
@@ -113,5 +118,6 @@ public class Content {
         }
         return sb.toString();
     }
+
 }
 
