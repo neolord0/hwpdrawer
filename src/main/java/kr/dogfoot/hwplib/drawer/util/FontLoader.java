@@ -9,7 +9,7 @@ import java.util.Map;
 public class FontLoader {
     private final static FontLoader singleObject = new FontLoader();
 
-    public static FontLoader object() {
+    public static FontLoader singleObject() {
         return singleObject;
     }
 

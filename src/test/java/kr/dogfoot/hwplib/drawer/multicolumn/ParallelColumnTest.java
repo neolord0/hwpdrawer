@@ -25,4 +25,9 @@ public class ParallelColumnTest {
     public void test_페이지넘어2() throws Exception {
         HWPTester.testAndCompare("testingHWP" + File.separator + "다단" + File.separator + "평행" + File.separator + "페이지넘어" + File.separator + "2");
     }
+
+    @Test
+    public void test_페이지넘어3() throws Exception {
+        HWPTester.testAndCompare("testingHWP" + File.separator + "다단" + File.separator + "평행" + File.separator + "페이지넘어" + File.separator + "3");
+    }
 }

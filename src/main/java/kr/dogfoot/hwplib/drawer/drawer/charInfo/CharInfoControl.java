@@ -13,11 +13,11 @@ import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPChar;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPCharControlExtend;
 import kr.dogfoot.hwplib.object.docinfo.CharShape;
 
-public class ControlCharInfo extends CharInfo {
-    public static final ControlCharInfo[] Zero_Array = new ControlCharInfo[0];
+public class CharInfoControl extends CharInfo {
+    public static final CharInfoControl[] Zero_Array = new CharInfoControl[0];
 
-    public static ControlCharInfo create(HWPCharControlExtend character, Control control, DrawingInput input, Area currentTextPartArea) {
-        ControlCharInfo charInfo = new ControlCharInfo(character, input.charShape(), input.paraIndex(), input.charIndex(), input.charPosition());
+    public static CharInfoControl create(HWPCharControlExtend character, Control control, DrawingInput input, Area currentTextPartArea) {
+        CharInfoControl charInfo = new CharInfoControl(character, input.charShape(), input.paraIndex(), input.charIndex(), input.charPosition());
         if (character.getCode() == 11) {
             CtrlHeaderGso gsoHeader = null;
             switch (control.getType()) {
@@ -43,16 +43,29 @@ public class ControlCharInfo extends CharInfo {
     private Area areaWithOuterMargin;
     private Area areaWithoutOuterMargin;
 
-    public ControlCharInfo(HWPChar character, CharShape charShape, int paraIndex, int index, int position) {
+    public CharInfoControl(HWPChar character, CharShape charShape, int paraIndex, int index, int position) {
         super(character, charShape, paraIndex, index, position);
         control = null;
     }
 
-    public ControlCharInfo control(Control control, CtrlHeaderGso gsoHeader) {
+    public CharInfoControl(CharInfoControl other) {
+        super(other);
+
+        this.control = other.control;
+        this.output = other.output;
+        this.gsoHeader = other.gsoHeader;
+        this.areaWithOuterMargin = new Area(other.areaWithOuterMargin);
+        this.areaWithoutOuterMargin = new Area(other.areaWithoutOuterMargin);
+    }
+
+
+
+    public CharInfoControl control(Control control, CtrlHeaderGso gsoHeader) {
         this.control = control;
         this.gsoHeader = gsoHeader;
         return this;
     }
+
 
     public void output(ControlOutput output) {
         this.output = output;
@@ -62,7 +75,7 @@ public class ControlCharInfo extends CharInfo {
         return output;
     }
 
-    public ControlCharInfo area(DrawingInput input, Area currentTextPartArea) {
+    public CharInfoControl area(DrawingInput input, Area currentTextPartArea) {
         areaWithoutOuterMargin = PositionCalculator.singleObject().area(gsoHeader, input,  currentTextPartArea);
         areaWithOuterMargin = new Area(areaWithoutOuterMargin)
                 .expand(gsoHeader.getOutterMarginLeft(),

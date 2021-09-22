@@ -4,7 +4,7 @@ import kr.dogfoot.hwplib.drawer.input.DrawingInput;
 import kr.dogfoot.hwplib.drawer.output.InterimOutput;
 import kr.dogfoot.hwplib.drawer.output.text.TextColumn;
 import kr.dogfoot.hwplib.drawer.output.text.TextLine;
-import kr.dogfoot.hwplib.drawer.drawer.charInfo.ControlCharInfo;
+import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfoControl;
 
 public class DistributionMultiColumnRearranger {
     private final DrawingInput input;
@@ -48,7 +48,7 @@ public class DistributionMultiColumnRearranger {
     }
 
     public void rearrangeFromCurrentColumn() throws Exception {
-        if (input.columnsInfo().currentColumnIndex() == 0) {
+        if (input.currentColumnsInfo().isFirstColumn()) {
             if (output.textLineCount() <= 1) {
                 return;
             }
@@ -67,7 +67,7 @@ public class DistributionMultiColumnRearranger {
     }
 
     private void reset() {
-        testingLineCounts = new int[input.columnsInfo().columnCount()];
+        testingLineCounts = new int[input.currentColumnsInfo().columnCount()];
 
         paraIndexAtLatestPosition = -1;
         charIndexAtLatestPosition = -1;
@@ -84,20 +84,20 @@ public class DistributionMultiColumnRearranger {
             setTestingLineCount(testingTextLineCount);
             testNextColumn();
         }
-        if (input.columnsInfo().currentColumnIndex() == 0) {
+        if (input.currentColumnsInfo().isFirstColumn()) {
             endProcess = true;
         }
     }
 
     private void setTestingLineCount(int textLineCount) {
-        testingLineCounts[input.columnsInfo().currentColumnIndex()] = textLineCount;
-        for (int index = input.columnsInfo().currentColumnIndex() + 1; index < testingLineCounts.length; index++) {
+        testingLineCounts[input.currentColumnsInfo().currentColumnIndex()] = textLineCount;
+        for (int index = input.currentColumnsInfo().currentColumnIndex() + 1; index < testingLineCounts.length; index++) {
             testingLineCounts[index] = 0;
         }
     }
 
     private void testNextColumn() throws Exception {
-        TextLine firstLine = output.hideTextLine(testingLineCounts[input.columnsInfo().currentColumnIndex()] - 1);
+        TextLine firstLine = output.hideTextLine(testingLineCounts[input.currentColumnsInfo().currentColumnIndex()] - 1);
         TextLine secondLine = output.currentColumn().nextLine(firstLine);
         if (secondLine != null && secondLine.firstChar() != null) {
             input.gotoParaCharPosition(secondLine.firstChar().position());
@@ -133,7 +133,7 @@ public class DistributionMultiColumnRearranger {
         }
 
 
-        if (input.columnsInfo().lastColumn() || endingPara || overPage) {
+        if (input.currentColumnsInfo().lastColumn() || endingPara || overPage) {
             setTestingLineCount2(output.textLineCount(), overPage);
 
             setResultLineCount(overPage,
@@ -148,8 +148,8 @@ public class DistributionMultiColumnRearranger {
     }
 
     private void setTestingLineCount2(int textLineCount, boolean overPage) {
-        testingLineCounts[input.columnsInfo().currentColumnIndex()] = textLineCount;
-        for (int index = input.columnsInfo().currentColumnIndex() + 1; index < testingLineCounts.length; index++) {
+        testingLineCounts[input.currentColumnsInfo().currentColumnIndex()] = textLineCount;
+        for (int index = input.currentColumnsInfo().currentColumnIndex() + 1; index < testingLineCounts.length; index++) {
             testingLineCounts[index] = -1;
         }
 
@@ -161,7 +161,7 @@ public class DistributionMultiColumnRearranger {
     }
 
     private void setResultLineCount(boolean overPage, boolean endingPara, int paraIndexAtOverPage, int charIndexAtOverPage, long rowHeight) {
-        if (input.columnsInfo().lastColumn() || endingPara) {
+        if (input.currentColumnsInfo().lastColumn() || endingPara) {
             if (overPage == true) {
                 if (isLatePosition(paraIndexAtOverPage, charIndexAtOverPage)) {
                     lineCountsOfColumnAtMaxPosition = testingLineCounts.clone();
@@ -194,14 +194,14 @@ public class DistributionMultiColumnRearranger {
         }
     }
 
-    private void redraw() {
+    private void redraw() throws Exception {
         setLimitedTextCounts();
 
         output.resetHidingTextLineIndex();
-        TextColumn.ResultDeleteTextLineIndex result = output.deleteTextLineIndex(input.columnsInfo().limitedTextLineCount());
+        TextColumn.ResultDeleteTextLineIndex result = output.deleteTextLineIndex(input.currentColumnsInfo().limitedTextLineCount());
         if (result != null) {
             input.gotoParaCharPosition(result.topLine().firstChar().position());
-            for (ControlCharInfo controlCharInfo : result.deletedControls()) {
+            for (CharInfoControl controlCharInfo : result.deletedControls()) {
                 paraDrawer.textFlowCalculator().delete(controlCharInfo);
             }
         } else {
@@ -217,9 +217,9 @@ public class DistributionMultiColumnRearranger {
 
     private void setLimitedTextCounts() {
         if (lineCountsOfColumnAtMinHeight == null) {
-            input.columnsInfo().limitedTextLineCounts(lineCountsOfColumnAtMaxPosition);
+            input.currentColumnsInfo().limitedTextLineCounts(lineCountsOfColumnAtMaxPosition);
         } else {
-            input.columnsInfo().limitedTextLineCounts(lineCountsOfColumnAtMinHeight);
+            input.currentColumnsInfo().limitedTextLineCounts(lineCountsOfColumnAtMinHeight);
         }
     }
 
@@ -228,7 +228,7 @@ public class DistributionMultiColumnRearranger {
     }
 
     public boolean hasEmptyColumn() {
-        if (testingLineCounts[input.columnsInfo().currentColumnIndex()] == 0) {
+        if (testingLineCounts[input.currentColumnsInfo().currentColumnIndex()] == 0) {
             return true;
         }
         return false;

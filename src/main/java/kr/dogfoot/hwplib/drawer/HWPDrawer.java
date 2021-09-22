@@ -1,12 +1,10 @@
 package kr.dogfoot.hwplib.drawer;
 
-import kr.dogfoot.hwplib.drawer.drawer.control.table.TableResult;
 import kr.dogfoot.hwplib.drawer.input.DrawingInput;
 import kr.dogfoot.hwplib.drawer.output.InterimOutput;
 import kr.dogfoot.hwplib.drawer.painter.html.PagePainterForHTML;
 import kr.dogfoot.hwplib.drawer.painter.image.PagePainterForImage;
 import kr.dogfoot.hwplib.drawer.drawer.ParaListDrawer;
-import kr.dogfoot.hwplib.drawer.drawer.control.table.TableDrawer;
 import kr.dogfoot.hwplib.drawer.util.Convertor;
 import kr.dogfoot.hwplib.drawer.util.FontLoader;
 import kr.dogfoot.hwplib.drawer.util.FontManager;
@@ -15,7 +13,7 @@ import kr.dogfoot.hwplib.object.bodytext.Section;
 
 public class HWPDrawer {
     public static int draw(HWPFile hwpFile, DrawingOption option) throws Exception {
-        FontLoader.object().fontPath(option.fontPath());
+        FontLoader.singleObject().fontPath(option.fontPath());
         FontManager.object().hwpFile(hwpFile);
 
         HWPDrawer drawer = new HWPDrawer();
@@ -83,19 +81,21 @@ public class HWPDrawer {
         output.addEmptyPage(input);
 
         ParaListDrawer.drawHeaderFooter(input, output);
-        drawSplitTable();
+        //       drawSplitTable();
     }
 
+    /*
     private void drawSplitTable() throws Exception {
         TableDrawer drawer = new TableDrawer(input, output);
 
         for (TableResult splitTableDrawResult : input.splitTableDrawResults()) {
-            TableResult splitTableDrawResult2  = drawer.drawSplitTable(splitTableDrawResult);
+            TableResult splitTableDrawResult2 = drawer.drawSplitTable(splitTableDrawResult);
+            System.out.println(splitTableDrawResult2.tableOutputForCurrentPage().test(2));
             output.addChildOutput(splitTableDrawResult2.tableOutputForCurrentPage());
         }
-
         input.clearSplitTableDrawResults();
     }
+     */
 
     private int pageCount() {
         return pageCount;

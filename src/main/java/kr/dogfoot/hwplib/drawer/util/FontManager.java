@@ -78,10 +78,10 @@ public class FontManager {
         String faceName = faceName(charShape);
         Font font = originalFontMap.get(faceName);
         if (font == null) {
-            font = FontLoader.object().load(faceName);
+            font = FontLoader.singleObject().load(faceName);
             if (font == null) {
                 if(defaultFont == null) {
-                    defaultFont = FontLoader.object().loadDefault();
+                    defaultFont = FontLoader.singleObject().loadDefault();
                 }
                 font = defaultFont;
             }

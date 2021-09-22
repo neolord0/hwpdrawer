@@ -119,5 +119,13 @@ public class Content {
         return sb.toString();
     }
 
+    public boolean empty() {
+        for (TextRow row : rows) {
+            if (!row.empty()) {
+                return false;
+            }
+        }
+        return true;
+    }
 }
 

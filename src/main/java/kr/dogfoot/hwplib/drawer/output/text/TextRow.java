@@ -2,6 +2,7 @@ package kr.dogfoot.hwplib.drawer.output.text;
 
 import kr.dogfoot.hwplib.drawer.input.paralist.ColumnsInfo;
 import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfo;
+import kr.dogfoot.hwplib.drawer.output.Output;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
 
@@ -18,7 +19,7 @@ public class TextRow {
     private int calculationCount;
 
     public TextRow(ColumnsInfo columnsInfo) {
-        area = new Area(columnsInfo.textBoxArea());
+         area = new Area(columnsInfo.textBoxArea());
         columns = new ArrayList<>();
 
         for (Area columnArea : columnsInfo.columnAreas()) {
@@ -67,10 +68,6 @@ public class TextRow {
         return columns.get(currentColumnIndex);
     }
 
-    public TextColumn firstCol() {
-        return columns.get(0);
-    }
-
     public void nextColumn() {
         currentColumnIndex++;
     }
@@ -117,7 +114,11 @@ public class TextRow {
     }
 
     public CharInfo firstChar() {
-         return columns.get(0).firstLine().firstChar();
+        if (columns.get(0).firstLine() != null) {
+            return columns.get(0).firstLine().firstChar();
+        } else {
+            return null;
+        }
     }
 
     public void clear() {

@@ -1,6 +1,7 @@
 package kr.dogfoot.hwplib.drawer.drawer;
 
 import kr.dogfoot.hwplib.drawer.input.DrawingInput;
+import kr.dogfoot.hwplib.drawer.input.paralist.ParagraphListInfo;
 import kr.dogfoot.hwplib.drawer.output.InterimOutput;
 import kr.dogfoot.hwplib.drawer.output.Output;
 import kr.dogfoot.hwplib.drawer.output.control.GsoOutput;
@@ -19,7 +20,6 @@ public class DividingProcessor {
 
     public void process() throws Exception {
         DivideSort divideSort = input.currentPara().getHeader().getDivideSort();
-
         if (divideSort.isDivideSection()) {
             onDividingSection();
         } else if (divideSort.isDivideMultiColumn()) {
@@ -39,22 +39,24 @@ public class DividingProcessor {
         input.nextPage();
         output.nextPage(input);
 
-        if (input.columnsInfo().isParallelMultiColumn()) {
-            input.parallelMultiColumnInfo().startParallelMultiColumn(output.currentPage().pageNo(), output.currentRowIndex());
+        if (input.currentColumnsInfo().isParallelMultiColumn()) {
+            input.parallelMultiColumnInfo().startParallelMultiColumn(output.currentRowIndex(),
+                    output.currentOutput(),
+                    input.currentParaListInfo().cellInfo());
         }
     }
 
     private void onDividingRow() throws Exception {
         if (!output.hadRearrangedDistributionMultiColumn()
-                && input.columnsInfo().columnCount() > 1
+                && input.currentColumnsInfo().columnCount() > 1
                 && output.textLineCount() > 1) {
             if (!distributionMultiColumnRearranger().testing()) {
-                if (input.isBodyText()) {
+                if (input.sortOfText() == ParagraphListInfo.Sort.ForBody) {
                     paraDrawer.gotoFirstColumn();
                     distributionMultiColumnRearranger().rearrangeFromCurrentColumnUntilEndingPara(input.paraIndex() - 1);
                 } else {
                     if (output.currentRow().calculationCount() == 0) {
-                        input.columnsInfo().textBoxArea().bottom(input.pageInfo().bodyArea().bottom());
+                        input.currentColumnsInfo().textBoxArea().bottom(input.pageInfo().bodyArea().bottom());
                         paraDrawer.gotoStartCharOfCurrentRow();
                         output.currentRow().increaseCalculationCount();
                     } else {
@@ -72,9 +74,10 @@ public class DividingProcessor {
             }
 
             paraDrawer.nextRow();
-
-            if (input.columnsInfo().isParallelMultiColumn()) {
-                input.parallelMultiColumnInfo().startParallelMultiColumn(output.currentPage().pageNo(), output.currentRowIndex());
+            if (input.currentColumnsInfo().isParallelMultiColumn()) {
+                input.parallelMultiColumnInfo().startParallelMultiColumn(output.currentRowIndex(),
+                        output.currentOutput(),
+                        input.currentParaListInfo().cellInfo());
             }
 
             if (output.textLineCount() > 1) {
@@ -88,7 +91,7 @@ public class DividingProcessor {
         gsoOutput.calculatedContentHeight(output.currentContent().height());
         gsoOutput.applyCalculatedContentHeight();
 
-        input.columnsInfo().textBoxArea().bottom(gsoOutput.textBoxArea().height());
+        input.currentColumnsInfo().textBoxArea().bottom(gsoOutput.textBoxArea().height());
     }
 
     private DistributionMultiColumnRearranger distributionMultiColumnRearranger() {
@@ -96,7 +99,7 @@ public class DividingProcessor {
     }
 
     private void onDividingPage() throws Exception {
-        if (input.columnsInfo().isDistributionMultiColumn()) {
+        if (input.currentColumnsInfo().isDistributionMultiColumn()) {
             if (!output.hadRearrangedDistributionMultiColumn() && output.textLineCount() > 1) {
                 paraDrawer.gotoFirstColumn();
                 distributionMultiColumnRearranger().rearrangeFromCurrentColumnUntilEndingPara(input.paraIndex() - 1);
@@ -109,9 +112,9 @@ public class DividingProcessor {
     }
 
     private void onDividingColumn() throws Exception {
-        switch (input.columnsInfo().columnSort()) {
+        switch (input.currentColumnsInfo().columnSort()) {
             case Normal:
-                if (input.columnsInfo().lastColumn()) {
+                if (input.currentColumnsInfo().lastColumn()) {
                     paraDrawer.nextPage();
                 } else {
                     paraDrawer.nextColumn();
@@ -121,9 +124,11 @@ public class DividingProcessor {
                 onDividingRow();
                 break;
             case Parallel:
-                if (input.columnsInfo().lastColumn()) {
+                if (input.currentColumnsInfo().lastColumn()) {
                     paraDrawer.nextRow();
-                    input.parallelMultiColumnInfo().startParallelMultiColumn(output.currentPage().pageNo(), output.currentRowIndex());
+                    input.parallelMultiColumnInfo().startParallelMultiColumn(output.currentRowIndex(),
+                            output.currentOutput(),
+                            input.currentParaListInfo().cellInfo());
                 } else {
                     paraDrawer.nextColumn();
                 }

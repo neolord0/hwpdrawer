@@ -1,4 +1,6 @@
-package kr.dogfoot.hwplib.drawer.drawer.charInfo;
+package kr.dogfoot.hwplib.drawer.drawer;
+
+import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfo;
 
 import java.util.Map;
 import java.util.TreeMap;

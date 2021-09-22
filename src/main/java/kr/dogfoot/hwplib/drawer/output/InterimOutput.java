@@ -1,6 +1,5 @@
 package kr.dogfoot.hwplib.drawer.output;
 
-import jdk.internal.org.objectweb.asm.util.ASMifiable;
 import kr.dogfoot.hwplib.drawer.input.paralist.ColumnsInfo;
 import kr.dogfoot.hwplib.drawer.input.DrawingInput;
 import kr.dogfoot.hwplib.drawer.output.control.ControlOutput;
@@ -13,21 +12,20 @@ import kr.dogfoot.hwplib.drawer.output.page.PageOutput;
 import kr.dogfoot.hwplib.drawer.output.text.TextColumn;
 import kr.dogfoot.hwplib.drawer.output.text.TextRow;
 import kr.dogfoot.hwplib.drawer.output.text.TextLine;
-import kr.dogfoot.hwplib.drawer.drawer.charInfo.ControlCharInfo;
+import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfoControl;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlTable;
 import kr.dogfoot.hwplib.object.bodytext.control.gso.GsoControl;
 import kr.dogfoot.hwplib.object.bodytext.control.table.Cell;
 import org.jetbrains.annotations.NotNull;
 
-import javax.xml.soap.SAAJMetaFactory;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.Stack;
 import java.util.TreeMap;
 
 public class InterimOutput {
-    private final Stack<Output> stack;
+    private PageOutput currentPage;
+    private Output currentOutput;
 
     private Map<Integer, PageOutput> pageMap;
     private int currentPageNo;
@@ -35,27 +33,44 @@ public class InterimOutput {
     private final ArrayList<ControlInfo> controlsMovedToNextPage;
 
     public InterimOutput() {
-        stack = new Stack<>();
-
         pageMap = new TreeMap<>();
         currentPageNo = 0;
 
         controlsMovedToNextPage = new ArrayList<>();
     }
 
-    public void nextPage(DrawingInput input) {
-        stack.clear();
+    public PageOutput currentPage() {
+        return currentPage;
+    }
 
+    public void currentPage(PageOutput page) {
+        currentOutput = currentPage = page;
+    }
+
+    public Output currentOutput() {
+        return currentOutput;
+    }
+
+    public void gotoParentOutput() {
+        this.currentOutput = currentOutput.parent();
+    }
+
+    public Output currentOutput(Output currentOutput) {
+        this.currentOutput = currentOutput;
+        return currentOutput;
+    }
+
+    public void nextPage(DrawingInput input) {
         currentPageNo++;
         PageOutput page = pageMap.get(currentPageNo);
         if (page == null) {
-            page = new PageOutput(input.pageInfo(), input.columnsInfo());
+            page = new PageOutput(input.pageInfo(), input.currentColumnsInfo());
             pageMap.put(currentPageNo, page);
 
             addMovedControls(page);
         }
 
-        stack.add(page);
+        currentPage(page);
     }
 
     private void addMovedControls(PageOutput page) {
@@ -68,15 +83,13 @@ public class InterimOutput {
     }
 
     public void addEmptyPage(DrawingInput input) {
-        stack.clear();
-
         currentPageNo++;
         PageOutput page = new PageOutput(input.pageInfo(), defaultColumnsInfo(input));
         pageMap.put(currentPageNo, page);
 
         addMovedControls(page);
 
-        stack.add(page);
+        currentPage(page);
     }
 
     @NotNull
@@ -86,76 +99,76 @@ public class InterimOutput {
         return columnsInfo;
     }
 
-    public PageOutput gotoPage(int pageNo) {
-        stack.clear();
-        currentPageNo = pageNo;
-        PageOutput page = pageMap.get(currentPageNo);
-        stack.add(page);
-        return page;
+    public PageOutput gotoPage(PageOutput page) {
+        currentPageNo = page.pageNo();
+
+        currentPage(page);
+        return currentPage;
     }
 
     public PageOutput[] pages() {
         return pageMap.values().toArray(PageOutput.Zero_Array);
     }
 
-    public PageOutput currentPage() {
-        return pageMap.get(currentPageNo);
-    }
-
     public HeaderOutput startHeader() {
         HeaderOutput headerOutput = currentPage().createHeaderOutput();
-        stack.push(headerOutput);
+        headerOutput.parent(currentOutput);
+        currentOutput(headerOutput);
         return headerOutput;
     }
 
     public void endHeader() {
-        HeaderOutput headerOutput = (HeaderOutput) stack.pop();
+        HeaderOutput headerOutput = (HeaderOutput) currentOutput;
         headerOutput.adjustHeaderArea();
+
+        gotoParentOutput();
     }
 
     public FooterOutput startFooter() {
         FooterOutput footerOutput = currentPage().createFooterOutput();
-        stack.push(footerOutput);
+        footerOutput.parent(currentOutput);
+        currentOutput(footerOutput);
         return footerOutput;
     }
 
     public void endFooter() {
-        FooterOutput footerOutput = (FooterOutput) stack.pop();
+        FooterOutput footerOutput = (FooterOutput) currentOutput;
         footerOutput.adjustFooterArea();
+
+        gotoParentOutput();
     }
 
     public GsoOutput startGso(GsoControl gso, Area areaWithoutOuterMargin) {
         GsoOutput gsoOutput = new GsoOutput(gso, areaWithoutOuterMargin);
-        stack.push(gsoOutput);
+        gsoOutput.parent(currentOutput);
+        currentOutput(gsoOutput);
         return gsoOutput;
     }
 
     public void endGso() {
-        stack.pop();
+        gotoParentOutput();
     }
 
     public TableOutput startTable(ControlTable table, Area areaWithoutOuterMargin) {
         TableOutput tableOutput = new TableOutput(table, areaWithoutOuterMargin);
-        stack.push(tableOutput);
+        tableOutput.parent(currentOutput);
+        currentOutput(tableOutput);
         return tableOutput;
     }
 
     public void endTable() {
-        stack.pop();
+        gotoParentOutput();
     }
 
-    public CellOutput startCell(Cell cell, TableOutput tableOutput) {
-        CellOutput cellOutput = new CellOutput(tableOutput, cell);
-        stack.push(cellOutput);
+    public CellOutput startCell(Cell cell) {
+        CellOutput cellOutput = new CellOutput(cell);
+        cellOutput.parent(currentOutput);
+        currentOutput(cellOutput);
         return cellOutput;
     }
 
     public void endCell() {
-        stack.pop();
-    }
-
-    public Output currentOutput() {
-        return stack.peek();
+        gotoParentOutput();
     }
 
     public Content currentContent() {
@@ -280,9 +293,8 @@ public class InterimOutput {
     private void gotoLastPage() {
         PageOutput lastPage = lastPage();
         if (lastPage != null) {
-            stack.clear();
             currentPageNo = lastPage.pageNo();
-            stack.add(lastPage);
+            currentOutput = currentPage = lastPage;
         }
     }
 
@@ -294,10 +306,6 @@ public class InterimOutput {
         return null;
     }
 
-    public void gotoPageAndRow(int pageNo, int rowIndex) {
-        gotoPage(pageNo).gotoRow(rowIndex);
-    }
-
     public long rowHeight() {
         return currentContent().rowHeight();
     }
@@ -306,7 +314,7 @@ public class InterimOutput {
         return currentContent().rowBottom();
     }
 
-    public void addControlMovedToNextPage(ControlOutput output, ControlCharInfo charInfo) {
+    public void addControlMovedToNextPage(ControlOutput output, CharInfoControl charInfo) {
         controlsMovedToNextPage.add(new ControlInfo(output, charInfo));
     }
 
@@ -314,9 +322,9 @@ public class InterimOutput {
         return !controlsMovedToNextPage.isEmpty();
     }
 
-    public ControlCharInfo[] controlsMovedToNextPage() {
+    public CharInfoControl[] controlsMovedToNextPage() {
         int count = controlsMovedToNextPage.size();
-        ControlCharInfo[] controls = new ControlCharInfo[count];
+        CharInfoControl[] controls = new CharInfoControl[count];
         for (int index = 0; index < count; index++) {
             controls[index] = controlsMovedToNextPage.get(index).charInfo;
         }
@@ -325,9 +333,9 @@ public class InterimOutput {
 
     private static final class ControlInfo {
         private final ControlOutput output;
-        private final ControlCharInfo charInfo;
+        private final CharInfoControl charInfo;
 
-        public ControlInfo(ControlOutput output, ControlCharInfo charInfo) {
+        public ControlInfo(ControlOutput output, CharInfoControl charInfo) {
             this.output = output;
             this.charInfo = charInfo;
         }
@@ -336,7 +344,7 @@ public class InterimOutput {
             return output;
         }
 
-        public ControlCharInfo charInfo() {
+        public CharInfoControl charInfo() {
             return charInfo;
         }
     }

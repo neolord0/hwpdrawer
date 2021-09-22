@@ -2,22 +2,33 @@ package kr.dogfoot.hwplib.drawer.drawer.textflow;
 
 import kr.dogfoot.hwplib.drawer.drawer.ParaDrawer;
 import kr.dogfoot.hwplib.drawer.util.Area;
+import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.VertRelTo;
 
 import java.util.LinkedList;
 import java.util.Queue;
 
 public class TextFlowCalculationResult {
-    private final TextFlowCalculator.Result result;
-    private final Queue<Area> textPartAreas;
-    private Area storedTextLineArea;
+    private final long offsetY;
+    private final boolean cancelNewLine;
+    private final ParaDrawer.DrawingState nextState;
 
-    public TextFlowCalculationResult(TextFlowCalculator.Result result) {
-        this.result = result;
+    private final Queue<Area> textPartAreas;
+    private final Area storedTextLineArea;
+
+    public TextFlowCalculationResult(ForFitWithText.Result resultForFitWithText, ForTakePlace.Result resultForTakePlace) {
+        offsetY = resultForFitWithText.offsetY() + resultForTakePlace.offsetY();
+
+        if (resultForTakePlace.offsetY() > 0 && resultForTakePlace.vertRelTo() == VertRelTo.Para) {
+            cancelNewLine = true;
+        } else {
+            cancelNewLine = resultForFitWithText.cancelNewLine();
+        }
+        nextState = resultForFitWithText.nextState();
+
         textPartAreas = new LinkedList<>();
         storedTextLineArea = new Area(0, 0, 0, 0);
-
-        if (result.nextState().isStartRecalculating()) {
-            textPartAreas(result.dividedAreas());
+        if (nextState.isStartRecalculating()) {
+            textPartAreas(resultForFitWithText.dividedAreas());
         }
     }
 
@@ -49,14 +60,14 @@ public class TextFlowCalculationResult {
     }
 
     public long offsetY() {
-        return result.offsetY();
+        return offsetY;
     }
 
     public boolean cancelNewLine() {
-        return result.cancelNewLine();
+        return cancelNewLine;
     }
 
     public ParaDrawer.DrawingState nextState() {
-        return result.nextState();
+        return nextState;
     }
 }

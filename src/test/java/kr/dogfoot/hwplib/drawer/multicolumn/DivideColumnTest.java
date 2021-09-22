@@ -80,5 +80,10 @@ public class DivideColumnTest {
     public void test_컨트롤안에_1() throws Exception {
         HWPTester.testAndCompare("testingHWP" + File.separator + "다단" + File.separator + "배분" + File.separator + "컨트롤 안" + File.separator + "1");
     }
+
+    @Test
+    public void test_컨트롤안_테이블안() throws Exception {
+        HWPTester.testAndCompare("testingHWP" + File.separator + "다단" + File.separator + "배분" + File.separator + "컨트롤 안" + File.separator + "테이블안");
+    }
 }
 

@@ -9,4 +9,9 @@ public class TestETC {
     public void test1() throws Exception {
         HWPTester.test("etc" + File.separator + "1");
     }
+
+    @Test
+    public void test2() throws Exception {
+        HWPTester.test("etc" + File.separator + "2");
+    }
 }

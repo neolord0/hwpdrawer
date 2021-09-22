@@ -32,6 +32,7 @@ public class ColumnsInfo {
         currentColumnIndex = 0;
 
         parallelMultiColumnInfo = new ParallelMultiColumnInfo();
+        processLikeDistributionMultiColumn = false;
     }
 
     public void set(ControlColumnDefine columnDefine, Area textBoxArea) {
@@ -61,7 +62,10 @@ public class ColumnsInfo {
                     break;
             }
         }
-        processLikeDistributionMultiColumn = false;
+    }
+
+    public ControlColumnDefine columnDefine() {
+        return columnDefine;
     }
 
     public void setWithPreviousColumnDefine(Area textBoxArea) {
@@ -228,6 +232,10 @@ public class ColumnsInfo {
         return currentColumnIndex;
     }
 
+    public boolean isFirstColumn() {
+        return currentColumnIndex == 0;
+    }
+
     public void currentColumnIndex(int currentColumnIndex) {
         this.currentColumnIndex = currentColumnIndex;
     }
@@ -237,7 +245,7 @@ public class ColumnsInfo {
     }
 
     public void limitedTextLineCounts(int[] limitedTextLineCounts) {
-        this.limitedTextLineCounts = limitedTextLineCounts;
+         this.limitedTextLineCounts = limitedTextLineCounts;
     }
 
     public int limitedTextLineCount() {

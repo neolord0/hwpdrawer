@@ -1,7 +1,7 @@
 package kr.dogfoot.hwplib.drawer.output.text;
 
 import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfo;
-import kr.dogfoot.hwplib.drawer.drawer.charInfo.ControlCharInfo;
+import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfoControl;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
 import kr.dogfoot.hwplib.object.docinfo.parashape.Alignment;
@@ -24,7 +24,7 @@ public class TextLine {
     private boolean lastInPara;
     private boolean hasDrawingChar;
 
-    private ArrayList<ControlCharInfo> controls;
+    private ArrayList<CharInfoControl> controls;
 
     public TextLine(int paraIndex, Area area) {
         this.paraIndex = paraIndex;
@@ -130,12 +130,12 @@ public class TextLine {
         return this;
     }
 
-    public void addControlCharInfo(ControlCharInfo controlCharInfo) {
+    public void addControlCharInfo(CharInfoControl controlCharInfo) {
         controls.add(controlCharInfo);
     }
 
-    public ControlCharInfo[] controls() {
-        return controls.toArray(ControlCharInfo.Zero_Array);
+    public CharInfoControl[] controls() {
+        return controls.toArray(CharInfoControl.Zero_Array);
     }
 
     public String test(int tabCount) {

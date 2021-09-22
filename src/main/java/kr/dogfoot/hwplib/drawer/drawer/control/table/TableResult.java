@@ -1,6 +1,5 @@
 package kr.dogfoot.hwplib.drawer.drawer.control.table;
 
-import kr.dogfoot.hwplib.drawer.drawer.charInfo.ControlCharInfo;
 import kr.dogfoot.hwplib.drawer.output.control.table.TableOutput;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlTable;
 import kr.dogfoot.hwplib.drawer.util.Area;

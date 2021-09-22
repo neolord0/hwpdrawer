@@ -4,8 +4,8 @@ import kr.dogfoot.hwplib.drawer.output.text.TextLine;
 import kr.dogfoot.hwplib.drawer.output.text.TextPart;
 import kr.dogfoot.hwplib.drawer.painter.image.PainterForImage;
 import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfo;
-import kr.dogfoot.hwplib.drawer.drawer.charInfo.ControlCharInfo;
-import kr.dogfoot.hwplib.drawer.drawer.charInfo.NormalCharInfo;
+import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfoControl;
+import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfoNormal;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.docinfo.CharShape;
 
@@ -189,13 +189,13 @@ public class TextPainter {
                 }
             } else {
                 if (charInfo.type() == CharInfo.Type.Normal) {
-                    painter.string(((NormalCharInfo) charInfo).normalCharacter().getCh(),
+                    painter.string(((CharInfoNormal) charInfo).normalCharacter().getCh(),
                             (long) (charInfo.x() / stretchRate),
                             getY(charInfo));
                 } else if (charInfo.type() == CharInfo.Type.Control
-                        && ((ControlCharInfo) charInfo).control() != null
-                        && ((ControlCharInfo) charInfo).isLikeLetter()) {
-                    ControlCharInfo controlCharInfo = (ControlCharInfo) charInfo;
+                        && ((CharInfoControl) charInfo).control() != null
+                        && ((CharInfoControl) charInfo).isLikeLetter()) {
+                    CharInfoControl controlCharInfo = (CharInfoControl) charInfo;
                     Area area = controlArea(part, controlCharInfo);
 
                     if (controlCharInfo.output() != null) {
@@ -214,7 +214,7 @@ public class TextPainter {
         }
     }
 
-    private Area controlArea(TextPart part, ControlCharInfo controlCharInfo) {
+    private Area controlArea(TextPart part, CharInfoControl controlCharInfo) {
         return controlCharInfo.areaWithoutOuterMargin().widthHeight()
                 .move(controlCharInfo.x() - (controlCharInfo.areaWithOuterMargin().left() - controlCharInfo.areaWithoutOuterMargin().left()),
                         part.textLineArea().bottom() - controlCharInfo.areaWithoutOuterMargin().height() - (controlCharInfo.areaWithOuterMargin().bottom() - controlCharInfo.areaWithoutOuterMargin().bottom()));
@@ -222,7 +222,7 @@ public class TextPainter {
 
     private long getY(CharInfo charInfo) {
         return (long) (baseLine
-                - painter.textOffsetY(((NormalCharInfo) charInfo)))
+                - painter.textOffsetY(((CharInfoNormal) charInfo)))
                 + charInfo.height() * charInfo.charShape().getCharOffsets().getHangul() / 100;
     }
 

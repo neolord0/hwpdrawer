@@ -1,7 +1,7 @@
 package kr.dogfoot.hwplib.drawer.output.text;
 
 import kr.dogfoot.hwplib.drawer.output.control.ControlOutput;
-import kr.dogfoot.hwplib.drawer.drawer.charInfo.ControlCharInfo;
+import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfoControl;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
 import kr.dogfoot.hwplib.drawer.util.TextPosition;
@@ -33,7 +33,11 @@ public class TextColumn {
     }
 
     public TextLine firstLine() {
-        return textLines.get(0);
+        if (textLines.size() > 1) {
+            return textLines.get(0);
+        } else {
+            return null;
+        }
     }
 
     public void addTextLine(TextLine textLine) {
@@ -145,7 +149,7 @@ public class TextColumn {
     }
 
     private void deleteControlOutputs(TextLine textLine, ResultDeleteTextLineIndex result) {
-        for (ControlCharInfo controlCharInfo : textLine.controls()) {
+        for (CharInfoControl controlCharInfo : textLine.controls()) {
             if (controlCharInfo.output().textFlowMethod() == TextFlowMethod.BehindText) {
                 behindChildOutputs.remove(controlCharInfo.output());
             } else {
@@ -246,7 +250,7 @@ public class TextColumn {
 
     public static class ResultDeleteTextLineIndex {
         private TextLine topLine;
-        private ArrayList<ControlCharInfo> deletedControls;
+        private ArrayList<CharInfoControl> deletedControls;
 
         public ResultDeleteTextLineIndex() {
             topLine = null;
@@ -261,12 +265,12 @@ public class TextColumn {
             this.topLine = topLine;
         }
 
-        public void addDeletedControl(ControlCharInfo controlCharInfo) {
+        public void addDeletedControl(CharInfoControl controlCharInfo) {
             deletedControls.add(controlCharInfo);
         }
 
-        public ControlCharInfo[] deletedControls() {
-            return deletedControls.toArray(ControlCharInfo.Zero_Array);
+        public CharInfoControl[] deletedControls() {
+            return deletedControls.toArray(CharInfoControl.Zero_Array);
         }
     }
 }

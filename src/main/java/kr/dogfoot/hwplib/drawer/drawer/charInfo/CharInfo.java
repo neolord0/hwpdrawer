@@ -21,6 +21,15 @@ public abstract class CharInfo {
         x = 0;
     }
 
+    public CharInfo(CharInfo other) {
+        this.character = other.character;
+        this.charShape = other.charShape;
+        this.paraIndex = other.paraIndex;
+        this.index = other.index;
+        this.position = other.position;
+        this.x = other.x;
+    }
+
     public abstract Type type();
 
     public HWPChar character() {

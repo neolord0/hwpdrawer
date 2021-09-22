@@ -1,6 +1,7 @@
 package kr.dogfoot.hwplib.drawer.drawer.textflow;
 
-import kr.dogfoot.hwplib.drawer.drawer.charInfo.ControlCharInfo;
+import kr.dogfoot.hwplib.drawer.drawer.ParaDrawer;
+import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfoControl;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.CtrlHeaderGso;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.TextHorzArrange;
@@ -8,24 +9,24 @@ import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.TextHorzArrange;
 import java.util.*;
 
 public class ForFitWithText {
-    private final Map<ControlCharInfo, Area> charInfos;
+    private final Map<CharInfoControl, Area> charInfos;
     private final TreeSet<FitWithTextArea> fitWithTextAreas;
 
     public ForFitWithText() {
         charInfos = new HashMap<>();
         fitWithTextAreas = new TreeSet<>();
     }
-    public void add(ControlCharInfo charInfo, Area areaWithOuterMargin) {
+    public void add(CharInfoControl charInfo, Area areaWithOuterMargin) {
         charInfos.put(charInfo, areaWithOuterMargin);
         fitWithTextAreas.add(new FitWithTextArea(areaWithOuterMargin,
                 charInfo.header()));
     }
 
-    public boolean alreadyAdded(ControlCharInfo charInfo) {
+    public boolean alreadyAdded(CharInfoControl charInfo) {
         return charInfos.containsKey(charInfo);
     }
 
-    public TextFlowCalculator.Result calculate(Area textLineArea) {
+    public Result calculate(Area textLineArea) {
         LinkedList<Area> dividedAreas = new LinkedList<>();
         ArrayList<Area> addingAreas = new ArrayList<>();
         ArrayList<Area> removingAreas = new ArrayList<>();
@@ -71,10 +72,11 @@ public class ForFitWithText {
             }
         }
         Collections.sort(dividedAreas);
+
         if (dividedAreas.size() == 0) {
-            return new TextFlowCalculator.Result(null, offsetY(textLineArea));
+            return new Result(null, offsetY(textLineArea), textLineArea);
         } else {
-            return new TextFlowCalculator.Result(dividedAreas.toArray(Area.Zero_Array), 0);
+            return new Result(dividedAreas.toArray(Area.Zero_Array), 0,  textLineArea);
         }
     }
 
@@ -150,14 +152,14 @@ public class ForFitWithText {
         fitWithTextAreas.clear();
     }
 
-    public void delete(ControlCharInfo charInfo) {
+    public void delete(CharInfoControl charInfo) {
         charInfos.remove(charInfo);
         updateFitWithTextAreas();
     }
 
     private void updateFitWithTextAreas() {
         fitWithTextAreas.clear();
-        for (ControlCharInfo charInfo : charInfos.keySet()) {
+        for (CharInfoControl charInfo : charInfos.keySet()) {
             fitWithTextAreas.add(new FitWithTextArea(charInfos.get(charInfo),
                     charInfo.header()));
         }
@@ -182,6 +184,56 @@ public class ForFitWithText {
                 return 0;
             else
                 return -1;
+        }
+    }
+
+    public static class Result {
+        private final Area[] dividedAreas;
+        private long offsetY;
+        private ParaDrawer.DrawingState nextState;
+        private boolean cancelNewLine;
+
+        public Result(Area[] dividedAreas, long offsetY, Area textLineArea) {
+            this.dividedAreas = dividedAreas;
+            this.offsetY = offsetY;
+            cancelNewLine = false;
+
+            if (dividedAreas == null) {
+                nextState = ParaDrawer.DrawingState.StartRedrawing;
+            } else if (dividedAreas().length == 1 && dividedAreas[0].equals(textLineArea)) {
+                nextState = ParaDrawer.DrawingState.Normal;
+            } else {
+                nextState = ParaDrawer.DrawingState.StartRecalculating;
+            }
+        }
+
+        public Area[] dividedAreas() {
+            return dividedAreas;
+        }
+
+        public long offsetY() {
+            return offsetY;
+        }
+
+        public void offsetY(long offsetY) {
+            this.offsetY = offsetY;
+        }
+
+        public ParaDrawer.DrawingState nextState() {
+            return nextState;
+        }
+
+        public Result nextState(ParaDrawer.DrawingState nextState) {
+            this.nextState = nextState;
+            return this;
+        }
+
+        public boolean cancelNewLine() {
+            return cancelNewLine;
+        }
+
+        public void cancelNewLine(boolean cancelNewLine) {
+            this.cancelNewLine = cancelNewLine;
         }
     }
 }

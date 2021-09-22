@@ -1,6 +1,6 @@
 package kr.dogfoot.hwplib.drawer.output.control;
 
-import kr.dogfoot.hwplib.drawer.drawer.charInfo.ControlCharInfo;
+import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfoControl;
 import kr.dogfoot.hwplib.drawer.output.Output;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.TextFlowMethod;
@@ -10,7 +10,7 @@ public abstract class ControlOutput extends Output implements Comparable<Control
     public static final ControlOutput[] Zero_Array = new ControlOutput[0];
 
     protected Area areaWithoutOuterMargin;
-    private ControlCharInfo controlCharInfo;
+    private CharInfoControl controlCharInfo;
 
     public abstract int zOrder();
 
@@ -42,11 +42,11 @@ public abstract class ControlOutput extends Output implements Comparable<Control
             return -1;
     }
 
-    public ControlCharInfo controlCharInfo() {
+    public CharInfoControl controlCharInfo() {
         return controlCharInfo;
     }
 
-    public void controlCharInfo(ControlCharInfo controlCharInfo) {
+    public void controlCharInfo(CharInfoControl controlCharInfo) {
         this.controlCharInfo = controlCharInfo;
     }
 }

@@ -2,12 +2,11 @@ package kr.dogfoot.hwplib.drawer.drawer;
 
 import kr.dogfoot.hwplib.drawer.input.DrawingInput;
 import kr.dogfoot.hwplib.drawer.output.InterimOutput;
-import kr.dogfoot.hwplib.drawer.output.Output;
 import kr.dogfoot.hwplib.drawer.output.control.ControlOutput;
 import kr.dogfoot.hwplib.drawer.output.text.TextLine;
 import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfo;
-import kr.dogfoot.hwplib.drawer.drawer.charInfo.ControlCharInfo;
-import kr.dogfoot.hwplib.drawer.drawer.charInfo.NormalCharInfo;
+import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfoControl;
+import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfoNormal;
 import kr.dogfoot.hwplib.drawer.drawer.control.ControlDrawer;
 import kr.dogfoot.hwplib.drawer.drawer.textflow.TextFlowCalculator;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.TextFlowMethod;
@@ -56,7 +55,7 @@ public class WordDrawer {
         wordWidth += charInfo.width();
     }
 
-    public void addWordToLine(NormalCharInfo spaceCharInfo) throws Exception {
+    public void addWordToLine(CharInfoNormal spaceCharInfo) throws Exception {
         if (charsOfWord.isEmpty()) {
             addSpaceChar(spaceCharInfo);
             return;
@@ -77,7 +76,7 @@ public class WordDrawer {
         reset();
     }
 
-    private void addSpaceChar(NormalCharInfo spaceCharInfo) {
+    private void addSpaceChar(CharInfoNormal spaceCharInfo) {
         if (paraDrawer.drawingState().canAddChar() && spaceCharInfo != null && !wordSplitter.stoppedAddingChar()) {
             textLineDrawer.addChar(spaceCharInfo);
         }
@@ -102,7 +101,6 @@ public class WordDrawer {
             if (applyMinimumSpace) {
                 textLineDrawer.setBestSpaceRate();
             }
-
             paraDrawer.saveTextLineAndNewLine();
 
             if (paraDrawer.drawingState().isNormal() || paraDrawer.drawingState().isEndRecalculating()) {
@@ -124,7 +122,7 @@ public class WordDrawer {
 
             if (wordSplitter.stoppedAddingChar() == false) {
                 if (paraDrawer.drawingState().isNormal() && charInfo.type() == CharInfo.Type.Control) {
-                    addControlChar((ControlCharInfo) charInfo);
+                    addControlChar((CharInfoControl) charInfo);
                 } else {
                     textLineDrawer.addChar(charInfo);
                 }
@@ -133,13 +131,13 @@ public class WordDrawer {
         return hasNewLine;
     }
 
-    private void addControlChar(ControlCharInfo controlCharInfo) throws Exception {
+    private void addControlChar(CharInfoControl controlCharInfo) throws Exception {
         ControlOutput output2 = controlDrawer.draw(controlCharInfo);
         addControlOutput(output2);
     }
 
     public void addControlOutput(ControlOutput output2) throws RedrawException {
-        ControlCharInfo controlCharInfo = output2.controlCharInfo();
+        CharInfoControl controlCharInfo = output2.controlCharInfo();
         if (controlCharInfo.isLikeLetter()) {
             textLineDrawer.addChar(controlCharInfo);
             return;
@@ -186,7 +184,7 @@ public class WordDrawer {
         return y - input.pageInfo().bodyArea().top() >= input.pageInfo().bodyArea().height() * 75 / 100;
     }
 
-    private void spanningWord(NormalCharInfo spaceCharInfo) throws Exception {
+    private void spanningWord(CharInfoNormal spaceCharInfo) throws Exception {
         if (isAllLineDivideByWord()) {
             if (!textLineDrawer.noDrawingChar()) {
                 paraDrawer.saveTextLineAndNewLine();
@@ -219,7 +217,7 @@ public class WordDrawer {
     public void adjustControlAreaAtNewPage() {
         for (CharInfo charInfo : charsOfWord) {
             if (charInfo.type() == CharInfo.Type.Control) {
-                ((ControlCharInfo) charInfo).area(input, paraDrawer.currentTextPartArea());
+                ((CharInfoControl) charInfo).area(input, paraDrawer.currentTextPartArea());
             }
         }
     }
@@ -243,7 +241,7 @@ public class WordDrawer {
     private String testCharInfo(CharInfo charInfo) {
         StringBuilder sb = new StringBuilder();
         if (charInfo.type() == CharInfo.Type.Normal) {
-            NormalCharInfo normalCharInfo = (NormalCharInfo) charInfo;
+            CharInfoNormal normalCharInfo = (CharInfoNormal) charInfo;
             try {
                 sb
                         .append(normalCharInfo.normalCharacter().getCh())
@@ -254,7 +252,7 @@ public class WordDrawer {
                 e.printStackTrace();
             }
         } else {
-            ControlCharInfo controlCharInfo = (ControlCharInfo) charInfo;
+            CharInfoControl controlCharInfo = (CharInfoControl) charInfo;
             if (controlCharInfo.control() == null) {
                 sb
                         .append(controlCharInfo.character().getCode())

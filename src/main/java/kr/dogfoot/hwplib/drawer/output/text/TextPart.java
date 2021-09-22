@@ -1,8 +1,8 @@
 package kr.dogfoot.hwplib.drawer.output.text;
 
 import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfo;
-import kr.dogfoot.hwplib.drawer.drawer.charInfo.ControlCharInfo;
-import kr.dogfoot.hwplib.drawer.drawer.charInfo.NormalCharInfo;
+import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfoControl;
+import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfoNormal;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
 import kr.dogfoot.hwplib.object.docinfo.parashape.Alignment;
@@ -69,7 +69,7 @@ public class TextPart {
             spaceCount++;
         }
         if (charInfo.type() == CharInfo.Type.Normal
-                || (charInfo.type() == CharInfo.Type.Control && ((ControlCharInfo) charInfo).isLikeLetter())) {
+                || (charInfo.type() == CharInfo.Type.Control && ((CharInfoControl) charInfo).isLikeLetter())) {
             textLine.hasDrawingChar(true);
         }
     }
@@ -125,7 +125,7 @@ public class TextPart {
         sb.tab(tabCount).append("{ ").append(Long.toString(startX)).append(",").append(Long.toString(width)).append(" : ");
         for (CharInfo charInfo : charInfos) {
             if (charInfo.type() == CharInfo.Type.Normal) {
-                NormalCharInfo normalCharInfo = (NormalCharInfo) charInfo;
+                CharInfoNormal normalCharInfo = (CharInfoNormal) charInfo;
                 try {
                     sb
                             .append(normalCharInfo.normalCharacter().getCh());
@@ -133,7 +133,7 @@ public class TextPart {
                     e.printStackTrace();
                 }
             } else {
-                ControlCharInfo controlCharInfo = (ControlCharInfo) charInfo;
+                CharInfoControl controlCharInfo = (CharInfoControl) charInfo;
                 if (controlCharInfo.control() == null) {
                     sb
                             .append("[")

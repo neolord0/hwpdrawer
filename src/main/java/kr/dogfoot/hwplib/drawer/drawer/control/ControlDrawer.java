@@ -5,13 +5,15 @@ import kr.dogfoot.hwplib.drawer.output.InterimOutput;
 import kr.dogfoot.hwplib.drawer.output.control.ControlOutput;
 import kr.dogfoot.hwplib.drawer.output.control.GsoOutput;
 import kr.dogfoot.hwplib.drawer.drawer.ParaListDrawer;
-import kr.dogfoot.hwplib.drawer.drawer.charInfo.ControlCharInfo;
-import kr.dogfoot.hwplib.drawer.drawer.control.table.TableResult;
+import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfoControl;
 import kr.dogfoot.hwplib.drawer.drawer.control.table.TableDrawer;
+import kr.dogfoot.hwplib.drawer.output.control.table.TableOutput;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.control.gso.*;
 import kr.dogfoot.hwplib.object.bodytext.control.gso.textbox.TextBox;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.ParagraphList;
+
+import java.util.ArrayList;
 
 public class ControlDrawer {
     private final DrawingInput input;
@@ -25,10 +27,10 @@ public class ControlDrawer {
         tableDrawer = new TableDrawer(input, output);
     }
 
-    public ControlOutput draw(ControlCharInfo controlCharInfo) throws Exception {
+    public ControlOutput draw(CharInfoControl controlCharInfo) throws Exception {
         ControlOutput controlOutput = null;
         switch (controlCharInfo.control().getType()) {
-            case Gso:
+            case Gso: {
                 GsoControl gso = (GsoControl) controlCharInfo.control();
                 switch (gso.getGsoType()) {
                     case Line:
@@ -62,20 +64,20 @@ public class ControlDrawer {
                         controlOutput = objectLinkLine((ControlObjectLinkLine) gso, controlCharInfo.areaWithoutOuterMargin());
                         break;
                 }
+
+                if (controlOutput != null) {
+                    controlOutput.controlCharInfo(controlCharInfo);
+                    controlCharInfo.output(controlOutput);
+                }
+            }
                 break;
             case Table:
-                TableResult tableDrawResult = tableDrawer.draw(controlCharInfo);
-                if (tableDrawResult.split()) {
-                    input.addSplitTableDrawResult(tableDrawResult);
-                }
-                controlOutput = tableDrawResult.tableOutputForCurrentPage();
+                ArrayList<TableOutput> tableOutputs = tableDrawer.draw(controlCharInfo);
+                controlOutput = tableOutputs.get(0);
+                System.out.println(controlOutput);
                 break;
         }
 
-        if (controlOutput != null) {
-            controlOutput.controlCharInfo(controlCharInfo);
-            controlCharInfo.output(controlOutput);
-        }
         return controlOutput;
     }
 

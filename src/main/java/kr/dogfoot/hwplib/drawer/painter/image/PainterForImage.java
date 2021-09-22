@@ -8,7 +8,7 @@ import kr.dogfoot.hwplib.drawer.output.text.TextRow;
 import kr.dogfoot.hwplib.drawer.painter.image.background.BackgroundPainter;
 import kr.dogfoot.hwplib.drawer.painter.image.control.ControlPainter;
 import kr.dogfoot.hwplib.drawer.painter.image.text.TextPainter;
-import kr.dogfoot.hwplib.drawer.drawer.charInfo.NormalCharInfo;
+import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfoNormal;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.Convertor;
 import kr.dogfoot.hwplib.drawer.util.FontManager;
@@ -81,7 +81,7 @@ public class PainterForImage {
         return this;
     }
 
-    public double textOffsetY(NormalCharInfo charInfo) {
+    public double textOffsetY(CharInfoNormal charInfo) {
         try {
             LineMetrics lm = graphics2D.getFontMetrics().getLineMetrics(charInfo.normalCharacter().getCh(), graphics2D);
             return (lm.getDescent()) * charInfo.height() / lm.getHeight();

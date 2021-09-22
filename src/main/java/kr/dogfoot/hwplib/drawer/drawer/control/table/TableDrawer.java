@@ -1,6 +1,6 @@
 package kr.dogfoot.hwplib.drawer.drawer.control.table;
 
-import kr.dogfoot.hwplib.drawer.drawer.charInfo.ControlCharInfo;
+import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfoControl;
 import kr.dogfoot.hwplib.drawer.input.DrawingInput;
 import kr.dogfoot.hwplib.drawer.output.InterimOutput;
 import kr.dogfoot.hwplib.drawer.output.control.ControlOutput;
@@ -13,6 +13,8 @@ import kr.dogfoot.hwplib.object.bodytext.control.table.Cell;
 import kr.dogfoot.hwplib.object.bodytext.control.table.ListHeaderForCell;
 import kr.dogfoot.hwplib.object.bodytext.control.table.Row;
 
+import java.util.ArrayList;
+
 public class TableDrawer {
     private final DrawingInput input;
     private final InterimOutput output;
@@ -20,13 +22,24 @@ public class TableDrawer {
     private TableOutput tableOutput;
     private CellDrawState[] statesForEchoColumn;
 
-
     public TableDrawer(DrawingInput input, InterimOutput output) {
         this.input = input;
         this.output = output;
     }
 
-    public TableResult draw(ControlCharInfo controlCharInfo) throws Exception {
+    public ArrayList<TableOutput> draw(CharInfoControl controlCharInfo) throws Exception {
+        ArrayList<TableOutput> tableOutputs = new ArrayList<>();
+        TableResult result = drawFirst(controlCharInfo);
+        tableOutputs.add(result.tableOutputForCurrentPage());
+        while (result.split()) {
+            result = drawSplit(result);
+            tableOutputs.add(result.tableOutputForCurrentPage());
+        }
+        return tableOutputs;
+    }
+
+
+    public TableResult drawFirst(CharInfoControl controlCharInfo) throws Exception {
         initializeStatesForEchoColumn((ControlTable) controlCharInfo.control());
 
         tableOutput = output.startTable((ControlTable) controlCharInfo.control(), controlCharInfo.areaWithoutOuterMargin());
@@ -63,6 +76,9 @@ public class TableDrawer {
         tableOutput.areaWithoutOuterMargin().height(tableOutput.cellPosition().totalHeight());
 
         output.endTable();
+
+        tableOutput.controlCharInfo(new CharInfoControl(controlCharInfo));
+        tableOutput.controlCharInfo().output(tableOutput);
         return result;
     }
 
@@ -105,7 +121,7 @@ public class TableDrawer {
                     + tableOutput.areaWithoutOuterMargin().top();
             ListHeaderForCell lh = cell.getListHeader();
 
-            CellOutput cellOutput = output.startCell(cell, tableOutput)
+            CellOutput cellOutput = output.startCell(cell)
                     .textMargin(lh.getLeftMargin(), lh.getTopMargin(), lh.getRightMargin(), lh.getBottomMargin())
                     .verticalAlignment(lh.getProperty().getTextVerticalAlignment());
 
@@ -127,7 +143,6 @@ public class TableDrawer {
 
             output.endCell();
             tableOutput.addCell(cellOutput);
-
             return result;
         } else {
             return new CellResult()
@@ -148,7 +163,7 @@ public class TableDrawer {
         }
     }
 
-    public TableResult drawSplitTable(TableResult splitTableResult) throws Exception {
+    public TableResult drawSplit(TableResult splitTableResult) throws Exception {
         setSplitTableTop(splitTableResult);
         initializeStatesForEchoColumn(splitTableResult.table());
 
@@ -200,6 +215,10 @@ public class TableDrawer {
         tableOutput.cellPosition().calculate();
         tableOutput.areaWithoutOuterMargin().height(tableOutput.cellPosition().totalHeight());
         output.endTable();
+
+        tableOutput.controlCharInfo(new CharInfoControl(splitTableResult.tableOutputForCurrentPage().controlCharInfo()));
+        tableOutput.controlCharInfo().output(tableOutput);
+
         return result;
     }
 

@@ -1,6 +1,6 @@
 package kr.dogfoot.hwplib.drawer.drawer.textflow;
 
-import kr.dogfoot.hwplib.drawer.drawer.charInfo.ControlCharInfo;
+import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfoControl;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.VertRelTo;
 
@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ForTakePlace {
-    private final Map<ControlCharInfo, Area> charInfos;
+    private final Map<CharInfoControl, Area> charInfos;
     private final ArrayList<TakePlaceArea> takePlaceAreas;
 
     public ForTakePlace() {
@@ -17,12 +17,12 @@ public class ForTakePlace {
         takePlaceAreas = new ArrayList<>();
     }
 
-    public void add(ControlCharInfo charInfo, Area areaWithOuterMargin) {
+    public void add(CharInfoControl charInfo, Area areaWithOuterMargin) {
         charInfos.put(charInfo, areaWithOuterMargin);
         addTakePlaceArea(areaWithOuterMargin, charInfo.header().getProperty().getVertRelTo());
     }
 
-    public boolean alreadyAdded(ControlCharInfo charInfo) {
+    public boolean alreadyAdded(CharInfoControl charInfo) {
         return charInfos.containsKey(charInfo);
     }
 
@@ -59,14 +59,14 @@ public class ForTakePlace {
         return new Result(yOffset, vertRelTo);
     }
 
-    public void delete(ControlCharInfo charInfo) {
+    public void delete(CharInfoControl charInfo) {
         charInfos.remove(charInfo);
         updateTakePlaceAreas();
     }
 
     private void updateTakePlaceAreas() {
         takePlaceAreas.clear();
-        for (ControlCharInfo charInfo : charInfos.keySet()) {
+        for (CharInfoControl charInfo : charInfos.keySet()) {
             addTakePlaceArea(charInfos.get(charInfo), charInfo.header().getProperty().getVertRelTo());
         }
     }
@@ -107,16 +107,16 @@ public class ForTakePlace {
     }
 
     public static class Result {
-        private final long yOffset;
+        private final long offsetY;
         private final VertRelTo vertRelTo;
 
-        public Result(long yOffset, VertRelTo vertRelTo) {
-            this.yOffset = yOffset;
+        public Result(long offsetY, VertRelTo vertRelTo) {
+            this.offsetY = offsetY;
             this.vertRelTo = vertRelTo;
         }
 
-        public long yOffset() {
-            return yOffset;
+        public long offsetY() {
+            return offsetY;
         }
 
         public VertRelTo vertRelTo() {

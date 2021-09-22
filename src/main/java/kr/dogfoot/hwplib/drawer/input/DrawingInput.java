@@ -4,18 +4,24 @@ import kr.dogfoot.hwplib.drawer.input.paralist.ColumnsInfo;
 import kr.dogfoot.hwplib.drawer.input.paralist.ParagraphListInfo;
 import kr.dogfoot.hwplib.drawer.input.paralist.ParallelMultiColumnInfo;
 import kr.dogfoot.hwplib.drawer.drawer.control.table.TableResult;
+import kr.dogfoot.hwplib.drawer.output.page.PageOutput;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.TextPosition;
 import kr.dogfoot.hwplib.object.HWPFile;
 import kr.dogfoot.hwplib.object.bindata.EmbeddedBinaryData;
+import kr.dogfoot.hwplib.object.bodytext.ParagraphListInterface;
 import kr.dogfoot.hwplib.object.bodytext.Section;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlColumnDefine;
+import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.columndefine.ColumnInfo;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.Paragraph;
+import kr.dogfoot.hwplib.object.bodytext.paragraph.ParagraphList;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPChar;
 import kr.dogfoot.hwplib.object.docinfo.BinData;
 import kr.dogfoot.hwplib.object.docinfo.BorderFill;
 import kr.dogfoot.hwplib.object.docinfo.CharShape;
 import kr.dogfoot.hwplib.object.docinfo.ParaShape;
+import org.apache.poi.ss.formula.functions.Column;
+import org.apache.poi.ss.formula.functions.Columns;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -24,6 +30,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Stack;
 
 public class DrawingInput {
@@ -34,6 +41,8 @@ public class DrawingInput {
     private Section section;
     private final PageInfo pageInfo;
 
+    private final Map<ParagraphListInterface, ColumnsInfo> columnsInfoMap;
+
     private ParagraphListInfo bodyTextParaListInfo;
     private final Stack<ParagraphListInfo> paraListInfoStack;
 
@@ -42,6 +51,7 @@ public class DrawingInput {
     public DrawingInput() {
         imageMap = new HashMap<>();
         pageInfo = new PageInfo();
+        columnsInfoMap = new HashMap<>();
         paraListInfoStack = new Stack<>();
 
         splitTableDrawResults = new ArrayList<>();
@@ -110,6 +120,15 @@ public class DrawingInput {
         return pageInfo;
     }
 
+    public ColumnsInfo getColumnInfo(ParagraphListInterface paraList) {
+        ColumnsInfo columnsInfo = columnsInfoMap.get(paraList);
+        if (columnsInfo == null) {
+            columnsInfo = new ColumnsInfo(pageInfo);
+            columnsInfoMap.put(paraList, columnsInfo);
+        }
+        return columnsInfo;
+    }
+
     public void nextPage() {
         pageInfo.increasePageNo();
 
@@ -118,26 +137,27 @@ public class DrawingInput {
         if (bodyTextParaListInfo != null) {
             bodyTextParaListInfo.setColumnInfoWithPreviousColumnDefine(new Area(pageInfo.bodyArea()));
         } else {
-            currentParaListInfo().columnsInfo().reset();
+            currentColumnsInfo().reset();
         }
+    }
+
+    public ColumnsInfo currentColumnsInfo() {
+        return columnsInfoMap.get(currentParaListInfo().paraList());
     }
 
     public void gotoPage(int pageNo) {
         pageInfo.pageNo(pageNo);
     }
 
-    public ColumnsInfo columnsInfo() {
-        return currentParaListInfo().columnsInfo();
-    }
 
     public void newRow(ControlColumnDefine columnDefine, long startY) {
         currentParaListInfo()
-                .setColumnInfo(columnDefine, new Area(currentParaListInfo().columnsInfo().textBoxArea()).top(startY));
+                .setColumnInfo(columnDefine, new Area(currentColumnsInfo().textBoxArea()).top(startY));
     }
 
     public void newRowWithPreviousColumnDefine(long startY) {
         currentParaListInfo()
-                .setColumnInfoWithPreviousColumnDefine(new Area(currentParaListInfo().columnsInfo().textBoxArea()).top(startY));
+                .setColumnInfoWithPreviousColumnDefine(new Area(currentColumnsInfo().textBoxArea()).top(startY));
     }
 
     public void nextColumn() {
@@ -156,8 +176,8 @@ public class DrawingInput {
         gotoColumn(0);
     }
 
-    public DrawingInput startBodyTextParaList(Paragraph[] paras) {
-        ParagraphListInfo paragraphListInfo = new ParagraphListInfo(this, paras)
+    public DrawingInput startBodyTextParaList(ParagraphListInterface paraList) {
+        ParagraphListInfo paragraphListInfo = new ParagraphListInfo(this, paraList)
                 .forBodyText();
         paraListInfoStack.push(paragraphListInfo);
 
@@ -170,8 +190,8 @@ public class DrawingInput {
         bodyTextParaListInfo = null;
     }
 
-    public void startControlParaList(Area textBoxArea, Paragraph[] paras) {
-        ParagraphListInfo paraListInfo = new ParagraphListInfo(this, paras)
+    public void startControlParaList(Area textBoxArea, ParagraphListInterface paraList) {
+        ParagraphListInfo paraListInfo = new ParagraphListInfo(this, paraList)
                 .forControl(textBoxArea);
         paraListInfoStack.push(paraListInfo);
     }
@@ -181,9 +201,9 @@ public class DrawingInput {
         return paraListInfo.height();
     }
 
-    public void startCellParaList(Area textBoxArea, Paragraph[] paras, boolean canSplit, long topInPage, long bottomMargin) {
-        ParagraphListInfo paraListInfo = new ParagraphListInfo(this, paras)
-                .forCell(textBoxArea, canSplit, topInPage, bottomMargin);
+    public void startCellParaList(Area textBoxArea, ParagraphListInterface paraList, boolean canSplit, long topInPage, long bottomMargin, boolean split) {
+        ParagraphListInfo paraListInfo = new ParagraphListInfo(this, paraList)
+                .forCell(textBoxArea, canSplit, topInPage, bottomMargin,  split);
         paraListInfoStack.push(paraListInfo);
     }
 
@@ -192,18 +212,14 @@ public class DrawingInput {
         return paraListInfo.height();
     }
 
-
     public ParagraphListInfo currentParaListInfo() {
         return paraListInfoStack.peek();
     }
 
-    public boolean isBodyText() {
-        return currentParaListInfo().isBodyText();
+    public ParagraphListInfo.Sort sortOfText() {
+        return currentParaListInfo().sort();
     }
 
-    public boolean isCellText() {
-        return currentParaListInfo().isCellText();
-    }
 
     public Area paraArea() {
         return currentParaListInfo().paraArea();
@@ -281,7 +297,7 @@ public class DrawingInput {
     }
 
     public ParallelMultiColumnInfo parallelMultiColumnInfo() {
-        return columnsInfo().parallelMultiColumnInfo();
+        return currentColumnsInfo().parallelMultiColumnInfo();
     }
 
     public void addSplitTableDrawResult(TableResult tableDrawResult) {

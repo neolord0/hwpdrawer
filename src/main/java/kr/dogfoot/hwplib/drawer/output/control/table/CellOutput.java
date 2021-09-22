@@ -15,7 +15,6 @@ import kr.dogfoot.hwplib.object.bodytext.control.table.Cell;
 import java.util.ArrayList;
 
 public class CellOutput extends Output {
-    private final TableOutput tableOutput;
     private final Cell cell;
     private final Area cellArea;
     private Area textMargin;
@@ -26,8 +25,7 @@ public class CellOutput extends Output {
     private final Content content;
     private final ArrayList<ControlOutput> childControlsCrossingPage;
 
-    public CellOutput(TableOutput tableOutput, Cell cell) {
-        this.tableOutput = tableOutput;
+    public CellOutput(Cell cell) {
         this.cell = cell;
         this.cellArea = new Area(0,
                 0,
@@ -43,7 +41,7 @@ public class CellOutput extends Output {
     }
 
     public TableOutput tableOutput() {
-        return tableOutput;
+        return (TableOutput) parent();
     }
 
     public Cell cell() {
@@ -133,10 +131,6 @@ public class CellOutput extends Output {
 
     public void addChildControlCrossingPage(ControlOutput childOutput) {
         childControlsCrossingPage.add(childOutput);
-    }
-
-    public boolean hasChildControlCrossingPage() {
-        return !childControlsCrossingPage.isEmpty();
     }
 
     public ControlOutput[] childControlsCrossingPage() {

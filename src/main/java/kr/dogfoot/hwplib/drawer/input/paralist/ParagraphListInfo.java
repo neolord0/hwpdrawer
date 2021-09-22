@@ -3,6 +3,7 @@ package kr.dogfoot.hwplib.drawer.input.paralist;
 import kr.dogfoot.hwplib.drawer.input.DrawingInput;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.TextPosition;
+import kr.dogfoot.hwplib.object.bodytext.ParagraphListInterface;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlColumnDefine;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.Paragraph;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.charshape.CharPositionShapeIdPair;
@@ -15,11 +16,12 @@ public class ParagraphListInfo {
     private Area textBoxArea;
     private ColumnsInfo columnsInfo;
 
-    private Paragraph currentPara;
+    private final ParagraphListInterface paraList;
     private Paragraph[] paras;
+    private Paragraph currentPara;
     private int paraIndex;
 
-    private ParagraphListInfoSort sort;
+    private Sort sort;
 
     private ParaShape paraShape;
 
@@ -39,22 +41,24 @@ public class ParagraphListInfo {
 
     private CellInfo cellInfo;
 
-    public ParagraphListInfo(DrawingInput input, Paragraph[] paras) {
+    public ParagraphListInfo(DrawingInput input, ParagraphListInterface paraList) {
         this.input = input;
-        columnsInfo = new ColumnsInfo(input.pageInfo());
+        this.paraList = paraList;
+
+        columnsInfo = input.getColumnInfo(paraList);
 
         height = 0;
         paraArea = new Area();
 
-        this.paras = paras;
-        this.paraIndex = 0;
+        paras = paraList.getParagraphs();
+        paraIndex = 0;
         ignoreNextPara = false;
 
         cellInfo = null;
     }
 
     public ParagraphListInfo forBodyText() {
-        sort = ParagraphListInfoSort.ForBody;
+        sort = Sort.ForBody;
         return this;
     }
 
@@ -62,18 +66,27 @@ public class ParagraphListInfo {
         columnsInfo.set(null, textBoxArea);
         textBoxArea(textBoxArea);
 
-        sort = ParagraphListInfoSort.ForControl;
+        sort = Sort.ForControl;
         return this;
     }
 
-    public ParagraphListInfo forCell(Area textBoxArea, boolean canSplit, long topInPage, long bottomMargin) {
-        columnsInfo.set(null, textBoxArea);
-        textBoxArea(textBoxArea);
+    public ParagraphListInfo forCell(Area textBoxArea, boolean canSplit, long topInPage, long bottomMargin, boolean split) {
+        if (!split) {
+            columnsInfo.set(null, new Area(textBoxArea).bottom(input.pageInfo().bodyArea().bottom()));
+            textBoxArea(textBoxArea);
+        } else {
+            columnsInfo.currentColumnIndex(0);
+            textBoxArea(columnsInfo.currentColumnArea());
+        }
 
         this.cellInfo = new CellInfo(canSplit, topInPage, bottomMargin);
 
-        sort = ParagraphListInfoSort.ForCell;
+        sort = Sort.ForCell;
         return this;
+    }
+
+    public ParagraphListInterface paraList() {
+        return paraList;
     }
 
     public void textBoxArea(Area textBoxArea) {
@@ -82,6 +95,14 @@ public class ParagraphListInfo {
         if (paraShape != null) {
             setParaArea();
         }
+    }
+
+    public Area textBoxArea() {
+        return textBoxArea;
+    }
+
+    public Sort sort() {
+        return sort;
     }
 
     public boolean nextPara() {
@@ -171,16 +192,12 @@ public class ParagraphListInfo {
         this.height += height;
     }
 
-    public boolean isBodyText() {
-        return sort == ParagraphListInfoSort.ForBody;
-    }
-
-    public boolean isCellText() {
-        return sort == ParagraphListInfoSort.ForCell;
-    }
-
     public CellInfo cellInfo() {
         return cellInfo;
+    }
+
+    public void cellInfo(CellInfo cellInfo) {
+        this.cellInfo = cellInfo;
     }
 
     public ParaShape paraShape() {
@@ -269,10 +286,6 @@ public class ParagraphListInfo {
         }
     }
 
-    public ColumnsInfo columnsInfo() {
-        return columnsInfo;
-    }
-
     public void setColumnInfoWithPreviousColumnDefine(Area textBoxArea) {
         columnsInfo.setWithPreviousColumnDefine(textBoxArea);
         textBoxArea(columnsInfo.currentColumnArea());
@@ -327,8 +340,7 @@ public class ParagraphListInfo {
         }
     }
 
-
-    private  enum ParagraphListInfoSort {
+    public enum Sort {
         ForBody,
         ForControl,
         ForCell

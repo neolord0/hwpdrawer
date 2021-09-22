@@ -4,6 +4,7 @@ import kr.dogfoot.hwplib.drawer.input.paralist.ColumnsInfo;
 import kr.dogfoot.hwplib.drawer.input.PageInfo;
 import kr.dogfoot.hwplib.drawer.output.Content;
 import kr.dogfoot.hwplib.drawer.output.Output;
+import kr.dogfoot.hwplib.drawer.output.text.TextRow;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
 
@@ -49,6 +50,10 @@ public class PageOutput extends Output {
         return content;
     }
 
+    public boolean empty() {
+        return content.empty();
+    }
+
     public HeaderOutput createHeaderOutput() {
         headerOutput = new HeaderOutput(headerArea);
         return headerOutput;
@@ -65,10 +70,6 @@ public class PageOutput extends Output {
 
     public FooterOutput footerOutput() {
         return footerOutput;
-    }
-
-    public void gotoRow(int rowIndex) {
-        content.gotoRow(rowIndex);
     }
 
     @Override
@@ -90,4 +91,5 @@ public class PageOutput extends Output {
         sb.tab(tabCount).append("page - }\n");
         return sb.toString();
     }
+
 }
