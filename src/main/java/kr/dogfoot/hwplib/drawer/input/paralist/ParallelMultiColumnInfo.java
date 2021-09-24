@@ -17,10 +17,9 @@ public class ParallelMultiColumnInfo {
 
     public void startParallelMultiColumn(int rowIndex, Output parentOutput, ParagraphListInfo.CellInfo cellInfo) {
         parentInfos.clear();
-        parentInfos.add(new ParentInfo(parentOutput, cellInfo));
         currentParentIndex = 0;
-
         startingRowIndex = rowIndex;
+        addParentInfo(parentOutput, cellInfo);
     }
 
     public int startingRowIndex() {
@@ -28,7 +27,18 @@ public class ParallelMultiColumnInfo {
     }
 
     public void addParentInfo(Output parentOutput, ParagraphListInfo.CellInfo cellInfo) {
-        parentInfos.add(new ParentInfo(parentOutput, cellInfo));
+        if (!alreadyAdded(parentOutput)) {
+            parentInfos.add(new ParentInfo(parentOutput, cellInfo));
+        }
+    }
+
+    private boolean alreadyAdded(Output parentOutput) {
+        for (ParentInfo parentInfo : parentInfos) {
+            if (parentInfo.output == parentOutput) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void nextColumn() {

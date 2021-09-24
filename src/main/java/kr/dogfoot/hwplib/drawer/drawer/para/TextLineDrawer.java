@@ -1,4 +1,4 @@
-package kr.dogfoot.hwplib.drawer.drawer;
+package kr.dogfoot.hwplib.drawer.drawer.para;
 
 import kr.dogfoot.hwplib.drawer.input.DrawingInput;
 import kr.dogfoot.hwplib.drawer.output.InterimOutput;
@@ -186,4 +186,3 @@ public class TextLineDrawer {
         return textLine.test(0);
     }
 }
-

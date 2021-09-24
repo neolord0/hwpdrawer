@@ -1,4 +1,4 @@
-package kr.dogfoot.hwplib.drawer.drawer.textflow;
+package kr.dogfoot.hwplib.drawer.drawer.para.textflow;
 
 import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfoControl;
 import kr.dogfoot.hwplib.drawer.util.Area;

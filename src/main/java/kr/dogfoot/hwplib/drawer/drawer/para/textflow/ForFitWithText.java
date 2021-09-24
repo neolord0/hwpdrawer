@@ -1,6 +1,6 @@
-package kr.dogfoot.hwplib.drawer.drawer.textflow;
+package kr.dogfoot.hwplib.drawer.drawer.para.textflow;
 
-import kr.dogfoot.hwplib.drawer.drawer.ParaDrawer;
+import kr.dogfoot.hwplib.drawer.drawer.para.ParaDrawingState;
 import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfoControl;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.CtrlHeaderGso;
@@ -190,7 +190,7 @@ public class ForFitWithText {
     public static class Result {
         private final Area[] dividedAreas;
         private long offsetY;
-        private ParaDrawer.DrawingState nextState;
+        private ParaDrawingState nextState;
         private boolean cancelNewLine;
 
         public Result(Area[] dividedAreas, long offsetY, Area textLineArea) {
@@ -199,11 +199,11 @@ public class ForFitWithText {
             cancelNewLine = false;
 
             if (dividedAreas == null) {
-                nextState = ParaDrawer.DrawingState.StartRedrawing;
+                nextState = ParaDrawingState.StartRedrawing;
             } else if (dividedAreas().length == 1 && dividedAreas[0].equals(textLineArea)) {
-                nextState = ParaDrawer.DrawingState.Normal;
+                nextState = ParaDrawingState.Normal;
             } else {
-                nextState = ParaDrawer.DrawingState.StartRecalculating;
+                nextState = ParaDrawingState.StartRecalculating;
             }
         }
 
@@ -219,11 +219,11 @@ public class ForFitWithText {
             this.offsetY = offsetY;
         }
 
-        public ParaDrawer.DrawingState nextState() {
+        public ParaDrawingState nextState() {
             return nextState;
         }
 
-        public Result nextState(ParaDrawer.DrawingState nextState) {
+        public Result nextState(ParaDrawingState nextState) {
             this.nextState = nextState;
             return this;
         }

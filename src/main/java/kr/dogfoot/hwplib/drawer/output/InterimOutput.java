@@ -17,34 +17,38 @@ import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlTable;
 import kr.dogfoot.hwplib.object.bodytext.control.gso.GsoControl;
 import kr.dogfoot.hwplib.object.bodytext.control.table.Cell;
+import kr.dogfoot.hwplib.object.bodytext.control.table.ListHeaderForCell;
+import kr.dogfoot.hwplib.object.bodytext.control.table.Table;
+import org.apache.poi.ss.formula.functions.T;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Queue;
 import java.util.TreeMap;
 
 public class InterimOutput {
-    private PageOutput currentPage;
     private Output currentOutput;
 
-    private Map<Integer, PageOutput> pageMap;
+    private final Map<Integer, PageOutput> pageMap;
+    private PageOutput currentPage;
     private int currentPageNo;
-
-    private final ArrayList<ControlInfo> controlsMovedToNextPage;
+    private final ArrayList<ControlOutput> childControlsCrossingPage;
+    private final ArrayList<SplitTableInfo> splitTablesList;
 
     public InterimOutput() {
+        currentOutput = null;
+
+        currentPage = null;
         pageMap = new TreeMap<>();
         currentPageNo = 0;
 
-        controlsMovedToNextPage = new ArrayList<>();
+        childControlsCrossingPage = new ArrayList<>();
+        splitTablesList = new ArrayList<>();
     }
 
     public PageOutput currentPage() {
         return currentPage;
-    }
-
-    public void currentPage(PageOutput page) {
-        currentOutput = currentPage = page;
     }
 
     public Output currentOutput() {
@@ -66,20 +70,9 @@ public class InterimOutput {
         if (page == null) {
             page = new PageOutput(input.pageInfo(), input.currentColumnsInfo());
             pageMap.put(currentPageNo, page);
-
-            addMovedControls(page);
         }
 
-        currentPage(page);
-    }
-
-    private void addMovedControls(PageOutput page) {
-        if (!controlsMovedToNextPage.isEmpty()) {
-            for (ControlInfo controlInfo : controlsMovedToNextPage) {
-                page.content().currentRow().currentColumn().addChildOutput(controlInfo.output);
-            }
-            controlsMovedToNextPage.clear();
-        }
+        currentOutput = currentPage = page;
     }
 
     public void addEmptyPage(DrawingInput input) {
@@ -87,9 +80,21 @@ public class InterimOutput {
         PageOutput page = new PageOutput(input.pageInfo(), defaultColumnsInfo(input));
         pageMap.put(currentPageNo, page);
 
-        addMovedControls(page);
+        currentOutput = currentPage = page;
+    }
 
-        currentPage(page);
+    public void addDrawingControls() {
+        if (!childControlsCrossingPage.isEmpty()) {
+            for (ControlOutput controlOutput : childControlsCrossingPage) {
+                currentPage.content().currentRow().currentColumn().addChildOutput(controlOutput);
+            }
+            childControlsCrossingPage.clear();
+        }
+
+        ArrayList<TableOutput> tableOutputs = splitTables();
+        for (TableOutput tableOutput : tableOutputs) {
+            currentPage.content().currentRow().currentColumn().addChildOutput(tableOutput);
+        }
     }
 
     @NotNull
@@ -102,7 +107,7 @@ public class InterimOutput {
     public PageOutput gotoPage(PageOutput page) {
         currentPageNo = page.pageNo();
 
-        currentPage(page);
+        currentOutput = currentPage = page;
         return currentPage;
     }
 
@@ -314,38 +319,64 @@ public class InterimOutput {
         return currentContent().rowBottom();
     }
 
-    public void addControlMovedToNextPage(ControlOutput output, CharInfoControl charInfo) {
-        controlsMovedToNextPage.add(new ControlInfo(output, charInfo));
+    public void addChildControlsCrossingPage(ControlOutput output) {
+        childControlsCrossingPage.add(output);
     }
 
-    public boolean hasControlMovedToNextPage() {
-        return !controlsMovedToNextPage.isEmpty();
+    public ControlOutput[] childControlsCrossingPage() {
+        return childControlsCrossingPage.toArray(ControlOutput.Zero_Array);
     }
 
-    public CharInfoControl[] controlsMovedToNextPage() {
-        int count = controlsMovedToNextPage.size();
-        CharInfoControl[] controls = new CharInfoControl[count];
-        for (int index = 0; index < count; index++) {
-            controls[index] = controlsMovedToNextPage.get(index).charInfo;
-        }
-        return controls;
+    public void clearChildControlsCrossingPage() {
+        childControlsCrossingPage.clear();
     }
 
-    private static final class ControlInfo {
-        private final ControlOutput output;
-        private final CharInfoControl charInfo;
 
-        public ControlInfo(ControlOutput output, CharInfoControl charInfo) {
-            this.output = output;
-            this.charInfo = charInfo;
+    public void addSplitTables(Queue<TableOutput> splitTables) {
+        splitTablesList.add(new SplitTableInfo(currentPageNo + 1, splitTables));
+    }
+
+    public ArrayList<TableOutput> splitTables() {
+        ArrayList<TableOutput> tableOutputs = new ArrayList<>();
+
+        ArrayList<SplitTableInfo> removingSplitTableInfos = new ArrayList<>();
+        for (SplitTableInfo splitTableInfo : splitTablesList) {
+            if (splitTableInfo.pageNo == currentPageNo) {
+                tableOutputs.add(splitTableInfo.tableList.poll());
+                if (splitTableInfo.tableList.isEmpty()) {
+                    removingSplitTableInfos.add(splitTableInfo);
+                } else {
+                    splitTableInfo.pageNo++;
+                }
+            }
         }
 
-        public ControlOutput output() {
-            return output;
+        for (InterimOutput.SplitTableInfo splitTableInfo : removingSplitTableInfos) {
+            splitTablesList.remove(splitTableInfo);
         }
+        return tableOutputs;
+    }
 
-        public CharInfoControl charInfo() {
-            return charInfo;
+    public boolean hasDrawingControls() {
+        return !childControlsCrossingPage.isEmpty() || hasSplitTables();
+    }
+
+    private boolean hasSplitTables() {
+        for (SplitTableInfo splitTableInfo : splitTablesList) {
+            if (splitTableInfo.pageNo == currentPageNo + 1) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public class SplitTableInfo {
+        int pageNo;
+        Queue<TableOutput> tableList;
+
+        public SplitTableInfo(int pageNo, Queue<TableOutput> tableList) {
+            this.pageNo = pageNo;
+            this.tableList = tableList;
         }
     }
 }

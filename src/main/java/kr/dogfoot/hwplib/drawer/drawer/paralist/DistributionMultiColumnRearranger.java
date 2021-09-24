@@ -1,5 +1,7 @@
-package kr.dogfoot.hwplib.drawer.drawer;
+package kr.dogfoot.hwplib.drawer.drawer.paralist;
 
+import kr.dogfoot.hwplib.drawer.drawer.BreakDrawingException;
+import kr.dogfoot.hwplib.drawer.drawer.para.ParaDrawer;
 import kr.dogfoot.hwplib.drawer.input.DrawingInput;
 import kr.dogfoot.hwplib.drawer.output.InterimOutput;
 import kr.dogfoot.hwplib.drawer.output.text.TextColumn;
@@ -133,7 +135,7 @@ public class DistributionMultiColumnRearranger {
         }
 
 
-        if (input.currentColumnsInfo().lastColumn() || endingPara || overPage) {
+        if (input.currentColumnsInfo().isLastColumn() || endingPara || overPage) {
             setTestingLineCount2(output.textLineCount(), overPage);
 
             setResultLineCount(overPage,
@@ -161,7 +163,7 @@ public class DistributionMultiColumnRearranger {
     }
 
     private void setResultLineCount(boolean overPage, boolean endingPara, int paraIndexAtOverPage, int charIndexAtOverPage, long rowHeight) {
-        if (input.currentColumnsInfo().lastColumn() || endingPara) {
+        if (input.currentColumnsInfo().isLastColumn() || endingPara) {
             if (overPage == true) {
                 if (isLatePosition(paraIndexAtOverPage, charIndexAtOverPage)) {
                     lineCountsOfColumnAtMaxPosition = testingLineCounts.clone();

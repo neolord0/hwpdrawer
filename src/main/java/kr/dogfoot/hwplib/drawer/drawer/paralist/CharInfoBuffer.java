@@ -1,4 +1,4 @@
-package kr.dogfoot.hwplib.drawer.drawer;
+package kr.dogfoot.hwplib.drawer.drawer.paralist;
 
 import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfo;
 

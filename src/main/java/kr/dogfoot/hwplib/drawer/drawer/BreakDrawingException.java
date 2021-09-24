@@ -5,17 +5,15 @@ import kr.dogfoot.hwplib.drawer.util.TextPosition;
 public class BreakDrawingException extends Exception {
     private Type type;
     private TextPosition position;
+    private int columnIndex;
 
     public BreakDrawingException() {
         this(TextPosition.ParaList_Start_Position);
     }
 
-    public BreakDrawingException(int paraIndex, int charIndex, int charPosition) {
-        position = new TextPosition(paraIndex, charIndex, charPosition);
-    }
-
     public BreakDrawingException(TextPosition position) {
         this.position = position;
+        columnIndex = -1;
     }
 
 
@@ -55,6 +53,15 @@ public class BreakDrawingException extends Exception {
 
     public TextPosition position() {
         return position;
+    }
+
+    public int columnIndex() {
+        return columnIndex;
+    }
+
+    public BreakDrawingException columnIndex(int columnIndex) {
+        this.columnIndex = columnIndex;
+        return this;
     }
 
     public enum Type {

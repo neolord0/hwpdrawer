@@ -1,6 +1,6 @@
-package kr.dogfoot.hwplib.drawer.drawer.textflow;
+package kr.dogfoot.hwplib.drawer.drawer.para.textflow;
 
-import kr.dogfoot.hwplib.drawer.drawer.ParaDrawer;
+import kr.dogfoot.hwplib.drawer.drawer.para.ParaDrawingState;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.VertRelTo;
 
@@ -10,7 +10,7 @@ import java.util.Queue;
 public class TextFlowCalculationResult {
     private final long offsetY;
     private final boolean cancelNewLine;
-    private final ParaDrawer.DrawingState nextState;
+    private final ParaDrawingState nextState;
 
     private final Queue<Area> textPartAreas;
     private final Area storedTextLineArea;
@@ -67,7 +67,7 @@ public class TextFlowCalculationResult {
         return cancelNewLine;
     }
 
-    public ParaDrawer.DrawingState nextState() {
+    public ParaDrawingState nextState() {
         return nextState;
     }
 }

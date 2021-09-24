@@ -3,8 +3,6 @@ package kr.dogfoot.hwplib.drawer.input;
 import kr.dogfoot.hwplib.drawer.input.paralist.ColumnsInfo;
 import kr.dogfoot.hwplib.drawer.input.paralist.ParagraphListInfo;
 import kr.dogfoot.hwplib.drawer.input.paralist.ParallelMultiColumnInfo;
-import kr.dogfoot.hwplib.drawer.drawer.control.table.TableResult;
-import kr.dogfoot.hwplib.drawer.output.page.PageOutput;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.TextPosition;
 import kr.dogfoot.hwplib.object.HWPFile;
@@ -12,23 +10,18 @@ import kr.dogfoot.hwplib.object.bindata.EmbeddedBinaryData;
 import kr.dogfoot.hwplib.object.bodytext.ParagraphListInterface;
 import kr.dogfoot.hwplib.object.bodytext.Section;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlColumnDefine;
-import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.columndefine.ColumnInfo;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.Paragraph;
-import kr.dogfoot.hwplib.object.bodytext.paragraph.ParagraphList;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPChar;
 import kr.dogfoot.hwplib.object.docinfo.BinData;
 import kr.dogfoot.hwplib.object.docinfo.BorderFill;
 import kr.dogfoot.hwplib.object.docinfo.CharShape;
 import kr.dogfoot.hwplib.object.docinfo.ParaShape;
-import org.apache.poi.ss.formula.functions.Column;
-import org.apache.poi.ss.formula.functions.Columns;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
@@ -46,15 +39,11 @@ public class DrawingInput {
     private ParagraphListInfo bodyTextParaListInfo;
     private final Stack<ParagraphListInfo> paraListInfoStack;
 
-    private final ArrayList<TableResult> splitTableDrawResults;
-
     public DrawingInput() {
         imageMap = new HashMap<>();
         pageInfo = new PageInfo();
         columnsInfoMap = new HashMap<>();
         paraListInfoStack = new Stack<>();
-
-        splitTableDrawResults = new ArrayList<>();
     }
 
     public HWPFile hwpFile() {
@@ -201,9 +190,9 @@ public class DrawingInput {
         return paraListInfo.height();
     }
 
-    public void startCellParaList(Area textBoxArea, ParagraphListInterface paraList, boolean canSplit, long topInPage, long bottomMargin, boolean split) {
+    public void startCellParaList(Area textBoxArea, ParagraphListInterface paraList, boolean canSplit, long topInPage, long bottomMargin, boolean split, int startTextColumnIndex) {
         ParagraphListInfo paraListInfo = new ParagraphListInfo(this, paraList)
-                .forCell(textBoxArea, canSplit, topInPage, bottomMargin,  split);
+                .forCell(textBoxArea, canSplit, topInPage, bottomMargin, split, startTextColumnIndex);
         paraListInfoStack.push(paraListInfo);
     }
 
@@ -299,22 +288,5 @@ public class DrawingInput {
     public ParallelMultiColumnInfo parallelMultiColumnInfo() {
         return currentColumnsInfo().parallelMultiColumnInfo();
     }
-
-    public void addSplitTableDrawResult(TableResult tableDrawResult) {
-        splitTableDrawResults.add(tableDrawResult);
-    }
-
-    public boolean hasSplitTables() {
-        return !splitTableDrawResults.isEmpty();
-    }
-
-    public TableResult[] splitTableDrawResults() {
-        return splitTableDrawResults.toArray(TableResult.ZeroArray);
-    }
-
-    public void clearSplitTableDrawResults() {
-        splitTableDrawResults.clear();
-    }
-
 }
 

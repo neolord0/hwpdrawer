@@ -1,5 +1,6 @@
-package kr.dogfoot.hwplib.drawer.drawer;
+package kr.dogfoot.hwplib.drawer.drawer.para;
 
+import kr.dogfoot.hwplib.drawer.drawer.RedrawException;
 import kr.dogfoot.hwplib.drawer.input.DrawingInput;
 import kr.dogfoot.hwplib.drawer.output.InterimOutput;
 import kr.dogfoot.hwplib.drawer.output.control.ControlOutput;
@@ -8,7 +9,7 @@ import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfo;
 import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfoControl;
 import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfoNormal;
 import kr.dogfoot.hwplib.drawer.drawer.control.ControlDrawer;
-import kr.dogfoot.hwplib.drawer.drawer.textflow.TextFlowCalculator;
+import kr.dogfoot.hwplib.drawer.drawer.para.textflow.TextFlowCalculator;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.TextFlowMethod;
 import kr.dogfoot.hwplib.object.docinfo.parashape.LineDivideForEnglish;
 import kr.dogfoot.hwplib.object.docinfo.parashape.LineDivideForHangul;
@@ -146,9 +147,9 @@ public class WordDrawer {
         if (controlCharInfo.textFlowMethod() == TextFlowMethod.FitWithText
                 || controlCharInfo.textFlowMethod() == TextFlowMethod.TakePlace) {
             if (!textFlowCalculator.alreadyAdded(controlCharInfo)) {
-                if (output.checkRedrawingTextLine(controlCharInfo.areaWithOuterMargin())) {
+                if (output.checkRedrawingTextLine(output2.areaWithOuterMargin())) {
                     if (isOver75PercentOfPageHeight(paraDrawer.currentTextPartArea().bottom())) {
-                        output.addControlMovedToNextPage(output2, controlCharInfo);
+                        output.addChildControlsCrossingPage(output2);
                     } else {
                         if (output.addChildOutput(output2)) {
                             textFlowCalculator.add(controlCharInfo, output2.areaWithOuterMargin());

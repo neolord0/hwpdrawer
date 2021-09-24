@@ -1,10 +1,12 @@
 package kr.dogfoot.hwplib.drawer.drawer.control;
 
+import kr.dogfoot.hwplib.drawer.drawer.paralist.ParaListDrawerForCell;
+import kr.dogfoot.hwplib.drawer.drawer.paralist.ParaListDrawerForControl;
 import kr.dogfoot.hwplib.drawer.input.DrawingInput;
 import kr.dogfoot.hwplib.drawer.output.InterimOutput;
 import kr.dogfoot.hwplib.drawer.output.control.ControlOutput;
 import kr.dogfoot.hwplib.drawer.output.control.GsoOutput;
-import kr.dogfoot.hwplib.drawer.drawer.ParaListDrawer;
+import kr.dogfoot.hwplib.drawer.drawer.paralist.ParaListDrawer;
 import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfoControl;
 import kr.dogfoot.hwplib.drawer.drawer.control.table.TableDrawer;
 import kr.dogfoot.hwplib.drawer.output.control.table.TableOutput;
@@ -13,7 +15,7 @@ import kr.dogfoot.hwplib.object.bodytext.control.gso.*;
 import kr.dogfoot.hwplib.object.bodytext.control.gso.textbox.TextBox;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.ParagraphList;
 
-import java.util.ArrayList;
+import java.util.Queue;
 
 public class ControlDrawer {
     private final DrawingInput input;
@@ -72,12 +74,14 @@ public class ControlDrawer {
             }
                 break;
             case Table:
-                ArrayList<TableOutput> tableOutputs = tableDrawer.draw(controlCharInfo);
-                controlOutput = tableOutputs.get(0);
-                System.out.println(controlOutput);
+                Queue<TableOutput> tableOutputs = tableDrawer.draw(controlCharInfo);
+                controlOutput = tableOutputs.poll();
+                if (!tableOutputs.isEmpty()) {
+                    output.addSplitTables(tableOutputs);
+                }
+
                 break;
         }
-
         return controlOutput;
     }
 
@@ -87,6 +91,7 @@ public class ControlDrawer {
 
     private GsoOutput rectangle(ControlRectangle rectangle, Area areaWithoutOuterMargin) throws Exception {
         GsoOutput output2 = output.startGso(rectangle, areaWithoutOuterMargin);
+
         TextBox textBox = rectangle.getTextBox();
         if (rectangle.getTextBox() != null) {
             output2
@@ -145,7 +150,7 @@ public class ControlDrawer {
     }
 
     private long drawTextBox(ParagraphList paragraphList, Area textBoxArea) throws Exception {
-        ParaListDrawer paragraphListDrawer = new ParaListDrawer(input, output);
-        return paragraphListDrawer.drawForControl(paragraphList, textBoxArea);
+        return new ParaListDrawerForControl(input, output)
+                .draw(paragraphList, textBoxArea);
     }
 }

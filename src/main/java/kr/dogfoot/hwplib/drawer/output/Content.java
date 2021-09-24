@@ -6,7 +6,6 @@ import kr.dogfoot.hwplib.drawer.output.text.TextRow;
 import kr.dogfoot.hwplib.drawer.output.text.TextLine;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
-import org.apache.poi.ss.formula.functions.T;
 
 import java.util.ArrayList;
 
@@ -17,8 +16,8 @@ public class Content {
     public Content(Area area) {
         rows = new ArrayList<>();
 
-        TextRow multiColumn = new TextRow(area);
-        rows.add(multiColumn);
+        TextRow row = new TextRow(area);
+        rows.add(row);
 
         currentRowIndex = 0;
     }
@@ -26,8 +25,8 @@ public class Content {
     public Content(ColumnsInfo columnsInfo) {
         rows = new ArrayList<>();
 
-        TextRow multiColumn = new TextRow(columnsInfo);
-        rows.add(multiColumn);
+        TextRow row = new TextRow(columnsInfo);
+        rows.add(row);
 
         currentRowIndex = 0;
     }
@@ -39,8 +38,8 @@ public class Content {
 
         currentRowIndex++;
         if (currentRowIndex >= rows.size()) {
-            TextRow multiColumn = new TextRow(columnsInfo);
-            rows.add(multiColumn);
+            TextRow row = new TextRow(columnsInfo);
+            rows.add(row);
         }
     }
 

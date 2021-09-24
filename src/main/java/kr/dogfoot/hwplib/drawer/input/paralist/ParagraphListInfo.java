@@ -70,12 +70,16 @@ public class ParagraphListInfo {
         return this;
     }
 
-    public ParagraphListInfo forCell(Area textBoxArea, boolean canSplit, long topInPage, long bottomMargin, boolean split) {
+    public ParagraphListInfo forCell(Area textBoxArea, boolean canSplit, long topInPage, long bottomMargin, boolean split, int startTextColumnIndex) {
         if (!split) {
             columnsInfo.set(null, new Area(textBoxArea).bottom(input.pageInfo().bodyArea().bottom()));
             textBoxArea(textBoxArea);
         } else {
-            columnsInfo.currentColumnIndex(0);
+            if (startTextColumnIndex != -1) {
+                columnsInfo.currentColumnIndex(startTextColumnIndex);
+            } else {
+                columnsInfo.currentColumnIndex(0);
+            }
             textBoxArea(columnsInfo.currentColumnArea());
         }
 

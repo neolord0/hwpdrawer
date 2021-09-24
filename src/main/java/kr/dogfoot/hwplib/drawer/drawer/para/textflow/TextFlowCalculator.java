@@ -1,10 +1,8 @@
-package kr.dogfoot.hwplib.drawer.drawer.textflow;
+package kr.dogfoot.hwplib.drawer.drawer.para.textflow;
 
-import kr.dogfoot.hwplib.drawer.drawer.ParaDrawer;
 import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfoControl;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.TextFlowMethod;
-import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.VertRelTo;
 
 public class TextFlowCalculator {
     private final ForTakePlace forTakePlace;

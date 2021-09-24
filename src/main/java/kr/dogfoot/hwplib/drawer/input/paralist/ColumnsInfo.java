@@ -180,10 +180,6 @@ public class ColumnsInfo {
         return areaList().get(currentColumnIndex);
     }
 
-    public boolean lastColumn() {
-        return currentColumnIndex + 1 == areaList().size();
-    }
-
     public void nextColumn() {
         currentColumnIndex++;
     }
@@ -234,6 +230,10 @@ public class ColumnsInfo {
 
     public boolean isFirstColumn() {
         return currentColumnIndex == 0;
+    }
+
+    public boolean isLastColumn() {
+        return currentColumnIndex + 1 == areaList().size();
     }
 
     public void currentColumnIndex(int currentColumnIndex) {
