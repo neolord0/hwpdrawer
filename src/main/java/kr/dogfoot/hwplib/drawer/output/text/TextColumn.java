@@ -1,7 +1,7 @@
 package kr.dogfoot.hwplib.drawer.output.text;
 
-import kr.dogfoot.hwplib.drawer.output.control.ControlOutput;
 import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfoControl;
+import kr.dogfoot.hwplib.drawer.output.control.ControlOutput;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
 import kr.dogfoot.hwplib.drawer.util.TextPosition;

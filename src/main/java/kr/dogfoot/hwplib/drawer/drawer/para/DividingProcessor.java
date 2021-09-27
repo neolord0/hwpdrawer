@@ -3,7 +3,6 @@ package kr.dogfoot.hwplib.drawer.drawer.para;
 import kr.dogfoot.hwplib.drawer.drawer.BreakDrawingException;
 import kr.dogfoot.hwplib.drawer.drawer.paralist.DistributionMultiColumnRearranger;
 import kr.dogfoot.hwplib.drawer.input.DrawingInput;
-import kr.dogfoot.hwplib.drawer.input.paralist.ParagraphListInfo;
 import kr.dogfoot.hwplib.drawer.output.InterimOutput;
 import kr.dogfoot.hwplib.drawer.output.Output;
 import kr.dogfoot.hwplib.drawer.output.control.GsoOutput;
@@ -13,14 +12,17 @@ public class DividingProcessor {
     private final DrawingInput input;
     private final InterimOutput output;
     private final ParaDrawer paraDrawer;
+    private final CharAdder charAdder;
     private DistributionMultiColumnRearranger distributionMultiColumnRearranger;
 
     public DividingProcessor(DrawingInput input,
                              InterimOutput output,
-                             ParaDrawer paraDrawer) {
+                             ParaDrawer paraDrawer,
+                             CharAdder charAdder) {
         this.input = input;
         this.output = output;
         this.paraDrawer = paraDrawer;
+        this.charAdder = charAdder;
     }
 
     public void distributionMultiColumnRearranger(DistributionMultiColumnRearranger distributionMultiColumnRearranger) {
@@ -41,9 +43,8 @@ public class DividingProcessor {
     }
 
     private void onDividingSection() throws Exception {
-        paraDrawer
-                .setSectionDefine()
-                .setColumnDefine(input.pageInfo().bodyArea().top());
+        input.sectionDefine(charAdder.sectionDefine());
+        input.columnsInfo(charAdder.columnDefine(), input.pageInfo().bodyArea().top());
 
         input.nextPage();
         output.nextPage(input);
@@ -63,7 +64,7 @@ public class DividingProcessor {
                 && input.currentColumnsInfo().columnCount() > 1
                 && output.textLineCount() > 1) {
             if (!distributionMultiColumnRearranger.testing()) {
-                if (input.sortOfText() == ParagraphListInfo.Sort.ForBody) {
+                if (input.sortOfText().isForBody()) {
                     paraDrawer.gotoFirstColumn();
                     distributionMultiColumnRearranger.rearrangeFromCurrentColumnUntilEndingPara(input.paraIndex() - 1);
                 } else {

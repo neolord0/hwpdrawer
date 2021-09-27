@@ -1,18 +1,20 @@
 package kr.dogfoot.hwplib.drawer.drawer.paralist;
 
 import kr.dogfoot.hwplib.drawer.drawer.BreakDrawingException;
+import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfoControl;
 import kr.dogfoot.hwplib.drawer.drawer.para.ParaDrawer;
+import kr.dogfoot.hwplib.drawer.drawer.para.textflow.TextFlowCalculator;
 import kr.dogfoot.hwplib.drawer.input.DrawingInput;
 import kr.dogfoot.hwplib.drawer.output.InterimOutput;
 import kr.dogfoot.hwplib.drawer.output.text.TextColumn;
 import kr.dogfoot.hwplib.drawer.output.text.TextLine;
-import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfoControl;
 
 public class DistributionMultiColumnRearranger {
     private final DrawingInput input;
     private final InterimOutput output;
     private final ParaListDrawer paraListDrawer;
     private final ParaDrawer paraDrawer;
+    private TextFlowCalculator textFlowCalculator;
 
     private int endingParaIndex;
     private boolean testing;
@@ -34,6 +36,10 @@ public class DistributionMultiColumnRearranger {
         this.paraListDrawer = paraListDrawer;
         this.paraDrawer = paraDrawer;
         this.endingParaIndex = -1;
+    }
+
+    public void textFlowCalculator(TextFlowCalculator textFlowCalculator) {
+        this.textFlowCalculator = textFlowCalculator;
     }
 
     public void resetEndingParaIndex() {
@@ -196,7 +202,7 @@ public class DistributionMultiColumnRearranger {
         }
     }
 
-    private void redraw() throws Exception {
+    private void redraw() {
         setLimitedTextCounts();
 
         output.resetHidingTextLineIndex();
@@ -204,7 +210,7 @@ public class DistributionMultiColumnRearranger {
         if (result != null) {
             input.gotoParaCharPosition(result.topLine().firstChar().position());
             for (CharInfoControl controlCharInfo : result.deletedControls()) {
-                paraDrawer.textFlowCalculator().delete(controlCharInfo);
+                textFlowCalculator.delete(controlCharInfo);
             }
         } else {
             input.gotoParaCharPosition(output.currentColumn().nextCharPosition());
@@ -235,4 +241,5 @@ public class DistributionMultiColumnRearranger {
         }
         return false;
     }
+
 }

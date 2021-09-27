@@ -1,6 +1,7 @@
 package kr.dogfoot.hwplib.drawer.painter.image;
 
 import kr.dogfoot.hwplib.drawer.DrawingOption;
+import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfoNormal;
 import kr.dogfoot.hwplib.drawer.input.DrawingInput;
 import kr.dogfoot.hwplib.drawer.output.Content;
 import kr.dogfoot.hwplib.drawer.output.text.TextColumn;
@@ -8,7 +9,6 @@ import kr.dogfoot.hwplib.drawer.output.text.TextRow;
 import kr.dogfoot.hwplib.drawer.painter.image.background.BackgroundPainter;
 import kr.dogfoot.hwplib.drawer.painter.image.control.ControlPainter;
 import kr.dogfoot.hwplib.drawer.painter.image.text.TextPainter;
-import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfoNormal;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.Convertor;
 import kr.dogfoot.hwplib.drawer.util.FontManager;

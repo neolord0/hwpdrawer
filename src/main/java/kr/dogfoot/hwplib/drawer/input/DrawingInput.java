@@ -10,6 +10,7 @@ import kr.dogfoot.hwplib.object.bindata.EmbeddedBinaryData;
 import kr.dogfoot.hwplib.object.bodytext.ParagraphListInterface;
 import kr.dogfoot.hwplib.object.bodytext.Section;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlColumnDefine;
+import kr.dogfoot.hwplib.object.bodytext.control.ControlSectionDefine;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.Paragraph;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPChar;
 import kr.dogfoot.hwplib.object.docinfo.BinData;
@@ -109,6 +110,10 @@ public class DrawingInput {
         return pageInfo;
     }
 
+    public void sectionDefine(ControlSectionDefine sectionDefine) {
+        pageInfo.sectionDefine(sectionDefine);
+    }
+
     public ColumnsInfo getColumnInfo(ParagraphListInterface paraList) {
         ColumnsInfo columnsInfo = columnsInfoMap.get(paraList);
         if (columnsInfo == null) {
@@ -138,15 +143,14 @@ public class DrawingInput {
         pageInfo.pageNo(pageNo);
     }
 
-
-    public void newRow(ControlColumnDefine columnDefine, long startY) {
-        currentParaListInfo()
-                .setColumnInfo(columnDefine, new Area(currentColumnsInfo().textBoxArea()).top(startY));
-    }
-
-    public void newRowWithPreviousColumnDefine(long startY) {
-        currentParaListInfo()
-                .setColumnInfoWithPreviousColumnDefine(new Area(currentColumnsInfo().textBoxArea()).top(startY));
+    public void columnsInfo(ControlColumnDefine columnDefine, long startY) {
+        if (columnDefine != null) {
+            currentParaListInfo()
+                    .setColumnInfo(columnDefine, new Area(currentColumnsInfo().textBoxArea()).top(startY));
+        } else {
+            currentParaListInfo()
+                    .setColumnInfoWithPreviousColumnDefine(new Area(currentColumnsInfo().textBoxArea()).top(startY));
+        }
     }
 
     public void nextColumn() {
@@ -288,5 +292,6 @@ public class DrawingInput {
     public ParallelMultiColumnInfo parallelMultiColumnInfo() {
         return currentColumnsInfo().parallelMultiColumnInfo();
     }
+
 }
 

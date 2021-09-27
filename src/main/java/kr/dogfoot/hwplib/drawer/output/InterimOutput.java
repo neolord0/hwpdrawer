@@ -1,7 +1,7 @@
 package kr.dogfoot.hwplib.drawer.output;
 
-import kr.dogfoot.hwplib.drawer.input.paralist.ColumnsInfo;
 import kr.dogfoot.hwplib.drawer.input.DrawingInput;
+import kr.dogfoot.hwplib.drawer.input.paralist.ColumnsInfo;
 import kr.dogfoot.hwplib.drawer.output.control.ControlOutput;
 import kr.dogfoot.hwplib.drawer.output.control.GsoOutput;
 import kr.dogfoot.hwplib.drawer.output.control.table.CellOutput;
@@ -10,16 +10,12 @@ import kr.dogfoot.hwplib.drawer.output.page.FooterOutput;
 import kr.dogfoot.hwplib.drawer.output.page.HeaderOutput;
 import kr.dogfoot.hwplib.drawer.output.page.PageOutput;
 import kr.dogfoot.hwplib.drawer.output.text.TextColumn;
-import kr.dogfoot.hwplib.drawer.output.text.TextRow;
 import kr.dogfoot.hwplib.drawer.output.text.TextLine;
-import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfoControl;
+import kr.dogfoot.hwplib.drawer.output.text.TextRow;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlTable;
 import kr.dogfoot.hwplib.object.bodytext.control.gso.GsoControl;
 import kr.dogfoot.hwplib.object.bodytext.control.table.Cell;
-import kr.dogfoot.hwplib.object.bodytext.control.table.ListHeaderForCell;
-import kr.dogfoot.hwplib.object.bodytext.control.table.Table;
-import org.apache.poi.ss.formula.functions.T;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;

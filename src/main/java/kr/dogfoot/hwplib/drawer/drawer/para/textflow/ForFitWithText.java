@@ -1,7 +1,7 @@
 package kr.dogfoot.hwplib.drawer.drawer.para.textflow;
 
-import kr.dogfoot.hwplib.drawer.drawer.para.ParaDrawingState;
 import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfoControl;
+import kr.dogfoot.hwplib.drawer.drawer.para.ParaDrawingState;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.CtrlHeaderGso;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.TextHorzArrange;

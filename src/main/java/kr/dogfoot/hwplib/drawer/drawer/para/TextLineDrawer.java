@@ -1,10 +1,10 @@
 package kr.dogfoot.hwplib.drawer.drawer.para;
 
+import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfo;
+import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfoControl;
 import kr.dogfoot.hwplib.drawer.input.DrawingInput;
 import kr.dogfoot.hwplib.drawer.output.InterimOutput;
 import kr.dogfoot.hwplib.drawer.output.text.TextLine;
-import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfo;
-import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfoControl;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.TextPosition;
 import kr.dogfoot.hwplib.object.docinfo.ParaShape;
@@ -173,10 +173,6 @@ public class TextLineDrawer {
         return lineHeight - maxCharHeight();
     }
 
-
-    public void setEmptyLineHeight() {
-        textLineArea().bottom(textLineArea().bottom() + input.charShape().getBaseSize());
-    }
 
     public void addControlCharInfo(CharInfoControl controlCharInfo) {
         textLine.addControlCharInfo(controlCharInfo);

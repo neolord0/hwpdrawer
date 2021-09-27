@@ -1,8 +1,7 @@
 package kr.dogfoot.hwplib.drawer.output.text;
 
-import kr.dogfoot.hwplib.drawer.input.paralist.ColumnsInfo;
 import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfo;
-import kr.dogfoot.hwplib.drawer.output.Output;
+import kr.dogfoot.hwplib.drawer.input.paralist.ColumnsInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
 

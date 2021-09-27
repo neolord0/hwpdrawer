@@ -1,11 +1,11 @@
 package kr.dogfoot.hwplib.drawer.painter.image.text;
 
-import kr.dogfoot.hwplib.drawer.output.text.TextLine;
-import kr.dogfoot.hwplib.drawer.output.text.TextPart;
-import kr.dogfoot.hwplib.drawer.painter.image.PainterForImage;
 import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfo;
 import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfoControl;
 import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfoNormal;
+import kr.dogfoot.hwplib.drawer.output.text.TextLine;
+import kr.dogfoot.hwplib.drawer.output.text.TextPart;
+import kr.dogfoot.hwplib.drawer.painter.image.PainterForImage;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.docinfo.CharShape;
 

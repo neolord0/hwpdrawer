@@ -1,15 +1,17 @@
 package kr.dogfoot.hwplib.drawer.drawer.para;
 
 import kr.dogfoot.hwplib.drawer.drawer.RedrawException;
-import kr.dogfoot.hwplib.drawer.input.DrawingInput;
-import kr.dogfoot.hwplib.drawer.output.InterimOutput;
-import kr.dogfoot.hwplib.drawer.output.control.ControlOutput;
-import kr.dogfoot.hwplib.drawer.output.text.TextLine;
 import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfo;
 import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfoControl;
 import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfoNormal;
 import kr.dogfoot.hwplib.drawer.drawer.control.ControlDrawer;
 import kr.dogfoot.hwplib.drawer.drawer.para.textflow.TextFlowCalculator;
+import kr.dogfoot.hwplib.drawer.input.DrawingInput;
+import kr.dogfoot.hwplib.drawer.output.InterimOutput;
+import kr.dogfoot.hwplib.drawer.output.control.ControlOutput;
+import kr.dogfoot.hwplib.drawer.output.control.table.CellOutput;
+import kr.dogfoot.hwplib.drawer.output.text.TextLine;
+import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.TextFlowMethod;
 import kr.dogfoot.hwplib.object.docinfo.parashape.LineDivideForEnglish;
 import kr.dogfoot.hwplib.object.docinfo.parashape.LineDivideForHangul;
@@ -148,7 +150,7 @@ public class WordDrawer {
                 || controlCharInfo.textFlowMethod() == TextFlowMethod.TakePlace) {
             if (!textFlowCalculator.alreadyAdded(controlCharInfo)) {
                 if (output.checkRedrawingTextLine(output2.areaWithOuterMargin())) {
-                    if (isOver75PercentOfPageHeight(paraDrawer.currentTextPartArea().bottom())) {
+                    if (isOver75PercentOfPageHeight(paraDrawer.currentTextArea().bottom())) {
                         output.addChildControlsCrossingPage(output2);
                     } else {
                         if (output.addChildOutput(output2)) {
@@ -215,11 +217,26 @@ public class WordDrawer {
         return addChar(charInfo);
     }
 
-    public void adjustControlAreaAtNewPage() {
+    public void adjustControlAreaAtNewPage(Area currentTextArea) {
         for (CharInfo charInfo : charsOfWord) {
             if (charInfo.type() == CharInfo.Type.Control) {
-                ((CharInfoControl) charInfo).area(input, paraDrawer.currentTextPartArea());
+                ((CharInfoControl) charInfo).area(input, currentTextArea);
             }
+        }
+    }
+
+    public void addChildControls(ControlOutput[] childControls, boolean inCell) throws RedrawException {
+        if (childControls == null) {
+            return;
+        }
+
+        for (ControlOutput childOutput : childControls) {
+            if (inCell) {
+                CellOutput cellOutput = (CellOutput) output.currentOutput();
+                childOutput.areaWithoutOuterMargin()
+                        .moveY(cellOutput.cell().getListHeader().getTopMargin() - childOutput.areaWithoutOuterMargin().top());
+            }
+            addControlOutput(childOutput);
         }
     }
 

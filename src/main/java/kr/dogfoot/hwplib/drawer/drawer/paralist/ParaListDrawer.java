@@ -1,6 +1,7 @@
 package kr.dogfoot.hwplib.drawer.drawer.paralist;
 
-import kr.dogfoot.hwplib.drawer.drawer.*;
+import kr.dogfoot.hwplib.drawer.drawer.BreakDrawingException;
+import kr.dogfoot.hwplib.drawer.drawer.RedrawException;
 import kr.dogfoot.hwplib.drawer.drawer.para.ParaDrawer;
 import kr.dogfoot.hwplib.drawer.input.DrawingInput;
 import kr.dogfoot.hwplib.drawer.output.InterimOutput;
@@ -10,7 +11,6 @@ public class ParaListDrawer {
     protected final DrawingInput input;
     protected final InterimOutput output;
 
-    protected final CharInfoBuffer charInfoBuffer;
     protected final ParaDrawer paraDrawer;
     protected final DistributionMultiColumnRearranger distributionMultiColumnRearranger;
 
@@ -18,8 +18,7 @@ public class ParaListDrawer {
         this.input = input;
         this.output = output;
 
-        charInfoBuffer = new CharInfoBuffer();
-        paraDrawer = new ParaDrawer(input, output, charInfoBuffer);
+        paraDrawer = new ParaDrawer(input, output);
         distributionMultiColumnRearranger = new DistributionMultiColumnRearranger(input, output, this, paraDrawer);
 
         paraDrawer

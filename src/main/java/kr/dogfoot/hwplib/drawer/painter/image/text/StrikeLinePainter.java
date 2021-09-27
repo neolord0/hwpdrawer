@@ -1,7 +1,7 @@
 package kr.dogfoot.hwplib.drawer.painter.image.text;
 
-import kr.dogfoot.hwplib.drawer.painter.image.PainterForImage;
 import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfo;
+import kr.dogfoot.hwplib.drawer.painter.image.PainterForImage;
 import kr.dogfoot.hwplib.object.docinfo.CharShape;
 import kr.dogfoot.hwplib.object.docinfo.borderfill.BorderThickness;
 import kr.dogfoot.hwplib.object.docinfo.charshape.BorderType2;

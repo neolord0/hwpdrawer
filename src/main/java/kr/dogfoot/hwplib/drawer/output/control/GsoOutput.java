@@ -2,8 +2,8 @@ package kr.dogfoot.hwplib.drawer.output.control;
 
 import kr.dogfoot.hwplib.drawer.output.Content;
 import kr.dogfoot.hwplib.drawer.output.text.TextColumn;
-import kr.dogfoot.hwplib.drawer.output.text.TextRow;
 import kr.dogfoot.hwplib.drawer.output.text.TextLine;
+import kr.dogfoot.hwplib.drawer.output.text.TextRow;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.TextFlowMethod;

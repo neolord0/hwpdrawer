@@ -347,6 +347,14 @@ public class ParagraphListInfo {
     public enum Sort {
         ForBody,
         ForControl,
-        ForCell
+        ForCell;
+
+        public boolean isForBody() {
+            return this == ForBody;
+        }
+
+        public boolean isForCell() {
+            return this == ForCell;
+        }
     }
 }

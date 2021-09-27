@@ -1,14 +1,12 @@
 package kr.dogfoot.hwplib.drawer.drawer.control;
 
-import kr.dogfoot.hwplib.drawer.drawer.paralist.ParaListDrawerForCell;
+import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfoControl;
+import kr.dogfoot.hwplib.drawer.drawer.control.table.TableDrawer;
 import kr.dogfoot.hwplib.drawer.drawer.paralist.ParaListDrawerForControl;
 import kr.dogfoot.hwplib.drawer.input.DrawingInput;
 import kr.dogfoot.hwplib.drawer.output.InterimOutput;
 import kr.dogfoot.hwplib.drawer.output.control.ControlOutput;
 import kr.dogfoot.hwplib.drawer.output.control.GsoOutput;
-import kr.dogfoot.hwplib.drawer.drawer.paralist.ParaListDrawer;
-import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfoControl;
-import kr.dogfoot.hwplib.drawer.drawer.control.table.TableDrawer;
 import kr.dogfoot.hwplib.drawer.output.control.table.TableOutput;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.control.gso.*;

@@ -1,42 +1,36 @@
 package kr.dogfoot.hwplib.drawer.drawer.para;
 
 import kr.dogfoot.hwplib.drawer.drawer.BreakDrawingException;
-import kr.dogfoot.hwplib.drawer.drawer.RedrawException;
-import kr.dogfoot.hwplib.drawer.drawer.paralist.CharInfoBuffer;
+import kr.dogfoot.hwplib.drawer.drawer.para.textflow.TextFlowCalculationResult;
+import kr.dogfoot.hwplib.drawer.drawer.para.textflow.TextFlowCalculator;
 import kr.dogfoot.hwplib.drawer.drawer.paralist.DistributionMultiColumnRearranger;
 import kr.dogfoot.hwplib.drawer.drawer.paralist.ParaListDrawer;
 import kr.dogfoot.hwplib.drawer.input.DrawingInput;
-import kr.dogfoot.hwplib.drawer.input.paralist.ParagraphListInfo;
 import kr.dogfoot.hwplib.drawer.input.paralist.ParallelMultiColumnInfo;
 import kr.dogfoot.hwplib.drawer.output.InterimOutput;
 import kr.dogfoot.hwplib.drawer.output.Output;
 import kr.dogfoot.hwplib.drawer.output.control.ControlOutput;
-import kr.dogfoot.hwplib.drawer.output.control.table.CellOutput;
 import kr.dogfoot.hwplib.drawer.output.control.table.TableOutput;
 import kr.dogfoot.hwplib.drawer.output.page.PageOutput;
 import kr.dogfoot.hwplib.drawer.output.text.TextRow;
-import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfoControl;
-import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfoNormal;
-import kr.dogfoot.hwplib.drawer.drawer.para.textflow.TextFlowCalculationResult;
-import kr.dogfoot.hwplib.drawer.drawer.para.textflow.TextFlowCalculator;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.TextPosition;
-import kr.dogfoot.hwplib.object.bodytext.control.*;
-import kr.dogfoot.hwplib.object.bodytext.paragraph.text.*;
+import kr.dogfoot.hwplib.object.bodytext.control.ControlColumnDefine;
 
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
 public class ParaDrawer {
     private final DrawingInput input;
     private final InterimOutput output;
-    private final CharInfoBuffer charInfoBuffer;
     private DistributionMultiColumnRearranger distributionMultiColumnRearranger;
 
     private final TextFlowCalculator textFlowCalculator;
 
+    private final CharAdder charAdder;
     private final TextLineDrawer textLineDrawer;
     private final WordDrawer wordDrawer;
+    private final NewPageColumnChecker newPageColumnChecker;
+
     private final DividingProcessor dividingProcessor;
 
     private boolean firstLine;
@@ -50,18 +44,18 @@ public class ParaDrawer {
     private boolean newLineAtRecalculating;
     private boolean newLineAtNormal;
 
-    private int controlExtendCharIndex;
-
-    public ParaDrawer(DrawingInput input, InterimOutput output, CharInfoBuffer charInfoBuffer) {
+    public ParaDrawer(DrawingInput input, InterimOutput output) {
         this.input = input;
         this.output = output;
-        this.charInfoBuffer = charInfoBuffer;
 
         textFlowCalculator = new TextFlowCalculator();
-        textLineDrawer = new TextLineDrawer(input, output);
-        wordDrawer = new WordDrawer(input, output, this, textLineDrawer, textFlowCalculator);
 
-        dividingProcessor = new DividingProcessor(input, output, this);
+        textLineDrawer = new TextLineDrawer(input, output);
+
+        wordDrawer = new WordDrawer(input, output, this, textLineDrawer, textFlowCalculator);
+        charAdder = new CharAdder(input, output, this, wordDrawer);
+        newPageColumnChecker = new NewPageColumnChecker(input, output, textLineDrawer);
+        dividingProcessor = new DividingProcessor(input, output, this, charAdder);
 
         currentTextArea = new Area();
         textFlowCalculationResult = null;
@@ -70,6 +64,8 @@ public class ParaDrawer {
     public void distributionMultiColumnRearranger(DistributionMultiColumnRearranger distributionMultiColumnRearranger) {
         this.distributionMultiColumnRearranger = distributionMultiColumnRearranger;
         dividingProcessor.distributionMultiColumnRearranger(distributionMultiColumnRearranger);
+        newPageColumnChecker.distributionMultiColumnRearranger(distributionMultiColumnRearranger);
+        distributionMultiColumnRearranger.textFlowCalculator(textFlowCalculator);
     }
 
     public void draw(boolean redraw) throws Exception {
@@ -78,26 +74,24 @@ public class ParaDrawer {
 
     public void draw(boolean redraw, TextPosition startPosition, ControlOutput[] childControlsCrossingPage) throws Exception {
         if (redraw == false) {
-            startPara(startPosition);
+            start(startPosition);
         }
 
         resetForNewPara();
-        addChildControlsCrossingPage(childControlsCrossingPage, output.currentOutput().type() == Output.Type.Cell);
+        wordDrawer.addChildControls(childControlsCrossingPage, output.currentOutput().type() == Output.Type.Cell);
 
         if (input.noChar()) {
-            textLineDrawer.setEmptyLineHeight();
-            saveTextLineAndNewLine();
-            checkNewColumnAndPage();
+            noChar();
         } else {
             chars();
         }
 
-        endPara();
+        end();
     }
 
-    private void startPara(TextPosition startPosition) throws Exception {
+    private void start(TextPosition startPosition) throws Exception {
         input.startPara();
-        controlExtendCharIndex = 0;
+        charAdder.resetAtStartingPara();
 
         if (startPosition != null && startPosition.charIndex() > 0) {
             input.gotoCharPositionInPara(startPosition);
@@ -106,7 +100,7 @@ public class ParaDrawer {
         }
     }
 
-    private void endPara() {
+    private void end() {
         output.setLastLineInPara();
         input.endPara(endY(), paraHeight);
     }
@@ -150,146 +144,34 @@ public class ParaDrawer {
         }
     }
 
-    private void addChildControlsCrossingPage(ControlOutput[] childControlsCrossingPage, boolean inCell) throws RedrawException {
-        if (childControlsCrossingPage == null) {
-            return;
-        }
+    private void noChar() throws Exception {
+        setEmptyLineHeight();
+        saveTextLineAndNewLine();
+        checkNewColumnAndPage();
+    }
 
-        for (ControlOutput childOutput : childControlsCrossingPage) {
-            if (inCell) {
-                CellOutput cellOutput = (CellOutput) output.currentOutput();
-                childOutput.areaWithoutOuterMargin()
-                        .moveY(cellOutput.cell().getListHeader().getTopMargin() - childOutput.areaWithoutOuterMargin().top());
-            }
-            wordDrawer.addControlOutput(childOutput);
-        }
+    private void setEmptyLineHeight() {
+        textLineDrawer.textLineArea().bottom(textLineDrawer.textLineArea().bottom() + input.charShape().getBaseSize());
     }
 
     private void chars() throws Exception {
         while (input.nextChar()) {
-            wordDrawer.continueAddingChar();
+            charAdder.addChar(input.currentChar(), currentTextArea);
 
-            processChar(input.currentChar());
-            processByDrawingState();
-        }
-    }
-
-    private void processChar(HWPChar ch) throws Exception {
-        switch (ch.getType()) {
-            case Normal:
-                normalChar((HWPCharNormal) ch);
-                break;
-            case ControlChar:
-                controlChar((HWPCharControlChar) ch);
-                break;
-            case ControlInline:
-                break;
-            case ControlExtend:
-                controlExtend((HWPCharControlExtend) ch);
-                break;
-        }
-    }
-
-    private void processByDrawingState() {
-        switch (drawingState) {
-            case StartRecalculating:
-                startRecalculatingTextLine();
-                drawingState = ParaDrawingState.Recalculating;
-                break;
-            case EndRecalculating:
-                drawingState = ParaDrawingState.Normal;
-                break;
-            case StartRedrawing:
-                startRedrawingTextLine();
-                drawingState = ParaDrawingState.Normal;
-                break;
-        }
-    }
-
-    private void normalChar(HWPCharNormal ch) throws Exception {
-        CharInfoNormal charInfo = normalCharInfo(ch);
-        if (!charInfo.character().isSpace()) {
-            wordDrawer.addCharOfWord(charInfo);
-        } else {
-            wordDrawer.addWordToLine(charInfo);
-        }
-    }
-
-    private CharInfoNormal normalCharInfo(HWPCharNormal ch) throws UnsupportedEncodingException {
-        CharInfoNormal charInfo = (CharInfoNormal) charInfoBuffer.get(input.paraIndex(), input.charIndex());
-        if (charInfo == null) {
-            charInfo = new CharInfoNormal(ch, input.charShape(), input.paraIndex(), input.charIndex(), input.charPosition())
-                    .calculateWidth();
-            charInfoBuffer.add(input.paraIndex(), input.charIndex(), charInfo);
-        }
-        return charInfo;
-    }
-
-    private void controlChar(HWPCharControlChar ch) throws Exception {
-        if (ch.isParaBreak() || ch.isLineBreak()) {
-            wordDrawer.addWordToLine(null);
-            if (drawingState.isRecalculating()) {
-                newLineAtRecalculating = true;
-            } else if (drawingState.isNormal()) {
-                newLineAtNormal = true;
-            }
-
-            saveTextLineAndNewLine();
-        }
-    }
-
-    private void controlExtend(HWPCharControlExtend ch) {
-        if (ch.getCode() == 11) {
-            tableOrGso(ch);
-        } else if (ch.getCode() == 16) {
-            headerFooter(ch);
-        } else {
-            controlExtendCharIndex++;
-        }
-    }
-
-    private void tableOrGso(HWPCharControlExtend ch) {
-        CharInfoControl charInfo = (CharInfoControl) charInfoBuffer.get(input.paraIndex(), input.charIndex());
-        if (charInfo == null) {
-            Control control = input.currentPara().getControlList().get(controlExtendCharIndex);
-            charInfo = CharInfoControl.create(ch, control, input, currentTextArea);
-            charInfoBuffer.add(input.paraIndex(), input.charIndex(), charInfo);
-            controlExtendCharIndex++;
-        }
-
-        wordDrawer.addCharOfWord(charInfo);
-    }
-
-    private void headerFooter(HWPCharControlExtend ch) {
-        Control control = input.currentPara().getControlList().get(controlExtendCharIndex);
-        if (control.getType() == ControlType.Header) {
-            ControlHeader header = (ControlHeader) control;
-            switch (header.getHeader().getApplyPage()) {
-                case BothPage:
-                    input.pageInfo().bothHeader(header);
+            switch (drawingState) {
+                case StartRecalculating:
+                    startRecalculatingTextLine();
+                    drawingState = ParaDrawingState.Recalculating;
                     break;
-                case EvenPage:
-                    input.pageInfo().evenHeader(header);
+                case EndRecalculating:
+                    drawingState = ParaDrawingState.Normal;
                     break;
-                case OddPage:
-                    input.pageInfo().oddHeader(header);
-                    break;
-            }
-        } else if (control.getType() == ControlType.Footer) {
-            ControlFooter footer = (ControlFooter) control;
-            switch (footer.getHeader().getApplyPage()) {
-                case BothPage:
-                    input.pageInfo().bothFooter(footer);
-                    break;
-                case EvenPage:
-                    input.pageInfo().evenFooter(footer);
-                    break;
-                case OddPage:
-                    input.pageInfo().oddFooter(footer);
+                case StartRedrawing:
+                    startRedrawingTextLine();
+                    drawingState = ParaDrawingState.Normal;
                     break;
             }
         }
-        controlExtendCharIndex++;
     }
 
     private void startRecalculatingTextLine() {
@@ -310,15 +192,34 @@ public class ParaDrawer {
         wordDrawer.reset();
     }
 
+    public void setNewLine() {
+        if (drawingState.isRecalculating()) {
+            newLineAtRecalculating = true;
+        } else if (drawingState.isNormal()) {
+            newLineAtNormal = true;
+        }
+    }
+
     public void nextPage() throws Exception {
         if (distributionMultiColumnRearranger.testing()) {
             throw new BreakDrawingException(new TextPosition(input.paraIndex(), input.charIndex(), input.charPosition())).forNewPage();
         }
 
-        charInfoBuffer.clearUntilPreviousPara();
-
         ParaListDrawer.drawHeaderFooter(input, output);
 
+        charAdder.clearBufferUntilPreviousPara();
+
+        gotoNextPage();
+
+        if (input.currentColumnsInfo().isParallelMultiColumn()) {
+            input.parallelMultiColumnInfo()
+                    .addParentInfo(output.currentOutput(), input.currentParaListInfo().cellInfo());
+        }
+
+        addSplitTablesAndChildControlsCrossingPage();
+    }
+
+    private void gotoNextPage() {
         if (input.currentColumnsInfo().isParallelMultiColumn()) {
             if (input.currentColumnsInfo().isFirstColumn()) {
                 int currentColumnIndex = input.currentColumnsInfo().currentColumnIndex();
@@ -333,85 +234,62 @@ public class ParaDrawer {
                 input.gotoColumn(currentColumnIndex);
                 resetForNewPage();
 
-                gotoNextSplitPageForParallelMultiColumn(currentColumnIndex);
+                ParallelMultiColumnInfo.ParentInfo parentInfo = input.parallelMultiColumnInfo().nextParentInfo();
+                output.gotoPage((PageOutput) parentInfo.output()).content().gotoRow(0).gotoColumn(currentColumnIndex);
             }
-
-            input.parallelMultiColumnInfo()
-                    .addParentInfo(output.currentOutput(), input.currentParaListInfo().cellInfo());
         } else {
             input.nextPage();
             resetForNewPage();
             output.nextPage(input);
         }
-
-        addSplitTables();
-        addChildControlsCrossingPage(output.childControlsCrossingPage(), false);
-        output.clearChildControlsCrossingPage();
     }
 
     private void resetForNewPage() {
         resetForNewColumn();
 
-        wordDrawer.adjustControlAreaAtNewPage();
+        wordDrawer.adjustControlAreaAtNewPage(currentTextArea);
         textFlowCalculator.resetForNewPage();
     }
 
-    private void gotoNextSplitPageForParallelMultiColumn(int currentColumnIndex) {
-        ParallelMultiColumnInfo.ParentInfo parentInfo = input.parallelMultiColumnInfo().nextParentInfo();
-        output.gotoPage((PageOutput) parentInfo.output()).content().gotoRow(0).gotoColumn(currentColumnIndex);
-    }
-
-    private void addSplitTables() throws Exception {
+    private void addSplitTablesAndChildControlsCrossingPage() throws Exception {
         ArrayList<TableOutput> tableOutputs = output.splitTables();
         for (TableOutput output : tableOutputs) {
             wordDrawer.addControlOutput(output);
         }
+
+        wordDrawer.addChildControls(output.childControlsCrossingPage(), false);
+        output.clearChildControlsCrossingPage();
     }
 
     public void nextRow() {
         distributionMultiColumnRearranger.resetEndingParaIndex();
 
-        if (input.sortOfText() == ParagraphListInfo.Sort.ForBody) {
+        if (input.sortOfText().isForBody()) {
             output.gotoLastRow();
             input.gotoPage(output.currentPage().pageNo());
-            setColumnDefine(output.rowBottom() + TextRow.Gsp);
-        } else {
-            long rowBottom = output.rowBottom();
-            if (rowBottom == -1) {
-                setColumnDefine(input.currentParaListInfo().textBoxArea().top());
-            } else {
-                setColumnDefine(rowBottom + TextRow.Gsp);
-            }
         }
-        output.nextRow(input.currentColumnsInfo());
+
+        gotoNextRow();
         resetForNewColumn();
     }
 
-    public ParaDrawer setSectionDefine() {
-        input.nextChar();
-        HWPChar ch = input.currentChar();
+    private void gotoNextRow() {
+        ControlColumnDefine columnDefine = charAdder.columnDefine();
+        long rowBottom = output.rowBottom();
 
-        if (ch.getType() == HWPCharType.ControlExtend &&
-                ((HWPCharControlExtend) ch).isSectionDefine()) {
-            input.pageInfo().sectionDefine((ControlSectionDefine) input.currentPara().getControlList().get(0));
-            controlExtendCharIndex++;
+        long startY;
+        if (input.sortOfText().isForBody()) {
+            startY = rowBottom + TextRow.Gsp;
         } else {
-            input.previousChar(1);
+            if (rowBottom == -1) {
+                startY = input.currentParaListInfo().textBoxArea().top();
+            } else {
+                startY = rowBottom + TextRow.Gsp;
+            }
         }
-        return this;
-    }
 
-    public void setColumnDefine(long startY) {
-        input.nextChar();
-        HWPChar ch = input.currentChar();
-        if (ch != null && ch.getType() == HWPCharType.ControlExtend &&
-                ((HWPCharControlExtend) ch).isColumnDefine()) {
-            input.newRow((ControlColumnDefine) input.currentPara().getControlList().get(controlExtendCharIndex), startY);
-            controlExtendCharIndex++;
-        } else {
-            input.newRowWithPreviousColumnDefine(startY);
-            input.previousChar(1);
-        }
+        input.columnsInfo(columnDefine, startY);
+        output.nextRow(input.currentColumnsInfo());
     }
 
     public void gotoFirstColumn() {
@@ -435,38 +313,32 @@ public class ParaDrawer {
 
     public void nextColumn() {
         if (input.currentColumnsInfo().isParallelMultiColumn()) {
-            nextColumnForParallelMultiColumn();
-        } else {
-            input.nextColumn();
-            output.nextColumn();
-            resetForNewColumn();
+            gotoNextParentForParallelMultiColumn();
         }
-    }
-
-    private void nextColumnForParallelMultiColumn(){
-        input.parallelMultiColumnInfo().nextColumn();
-
-        ParallelMultiColumnInfo.ParentInfo parentInfo = input.parallelMultiColumnInfo().nextParentInfo();
-        switch (input.sortOfText()) {
-            case ForBody:
-                PageOutput pageOutput = (PageOutput) parentInfo.output();
-                output.gotoPage(pageOutput).content().gotoRow(input.parallelMultiColumnInfo().startingRowIndex());
-                break;
-
-            case ForCell:
-                output.currentOutput(parentInfo.output()).content().gotoRow(input.parallelMultiColumnInfo().startingRowIndex());
-                input.currentParaListInfo().cellInfo(parentInfo.cellInfo());
-                break;
-        }
-
-        int currentColumnIndex = input.currentColumnsInfo().currentColumnIndex();
-        setColumnDefine(output.currentRow().area().top());
-        input.currentColumnsInfo().currentColumnIndex(currentColumnIndex);
-        output.currentRow().gotoColumn(currentColumnIndex);
 
         input.nextColumn();
         output.nextColumn();
         resetForNewColumn();
+    }
+
+    private void gotoNextParentForParallelMultiColumn(){
+        input.parallelMultiColumnInfo().nextColumn();
+
+        ParallelMultiColumnInfo.ParentInfo parentInfo = input.parallelMultiColumnInfo().nextParentInfo();
+        if (input.sortOfText().isForBody()) {
+            output.gotoPage((PageOutput) parentInfo.output())
+                    .content().gotoRow(input.parallelMultiColumnInfo().startingRowIndex());
+        } else if (input.sortOfText().isForCell()) {
+            output.currentOutput(parentInfo.output())
+                    .content().gotoRow(input.parallelMultiColumnInfo().startingRowIndex());
+            input.currentParaListInfo().cellInfo(parentInfo.cellInfo());
+        }
+
+        int columnIndex = input.currentColumnsInfo().currentColumnIndex();
+
+        input.columnsInfo(charAdder.columnDefine(), output.currentRow().area().top());
+        input.currentColumnsInfo().currentColumnIndex(columnIndex);
+        output.currentRow().gotoColumn(columnIndex);
     }
 
     public void previousColumn() {
@@ -475,7 +347,7 @@ public class ParaDrawer {
         resetForNewColumn();
     }
 
-    private void resetForNewColumn() {
+    public void resetForNewColumn() {
         resetCurrentTextArea();
 
         textFlowCalculator.resetForNewColumn();
@@ -490,6 +362,7 @@ public class ParaDrawer {
                         .addNewTextPart(0, currentTextArea.width());
             } else {
                 textLineDrawer.textLineArea().set(currentTextArea);
+
                 saveTextLine();
                 nextTextPartArea();
             }
@@ -504,10 +377,10 @@ public class ParaDrawer {
             checkTextFlow();
 
             if (textLineDrawer.noDrawingChar() && input.pageInfo().checkHidingEmptyLineAfterNewPage()) {
-
                 input.pageInfo().descendCountOfHidingEmptyLineAfterNewPage();
             } else {
                 input.pageInfo().resetCountOfHidingEmptyLineAfterNewPage();
+
                 saveTextLine();
                 nextTextPartArea();
             }
@@ -537,152 +410,32 @@ public class ParaDrawer {
         }
     }
 
-    public void checkNewColumnAndPage() throws Exception {
-        if (drawingState.isNormal()) {
-            switch (input.sortOfText()) {
-                case ForBody:
-                    checkNewColumnAndPageForBodyText();
-                    break;
-                case ForControl:
-                    checkNewColumnAndPageForControl();
-                    break;
-                case ForCell:
-                    checkNewColumnAndPageForCell();
-                    break;
-            }
-        }
-    }
-
-    private void checkNewColumnAndPageForBodyText() throws Exception {
-        if (!isOverColumnBottom(textLineDrawer.maxCharHeight())
-                && !input.currentColumnsInfo().isOverLimitedTextLineCount(output.textLineCount())) {
-            return;
-        }
-
-        if (isOverPageBottom(textLineDrawer.maxCharHeight())
-                && (input.currentColumnsInfo().isLastColumn() || input.currentColumnsInfo().isParallelMultiColumn())) {
-            nextPage();
-        } else {
-            output.currentColumn().nextCharPosition(textLineDrawer.firstCharPosition());
-
-            if (!input.currentColumnsInfo().isLastColumn()) {
-                if (shouldProcessInDistributionMultiColumn()) {
-                    distributionMultiColumnRearranger.rearrangeFromCurrentColumn();
-
-                    if (distributionMultiColumnRearranger.testing()) {
-                        throw new BreakDrawingException().forEndingTest();
-                    } else {
-                        wordDrawer.stopAddingChar();
-                    }
-                } else {
-                    nextColumn();
-                }
-            }
-        }
-    }
-
-    private void checkNewColumnAndPageForControl() throws Exception {
-        if (!isOverColumnBottom(textLineDrawer.maxCharHeight())
-                && !input.currentColumnsInfo().isOverLimitedTextLineCount(output.textLineCount())) {
-            return;
-        }
-
-        output.currentColumn().nextCharPosition(textLineDrawer.firstCharPosition());
-
-        if (!input.currentColumnsInfo().isLastColumn()) {
-            if (shouldProcessInDistributionMultiColumn()) {
-                distributionMultiColumnRearranger.rearrangeFromCurrentColumn();
-
-                if (distributionMultiColumnRearranger.testing()) {
-                    throw new BreakDrawingException().forEndingTest();
-                } else {
-                    wordDrawer.stopAddingChar();
-                }
-            } else {
-                nextColumn();
-            }
-        } else {
-            if (input.currentColumnsInfo().isNormalMultiColumn()) {
-                throw new BreakDrawingException().forOverTextBoxArea();
-            }
-        }
-    }
-
-    private void checkNewColumnAndPageForCell() throws Exception {
-        if (input.currentParaListInfo().cellInfo().canSplit()) {
-             if (isOverPageBottomForCell(textLineDrawer.maxCharHeight())) {
-                if (input.currentColumnsInfo().isParallelMultiColumn()) {
-                    if (input.currentColumnsInfo().isFirstColumn()) {
-                        throw new BreakDrawingException(textLineDrawer.firstCharPosition())
-                                .forOverPage()
-                                .columnIndex(0);
-                    } else {
-                        gotoSplitNextCell();
-                    }
-                } else {
-                    if (input.currentColumnsInfo().isLastColumn()) {
-                        throw new BreakDrawingException(textLineDrawer.firstCharPosition()).forOverPage();
-                    } else {
-                        nextColumn();
-                    }
-                }
-                return;
-             }
-        }
-        checkNewColumnAndPageForControl();
-    }
-
-    private void gotoSplitNextCell() throws BreakDrawingException {
-        ParallelMultiColumnInfo.ParentInfo parentInfo = input.parallelMultiColumnInfo().nextParentInfo();
-        if (parentInfo != null) {
-            output.currentOutput(parentInfo.output()).content().gotoRow(input.parallelMultiColumnInfo().startingRowIndex());
-            input.currentParaListInfo().cellInfo(parentInfo.cellInfo());
-            input.currentParaListInfo().resetParaStartY(input.currentParaListInfo().textBoxArea().top());
-        } else {
-            throw new BreakDrawingException(textLineDrawer.firstCharPosition())
-                    .forOverPage()
-                    .columnIndex(input.currentColumnsInfo().currentColumnIndex());
-        }
-        resetForNewColumn();
-    }
-
-    private boolean isOverColumnBottom(long addingHeight) {
-        return input.currentColumnsInfo().currentColumnArea().bottom() < currentTextArea.top() + addingHeight;
-    }
-
-    private boolean isOverPageBottom(long addingHeight) {
-        return input.pageInfo().bodyArea().bottom() < currentTextArea.top() + addingHeight;
-    }
-
-    private boolean shouldProcessInDistributionMultiColumn() {
-        return (distributionMultiColumnRearranger.testing()
-                || input.currentColumnsInfo().isDistributionMultiColumn()
-                || input.currentColumnsInfo().processLikeDistributionMultiColumn())
-                && !output.currentRow().hadRearrangedDistributionMultiColumn();
-    }
-
-    private boolean isOverPageBottomForCell(long addingHeight) {
-        return input.pageInfo().bodyArea().bottom() - input.currentParaListInfo().cellInfo().bottomMargin()
-                < input.currentParaListInfo().cellInfo().topInPage() + currentTextArea.top() + addingHeight;
-    }
 
     private void saveTextLine() {
         switch (drawingState) {
             case Normal:
-                textLineDrawer.saveToOutput();
-                if (newLineAtNormal) {
-                    output.setLastLineInPara();
-                }
+                saveTextLineAtNormal();
                 break;
             case Recalculating:
-                if (textFlowCalculationResult.lastTextPart() || newLineAtRecalculating) {
-                    textLineDrawer.saveToOutput();
-                    if (newLineAtRecalculating) {
-                        output.setLastLineInPara();
-                    }
-                    drawingState = ParaDrawingState.EndRecalculating;
-                }
+                saveTextLineAtRecalculating();
                 break;
+        }
+    }
+
+    private void saveTextLineAtNormal() {
+        textLineDrawer.saveToOutput();
+        if (newLineAtNormal) {
+            output.setLastLineInPara();
+        }
+    }
+
+    private void saveTextLineAtRecalculating() {
+        if (textFlowCalculationResult.lastTextPart() || newLineAtRecalculating) {
+            textLineDrawer.saveToOutput();
+            if (newLineAtRecalculating) {
+                output.setLastLineInPara();
+            }
+            drawingState = ParaDrawingState.EndRecalculating;
         }
     }
 
@@ -690,35 +443,44 @@ public class ParaDrawer {
         switch (drawingState) {
             case Normal:
             case StartRedrawing:
-                if (!cancelNewLine) {
-                    currentTextArea.moveY(textLineDrawer.lineHeight());
-                    paraHeight += textLineDrawer.lineHeight();
-                }
-                restoreIndentAtFirstLine();
-
-                textLineDrawer
-                        .reset(currentTextArea)
-                        .addNewTextPart(0, currentTextArea.width());
+                nextTextPartAreaAtNormal();
                 break;
             case Recalculating:
-                currentTextArea.set(textFlowCalculationResult.nextArea());
-
-                textLineDrawer
-                        .addNewTextPart(textFlowCalculationResult.startX(currentTextArea), currentTextArea.width());
+                nextTextPartAreaAtRecalculating();
                 break;
             case EndRecalculating:
-                currentTextArea.set(textFlowCalculationResult.storedTextLineArea());
-
-                currentTextArea.moveY(textLineDrawer.lineHeight());
-                paraHeight += textLineDrawer.lineHeight();
-
-                restoreIndentAtFirstLine();
-
-                textLineDrawer
-                        .reset(currentTextArea)
-                        .addNewTextPart(0, currentTextArea.width());
+                nextTextPartAreaAtEndRecalculating();
                 break;
         }
+    }
+
+    private void nextTextPartAreaAtNormal() {
+        if (!cancelNewLine) {
+            currentTextArea.moveY(textLineDrawer.lineHeight());
+            paraHeight += textLineDrawer.lineHeight();
+        }
+        restoreIndentAtFirstLine();
+        textLineDrawer
+                .reset(currentTextArea)
+                .addNewTextPart(0, currentTextArea.width());
+    }
+
+    private void nextTextPartAreaAtRecalculating() {
+        currentTextArea.set(textFlowCalculationResult.nextArea());
+        textLineDrawer
+                .addNewTextPart(textFlowCalculationResult.startX(currentTextArea), currentTextArea.width());
+    }
+
+    private void nextTextPartAreaAtEndRecalculating() {
+        currentTextArea.set(textFlowCalculationResult.storedTextLineArea());
+
+        currentTextArea.moveY(textLineDrawer.lineHeight());
+        paraHeight += textLineDrawer.lineHeight();
+
+        restoreIndentAtFirstLine();
+        textLineDrawer
+                .reset(currentTextArea)
+                .addNewTextPart(0, currentTextArea.width());
     }
 
     private void restoreIndentAtFirstLine() {
@@ -728,15 +490,28 @@ public class ParaDrawer {
         }
     }
 
+    public void checkNewColumnAndPage() throws Exception {
+        switch(newPageColumnChecker.check(drawingState, currentTextArea)) {
+            case NextPage:
+                nextPage();
+                break;
+            case NextColumn:
+                nextColumn();
+                break;
+            case ResetForNewColumn:
+                resetForNewColumn();
+                break;
+            case StopAddingChar:
+                wordDrawer.stopAddingChar();
+                break;
+        }
+    }
+
     public ParaDrawingState drawingState() {
         return drawingState;
     }
 
-    public Area currentTextPartArea() {
+    public Area currentTextArea() {
         return currentTextArea;
-    }
-
-    public TextFlowCalculator textFlowCalculator() {
-        return textFlowCalculator;
     }
 }
