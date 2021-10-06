@@ -1,17 +1,17 @@
 package kr.dogfoot.hwplib.drawer.drawer;
 
-import kr.dogfoot.hwplib.drawer.util.TextPosition;
+import kr.dogfoot.hwplib.drawer.util.CharPosition;
 
 public class BreakDrawingException extends Exception {
     private Type type;
-    private TextPosition position;
+    private CharPosition position;
     private int columnIndex;
 
     public BreakDrawingException() {
-        this(TextPosition.ParaList_Start_Position);
+        this(CharPosition.ParaList_Start_Position);
     }
 
-    public BreakDrawingException(TextPosition position) {
+    public BreakDrawingException(CharPosition position) {
         this.position = position;
         columnIndex = -1;
     }
@@ -51,7 +51,7 @@ public class BreakDrawingException extends Exception {
         return type;
     }
 
-    public TextPosition position() {
+    public CharPosition position() {
         return position;
     }
 

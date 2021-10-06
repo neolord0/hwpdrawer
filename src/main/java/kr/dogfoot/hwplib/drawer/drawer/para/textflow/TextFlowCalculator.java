@@ -21,6 +21,11 @@ public class TextFlowCalculator {
         }
     }
 
+    public void addForTakePlace(CharInfoControl controlCharInfo, Area areaWithOuterMargin) {
+        forTakePlace.add(controlCharInfo, areaWithOuterMargin);
+    }
+
+
     public void delete(CharInfoControl controlCharInfo) {
         if (controlCharInfo.textFlowMethod() == TextFlowMethod.TakePlace) {
             forTakePlace.delete(controlCharInfo);

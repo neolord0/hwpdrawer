@@ -9,6 +9,7 @@ import java.util.Queue;
 
 public class TextFlowCalculationResult {
     private final long offsetY;
+    private final long nextStartY;
     private final boolean cancelNewLine;
     private final ParaDrawingState nextState;
 
@@ -17,6 +18,7 @@ public class TextFlowCalculationResult {
 
     public TextFlowCalculationResult(ForFitWithText.Result resultForFitWithText, ForTakePlace.Result resultForTakePlace) {
         offsetY = resultForFitWithText.offsetY() + resultForTakePlace.offsetY();
+        nextStartY = resultForFitWithText.nextStartY();
 
         if (resultForTakePlace.offsetY() > 0 && resultForTakePlace.vertRelTo() == VertRelTo.Para) {
             cancelNewLine = true;
@@ -61,6 +63,10 @@ public class TextFlowCalculationResult {
 
     public long offsetY() {
         return offsetY;
+    }
+
+    public long nextStartY() {
+        return nextStartY;
     }
 
     public boolean cancelNewLine() {

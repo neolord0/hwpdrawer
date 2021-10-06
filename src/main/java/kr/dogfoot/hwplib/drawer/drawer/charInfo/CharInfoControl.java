@@ -16,7 +16,7 @@ import kr.dogfoot.hwplib.object.docinfo.CharShape;
 public class CharInfoControl extends CharInfo {
     public static final CharInfoControl[] Zero_Array = new CharInfoControl[0];
 
-    public static CharInfoControl create(HWPCharControlExtend character, Control control, DrawingInput input, Area currentTextPartArea) {
+    public static CharInfoControl create(HWPCharControlExtend character, Control control, DrawingInput input, Area currentTextArea) {
         CharInfoControl charInfo = new CharInfoControl(character, input.charShape(), input.paraIndex(), input.charIndex(), input.charPosition());
         if (character.getCode() == 11) {
             CtrlHeaderGso gsoHeader = null;
@@ -31,7 +31,7 @@ public class CharInfoControl extends CharInfo {
             if (gsoHeader != null) {
                 charInfo
                         .control(control, gsoHeader)
-                        .area(input, currentTextPartArea);
+                        .area(input, currentTextArea);
             }
         }
         return charInfo;
@@ -57,8 +57,6 @@ public class CharInfoControl extends CharInfo {
         this.areaWithOuterMargin = new Area(other.areaWithOuterMargin);
         this.areaWithoutOuterMargin = new Area(other.areaWithoutOuterMargin);
     }
-
-
 
     public CharInfoControl control(Control control, CtrlHeaderGso gsoHeader) {
         this.control = control;

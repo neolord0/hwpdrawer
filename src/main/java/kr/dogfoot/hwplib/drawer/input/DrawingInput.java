@@ -4,7 +4,7 @@ import kr.dogfoot.hwplib.drawer.input.paralist.ColumnsInfo;
 import kr.dogfoot.hwplib.drawer.input.paralist.ParagraphListInfo;
 import kr.dogfoot.hwplib.drawer.input.paralist.ParallelMultiColumnInfo;
 import kr.dogfoot.hwplib.drawer.util.Area;
-import kr.dogfoot.hwplib.drawer.util.TextPosition;
+import kr.dogfoot.hwplib.drawer.util.CharPosition;
 import kr.dogfoot.hwplib.object.HWPFile;
 import kr.dogfoot.hwplib.object.bindata.EmbeddedBinaryData;
 import kr.dogfoot.hwplib.object.bodytext.ParagraphListInterface;
@@ -275,16 +275,16 @@ public class DrawingInput {
         return currentParaListInfo().charShape();
     }
 
-    public void gotoCharPositionInPara(TextPosition position) {
+    public void gotoCharPositionInPara(CharPosition position) {
         currentParaListInfo().gotoChar(position);
     }
 
-    public void gotoParaCharPosition(TextPosition position) {
+    public void gotoParaCharPosition(CharPosition position) {
         currentParaListInfo().gotoPara(position);
         currentParaListInfo().gotoChar(position);
     }
 
-    public void gotoParaWithIgnoreNextPara(TextPosition position) {
+    public void gotoParaWithIgnoreNextPara(CharPosition position) {
         currentParaListInfo().gotoPara(position);
         currentParaListInfo().ignoreNextPara();
     }
@@ -293,5 +293,8 @@ public class DrawingInput {
         return currentColumnsInfo().parallelMultiColumnInfo();
     }
 
+    public CharPosition currentCharPosition() {
+        return new CharPosition(paraIndex(), charIndex(), charPosition());
+    }
 }
 

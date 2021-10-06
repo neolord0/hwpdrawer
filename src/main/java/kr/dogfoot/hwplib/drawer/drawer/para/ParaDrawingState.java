@@ -5,7 +5,8 @@ public enum ParaDrawingState {
     StartRecalculating,
     Recalculating,
     EndRecalculating,
-    StartRedrawing;
+    StartRedrawing,
+    ETC;
 
     public boolean canAddChar() {
         return this == Normal || this == Recalculating;
@@ -15,10 +16,6 @@ public enum ParaDrawingState {
         return this == Normal;
     }
 
-    public boolean isEndRecalculating() {
-        return this == EndRecalculating;
-    }
-
     public boolean isStartRecalculating() {
         return this == StartRecalculating;
     }
@@ -26,4 +23,13 @@ public enum ParaDrawingState {
     public boolean isRecalculating() {
         return this == Recalculating;
     }
+
+    public boolean isEndRecalculating() {
+        return this == EndRecalculating;
+    }
+
+    public boolean isStartRedrawing() {
+        return this == StartRedrawing;
+    }
+
 }

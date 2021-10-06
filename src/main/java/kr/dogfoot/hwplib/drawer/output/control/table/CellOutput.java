@@ -137,6 +137,10 @@ public class CellOutput extends Output {
         return childControlsCrossingPage.toArray(ControlOutput.Zero_Array);
     }
 
+    public void clearChildControlsCrossingPage() {
+        childControlsCrossingPage.clear();
+    }
+
     @Override
     public Content content() {
         return content;

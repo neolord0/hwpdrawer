@@ -138,4 +138,8 @@ public class TableOutput extends ControlOutput {
         return sb.toString();
 
     }
+
+    public DivideAtPageBoundary getDivideAtPageBoundary() {
+        return table.getTable().getProperty().getDivideAtPageBoundary();
+    }
 }

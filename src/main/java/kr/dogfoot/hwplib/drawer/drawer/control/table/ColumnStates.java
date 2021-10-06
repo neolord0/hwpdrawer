@@ -4,6 +4,7 @@ import kr.dogfoot.hwplib.object.bodytext.control.table.Cell;
 
 public class ColumnStates {
     private CellDrawState[] states;
+    private int[] endRowIndexes;
 
     public ColumnStates() {
         states = null;
@@ -11,8 +12,10 @@ public class ColumnStates {
 
     public void init(int columnCount) {
         states = new CellDrawState[columnCount];
+        endRowIndexes = new int[columnCount];
         for (int columnIndex = 0; columnIndex < columnCount; columnIndex++) {
             states[columnIndex] = CellDrawState.Nothing;
+            endRowIndexes[columnIndex] = 0;
         }
     }
 
@@ -36,12 +39,28 @@ public class ColumnStates {
         return true;
     }
 
-    public void setState(CellDrawInfo result) {
-        CellDrawState state = (result.split()) ? CellDrawState.Partially : CellDrawState.Complete;
-        for (int colIndex = result.cell().getListHeader().getColIndex();
-             colIndex < result.cell().getListHeader().getColIndex() + result.cell().getListHeader().getColSpan();
+    public boolean canSplitRow(int rowIndex) {
+        for (int endRowIndex : endRowIndexes) {
+            if (endRowIndex != rowIndex) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public void setStates(RowDrawInfo rowDrawInfo) {
+        for (CellDrawInfo cellDrawInfo : rowDrawInfo.cellDrawInfos()) {
+            setState(cellDrawInfo);
+        }
+    }
+
+    public void setState(CellDrawInfo cellDrawInfo) {
+        CellDrawState state = (cellDrawInfo.state().isSplit()) ? CellDrawState.Partially : CellDrawState.Complete;
+        for (int colIndex = cellDrawInfo.cell().getListHeader().getColIndex();
+             colIndex < cellDrawInfo.cell().getListHeader().getColIndex() + cellDrawInfo.cell().getListHeader().getColSpan();
              colIndex++) {
             states[colIndex] = state;
+            endRowIndexes[colIndex] = cellDrawInfo.cell().getListHeader().getRowIndex() + cellDrawInfo.cell().getListHeader().getRowSpan() - 1;
         }
     }
 
@@ -50,6 +69,4 @@ public class ColumnStates {
         Complete,
         Partially
     }
-
 }
-

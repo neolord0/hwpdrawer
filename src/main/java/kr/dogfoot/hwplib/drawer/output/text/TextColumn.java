@@ -4,7 +4,7 @@ import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfoControl;
 import kr.dogfoot.hwplib.drawer.output.control.ControlOutput;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
-import kr.dogfoot.hwplib.drawer.util.TextPosition;
+import kr.dogfoot.hwplib.drawer.util.CharPosition;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.TextFlowMethod;
 
 import java.util.ArrayList;
@@ -21,7 +21,7 @@ public class TextColumn {
     private final TreeSet<ControlOutput> nonBehindChildOutputs;
 
     private int topLineIndexForHiding;
-    private TextPosition nextCharPosition;
+    private CharPosition nextCharPosition;
 
     public TextColumn(Area area) {
         this.area = area;
@@ -41,9 +41,12 @@ public class TextColumn {
     }
 
     public void addTextLine(TextLine textLine) {
-        textLine
-                .index(textLines.size());
-        textLines.add(textLine);
+     //   if (!textLine.empty())
+        {
+            textLine
+                    .index(textLines.size());
+            textLines.add(textLine);
+        }
     }
 
     public TextLine nextLine(TextLine textLine) {
@@ -193,11 +196,11 @@ public class TextColumn {
         return area;
     }
 
-    public void nextCharPosition(TextPosition position) {
+    public void nextCharPosition(CharPosition position) {
         this.nextCharPosition = position;
     }
 
-    public TextPosition nextCharPosition() {
+    public CharPosition nextCharPosition() {
         return nextCharPosition;
     }
 
@@ -247,6 +250,13 @@ public class TextColumn {
 
         return sb.toString();
     }
+
+    public boolean removeControl(ControlOutput controlOutput) {
+        if (behindChildOutputs.remove(controlOutput)) {
+            return true;
+        }
+        return nonBehindChildOutputs.remove(controlOutput);
+     }
 
     public static class ResultDeleteTextLineIndex {
         private TextLine topLine;

@@ -72,7 +72,7 @@ public class NormalColumnTest {
     }
 
     @Test
-    public void test_컨트롤안_컨트롤높이보다큰다단_2() throws Exception {
-        HWPTester.testAndCompare("testingHWP" + File.separator + "다단" + File.separator + "일반" + File.separator + "컨트롤 안" + File.separator + "컨트롤높이보다 큰 다단" + File.separator + "2");
+    public void test_컨트롤안_컨트롤높이보다큰다단_셀안() throws Exception {
+        HWPTester.testAndCompare("testingHWP" + File.separator + "다단" + File.separator + "일반" + File.separator + "컨트롤 안" + File.separator + "컨트롤높이보다 큰 다단" + File.separator + "셀안");
     }
 }

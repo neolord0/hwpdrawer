@@ -108,6 +108,25 @@ public class Content {
         return height;
     }
 
+    public boolean empty() {
+        for (TextRow row : rows) {
+            if (!row.empty()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean removeControl(ControlOutput controlOutput) {
+        for (TextRow row : rows) {
+            if (row.removeControl(controlOutput)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
     public String test(int tabCount) {
         MyStringBuilder sb = new MyStringBuilder();
         for (TextRow row : rows) {
@@ -116,15 +135,6 @@ public class Content {
             sb.tab(tabCount).append("Row - }\n");
         }
         return sb.toString();
-    }
-
-    public boolean empty() {
-        for (TextRow row : rows) {
-            if (!row.empty()) {
-                return false;
-            }
-        }
-        return true;
     }
 }
 

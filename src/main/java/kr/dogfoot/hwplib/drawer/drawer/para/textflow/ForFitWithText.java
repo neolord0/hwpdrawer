@@ -74,9 +74,9 @@ public class ForFitWithText {
         Collections.sort(dividedAreas);
 
         if (dividedAreas.size() == 0) {
-            return new Result(null, offsetY(textLineArea), textLineArea);
+            return new Result(null, offsetY(textLineArea), nextStartY(textLineArea), textLineArea);
         } else {
-            return new Result(dividedAreas.toArray(Area.Zero_Array), 0,  textLineArea);
+            return new Result(dividedAreas.toArray(Area.Zero_Array), 0, nextStartY(textLineArea),  textLineArea);
         }
     }
 
@@ -148,6 +148,17 @@ public class ForFitWithText {
         return minBottom - textLineArea.bottom();
     }
 
+    private long nextStartY(Area textLineArea) {
+        long minBottom = -1;
+
+        for (FitWithTextArea squareArea : fitWithTextAreas) {
+            if (squareArea.area.intersects(textLineArea)) {
+                minBottom = (minBottom == -1) ? squareArea.area.bottom() : Math.min(squareArea.area.bottom(), minBottom);
+            }
+        }
+        return minBottom;
+    }
+
     public void reset() {
         fitWithTextAreas.clear();
     }
@@ -190,12 +201,14 @@ public class ForFitWithText {
     public static class Result {
         private final Area[] dividedAreas;
         private long offsetY;
+        private long nextStartY;
         private ParaDrawingState nextState;
         private boolean cancelNewLine;
 
-        public Result(Area[] dividedAreas, long offsetY, Area textLineArea) {
+        public Result(Area[] dividedAreas, long offsetY, long nextStartY, Area textLineArea) {
             this.dividedAreas = dividedAreas;
             this.offsetY = offsetY;
+            this.nextStartY = nextStartY;
             cancelNewLine = false;
 
             if (dividedAreas == null) {
@@ -217,6 +230,10 @@ public class ForFitWithText {
 
         public void offsetY(long offsetY) {
             this.offsetY = offsetY;
+        }
+
+        public long nextStartY() {
+            return nextStartY;
         }
 
         public ParaDrawingState nextState() {

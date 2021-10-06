@@ -1,17 +1,17 @@
 package kr.dogfoot.hwplib.drawer.drawer;
 
-import kr.dogfoot.hwplib.drawer.util.TextPosition;
+import kr.dogfoot.hwplib.drawer.util.CharPosition;
 
 public class RedrawException extends Exception {
-    private TextPosition position;
+    private CharPosition position;
     private long startY;
 
     public RedrawException(int paraIndex, int charIndex, int charPosition, long startY) {
-        this.position = new TextPosition(paraIndex, charIndex, charPosition);
+        this.position = new CharPosition(paraIndex, charIndex, charPosition);
         this.startY = startY;
     }
 
-    public TextPosition position() {
+    public CharPosition position() {
         return position;
     }
 

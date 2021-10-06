@@ -4,10 +4,13 @@ import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfo;
 import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfoControl;
 import kr.dogfoot.hwplib.drawer.input.DrawingInput;
 import kr.dogfoot.hwplib.drawer.output.InterimOutput;
+import kr.dogfoot.hwplib.drawer.output.control.ControlOutput;
 import kr.dogfoot.hwplib.drawer.output.text.TextLine;
 import kr.dogfoot.hwplib.drawer.util.Area;
-import kr.dogfoot.hwplib.drawer.util.TextPosition;
+import kr.dogfoot.hwplib.drawer.util.CharPosition;
 import kr.dogfoot.hwplib.object.docinfo.ParaShape;
+
+import java.util.ArrayList;
 
 
 public class TextLineDrawer {
@@ -15,6 +18,7 @@ public class TextLineDrawer {
     private final InterimOutput output;
 
     private CharInfo firstCharInfo;
+    private CharInfo firstDrawingCharInfo;
 
     private TextLine textLine;
 
@@ -24,10 +28,13 @@ public class TextLineDrawer {
     private long wordsWidth;
     private long spacesWidth;
     private boolean justNewLine;
+    private boolean hasSplitTable;
+    private ArrayList<ControlOutput> controlOutputs;
 
     public TextLineDrawer(DrawingInput input, InterimOutput output) {
         this.input = input;
         this.output = output;
+        controlOutputs = new ArrayList<>();
     }
 
     public TextLineDrawer initialize(Area area) {
@@ -43,6 +50,9 @@ public class TextLineDrawer {
         maxCharHeight = 0;
         maxBaseSize = 0;
         justNewLine = true;
+        hasSplitTable = false;
+
+        controlOutputs.clear();
         return this;
     }
 
@@ -54,19 +64,28 @@ public class TextLineDrawer {
         return textLine.paraIndex();
     }
 
-    public CharInfo firstCharInfo() {
-        return firstCharInfo;
-    }
-
     public void firstCharInfo(CharInfo firstCharInfo) {
         this.firstCharInfo = firstCharInfo;
     }
 
-    public TextPosition firstCharPosition() {
+    public CharPosition firstCharPosition() {
         if (firstCharInfo != null) {
             return firstCharInfo.position();
         } else {
-            return new TextPosition(paraIndex(), 0, 0);
+            return new CharPosition(paraIndex(), 0, 0);
+        }
+    }
+
+
+    public void firstDrawingCharInfo(CharInfo firstDrawingCharInfo) {
+        this.firstDrawingCharInfo = firstDrawingCharInfo;
+    }
+
+    public CharPosition firstDrawingCharPosition() {
+        if (firstDrawingCharInfo != null) {
+            return firstDrawingCharInfo.position();
+        } else {
+            return new CharPosition(paraIndex(), 0, 0);
         }
     }
 
@@ -79,11 +98,16 @@ public class TextLineDrawer {
 
     public TextLineDrawer clearTextLine() {
         textLine.clear();
+        controlOutputs.clear();
         return this;
     }
 
     public Area textLineArea() {
         return textLine.area();
+    }
+
+    public void textLineArea(Area area) {
+        textLine.area().set(area);
     }
 
     public boolean justNewLine() {
@@ -155,8 +179,27 @@ public class TextLineDrawer {
         return !textLine.hasDrawingChar();
     }
 
+    public boolean hasDrawingChar() {
+        return textLine.hasDrawingChar();
+    }
+
     public void setBestSpaceRate() {
         textLine.currentTextPart().spaceRate((double) (textLine.currentTextPart().width() - wordsWidth) / (double) spacesWidth);
+    }
+
+    public boolean isOverPageHeight() {
+        if(textLineArea().top() + lineHeight > input.pageInfo().bodyArea().bottom()) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean hasSplitTable() {
+        return hasSplitTable;
+    }
+
+    public void hasSplitTable(boolean hasSplitTable) {
+        this.hasSplitTable = hasSplitTable;
     }
 
     public void saveToOutput() {
@@ -180,5 +223,17 @@ public class TextLineDrawer {
 
     public String test() {
         return textLine.test(0);
+    }
+
+    public int controlOutputCount() {
+        return controlOutputs.size();
+    }
+
+    public void addControlOutput(ControlOutput controlOutput) {
+        controlOutputs.add(controlOutput);
+    }
+
+    public ControlOutput[] controlOutputs() {
+        return controlOutputs.toArray(ControlOutput.Zero_Array);
     }
 }

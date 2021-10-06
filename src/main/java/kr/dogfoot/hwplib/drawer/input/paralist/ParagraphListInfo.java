@@ -2,7 +2,7 @@ package kr.dogfoot.hwplib.drawer.input.paralist;
 
 import kr.dogfoot.hwplib.drawer.input.DrawingInput;
 import kr.dogfoot.hwplib.drawer.util.Area;
-import kr.dogfoot.hwplib.drawer.util.TextPosition;
+import kr.dogfoot.hwplib.drawer.util.CharPosition;
 import kr.dogfoot.hwplib.object.bodytext.ParagraphListInterface;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlColumnDefine;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.Paragraph;
@@ -128,7 +128,7 @@ public class ParagraphListInfo {
         ignoreNextPara = true;
     }
 
-    public boolean gotoPara(TextPosition position) {
+    public boolean gotoPara(CharPosition position) {
         if (position.paraIndex() < paras.length) {
             currentPara = paras[position.paraIndex()];
             this.paraIndex = position.paraIndex() + 1;
@@ -276,7 +276,7 @@ public class ParagraphListInfo {
         return charPosition;
     }
 
-    public void gotoChar(TextPosition position) {
+    public void gotoChar(CharPosition position) {
         charIndex = position.charIndex();
         if (charIndex == 0) {
             character = null;

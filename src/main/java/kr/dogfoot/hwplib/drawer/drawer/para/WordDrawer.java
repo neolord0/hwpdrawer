@@ -10,9 +10,13 @@ import kr.dogfoot.hwplib.drawer.input.DrawingInput;
 import kr.dogfoot.hwplib.drawer.output.InterimOutput;
 import kr.dogfoot.hwplib.drawer.output.control.ControlOutput;
 import kr.dogfoot.hwplib.drawer.output.control.table.CellOutput;
+import kr.dogfoot.hwplib.drawer.output.control.table.TableOutput;
 import kr.dogfoot.hwplib.drawer.output.text.TextLine;
 import kr.dogfoot.hwplib.drawer.util.Area;
+import kr.dogfoot.hwplib.object.bodytext.control.Control;
+import kr.dogfoot.hwplib.object.bodytext.control.ControlType;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.TextFlowMethod;
+import kr.dogfoot.hwplib.object.bodytext.control.table.DivideAtPageBoundary;
 import kr.dogfoot.hwplib.object.docinfo.parashape.LineDivideForEnglish;
 import kr.dogfoot.hwplib.object.docinfo.parashape.LineDivideForHangul;
 
@@ -31,9 +35,7 @@ public class WordDrawer {
 
     private final ArrayList<CharInfo> charsOfWord;
     private long wordWidth;
-
-    private boolean checkOverRight;
-    private boolean applyMinimumSpace;
+    private ArrayList<TableOutput> addedSplitTables;
 
     public WordDrawer(DrawingInput input, InterimOutput output, ParaDrawer paraDrawer, TextLineDrawer textLineDrawer, TextFlowCalculator textFlowCalculator) {
         this.input = input;
@@ -80,25 +82,22 @@ public class WordDrawer {
     }
 
     private void addSpaceChar(CharInfoNormal spaceCharInfo) {
-        if (paraDrawer.drawingState().canAddChar() && spaceCharInfo != null && !wordSplitter.stoppedAddingChar()) {
+        if (paraDrawer.drawingState().canAddChar() && spaceCharInfo != null && !wordSplitter.stopAddingChar()) {
             textLineDrawer.addChar(spaceCharInfo);
         }
     }
 
     private void addWordAllChars(boolean checkOverRight, boolean applyMinimumSpace) throws Exception {
-        this.checkOverRight = checkOverRight;
-        this.applyMinimumSpace = applyMinimumSpace;
-
         for (CharInfo charInfo : charsOfWord) {
-            addChar(charInfo);
+            addChar(charInfo, checkOverRight, applyMinimumSpace);
 
-            if (wordSplitter.stoppedAddingChar()) {
+            if (wordSplitter.stopAddingChar()) {
                 break;
             }
         }
     }
 
-    private boolean addChar(CharInfo charInfo) throws Exception {
+    public boolean addChar(CharInfo charInfo, boolean checkOverRight, boolean applyMinimumSpace) throws Exception {
         boolean hasNewLine;
         if (checkOverRight && textLineDrawer.isOverWidth(charInfo.width(), applyMinimumSpace)) {
             if (applyMinimumSpace) {
@@ -106,10 +105,16 @@ public class WordDrawer {
             }
             paraDrawer.saveTextLineAndNewLine();
 
-            if (paraDrawer.drawingState().isNormal() || paraDrawer.drawingState().isEndRecalculating()) {
+            if (paraDrawer.drawingState().isNormal()
+                    || paraDrawer.drawingState().isEndRecalculating()) {
                 hasNewLine = true;
             } else {
                 hasNewLine = false;
+            }
+
+            if (paraDrawer.drawingState().isStartRecalculating()
+                    || paraDrawer.drawingState().isStartRedrawing()) {
+                wordSplitter.stopAddingChar(true);
             }
         } else {
             hasNewLine = false;
@@ -118,50 +123,81 @@ public class WordDrawer {
         textLineDrawer.justNewLine(false);
 
         if (paraDrawer.drawingState().canAddChar()) {
-            if (textLineDrawer.noDrawingChar() && paraDrawer.drawingState().isNormal()) {
-                textLineDrawer.firstCharInfo(charInfo);
+            if (textLineDrawer.noDrawingChar()) {
+                textLineDrawer.firstDrawingCharInfo(charInfo);
+                if (textLineDrawer.controlOutputCount() == 0) {
+                    textLineDrawer.firstCharInfo(charInfo);
+                }
                 paraDrawer.checkNewColumnAndPage();
             }
 
-            if (wordSplitter.stoppedAddingChar() == false) {
-                if (paraDrawer.drawingState().isNormal() && charInfo.type() == CharInfo.Type.Control) {
-                    addControlChar((CharInfoControl) charInfo);
+            if (wordSplitter.stopAddingChar() == false) {
+                if (charInfo.type() == CharInfo.Type.Control) {
+                    addCharInfoControl((CharInfoControl) charInfo);
                 } else {
-                    textLineDrawer.addChar(charInfo);
+                    if (!textLineDrawer.isOverWidth(charInfo.width(), applyMinimumSpace)) {
+                        textLineDrawer.addChar(charInfo);
+                    }
                 }
             }
         }
         return hasNewLine;
     }
 
-    private void addControlChar(CharInfoControl controlCharInfo) throws Exception {
-        ControlOutput output2 = controlDrawer.draw(controlCharInfo);
-        addControlOutput(output2);
+    private void addCharInfoControl(CharInfoControl charInfoControl) throws Exception {
+        ControlOutput controlOutput = drawControl(charInfoControl);
+        if (controlOutput != null) {
+            if (controlOutput.controlCharInfo().isLikeLetter()) {
+                textLineDrawer.addChar(controlOutput.controlCharInfo());
+            } else {
+                addControlOutputToPage(controlOutput);
+                if (!controlOutput.isSplitTable()) {
+                    textLineDrawer.addControlOutput(controlOutput);
+                }
+            }
+
+            if (controlOutput.isSplitTable()) {
+                textLineDrawer.hasSplitTable(true);
+            }
+        }
     }
 
-    public void addControlOutput(ControlOutput output2) throws RedrawException {
-        CharInfoControl controlCharInfo = output2.controlCharInfo();
-        if (controlCharInfo.isLikeLetter()) {
-            textLineDrawer.addChar(controlCharInfo);
-            return;
+    private ControlOutput drawControl(CharInfoControl controlCharInfo) throws Exception {
+        if (controlCharInfo.control().getType() == ControlType.Table
+                && alreadyAddedSplitTable(controlCharInfo.control())) {
+            return null;
         }
+        return controlDrawer.draw(controlCharInfo);
+    }
 
+    private boolean alreadyAddedSplitTable(Control control) {
+        if (addedSplitTables == null) {
+            return false;
+        }
+        for (TableOutput tableOutput : addedSplitTables) {
+            if (tableOutput.controlCharInfo().control() == control) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void addControlOutputToPage(ControlOutput controlOutput) throws RedrawException {
+        CharInfoControl controlCharInfo = controlOutput.controlCharInfo();
         if (controlCharInfo.textFlowMethod() == TextFlowMethod.FitWithText
                 || controlCharInfo.textFlowMethod() == TextFlowMethod.TakePlace) {
             if (!textFlowCalculator.alreadyAdded(controlCharInfo)) {
-                if (output.checkRedrawingTextLine(output2.areaWithOuterMargin())) {
+                if (output.checkRedrawingTextLine(controlOutput.areaWithOuterMargin())) {
                     if (isOver75PercentOfPageHeight(paraDrawer.currentTextArea().bottom())) {
-                        output.addChildControlsCrossingPage(output2);
+                        output.addChildControlsCrossingPage(controlOutput);
                     } else {
-                        if (output.addChildOutput(output2)) {
-                            textFlowCalculator.add(controlCharInfo, output2.areaWithOuterMargin());
+                        if (output.addChildOutput(controlOutput)) {
+                            textFlowCalculator.add(controlCharInfo, controlOutput.areaWithOuterMargin());
                         }
-
                         TextLine firstRedrawingTextLine = output.deleteRedrawingTextLine(controlCharInfo.areaWithOuterMargin());
-
                         if (firstRedrawingTextLine.firstChar() != null) {
                             throw new RedrawException(firstRedrawingTextLine.paraIndex(),
-                                    firstRedrawingTextLine.firstChar().index(),
+                                    firstRedrawingTextLine.firstChar().charIndex(),
                                     firstRedrawingTextLine.firstChar().prePosition(),
                                     firstRedrawingTextLine.area().top());
                         } else {
@@ -172,14 +208,24 @@ public class WordDrawer {
                         }
                     }
                 } else {
-                    if (output.addChildOutput(output2)) {
-                        textFlowCalculator.add(controlCharInfo, output2.areaWithOuterMargin());
+                    if (output.addChildOutput(controlOutput)) {
+                        textFlowCalculator.add(controlCharInfo, controlOutput.areaWithOuterMargin());
                     }
                 }
             }
         } else {
-            output.addChildOutput(output2);
+            output.addChildOutput(controlOutput);
         }
+
+        if (controlCharInfo.output().isSplitTable()) {
+            TableOutput tableOutput = (TableOutput) controlCharInfo.output();
+            if (tableOutput.split() && tableOutput.getDivideAtPageBoundary() == DivideAtPageBoundary.DivideByCell) {
+               Area areaToPageBottom = new Area(output.currentPage().bodyArea())
+                       .top(controlOutput.areaWithOuterMargin().bottom());
+               textFlowCalculator.addForTakePlace(controlCharInfo, areaToPageBottom);;
+            }
+        }
+
         textLineDrawer.addControlCharInfo(controlCharInfo);
     }
 
@@ -211,18 +257,26 @@ public class WordDrawer {
                 && input.paraShape().getProperty1().getLineDivideForHangul() == LineDivideForHangul.ByWord;
     }
 
-    public boolean addChar(CharInfo charInfo, boolean checkOverRight, boolean applyMinimumSpace) throws Exception {
-        this.checkOverRight = checkOverRight;
-        this.applyMinimumSpace = applyMinimumSpace;
-        return addChar(charInfo);
-    }
-
     public void adjustControlAreaAtNewPage(Area currentTextArea) {
         for (CharInfo charInfo : charsOfWord) {
             if (charInfo.type() == CharInfo.Type.Control) {
                 ((CharInfoControl) charInfo).area(input, currentTextArea);
             }
         }
+    }
+
+    public void addSplitTables(ArrayList<TableOutput> splitTables) throws RedrawException {
+        for (TableOutput tableOutput : splitTables) {
+            if (tableOutput.controlCharInfo().isLikeLetter()) {
+                textLineDrawer.addChar(tableOutput.controlCharInfo());
+            } else {
+                addControlOutputToPage(tableOutput);
+                if (!tableOutput.split()) {
+                    textLineDrawer.addControlOutput(tableOutput);
+                }
+            }
+        }
+        addedSplitTables = splitTables;
     }
 
     public void addChildControls(ControlOutput[] childControls, boolean inCell) throws RedrawException {
@@ -236,7 +290,14 @@ public class WordDrawer {
                 childOutput.areaWithoutOuterMargin()
                         .moveY(cellOutput.cell().getListHeader().getTopMargin() - childOutput.areaWithoutOuterMargin().top());
             }
-            addControlOutput(childOutput);
+            if (childOutput.controlCharInfo().isLikeLetter()) {
+                textLineDrawer.addChar(childOutput.controlCharInfo());
+            } else {
+                addControlOutputToPage(childOutput);
+                if (!childOutput.isSplitTable()) {
+                    textLineDrawer.addControlOutput(childOutput);
+                }
+            }
         }
     }
 
@@ -264,7 +325,7 @@ public class WordDrawer {
                 sb
                         .append(normalCharInfo.normalCharacter().getCh())
                         .append("(")
-                        .append(charInfo.index())
+                        .append(charInfo.charIndex())
                         .append(")");
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
@@ -275,17 +336,17 @@ public class WordDrawer {
                 sb
                         .append(controlCharInfo.character().getCode())
                         .append("(")
-                        .append(charInfo.index())
+                        .append(charInfo.charIndex())
                         .append(")");
             } else {
                 sb
                         .append(controlCharInfo.control().getType())
                         .append("(")
-                        .append(charInfo.index())
+                        .append(charInfo.charIndex())
                         .append(")");
             }
-
         }
         return sb.toString();
     }
+
 }

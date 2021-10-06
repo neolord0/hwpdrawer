@@ -24,6 +24,20 @@ public class CellPositionCalculator {
         }
     }
 
+    public void reset() {
+        for (int index = 0; index < currentCellTop.length; index++) {
+            currentCellTop[index] = 0;
+        }
+        for (int index = 0; index < cellXs.length; index++) {
+            cellXs[index] = 0;
+        }
+        for (int index = 0; index < rowHeights.length; index++) {
+            rowHeights[index] = -1;
+        }
+        rowInfos.clear();
+    }
+
+
     public void addInfo(int colIndex, int colSpan, int rowIndex, int rowSpan, long width, long height) {
         addColumnInfo(colIndex, colSpan, width);
         addRowInfo(rowIndex, rowSpan, height);

@@ -1,20 +1,21 @@
 package kr.dogfoot.hwplib.drawer.drawer.para;
 
 import kr.dogfoot.hwplib.drawer.drawer.BreakDrawingException;
+import kr.dogfoot.hwplib.drawer.drawer.RedrawException;
 import kr.dogfoot.hwplib.drawer.drawer.para.textflow.TextFlowCalculationResult;
 import kr.dogfoot.hwplib.drawer.drawer.para.textflow.TextFlowCalculator;
 import kr.dogfoot.hwplib.drawer.drawer.paralist.DistributionMultiColumnRearranger;
 import kr.dogfoot.hwplib.drawer.drawer.paralist.ParaListDrawer;
 import kr.dogfoot.hwplib.drawer.input.DrawingInput;
+import kr.dogfoot.hwplib.drawer.input.paralist.ParagraphListInfo;
 import kr.dogfoot.hwplib.drawer.input.paralist.ParallelMultiColumnInfo;
 import kr.dogfoot.hwplib.drawer.output.InterimOutput;
-import kr.dogfoot.hwplib.drawer.output.Output;
 import kr.dogfoot.hwplib.drawer.output.control.ControlOutput;
 import kr.dogfoot.hwplib.drawer.output.control.table.TableOutput;
 import kr.dogfoot.hwplib.drawer.output.page.PageOutput;
 import kr.dogfoot.hwplib.drawer.output.text.TextRow;
 import kr.dogfoot.hwplib.drawer.util.Area;
-import kr.dogfoot.hwplib.drawer.util.TextPosition;
+import kr.dogfoot.hwplib.drawer.util.CharPosition;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlColumnDefine;
 
 import java.util.ArrayList;
@@ -44,6 +45,8 @@ public class ParaDrawer {
     private boolean newLineAtRecalculating;
     private boolean newLineAtNormal;
 
+    private CharPosition startPositionOfRecalculatingTextLine;
+
     public ParaDrawer(DrawingInput input, InterimOutput output) {
         this.input = input;
         this.output = output;
@@ -72,24 +75,17 @@ public class ParaDrawer {
         draw(redraw, null, null);
     }
 
-    public void draw(boolean redraw, TextPosition startPosition, ControlOutput[] childControlsCrossingPage) throws Exception {
+    public void draw(boolean redraw, CharPosition startPosition, ControlOutput[] childControlsCrossingPage) throws Exception {
         if (redraw == false) {
             start(startPosition);
         }
-
         resetForNewPara();
-        wordDrawer.addChildControls(childControlsCrossingPage, output.currentOutput().type() == Output.Type.Cell);
-
-        if (input.noChar()) {
-            noChar();
-        } else {
-            chars();
-        }
-
+        addChildControlsCrossingPage(childControlsCrossingPage);
+        processChars();
         end();
     }
 
-    private void start(TextPosition startPosition) throws Exception {
+    private void start(CharPosition startPosition) throws Exception {
         input.startPara();
         charAdder.resetAtStartingPara();
 
@@ -144,14 +140,25 @@ public class ParaDrawer {
         }
     }
 
-    private void noChar() throws Exception {
-        setEmptyLineHeight();
-        saveTextLineAndNewLine();
-        checkNewColumnAndPage();
+    private void addChildControlsCrossingPage(ControlOutput[] childControlsCrossingPage) throws RedrawException {
+        wordDrawer.addChildControls(childControlsCrossingPage, input.sortOfText().isForCell());
     }
 
+    private void processChars() throws Exception {
+        if (input.noChar()) {
+            setEmptyLineHeight();
+            saveTextLineAndNewLine();
+            checkNewColumnAndPage();
+        } else {
+            chars();
+        }
+    }
+
+
     private void setEmptyLineHeight() {
-        textLineDrawer.textLineArea().bottom(textLineDrawer.textLineArea().bottom() + input.charShape().getBaseSize());
+        Area area = new Area(textLineDrawer.textLineArea())
+                .resizeY(input.charShape().getBaseSize());
+        textLineDrawer.textLineArea(area);
     }
 
     private void chars() throws Exception {
@@ -160,32 +167,47 @@ public class ParaDrawer {
 
             switch (drawingState) {
                 case StartRecalculating:
-                    startRecalculatingTextLine();
+                    onStartRecalculatingTextLine();
                     drawingState = ParaDrawingState.Recalculating;
                     break;
                 case EndRecalculating:
+                    onEndRecalculating();
                     drawingState = ParaDrawingState.Normal;
                     break;
                 case StartRedrawing:
-                    startRedrawingTextLine();
+                    onStartRedrawingTextLine();
+                    drawingState = ParaDrawingState.Normal;
+                    break;
+                case ETC:
                     drawingState = ParaDrawingState.Normal;
                     break;
             }
         }
     }
 
-    private void startRecalculatingTextLine() {
-        input.gotoCharPositionInPara(textLineDrawer.firstCharInfo().position());
+    private void onStartRecalculatingTextLine() {
+        input.gotoCharPositionInPara(textLineDrawer.firstDrawingCharPosition());
 
         currentTextArea.set(textFlowCalculationResult.nextArea());
         textLineDrawer
                 .reset(textFlowCalculationResult.storedTextLineArea())
                 .addNewTextPart(textFlowCalculationResult.startX(currentTextArea), currentTextArea.width());
         wordDrawer.reset();
+
+        startPositionOfRecalculatingTextLine = input.currentCharPosition();
     }
 
-    private void startRedrawingTextLine() {
-        input.gotoCharPositionInPara(textLineDrawer.firstCharInfo().position());
+    private void onEndRecalculating() {
+        if (startPositionOfRecalculatingTextLine.equals(input.currentCharPosition()) && textFlowCalculationResult.nextStartY() > 0) {
+            long oldHeight = currentTextArea.height();
+            currentTextArea
+                    .top(textFlowCalculationResult.nextStartY() + 1)
+                    .height(oldHeight);
+        }
+    }
+
+    private void onStartRedrawingTextLine() {
+        input.gotoCharPositionInPara(textLineDrawer.firstDrawingCharPosition());
         textLineDrawer
                 .reset(currentTextArea)
                 .addNewTextPart(0, currentTextArea.width());
@@ -202,11 +224,10 @@ public class ParaDrawer {
 
     public void nextPage() throws Exception {
         if (distributionMultiColumnRearranger.testing()) {
-            throw new BreakDrawingException(new TextPosition(input.paraIndex(), input.charIndex(), input.charPosition())).forNewPage();
+            throw new BreakDrawingException(new CharPosition(input.paraIndex(), input.charIndex(), input.charPosition())).forNewPage();
         }
 
         ParaListDrawer.drawHeaderFooter(input, output);
-
         charAdder.clearBufferUntilPreviousPara();
 
         gotoNextPage();
@@ -253,9 +274,7 @@ public class ParaDrawer {
 
     private void addSplitTablesAndChildControlsCrossingPage() throws Exception {
         ArrayList<TableOutput> tableOutputs = output.splitTables();
-        for (TableOutput output : tableOutputs) {
-            wordDrawer.addControlOutput(output);
-        }
+        wordDrawer.addSplitTables(tableOutputs);
 
         wordDrawer.addChildControls(output.childControlsCrossingPage(), false);
         output.clearChildControlsCrossingPage();
@@ -301,7 +320,7 @@ public class ParaDrawer {
         input.currentParaListInfo().setColumnInfoWithPreviousInfo();
 
         if (output.currentRow().firstChar() == null) {
-            input.gotoParaCharPosition(TextPosition.ParaList_Start_Position);
+            input.gotoParaCharPosition(CharPosition.ParaList_Start_Position);
         } else{
             input.gotoParaCharPosition(output.currentRow().firstChar().position());
         }
@@ -347,7 +366,7 @@ public class ParaDrawer {
         resetForNewColumn();
     }
 
-    public void resetForNewColumn() {
+    private void resetForNewColumn() {
         resetCurrentTextArea();
 
         textFlowCalculator.resetForNewColumn();
@@ -360,16 +379,11 @@ public class ParaDrawer {
                 textLineDrawer
                         .clearTextLine()
                         .addNewTextPart(0, currentTextArea.width());
-            } else {
-                textLineDrawer.textLineArea().set(currentTextArea);
-
-                saveTextLine();
-                nextTextPartArea();
             }
         }
     }
 
-    public void saveTextLineAndNewLine() {
+    public void saveTextLineAndNewLine() throws Exception {
         if (!textLineDrawer.justNewLine() && drawingState.canAddChar()) {
             cancelNewLine = false;
             textLineDrawer.setLineHeight();
@@ -390,18 +404,39 @@ public class ParaDrawer {
         }
     }
 
-    private void checkTextFlow() {
+    private void checkTextFlow() throws Exception {
         if (drawingState.isNormal()) {
             currentTextArea
                     .height(textLineDrawer.maxCharHeight());
-
             textFlowCalculationResult = textFlowCalculator.calculate(currentTextArea);
-            currentTextArea
-                    .moveY(textFlowCalculationResult.offsetY());
+
+            long offsetY = textFlowCalculationResult.offsetY();
+            if (offsetY > 0) {
+                currentTextArea
+                        .moveY(textFlowCalculationResult.offsetY());
+                if (input.sortOfText() == ParagraphListInfo.Sort.ForBody
+                        && input.pageInfo().bodyArea().bottom() < currentTextArea.bottom()) {
+
+                    ControlOutput[] controlOutputs = textLineDrawer.controlOutputs();
+                    if (controlOutputs.length > 0) {
+                        for (ControlOutput controlOutput : controlOutputs) {
+                            output.currentPage().content().removeControl(controlOutput);
+                            System.out.println(controlOutput.test(2));
+                        }
+                    }
+                    input.gotoParaCharPosition(textLineDrawer.firstCharPosition());
+
+                    textLineDrawer.clearTextLine();
+                    drawingState = ParaDrawingState.ETC;
+                    nextPage();
+                    return;
+                }
+            }
+
             if (textFlowCalculationResult.nextState().isStartRecalculating()) {
                 textFlowCalculationResult.storeTextLineArea(currentTextArea);
             }
-            textLineDrawer.textLineArea().set(currentTextArea);
+            textLineDrawer.textLineArea(currentTextArea);
 
             if (!input.noChar()) {
                 cancelNewLine = textFlowCalculationResult.cancelNewLine() && textLineDrawer.noDrawingChar();
@@ -410,8 +445,7 @@ public class ParaDrawer {
         }
     }
 
-
-    private void saveTextLine() {
+    private void saveTextLine() throws Exception {
         switch (drawingState) {
             case Normal:
                 saveTextLineAtNormal();
@@ -422,10 +456,17 @@ public class ParaDrawer {
         }
     }
 
-    private void saveTextLineAtNormal() {
-        textLineDrawer.saveToOutput();
-        if (newLineAtNormal) {
-            output.setLastLineInPara();
+    private void saveTextLineAtNormal() throws Exception {
+        if (textLineDrawer.isOverPageHeight()
+                && textLineDrawer.hasSplitTable()
+                && textLineDrawer.hasDrawingChar()) {
+            nextPage();
+            input.gotoParaCharPosition(textLineDrawer.firstCharPosition());
+        } else {
+            textLineDrawer.saveToOutput();
+            if (newLineAtNormal) {
+                output.setLastLineInPara();
+            }
         }
     }
 

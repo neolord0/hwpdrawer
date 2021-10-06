@@ -6,8 +6,9 @@ import kr.dogfoot.hwplib.drawer.drawer.control.table.CellDrawInfo;
 import kr.dogfoot.hwplib.drawer.input.DrawingInput;
 import kr.dogfoot.hwplib.drawer.output.InterimOutput;
 import kr.dogfoot.hwplib.drawer.output.control.ControlOutput;
+import kr.dogfoot.hwplib.drawer.output.control.table.CellOutput;
 import kr.dogfoot.hwplib.drawer.util.Area;
-import kr.dogfoot.hwplib.drawer.util.TextPosition;
+import kr.dogfoot.hwplib.drawer.util.CharPosition;
 import kr.dogfoot.hwplib.object.bodytext.ParagraphListInterface;
 
 public class ParaListDrawerForCell extends ParaListDrawer {
@@ -20,7 +21,7 @@ public class ParaListDrawerForCell extends ParaListDrawer {
                                     boolean canSplit,
                                     long topInPage,
                                     long bottomMargin,
-                                    TextPosition fromPosition,
+                                    CharPosition fromPosition,
                                     int startTextColumnIndex,
                                     ControlOutput[] childControlsCrossingPage) throws Exception {
 
@@ -35,7 +36,7 @@ public class ParaListDrawerForCell extends ParaListDrawer {
             input.gotoParaWithIgnoreNextPara(fromPosition);
         }
 
-        CellDrawInfo result = new CellDrawInfo();
+        CellDrawInfo cellDrawInfo = new CellDrawInfo();
 
         boolean redraw = false;
         while (redraw || input.nextPara()) {
@@ -54,10 +55,10 @@ public class ParaListDrawerForCell extends ParaListDrawer {
                     paraDrawer.gotoStartCharOfCurrentRow();
                     redraw = true;
                 } else if (e.type().isForOverPage()) {
-                    result
-                            .split(true)
+                    cellDrawInfo
+                            .state(CellDrawInfo.State.Split)
                             .splitPosition(e.position())
-                            .textColumnIndex(e.columnIndex());
+                            .startTextColumnIndex(e.columnIndex());
                     break;
                 } else {
                     throw e;
@@ -88,6 +89,12 @@ public class ParaListDrawerForCell extends ParaListDrawer {
         }
 
         input.endCellParaList();
-        return result.height(output.currentContent().height());
+
+
+        cellDrawInfo
+                .cellOutput((CellOutput) output.currentOutput())
+                .cell(((CellOutput) output.currentOutput()).cell())
+                .height(output.currentContent().height());
+        return cellDrawInfo;
     }
 }

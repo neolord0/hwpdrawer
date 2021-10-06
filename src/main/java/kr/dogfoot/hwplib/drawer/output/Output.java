@@ -1,5 +1,7 @@
 package kr.dogfoot.hwplib.drawer.output;
 
+import org.apache.poi.ss.formula.functions.T;
+
 public abstract class Output {
     private Output parent;
 
@@ -23,6 +25,23 @@ public abstract class Output {
         Footer,
         Gso,
         Table,
-        Cell
+        Cell;
+
+        public boolean isGso() {
+            return this == Gso;
+        }
+
+        public boolean isTable() {
+            return  this == Table;
+        }
+
+        public boolean isCell() {
+            return this == Cell;
+        }
+
+        public boolean isFooter() {
+            return this == Footer;
+        }
+
     }
 }

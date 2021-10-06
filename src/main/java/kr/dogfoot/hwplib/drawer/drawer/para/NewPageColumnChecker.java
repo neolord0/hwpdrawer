@@ -52,7 +52,7 @@ public class NewPageColumnChecker {
                 && (input.currentColumnsInfo().isLastColumn() || input.currentColumnsInfo().isParallelMultiColumn())) {
             return Result.NextPage;
         } else {
-            output.currentColumn().nextCharPosition(textLineDrawer.firstCharPosition());
+            output.currentColumn().nextCharPosition(textLineDrawer.firstDrawingCharPosition());
 
             if (!input.currentColumnsInfo().isLastColumn()) {
                 if (shouldProcessInDistributionMultiColumn()) {
@@ -72,7 +72,7 @@ public class NewPageColumnChecker {
             return Result.Nothing;
         }
 
-        output.currentColumn().nextCharPosition(textLineDrawer.firstCharPosition());
+        output.currentColumn().nextCharPosition(textLineDrawer.firstDrawingCharPosition());
 
         if (!input.currentColumnsInfo().isLastColumn()) {
             if (shouldProcessInDistributionMultiColumn()) {
@@ -93,7 +93,7 @@ public class NewPageColumnChecker {
                 && isOverPageBottomForCell(textLineDrawer.maxCharHeight())) {
             if (input.currentColumnsInfo().isParallelMultiColumn()) {
                 if (input.currentColumnsInfo().isFirstColumn()) {
-                    throw new BreakDrawingException(textLineDrawer.firstCharPosition())
+                    throw new BreakDrawingException(textLineDrawer.firstDrawingCharPosition())
                             .forOverPage()
                             .columnIndex(0);
                 } else {
@@ -102,7 +102,7 @@ public class NewPageColumnChecker {
                 }
             } else {
                 if (input.currentColumnsInfo().isLastColumn()) {
-                    throw new BreakDrawingException(textLineDrawer.firstCharPosition()).forOverPage();
+                    throw new BreakDrawingException(textLineDrawer.firstDrawingCharPosition()).forOverPage();
                 } else {
                     return Result.NextColumn;
                 }
@@ -148,7 +148,7 @@ public class NewPageColumnChecker {
             input.currentParaListInfo().cellInfo(parentInfo.cellInfo());
             input.currentParaListInfo().resetParaStartY(input.currentParaListInfo().textBoxArea().top());
         } else {
-            throw new BreakDrawingException(textLineDrawer.firstCharPosition())
+            throw new BreakDrawingException(textLineDrawer.firstDrawingCharPosition())
                     .forOverPage()
                     .columnIndex(input.currentColumnsInfo().currentColumnIndex());
         }

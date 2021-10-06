@@ -1,30 +1,41 @@
 package kr.dogfoot.hwplib.drawer.drawer.control.table;
 
 import kr.dogfoot.hwplib.drawer.output.control.table.CellOutput;
-import kr.dogfoot.hwplib.drawer.util.TextPosition;
+import kr.dogfoot.hwplib.drawer.util.CharPosition;
 import kr.dogfoot.hwplib.object.bodytext.control.table.Cell;
 
 public class CellDrawInfo {
+    public final static CellDrawInfo[] Zero_Array = new CellDrawInfo[0];
+
+    private State state;
     private Cell cell;
-    private boolean split;
     private long height;
-    private TextPosition splitPosition;
+    private CharPosition splitPosition;
     private long nextPartHeight;
     private CellOutput cellOutput;
-    private int textColumnIndex;
+    private int startTextColumnIndex;
 
     public CellDrawInfo() {
-        split = false;
+        state = State.Normal;
         nextPartHeight = 0;
-        textColumnIndex = -1;
+        startTextColumnIndex = -1;
     }
 
-    public boolean split() {
-        return split;
+    public State state() {
+        return state;
     }
 
-    public CellDrawInfo split(boolean split) {
-        this.split = split;
+    public CellDrawInfo state(State state) {
+        this.state = state;
+        return this;
+    }
+
+    public Cell cell() {
+        return cell;
+    }
+
+    public CellDrawInfo cell(Cell cell) {
+        this.cell = cell;
         return this;
     }
 
@@ -37,21 +48,12 @@ public class CellDrawInfo {
         return this;
     }
 
-    public TextPosition splitPosition() {
+    public CharPosition splitPosition() {
         return splitPosition;
     }
 
-    public CellDrawInfo splitPosition(TextPosition splitPosition) {
+    public CellDrawInfo splitPosition(CharPosition splitPosition) {
         this.splitPosition = splitPosition;
-        return this;
-    }
-
-    public Cell cell() {
-        return cell;
-    }
-
-    public CellDrawInfo cell(Cell cell) {
-        this.cell = cell;
         return this;
     }
 
@@ -67,18 +69,33 @@ public class CellDrawInfo {
         return cellOutput;
     }
 
-    public void cellOutput(CellOutput cellOutput) {
+    public CellDrawInfo cellOutput(CellOutput cellOutput) {
         this.cellOutput = cellOutput;
+        return this;
     }
 
-    public int textColumnIndex() {
-        return textColumnIndex;
+    public int startTextColumnIndex() {
+        return startTextColumnIndex;
     }
 
-    public void textColumnIndex(int textColumnIndex) {
-        this.textColumnIndex = textColumnIndex;
+    public void startTextColumnIndex(int startTextColumnIndex) {
+        this.startTextColumnIndex = startTextColumnIndex;
     }
 
+    public enum State {
+        Normal,
+        Split,
+        OverPage,
+        ;
+
+        public boolean isSplit() {
+            return this == Split;
+        }
+
+        public boolean isNormal() {
+            return this == Normal;
+        }
+    }
 }
 
 

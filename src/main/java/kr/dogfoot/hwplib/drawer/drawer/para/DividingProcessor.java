@@ -82,7 +82,7 @@ public class DividingProcessor {
                 throw new BreakDrawingException().forDividingColumn();
             }
         } else {
-            if (output.currentOutput().type() == Output.Type.Gso) {
+            if (output.currentOutput().type().isGso()) {
                 setCurrentRowBottomToContentHeight();
             }
 

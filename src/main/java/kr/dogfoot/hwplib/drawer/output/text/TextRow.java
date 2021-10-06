@@ -2,6 +2,7 @@ package kr.dogfoot.hwplib.drawer.output.text;
 
 import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfo;
 import kr.dogfoot.hwplib.drawer.input.paralist.ColumnsInfo;
+import kr.dogfoot.hwplib.drawer.output.control.ControlOutput;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
 
@@ -134,6 +135,16 @@ public class TextRow {
         calculationCount++;
     }
 
+    public boolean removeControl(ControlOutput controlOutput) {
+        for (TextColumn column : columns) {
+            if (column.removeControl(controlOutput)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
     public String test(int tabCount) {
         return test(tabCount, false);
     }
@@ -147,5 +158,4 @@ public class TextRow {
         }
         return sb.toString();
     }
-
 }

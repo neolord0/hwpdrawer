@@ -75,10 +75,6 @@ public class TextLine {
         return area;
     }
 
-    public void area(Area area) {
-        this.area = area;
-    }
-
     public void addNewTextPart(long startX, long width) {
         TextPart textPart = new TextPart(this, startX, width);
 
@@ -138,12 +134,28 @@ public class TextLine {
         return controls.toArray(CharInfoControl.Zero_Array);
     }
 
+    public boolean empty() {
+        if (parts.size() == 0 || totalCharCount() == 0) {
+            return true;
+        }
+        return false;
+    }
+
+    private int totalCharCount() {
+        int count = 0;
+        for (TextPart tp : parts) {
+            count += tp.charInfos().size();
+        }
+        return count;
+    }
+
+
     public String test(int tabCount) {
         MyStringBuilder sb = new MyStringBuilder();
         sb.tab(tabCount);
         sb.append(area).append("-");
         if (firstChar() != null) {
-            sb.append(String.valueOf(firstChar().paraIndex())).append(":").append(String.valueOf(firstChar().index())).append(" = ");
+            sb.append(String.valueOf(firstChar().paraIndex())).append(":").append(String.valueOf(firstChar().charIndex())).append(" = ");
         } else {
             sb.append("-:- = ");
         }

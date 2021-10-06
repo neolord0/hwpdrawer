@@ -2,6 +2,7 @@ package kr.dogfoot.hwplib.drawer.output.control;
 
 import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfoControl;
 import kr.dogfoot.hwplib.drawer.output.Output;
+import kr.dogfoot.hwplib.drawer.output.control.table.TableOutput;
 import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.TextFlowMethod;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.VertRelTo;
@@ -48,5 +49,9 @@ public abstract class ControlOutput extends Output implements Comparable<Control
 
     public void controlCharInfo(CharInfoControl controlCharInfo) {
         this.controlCharInfo = controlCharInfo;
+    }
+
+    public boolean isSplitTable() {
+        return type().isTable() && ((TableOutput) this).split();
     }
 }

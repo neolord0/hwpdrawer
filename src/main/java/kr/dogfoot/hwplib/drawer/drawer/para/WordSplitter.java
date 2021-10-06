@@ -107,7 +107,7 @@ public class WordSplitter {
         this.stopAddingChar = stopAddingChar;
     }
 
-    public boolean stoppedAddingChar() {
+    public boolean stopAddingChar() {
         return stopAddingChar;
     }
 

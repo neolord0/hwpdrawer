@@ -55,10 +55,10 @@ public class CharAdder {
 
     private void normalChar(HWPCharNormal ch) throws Exception {
         CharInfoNormal charInfo = normalCharInfo(ch);
-        if (!charInfo.character().isSpace()) {
-            wordDrawer.addCharOfWord(charInfo);
-        } else {
+        if (charInfo.character().isSpace()) {
             wordDrawer.addWordToLine(charInfo);
+        } else {
+            wordDrawer.addCharOfWord(charInfo);
         }
     }
 
@@ -97,6 +97,8 @@ public class CharAdder {
             charInfo = CharInfoControl.create(ch, control, input, currentTextArea);
             charInfoBuffer.add(input.paraIndex(), input.charIndex(), charInfo);
             controlExtendCharIndex++;
+        } else {
+            charInfo.area(input, currentTextArea);
         }
 
         wordDrawer.addCharOfWord(charInfo);

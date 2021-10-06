@@ -1,6 +1,6 @@
 package kr.dogfoot.hwplib.drawer.drawer.charInfo;
 
-import kr.dogfoot.hwplib.drawer.util.TextPosition;
+import kr.dogfoot.hwplib.drawer.util.CharPosition;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.text.HWPChar;
 import kr.dogfoot.hwplib.object.docinfo.CharShape;
 
@@ -8,15 +8,15 @@ public abstract class CharInfo {
     protected HWPChar character;
     protected CharShape charShape;
     protected int paraIndex;
-    protected int index;
+    protected int charIndex;
     protected int position;
     protected long x;
 
-    public CharInfo(HWPChar character, CharShape charShape, int paraIndex, int index, int position) {
+    public CharInfo(HWPChar character, CharShape charShape, int paraIndex, int charIndex, int position) {
         this.character = character;
         this.charShape = charShape;
         this.paraIndex = paraIndex;
-        this.index = index;
+        this.charIndex = charIndex;
         this.position = position;
         x = 0;
     }
@@ -25,7 +25,7 @@ public abstract class CharInfo {
         this.character = other.character;
         this.charShape = other.charShape;
         this.paraIndex = other.paraIndex;
-        this.index = other.index;
+        this.charIndex = other.charIndex;
         this.position = other.position;
         this.x = other.x;
     }
@@ -44,8 +44,8 @@ public abstract class CharInfo {
         return paraIndex;
     }
 
-    public int index() {
-        return index;
+    public int charIndex() {
+        return charIndex;
     }
 
     public long x() {
@@ -65,15 +65,15 @@ public abstract class CharInfo {
     public abstract long height();
 
     public boolean equals(CharInfo that) {
-        return this.paraIndex == that.paraIndex && this.index == that.index;
+        return this.paraIndex == that.paraIndex && this.charIndex == that.charIndex;
     }
 
     public int prePosition() {
         return position - character.getCharSize();
     }
 
-    public TextPosition position() {
-        return new TextPosition(paraIndex, index, prePosition());
+    public CharPosition position() {
+        return new CharPosition(paraIndex, charIndex, prePosition());
     }
 
     public enum Type {

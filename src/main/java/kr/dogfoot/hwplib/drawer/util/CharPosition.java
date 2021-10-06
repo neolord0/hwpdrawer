@@ -1,19 +1,19 @@
 package kr.dogfoot.hwplib.drawer.util;
 
-public class TextPosition {
-    public final static TextPosition ParaList_Start_Position = new TextPosition();
+public class CharPosition {
+    public final static CharPosition ParaList_Start_Position = new CharPosition();
 
     private int paraIndex;
     private int charIndex;
     private int charPosition;
 
-    public TextPosition() {
+    public CharPosition() {
         this.paraIndex = 0;
         this.charIndex = 0;
         this.charPosition = 0;
     }
 
-    public TextPosition(int paraIndex, int charIndex, int charPosition) {
+    public CharPosition(int paraIndex, int charIndex, int charPosition) {
         set(paraIndex, charIndex, charPosition);
     }
 
@@ -45,5 +45,13 @@ public class TextPosition {
 
     public void charPosition(int charPosition) {
         this.charPosition = charPosition;
+    }
+
+    public boolean equals(CharPosition other) {
+        return paraIndex == other.paraIndex && charIndex == other.charIndex;
+    }
+
+    public String toString() {
+        return  paraIndex + ":" + charIndex;
     }
 }

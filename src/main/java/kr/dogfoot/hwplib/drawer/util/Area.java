@@ -63,6 +63,16 @@ public class Area implements Comparable<Area> {
         return this;
     }
 
+    public Area resizeX(long cx) {
+        right += cx;
+        return this;
+    }
+
+    public Area resizeY(long cy) {
+        bottom += cy;
+        return this;
+    }
+
     public long width() {
         return right - left;
     }

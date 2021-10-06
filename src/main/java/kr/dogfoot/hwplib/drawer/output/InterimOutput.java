@@ -191,15 +191,15 @@ public class InterimOutput {
     }
 
     public boolean addChildOutput(ControlOutput childOutput) {
-        if (currentOutput().type() == Output.Type.Cell) {
+        if (currentOutput().type().isCell()) {
             return addChildOutputToCell(childOutput);
         } else {
             currentColumn().addChildOutput(childOutput);
 
-            if (currentOutput().type() == Output.Type.Gso) {
+            if (currentOutput().type().isGso()) {
                 GsoOutput gsoOutput = (GsoOutput) currentOutput();
                 gsoOutput.processAtAddingChildOutput(childOutput);
-            } else if (currentOutput().type() == Output.Type.Footer) {
+            } else if (currentOutput().type().isFooter()) {
                 FooterOutput footerOutput = (FooterOutput) currentOutput();
                 footerOutput.processAtAddingChildOutput(childOutput);
             }
