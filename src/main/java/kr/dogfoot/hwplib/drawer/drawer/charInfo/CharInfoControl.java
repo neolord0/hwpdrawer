@@ -74,7 +74,7 @@ public class CharInfoControl extends CharInfo {
     }
 
     public CharInfoControl area(DrawingInput input, Area currentTextPartArea) {
-        areaWithoutOuterMargin = PositionCalculator.singleObject().area(gsoHeader, input,  currentTextPartArea);
+        areaWithoutOuterMargin = PositionCalculator.singleObject().area(gsoHeader, input, currentTextPartArea);
         areaWithOuterMargin = new Area(areaWithoutOuterMargin)
                 .expand(gsoHeader.getOutterMarginLeft(),
                         gsoHeader.getOutterMarginTop(),

@@ -245,7 +245,7 @@ public class ColumnsInfo {
     }
 
     public void limitedTextLineCounts(int[] limitedTextLineCounts) {
-         this.limitedTextLineCounts = limitedTextLineCounts;
+        this.limitedTextLineCounts = limitedTextLineCounts;
     }
 
     public int limitedTextLineCount() {

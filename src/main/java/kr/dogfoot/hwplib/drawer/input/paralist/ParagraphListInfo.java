@@ -70,8 +70,8 @@ public class ParagraphListInfo {
         return this;
     }
 
-    public ParagraphListInfo forCell(Area textBoxArea, boolean canSplit, long topInPage, long bottomMargin, boolean split, int startTextColumnIndex) {
-        if (!split) {
+    public ParagraphListInfo forCell(Area textBoxArea, boolean canDivide, long topInPage, long bottomMargin, boolean divided, int startTextColumnIndex) {
+        if (!divided) {
             columnsInfo.set(null, new Area(textBoxArea).bottom(input.pageInfo().bodyArea().bottom()));
             textBoxArea(textBoxArea);
         } else {
@@ -83,7 +83,7 @@ public class ParagraphListInfo {
             textBoxArea(columnsInfo.currentColumnArea());
         }
 
-        this.cellInfo = new CellInfo(canSplit, topInPage, bottomMargin);
+        this.cellInfo = new CellInfo(canDivide, topInPage, bottomMargin);
 
         sort = Sort.ForCell;
         return this;
@@ -321,18 +321,18 @@ public class ParagraphListInfo {
     }
 
     public static class CellInfo {
-        private boolean canSplit;
+        private boolean canDivide;
         private long topInPage;
         private long bottomMargin;
 
-        public CellInfo(boolean canSplit, long topInPage, long bottomMargin) {
-            this.canSplit = canSplit;
+        public CellInfo(boolean canDivide, long topInPage, long bottomMargin) {
+            this.canDivide = canDivide;
             this.topInPage = topInPage;
             this.bottomMargin = bottomMargin;
         }
 
-        public boolean canSplit() {
-            return canSplit;
+        public boolean canDivide() {
+            return canDivide;
         }
 
         public long topInPage() {

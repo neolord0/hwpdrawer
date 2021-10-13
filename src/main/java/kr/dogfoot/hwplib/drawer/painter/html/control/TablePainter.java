@@ -31,7 +31,7 @@ public class TablePainter {
                                 tableOutput.cellPosition().y(lh.getRowIndex()) + tableOutput.areaWithoutOuterMargin().top());
 
                 BorderFill borderFill = input.borderFill(lh.getBorderFillId());
-                painter.startCellDiv(cellArea, borderFill,true);
+                painter.startCellDiv(cellArea, borderFill, true);
 
                 Area textArea = new Area(cellArea).applyMargin(
                         lh.getLeftMargin(),

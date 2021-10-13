@@ -1,7 +1,10 @@
 package kr.dogfoot.hwplib.drawer.drawer.control;
 
 import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfoControl;
-import kr.dogfoot.hwplib.drawer.drawer.control.table.TableDrawer;
+import kr.dogfoot.hwplib.drawer.drawer.control.table.CellDrawer;
+import kr.dogfoot.hwplib.drawer.drawer.control.table.TableDrawerForDivide;
+import kr.dogfoot.hwplib.drawer.drawer.control.table.TableDrawerForDivideByCell;
+import kr.dogfoot.hwplib.drawer.drawer.control.table.TableDrawerForNoDivide;
 import kr.dogfoot.hwplib.drawer.drawer.paralist.ParaListDrawerForControl;
 import kr.dogfoot.hwplib.drawer.input.DrawingInput;
 import kr.dogfoot.hwplib.drawer.output.InterimOutput;
@@ -9,6 +12,7 @@ import kr.dogfoot.hwplib.drawer.output.control.ControlOutput;
 import kr.dogfoot.hwplib.drawer.output.control.GsoOutput;
 import kr.dogfoot.hwplib.drawer.output.control.table.TableOutput;
 import kr.dogfoot.hwplib.drawer.util.Area;
+import kr.dogfoot.hwplib.object.bodytext.control.ControlTable;
 import kr.dogfoot.hwplib.object.bodytext.control.gso.*;
 import kr.dogfoot.hwplib.object.bodytext.control.gso.textbox.TextBox;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.ParagraphList;
@@ -18,13 +22,20 @@ import java.util.Queue;
 public class ControlDrawer {
     private final DrawingInput input;
     private final InterimOutput output;
-    private final TableDrawer tableDrawer;
+
+    private final CellDrawer cellDrawer;
+    private final TableDrawerForNoDivide tableDrawerForNoDivide;
+    private final TableDrawerForDivide tableDrawerForDivide;
+    private final TableDrawerForDivideByCell tableDrawerForDivideByCell;
 
     public ControlDrawer(DrawingInput input, InterimOutput output) {
         this.input = input;
         this.output = output;
 
-        tableDrawer = new TableDrawer(input, output);
+        cellDrawer = new CellDrawer(input, output);
+        tableDrawerForNoDivide = new TableDrawerForNoDivide(input, output, cellDrawer);
+        tableDrawerForDivide = new TableDrawerForDivide(input, output, cellDrawer);
+        tableDrawerForDivideByCell = new TableDrawerForDivideByCell(input, output, cellDrawer);
     }
 
     public ControlOutput draw(CharInfoControl controlCharInfo) throws Exception {
@@ -70,14 +81,9 @@ public class ControlDrawer {
                     controlCharInfo.output(controlOutput);
                 }
             }
-                break;
+            break;
             case Table:
-                Queue<TableOutput> tableOutputs = tableDrawer.draw(controlCharInfo);
-                controlOutput = tableOutputs.poll();
-                if (!tableOutputs.isEmpty()) {
-                    output.addSplitTables(tableOutputs);
-                }
-
+                controlOutput = table(controlCharInfo);
                 break;
         }
         return controlOutput;
@@ -151,4 +157,31 @@ public class ControlDrawer {
         return new ParaListDrawerForControl(input, output)
                 .draw(paragraphList, textBoxArea);
     }
+
+
+    private ControlOutput table(CharInfoControl controlCharInfo) throws Exception {
+        Queue<TableOutput> tableOutputs = null;
+        ControlTable table = (ControlTable) controlCharInfo.control();
+        switch (table.getTable().getProperty().getDivideAtPageBoundary()) {
+            case NoDivide:
+                tableOutputs = tableDrawerForNoDivide.draw(controlCharInfo);
+                break;
+            case Divide:
+                tableOutputs = tableDrawerForDivide.draw(controlCharInfo);
+                break;
+            case DivideByCell:
+                tableOutputs = tableDrawerForDivideByCell.draw(controlCharInfo);
+                break;
+        }
+        if (tableOutputs != null) {
+            ControlOutput controlOutput = tableOutputs.poll();
+            if (!tableOutputs.isEmpty()) {
+                output.addDividedTables(tableOutputs);
+            }
+            return controlOutput;
+        } else {
+            return null;
+        }
+    }
+
 }

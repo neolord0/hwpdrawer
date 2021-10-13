@@ -128,7 +128,8 @@ public class DistributionMultiColumnRearranger {
         } catch (BreakDrawingException e) {
             switch (e.type()) {
                 case ForNewPage:
-                    paraIndexAtOverPage = e.position().paraIndex();;
+                    paraIndexAtOverPage = e.position().paraIndex();
+                    ;
                     charIndexAtOverPage = e.position().charIndex();
                     overPage = true;
                     break;

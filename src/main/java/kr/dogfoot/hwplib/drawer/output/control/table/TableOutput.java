@@ -16,7 +16,7 @@ public class TableOutput extends ControlOutput {
 
     private final CellOutput[][] cellOutputs;
 
-    private boolean split;
+    private boolean divided;
 
     public TableOutput(ControlTable table, Area areaWithoutOuterMargin) {
         this.table = table;
@@ -25,7 +25,7 @@ public class TableOutput extends ControlOutput {
         this.cellOutputs = new CellOutput[table.getTable().getColumnCount()][table.getTable().getRowCount()];
 
         cellPositionCalculator = new CellPositionCalculator(table.getTable().getColumnCount(), table.getTable().getRowCount());
-        split = false;
+        divided = false;
     }
 
     public void addCell(CellOutput cellOutput) {
@@ -38,7 +38,8 @@ public class TableOutput extends ControlOutput {
                 lh.getRowIndex(),
                 lh.getRowSpan(),
                 lh.getWidth(),
-                Math.max(cellOutput.calculatedContentHeight() + lh.getTopMargin() + lh.getBottomMargin(), lh.getHeight()));
+                Math.max(cellOutput.calculatedContentHeight() + lh.getTopMargin() + lh.getBottomMargin(), lh.getHeight()),
+                lh.getHeight());
     }
 
     public CellOutput[][] cellOutputs() {
@@ -49,24 +50,18 @@ public class TableOutput extends ControlOutput {
         return cellPositionCalculator;
     }
 
-    public boolean canSplitCell() {
-        return !table.getHeader().getProperty().isLikeWord() &&
-                table.getTable().getProperty().getDivideAtPageBoundary() == DivideAtPageBoundary.Divide;
+    public boolean divided() {
+        return divided;
     }
 
-
-    public boolean split() {
-        return split;
-    }
-
-    public TableOutput split(boolean split) {
-        this.split = split;
+    public TableOutput divided(boolean divided) {
+        this.divided = divided;
         return this;
     }
 
     @Override
     public int zOrder() {
-        if (split == true) {
+        if (divided == true) {
             return table.getHeader().getzOrder() - 100;
         } else {
             return table.getHeader().getzOrder();

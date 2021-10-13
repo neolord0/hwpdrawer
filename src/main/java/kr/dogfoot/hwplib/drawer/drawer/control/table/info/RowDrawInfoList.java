@@ -1,4 +1,4 @@
-package kr.dogfoot.hwplib.drawer.drawer.control.table;
+package kr.dogfoot.hwplib.drawer.drawer.control.table.info;
 
 import kr.dogfoot.hwplib.drawer.output.control.table.CellOutput;
 import kr.dogfoot.hwplib.drawer.output.control.table.CellPositionCalculator;
@@ -29,7 +29,8 @@ public class RowDrawInfoList {
                     lh.getRowIndex(),
                     lh.getRowSpan(),
                     lh.getWidth(),
-                    Math.max(cellOutput.calculatedContentHeight() + lh.getTopMargin() + lh.getBottomMargin(), lh.getHeight()));
+                    Math.max(cellOutput.calculatedContentHeight() + lh.getTopMargin() + lh.getBottomMargin(), lh.getHeight()),
+                    lh.getHeight());
         }
     }
 
@@ -50,6 +51,10 @@ public class RowDrawInfoList {
         return list.get(0).rowIndex();
     }
 
+    public int endRowIndex() {
+        return list.get(list.size() - 1).rowIndex();
+    }
+
     public void clear() {
         list.clear();
         cellPositionCalculator.reset();
@@ -59,9 +64,9 @@ public class RowDrawInfoList {
         return cellPositionCalculator;
     }
 
-    public boolean split() {
+    public boolean divided() {
         for (RowDrawInfo rowDrawInfo : list) {
-            if (rowDrawInfo.split()) {
+            if (rowDrawInfo.divided()) {
                 return true;
             }
         }

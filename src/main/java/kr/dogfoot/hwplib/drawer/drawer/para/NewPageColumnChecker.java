@@ -89,7 +89,7 @@ public class NewPageColumnChecker {
     }
 
     private Result forCell() throws Exception {
-        if (input.currentParaListInfo().cellInfo().canSplit()
+        if (input.currentParaListInfo().cellInfo().canDivide()
                 && isOverPageBottomForCell(textLineDrawer.maxCharHeight())) {
             if (input.currentColumnsInfo().isParallelMultiColumn()) {
                 if (input.currentColumnsInfo().isFirstColumn()) {
@@ -97,7 +97,7 @@ public class NewPageColumnChecker {
                             .forOverPage()
                             .columnIndex(0);
                 } else {
-                    gotoSplitNextCell();
+                    gotoNextDividedCell();
                     return Result.ResetForNewColumn;
                 }
             } else {
@@ -141,7 +141,7 @@ public class NewPageColumnChecker {
         }
     }
 
-    private void gotoSplitNextCell() throws BreakDrawingException {
+    private void gotoNextDividedCell() throws BreakDrawingException {
         ParallelMultiColumnInfo.ParentInfo parentInfo = input.parallelMultiColumnInfo().nextParentInfo();
         if (parentInfo != null) {
             output.currentOutput(parentInfo.output()).content().gotoRow(input.parallelMultiColumnInfo().startingRowIndex());

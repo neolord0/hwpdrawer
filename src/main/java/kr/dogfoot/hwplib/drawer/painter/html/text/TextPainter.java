@@ -225,6 +225,6 @@ public class TextPainter {
 
     private long getY(CharInfo charInfo) {
         return baseLine - charInfo.height() * 51 / 40
-                 + charInfo.height() * charInfo.charShape().getCharOffsets().getHangul() / 100;
+                + charInfo.height() * charInfo.charShape().getCharOffsets().getHangul() / 100;
     }
 }

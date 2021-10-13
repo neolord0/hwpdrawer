@@ -52,6 +52,6 @@ public class CharPosition {
     }
 
     public String toString() {
-        return  paraIndex + ":" + charIndex;
+        return paraIndex + ":" + charIndex;
     }
 }

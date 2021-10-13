@@ -1,4 +1,4 @@
-package kr.dogfoot.hwplib.drawer.drawer.control.table;
+package kr.dogfoot.hwplib.drawer.drawer.control.table.info;
 
 import kr.dogfoot.hwplib.drawer.output.control.table.TableOutput;
 import kr.dogfoot.hwplib.object.bodytext.control.table.Cell;
@@ -9,12 +9,12 @@ public class TableDrawInfo {
     private ArrayList<TableOutput> tableOutputs;
 
     private Map<Cell, CellDrawInfo> cellDrawInfos;
-    private int splitStartRowIndex;
+    private int dividingStartRowIndex;
 
     public TableDrawInfo() {
         tableOutputs = new ArrayList<>();
         cellDrawInfos = new HashMap<>();
-        splitStartRowIndex = -1;
+        dividingStartRowIndex = -1;
     }
 
     public TableDrawInfo addTableOutput(TableOutput tableOutput) {
@@ -31,15 +31,15 @@ public class TableDrawInfo {
         return tableOutputQueue;
     }
 
-    public int splitStartRowIndex() {
-        return splitStartRowIndex;
+    public int dividingStartRowIndex() {
+        return dividingStartRowIndex;
     }
 
-    public void splitStartRowIndex(int splitStartRowIndex) {
-        if (this.splitStartRowIndex == -1) {
-            this.splitStartRowIndex = splitStartRowIndex;
+    public void dividingStartRowIndex(int dividingStartRowIndex) {
+        if (this.dividingStartRowIndex == -1) {
+            this.dividingStartRowIndex = dividingStartRowIndex;
         } else {
-            this.splitStartRowIndex = Math.min(splitStartRowIndex, this.splitStartRowIndex);
+            this.dividingStartRowIndex = Math.min(dividingStartRowIndex, this.dividingStartRowIndex);
         }
     }
 

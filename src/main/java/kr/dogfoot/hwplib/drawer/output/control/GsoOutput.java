@@ -112,7 +112,8 @@ public class GsoOutput extends ControlOutput {
         for (TextRow multiColumn : content.rows()) {
             for (TextColumn column : multiColumn.columns()) {
                 for (TextLine line : column.textLines()) {
-                    line.area().move(textBoxArea.left(), textBoxArea.top() + offsetY);;
+                    line.area().move(textBoxArea.left(), textBoxArea.top() + offsetY);
+                    ;
                 }
             }
         }

@@ -35,7 +35,7 @@ public class WordDrawer {
 
     private final ArrayList<CharInfo> charsOfWord;
     private long wordWidth;
-    private ArrayList<TableOutput> addedSplitTables;
+    private ArrayList<TableOutput> addedDividedTables;
 
     public WordDrawer(DrawingInput input, InterimOutput output, ParaDrawer paraDrawer, TextLineDrawer textLineDrawer, TextFlowCalculator textFlowCalculator) {
         this.input = input;
@@ -151,30 +151,30 @@ public class WordDrawer {
                 textLineDrawer.addChar(controlOutput.controlCharInfo());
             } else {
                 addControlOutputToPage(controlOutput);
-                if (!controlOutput.isSplitTable()) {
+                if (!controlOutput.isDividedTable()) {
                     textLineDrawer.addControlOutput(controlOutput);
                 }
             }
 
-            if (controlOutput.isSplitTable()) {
-                textLineDrawer.hasSplitTable(true);
+            if (controlOutput.isDividedTable()) {
+                textLineDrawer.hasDividedTable(true);
             }
         }
     }
 
     private ControlOutput drawControl(CharInfoControl controlCharInfo) throws Exception {
         if (controlCharInfo.control().getType() == ControlType.Table
-                && alreadyAddedSplitTable(controlCharInfo.control())) {
+                && alreadyAddedDividedTable(controlCharInfo.control())) {
             return null;
         }
         return controlDrawer.draw(controlCharInfo);
     }
 
-    private boolean alreadyAddedSplitTable(Control control) {
-        if (addedSplitTables == null) {
+    private boolean alreadyAddedDividedTable(Control control) {
+        if (addedDividedTables == null) {
             return false;
         }
-        for (TableOutput tableOutput : addedSplitTables) {
+        for (TableOutput tableOutput : addedDividedTables) {
             if (tableOutput.controlCharInfo().control() == control) {
                 return true;
             }
@@ -217,12 +217,13 @@ public class WordDrawer {
             output.addChildOutput(controlOutput);
         }
 
-        if (controlCharInfo.output().isSplitTable()) {
+        if (controlCharInfo.output().isDividedTable()) {
             TableOutput tableOutput = (TableOutput) controlCharInfo.output();
-            if (tableOutput.split() && tableOutput.getDivideAtPageBoundary() == DivideAtPageBoundary.DivideByCell) {
-               Area areaToPageBottom = new Area(output.currentPage().bodyArea())
-                       .top(controlOutput.areaWithOuterMargin().bottom());
-               textFlowCalculator.addForTakePlace(controlCharInfo, areaToPageBottom);;
+            if (tableOutput.getDivideAtPageBoundary() == DivideAtPageBoundary.DivideByCell) {
+                Area areaToPageBottom = new Area(output.currentPage().bodyArea())
+                        .top(controlOutput.areaWithOuterMargin().bottom());
+                textFlowCalculator.addForTakePlace(controlCharInfo, areaToPageBottom);
+                ;
             }
         }
 
@@ -265,18 +266,18 @@ public class WordDrawer {
         }
     }
 
-    public void addSplitTables(ArrayList<TableOutput> splitTables) throws RedrawException {
-        for (TableOutput tableOutput : splitTables) {
+    public void addDividedTables(ArrayList<TableOutput> dividedTables) throws RedrawException {
+        for (TableOutput tableOutput : dividedTables) {
             if (tableOutput.controlCharInfo().isLikeLetter()) {
                 textLineDrawer.addChar(tableOutput.controlCharInfo());
             } else {
                 addControlOutputToPage(tableOutput);
-                if (!tableOutput.split()) {
+                if (!tableOutput.divided()) {
                     textLineDrawer.addControlOutput(tableOutput);
                 }
             }
         }
-        addedSplitTables = splitTables;
+        addedDividedTables = dividedTables;
     }
 
     public void addChildControls(ControlOutput[] childControls, boolean inCell) throws RedrawException {
@@ -294,7 +295,7 @@ public class WordDrawer {
                 textLineDrawer.addChar(childOutput.controlCharInfo());
             } else {
                 addControlOutputToPage(childOutput);
-                if (!childOutput.isSplitTable()) {
+                if (!childOutput.isDividedTable()) {
                     textLineDrawer.addControlOutput(childOutput);
                 }
             }

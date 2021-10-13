@@ -28,7 +28,7 @@ public class TextLineDrawer {
     private long wordsWidth;
     private long spacesWidth;
     private boolean justNewLine;
-    private boolean hasSplitTable;
+    private boolean hasDividedTable;
     private ArrayList<ControlOutput> controlOutputs;
 
     public TextLineDrawer(DrawingInput input, InterimOutput output) {
@@ -50,7 +50,7 @@ public class TextLineDrawer {
         maxCharHeight = 0;
         maxBaseSize = 0;
         justNewLine = true;
-        hasSplitTable = false;
+        hasDividedTable = false;
 
         controlOutputs.clear();
         return this;
@@ -188,18 +188,18 @@ public class TextLineDrawer {
     }
 
     public boolean isOverPageHeight() {
-        if(textLineArea().top() + lineHeight > input.pageInfo().bodyArea().bottom()) {
+        if (textLineArea().top() + lineHeight > input.pageInfo().bodyArea().bottom()) {
             return true;
         }
         return false;
     }
 
-    public boolean hasSplitTable() {
-        return hasSplitTable;
+    public boolean hasDividedTable() {
+        return hasDividedTable;
     }
 
-    public void hasSplitTable(boolean hasSplitTable) {
-        this.hasSplitTable = hasSplitTable;
+    public void hasDividedTable(boolean hasDividedTable) {
+        this.hasDividedTable = hasDividedTable;
     }
 
     public void saveToOutput() {

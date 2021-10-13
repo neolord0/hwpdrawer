@@ -228,7 +228,7 @@ public class PainterForHTML {
             StringBuilder sb = new StringBuilder();
             if (charShape.getProperty().getUnderLineSort() == UnderLineSort.Bottom) {
                 sb.append("underline");
-            } else if (charShape.getProperty().getUnderLineSort() == UnderLineSort.Top){
+            } else if (charShape.getProperty().getUnderLineSort() == UnderLineSort.Top) {
                 sb.append("overline");
             }
             if (charShape.getProperty().isStrikeLine()) {
@@ -298,7 +298,7 @@ public class PainterForHTML {
             sb.append(ch);
 
             stateOfTextPart = StateOfTextPart.Opened;
-        } else if (stateOfTextPart == StateOfTextPart.Opened){
+        } else if (stateOfTextPart == StateOfTextPart.Opened) {
             sb.append(ch);
         }
     }
@@ -307,7 +307,7 @@ public class PainterForHTML {
         Area parentArea = parentAreas.peek();
 
         sb.append("<div style=\"");
-        addStyle("position", "absolute" );
+        addStyle("position", "absolute");
         addStyle("left", px(convertSizeAndPosition(x - parentArea.left())));
         addStyle("top", px(convertSizeAndPosition(y - parentArea.top())));
         sb.append("\">\n");
@@ -338,13 +338,13 @@ public class PainterForHTML {
     public void startCellDiv(Area cellArea, BorderFill borderFill, boolean paintBorder) {
         Area parentArea;
         if (parentAreas.isEmpty()) {
-            parentArea = new Area(0, 0, 0,0);
+            parentArea = new Area(0, 0, 0, 0);
         } else {
             parentArea = parentAreas.peek();
         }
 
         sb.append("<div style=\"");
-        addStyle("position", "absolute" );
+        addStyle("position", "absolute");
         addStyle("left", px(convertSizeAndPosition(cellArea.left() - parentArea.left())));
         addStyle("top", px(convertSizeAndPosition(cellArea.top() - parentArea.top())));
         addStyle("width", px(convertSizeAndPosition(cellArea.width())));

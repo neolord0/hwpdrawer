@@ -237,7 +237,7 @@ public class ParaDrawer {
                     .addParentInfo(output.currentOutput(), input.currentParaListInfo().cellInfo());
         }
 
-        addSplitTablesAndChildControlsCrossingPage();
+        addDividedTablesAndChildControlsCrossingPage();
     }
 
     private void gotoNextPage() {
@@ -272,9 +272,9 @@ public class ParaDrawer {
         textFlowCalculator.resetForNewPage();
     }
 
-    private void addSplitTablesAndChildControlsCrossingPage() throws Exception {
-        ArrayList<TableOutput> tableOutputs = output.splitTables();
-        wordDrawer.addSplitTables(tableOutputs);
+    private void addDividedTablesAndChildControlsCrossingPage() throws Exception {
+        ArrayList<TableOutput> tableOutputs = output.dividedTables();
+        wordDrawer.addDividedTables(tableOutputs);
 
         wordDrawer.addChildControls(output.childControlsCrossingPage(), false);
         output.clearChildControlsCrossingPage();
@@ -321,7 +321,7 @@ public class ParaDrawer {
 
         if (output.currentRow().firstChar() == null) {
             input.gotoParaCharPosition(CharPosition.ParaList_Start_Position);
-        } else{
+        } else {
             input.gotoParaCharPosition(output.currentRow().firstChar().position());
         }
 
@@ -340,7 +340,7 @@ public class ParaDrawer {
         resetForNewColumn();
     }
 
-    private void gotoNextParentForParallelMultiColumn(){
+    private void gotoNextParentForParallelMultiColumn() {
         input.parallelMultiColumnInfo().nextColumn();
 
         ParallelMultiColumnInfo.ParentInfo parentInfo = input.parallelMultiColumnInfo().nextParentInfo();
@@ -421,7 +421,6 @@ public class ParaDrawer {
                     if (controlOutputs.length > 0) {
                         for (ControlOutput controlOutput : controlOutputs) {
                             output.currentPage().content().removeControl(controlOutput);
-                            System.out.println(controlOutput.test(2));
                         }
                     }
                     input.gotoParaCharPosition(textLineDrawer.firstCharPosition());
@@ -458,7 +457,7 @@ public class ParaDrawer {
 
     private void saveTextLineAtNormal() throws Exception {
         if (textLineDrawer.isOverPageHeight()
-                && textLineDrawer.hasSplitTable()
+                && textLineDrawer.hasDividedTable()
                 && textLineDrawer.hasDrawingChar()) {
             nextPage();
             input.gotoParaCharPosition(textLineDrawer.firstCharPosition());
@@ -532,7 +531,7 @@ public class ParaDrawer {
     }
 
     public void checkNewColumnAndPage() throws Exception {
-        switch(newPageColumnChecker.check(drawingState, currentTextArea)) {
+        switch (newPageColumnChecker.check(drawingState, currentTextArea)) {
             case NextPage:
                 nextPage();
                 break;

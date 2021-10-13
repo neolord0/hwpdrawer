@@ -47,7 +47,6 @@ public class PagePainterForHTML {
     }
 
     private void page(PageOutput pageOutput) throws Exception {
-        System.out.println(pageOutput.test(0));
         painter.startPage(pageOutput);
 
         if (pageOutput.headerOutput() != null) {

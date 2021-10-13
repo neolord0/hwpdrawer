@@ -71,12 +71,12 @@ public class CellOutput extends Output {
         for (TextRow multiColumn : content.rows()) {
             for (TextColumn column : multiColumn.columns()) {
                 for (TextLine line : column.textLines()) {
-                    line.area().move(cellArea.left(), cellArea.top()+ offsetY);
+                    line.area().move(cellArea.left(), cellArea.top() + offsetY);
                 }
             }
         }
 
-        move(cellArea.left(), cellArea.top()+ offsetY);
+        move(cellArea.left(), cellArea.top() + offsetY);
     }
 
     private long offsetY(Area textArea, TextVerticalAlignment verticalAlignment) {

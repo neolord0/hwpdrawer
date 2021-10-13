@@ -7,7 +7,8 @@ public class CellPositionCalculator {
 
     private final long[] cellXs;
 
-    private final long[] rowHeights;
+    private final RowHeight[] rowHeights;
+
     private final ArrayList<RowInfo> rowInfos;
 
     public CellPositionCalculator(int columnCount, int rowCount) {
@@ -16,12 +17,12 @@ public class CellPositionCalculator {
         cellXs = new long[columnCount + 1];
         cellXs[0] = 0;
 
-        rowHeights = new long[rowCount];
+        rowHeights = new RowHeight[rowCount];
+        for (int index = 0; index < rowCount; index++) {
+            rowHeights[index] = new RowHeight();
+        }
 
         rowInfos = new ArrayList<>();
-        for (int index = 0; index < rowCount; index++) {
-            rowHeights[index] = -1;
-        }
     }
 
     public void reset() {
@@ -32,15 +33,15 @@ public class CellPositionCalculator {
             cellXs[index] = 0;
         }
         for (int index = 0; index < rowHeights.length; index++) {
-            rowHeights[index] = -1;
+            rowHeights[index].calculatedHeight = -1;
         }
         rowInfos.clear();
     }
 
 
-    public void addInfo(int colIndex, int colSpan, int rowIndex, int rowSpan, long width, long height) {
+    public void addInfo(int colIndex, int colSpan, int rowIndex, int rowSpan, long width, long height, long originalHeight) {
         addColumnInfo(colIndex, colSpan, width);
-        addRowInfo(rowIndex, rowSpan, height);
+        addRowInfo(rowIndex, rowSpan, height, originalHeight);
         setCurrentCellTop(colIndex, colSpan, height);
     }
 
@@ -54,28 +55,54 @@ public class CellPositionCalculator {
         return currentCellTop[colIndex];
     }
 
-    private CellPositionCalculator addRowInfo(int rowIndex, int rowSpan, long height) {
-        rowInfos.add(new RowInfo(rowIndex, rowSpan, height));
+    private CellPositionCalculator addRowInfo(int rowIndex, int rowSpan, long height, long originalHeight) {
+        for (RowInfo rowInfo : rowInfos) {
+            if (rowInfo.index == rowIndex && rowInfo.span == rowSpan) {
+                rowInfo.height = Math.max(rowInfo.height, height);
+                rowInfo.originalHeight = originalHeight;
+                return this;
+            }
+        }
+        rowInfos.add(new RowInfo(rowIndex, rowSpan, height, originalHeight));
         return this;
     }
 
     public void calculate() {
-        ArrayList<RowInfo> deletings = new ArrayList<>();
+        ArrayList<RowInfo> removingObjects = new ArrayList<>();
+
+        int span = 1;
         while (rowInfos.size() > 0) {
             for (RowInfo rowInfo : rowInfos) {
-                int emptyIndex = emptyIndex(rowInfo);
-                if (emptyIndex >= 0) {
-                    set(emptyIndex, rowInfo.height - height(rowInfo.index, rowInfo.span));
-                    deletings.add(rowInfo);
-                } else if (emptyIndex == -1) {
-                    if (rowInfo.height > height(rowInfo.index, rowInfo.span)) {
-                        set(rowInfo.index + rowInfo.span - 1, rowInfo.height - height(rowInfo.index, rowInfo.span - 1));
-                    }
-                    deletings.add(rowInfo);
+                if (rowInfo.span == span) {
+                    set(rowInfo);
+                    removingObjects.add(rowInfo);
                 }
             }
-            rowInfos.removeAll(deletings);
-            deletings.clear();
+
+            rowInfos.removeAll(removingObjects);
+            removingObjects.clear();
+
+            span++;
+        }
+    }
+
+    private void set(RowInfo rowInfo) {
+        if (rowInfo.span == 1) {
+            set(rowInfo.index, rowInfo.height, rowInfo.originalHeight);
+        } else {
+            int emptyIndex = emptyIndex(rowInfo);
+            if (emptyIndex >= 0) {
+                set(emptyIndex, rowInfo.height - height(rowInfo.index, rowInfo.span), -1);
+            } else if (emptyIndex == -1) {
+                int zeroCellHeightIndex = zeroCellHeightIndex(rowInfo);
+                if (zeroCellHeightIndex >= 0) {
+                    set(zeroCellHeightIndex, rowInfo.height - heightExceptedZeroCellHeight(rowInfo.index, rowInfo.span), -1);
+                }
+
+                if (rowInfo.height > height(rowInfo.index, rowInfo.span)) {
+                    set(rowInfo.index + rowInfo.span - 1, rowInfo.height - height(rowInfo.index, rowInfo.span - 1), -1);
+                }
+            }
         }
     }
 
@@ -83,7 +110,7 @@ public class CellPositionCalculator {
         int count = 0;
         int emptyIndex = -1;
         for (int index = rowInfo.index; index < rowInfo.index + rowInfo.span; index++) {
-            if (rowHeights[index] == -1) {
+            if (rowHeights[index].calculatedHeight == -1) {
                 count++;
                 emptyIndex = index;
             }
@@ -97,17 +124,46 @@ public class CellPositionCalculator {
         }
     }
 
-    private void set(int rowIndex, long height) {
-        if (height > rowHeights[rowIndex]) {
-            rowHeights[rowIndex] = height;
+    private void set(int rowIndex, long height, long originalHeight) {
+        if (height > rowHeights[rowIndex].calculatedHeight) {
+            rowHeights[rowIndex].calculatedHeight = height;
+            rowHeights[rowIndex].cellHeight = originalHeight;
         }
     }
+
+    private int zeroCellHeightIndex(RowInfo rowInfo) {
+        int count = 0;
+        int zeroCellHeightIndex = -1;
+        for (int index = rowInfo.index; index < rowInfo.index + rowInfo.span; index++) {
+            if (rowHeights[index].cellHeight == 0) {
+                count++;
+                zeroCellHeightIndex = index;
+            }
+        }
+        if (count == 1) {
+            return zeroCellHeightIndex;
+        } else {
+            return -1;
+        }
+    }
+
 
     public long height(int rowIndex, int rowSpan) {
         long height = 0;
         for (int index = rowIndex; index < rowIndex + rowSpan; index++) {
-            if (rowHeights[index] != -1) {
-                height += rowHeights[index];
+            if (rowHeights[index].calculatedHeight != -1) {
+                height += rowHeights[index].calculatedHeight;
+            }
+        }
+        return height;
+    }
+
+
+    private long heightExceptedZeroCellHeight(int rowIndex, int rowSpan) {
+        long height = 0;
+        for (int index = rowIndex; index < rowIndex + rowSpan; index++) {
+            if (rowHeights[index].calculatedHeight != -1 && rowHeights[index].cellHeight != 0) {
+                height += rowHeights[index].calculatedHeight;
             }
         }
         return height;
@@ -116,7 +172,7 @@ public class CellPositionCalculator {
     public long y(int rowIndex) {
         long height = 0;
         for (int index = 0; index < rowIndex; index++) {
-            height += rowHeights[index];
+            height += rowHeights[index].calculatedHeight;
         }
         return height;
     }
@@ -132,8 +188,8 @@ public class CellPositionCalculator {
 
     public long totalHeight() {
         long totalHeight = 0;
-        for (long height : rowHeights) {
-            totalHeight += height;
+        for (RowHeight rowHeight : rowHeights) {
+            totalHeight += rowHeight.calculatedHeight;
         }
         return totalHeight;
     }
@@ -142,11 +198,32 @@ public class CellPositionCalculator {
         int index;
         int span;
         long height;
+        long originalHeight;
 
-        public RowInfo(int index, int span, long height) {
+        public RowInfo(int index, int span, long height, long originalHeight) {
             this.index = index;
             this.span = span;
             this.height = height;
+            this.originalHeight = originalHeight;
+        }
+
+        public boolean included(RowInfo rowInfo) {
+            return this.index <= rowInfo.index && this.endIndex() >= rowInfo.endIndex();
+        }
+
+        private int endIndex() {
+            return index + span - 1;
         }
     }
+
+    private static class RowHeight {
+        long calculatedHeight;
+        long cellHeight;
+
+        RowHeight() {
+            calculatedHeight = -1;
+            cellHeight = -1;
+        }
+    }
+
 }

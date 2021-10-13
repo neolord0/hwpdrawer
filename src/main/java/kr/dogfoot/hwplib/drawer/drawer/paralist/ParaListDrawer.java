@@ -88,7 +88,7 @@ public class ParaListDrawer {
             if (endingPara == true
                     && !input.currentColumnsInfo().isLastColumn()
                     && (distributionMultiColumnRearranger.hasEmptyColumn()
-                            || input.currentColumnsInfo().processLikeDistributionMultiColumn())) {
+                    || input.currentColumnsInfo().processLikeDistributionMultiColumn())) {
                 distributionMultiColumnRearranger.rearrangeFromCurrentColumn();
             }
         }

@@ -19,7 +19,7 @@ public class TextRow {
     private int calculationCount;
 
     public TextRow(ColumnsInfo columnsInfo) {
-         area = new Area(columnsInfo.textBoxArea());
+        area = new Area(columnsInfo.textBoxArea());
         columns = new ArrayList<>();
 
         for (Area columnArea : columnsInfo.columnAreas()) {

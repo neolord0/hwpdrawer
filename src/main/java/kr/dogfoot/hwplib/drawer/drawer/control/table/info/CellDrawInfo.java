@@ -1,4 +1,4 @@
-package kr.dogfoot.hwplib.drawer.drawer.control.table;
+package kr.dogfoot.hwplib.drawer.drawer.control.table.info;
 
 import kr.dogfoot.hwplib.drawer.output.control.table.CellOutput;
 import kr.dogfoot.hwplib.drawer.util.CharPosition;
@@ -10,7 +10,7 @@ public class CellDrawInfo {
     private State state;
     private Cell cell;
     private long height;
-    private CharPosition splitPosition;
+    private CharPosition dividedPosition;
     private long nextPartHeight;
     private CellOutput cellOutput;
     private int startTextColumnIndex;
@@ -48,12 +48,12 @@ public class CellDrawInfo {
         return this;
     }
 
-    public CharPosition splitPosition() {
-        return splitPosition;
+    public CharPosition dividedPosition() {
+        return dividedPosition;
     }
 
-    public CellDrawInfo splitPosition(CharPosition splitPosition) {
-        this.splitPosition = splitPosition;
+    public CellDrawInfo dividedPosition(CharPosition dividedPosition) {
+        this.dividedPosition = dividedPosition;
         return this;
     }
 
@@ -84,12 +84,12 @@ public class CellDrawInfo {
 
     public enum State {
         Normal,
-        Split,
+        Divided,
         OverPage,
         ;
 
-        public boolean isSplit() {
-            return this == Split;
+        public boolean isDivided() {
+            return this == Divided;
         }
 
         public boolean isNormal() {

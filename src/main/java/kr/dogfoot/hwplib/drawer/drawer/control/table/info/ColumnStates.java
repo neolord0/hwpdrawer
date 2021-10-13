@@ -1,4 +1,4 @@
-package kr.dogfoot.hwplib.drawer.drawer.control.table;
+package kr.dogfoot.hwplib.drawer.drawer.control.table.info;
 
 import kr.dogfoot.hwplib.object.bodytext.control.table.Cell;
 
@@ -6,11 +6,7 @@ public class ColumnStates {
     private CellDrawState[] states;
     private int[] endRowIndexes;
 
-    public ColumnStates() {
-        states = null;
-    }
-
-    public void init(int columnCount) {
+    public ColumnStates(int columnCount) {
         states = new CellDrawState[columnCount];
         endRowIndexes = new int[columnCount];
         for (int columnIndex = 0; columnIndex < columnCount; columnIndex++) {
@@ -29,6 +25,9 @@ public class ColumnStates {
     }
 
     public boolean canDraw(Cell cell) {
+        if (states == null) {
+            return true;
+        }
         for (int colIndex = cell.getListHeader().getColIndex();
              colIndex < cell.getListHeader().getColIndex() + cell.getListHeader().getColSpan();
              colIndex++) {
@@ -39,7 +38,7 @@ public class ColumnStates {
         return true;
     }
 
-    public boolean canSplitRow(int rowIndex) {
+    public boolean canDivideByRow(int rowIndex) {
         for (int endRowIndex : endRowIndexes) {
             if (endRowIndex != rowIndex) {
                 return false;
@@ -55,7 +54,7 @@ public class ColumnStates {
     }
 
     public void setState(CellDrawInfo cellDrawInfo) {
-        CellDrawState state = (cellDrawInfo.state().isSplit()) ? CellDrawState.Partially : CellDrawState.Complete;
+        CellDrawState state = (cellDrawInfo.state().isDivided()) ? CellDrawState.Partially : CellDrawState.Complete;
         for (int colIndex = cellDrawInfo.cell().getListHeader().getColIndex();
              colIndex < cellDrawInfo.cell().getListHeader().getColIndex() + cellDrawInfo.cell().getListHeader().getColSpan();
              colIndex++) {

@@ -1,7 +1,5 @@
 package kr.dogfoot.hwplib.drawer.output;
 
-import org.apache.poi.ss.formula.functions.T;
-
 public abstract class Output {
     private Output parent;
 
@@ -32,7 +30,7 @@ public abstract class Output {
         }
 
         public boolean isTable() {
-            return  this == Table;
+            return this == Table;
         }
 
         public boolean isCell() {

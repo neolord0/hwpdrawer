@@ -5,7 +5,7 @@ import org.junit.Test;
 
 import java.io.File;
 
-public class TableSplitByPage {
+public class TableDividedByPage {
     @Test
     public void test_셀나누기_기본1() throws Exception {
         HWPTester.testAndCompare("testingHWP" + File.separator + "표나누기" + File.separator + "셀나누기" + File.separator + "기본" + File.separator + "1");
@@ -79,5 +79,15 @@ public class TableSplitByPage {
     @Test
     public void test_셀단위로나누기_3() throws Exception {
         HWPTester.testAndCompare("testingHWP" + File.separator + "표나누기" + File.separator + "셀단위로나누기" + File.separator + "3");
+    }
+
+    @Test
+    public void test_셀단위로나누기_페이지_보다_큰_셀() throws Exception {
+        HWPTester.testAndCompare("testingHWP" + File.separator + "표나누기" + File.separator + "셀단위로나누기" + File.separator + "페이지_보다_큰_셀");
+    }
+
+    @Test
+    public void test_나누지않음_1() throws Exception {
+        HWPTester.testAndCompare("testingHWP" + File.separator + "표나누기" + File.separator + "나누지않음" + File.separator + "1");
     }
 }

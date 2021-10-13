@@ -16,6 +16,7 @@ import kr.dogfoot.hwplib.drawer.util.Area;
 import kr.dogfoot.hwplib.object.bodytext.control.ControlTable;
 import kr.dogfoot.hwplib.object.bodytext.control.gso.GsoControl;
 import kr.dogfoot.hwplib.object.bodytext.control.table.Cell;
+import kr.dogfoot.hwplib.object.bodytext.control.table.DivideAtPageBoundary;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -30,7 +31,7 @@ public class InterimOutput {
     private PageOutput currentPage;
     private int currentPageNo;
     private final ArrayList<ControlOutput> childControlsCrossingPage;
-    private final ArrayList<SplitTableInfo> splitTablesList;
+    private final ArrayList<DividedTableInfo> dividedTablesList;
 
     public InterimOutput() {
         currentOutput = null;
@@ -40,7 +41,7 @@ public class InterimOutput {
         currentPageNo = 0;
 
         childControlsCrossingPage = new ArrayList<>();
-        splitTablesList = new ArrayList<>();
+        dividedTablesList = new ArrayList<>();
     }
 
     public PageOutput currentPage() {
@@ -87,7 +88,7 @@ public class InterimOutput {
             childControlsCrossingPage.clear();
         }
 
-        ArrayList<TableOutput> tableOutputs = splitTables();
+        ArrayList<TableOutput> tableOutputs = dividedTables();
         for (TableOutput tableOutput : tableOutputs) {
             currentPage.content().currentRow().currentColumn().addChildOutput(tableOutput);
         }
@@ -209,8 +210,7 @@ public class InterimOutput {
 
     private boolean addChildOutputToCell(ControlOutput childOutput) {
         CellOutput cellOutput = (CellOutput) currentOutput();
-        long cellTopInPage = cellOutput.tableOutput().cellPosition().currentCellTop(cellOutput.cell().getListHeader().getColIndex())  + cellOutput.tableOutput().areaWithoutOuterMargin().top();
-        if (cellOutput.tableOutput().canSplitCell() && currentPage().bodyArea().bottom() < (childOutput.areaWithoutOuterMargin().bottom() + cellTopInPage)) {
+        if (canDivideCell(cellOutput.tableOutput().table()) && isOverPage(childOutput, cellOutput)) {
             cellOutput.addChildControlCrossingPage(childOutput);
             return false;
         } else {
@@ -218,6 +218,18 @@ public class InterimOutput {
             cellOutput.processAtAddingChildOutput(childOutput);
             return true;
         }
+    }
+
+    private boolean canDivideCell(ControlTable table) {
+        return !table.getHeader().getProperty().isLikeWord() &&
+                table.getTable().getProperty().getDivideAtPageBoundary() == DivideAtPageBoundary.Divide;
+    }
+
+    private boolean isOverPage(ControlOutput childOutput, CellOutput cellOutput) {
+        long cellTopInPage = cellOutput.tableOutput().cellPosition().currentCellTop(cellOutput.cell().getListHeader().getColIndex())
+                + cellOutput.tableOutput().areaWithoutOuterMargin().top();
+
+        return currentPage().bodyArea().bottom() < childOutput.areaWithoutOuterMargin().bottom() + cellTopInPage;
     }
 
     public void addTextLine(TextLine line) {
@@ -328,49 +340,49 @@ public class InterimOutput {
     }
 
 
-    public void addSplitTables(Queue<TableOutput> splitTables) {
-        splitTablesList.add(new SplitTableInfo(currentPageNo + 1, splitTables));
+    public void addDividedTables(Queue<TableOutput> dividedTables) {
+        dividedTablesList.add(new DividedTableInfo(currentPageNo + 1, dividedTables));
     }
 
-    public ArrayList<TableOutput> splitTables() {
+    public ArrayList<TableOutput> dividedTables() {
         ArrayList<TableOutput> tableOutputs = new ArrayList<>();
 
-        ArrayList<SplitTableInfo> removingSplitTableInfos = new ArrayList<>();
-        for (SplitTableInfo splitTableInfo : splitTablesList) {
-            if (splitTableInfo.pageNo == currentPageNo) {
-                tableOutputs.add(splitTableInfo.tableList.poll());
-                if (splitTableInfo.tableList.isEmpty()) {
-                    removingSplitTableInfos.add(splitTableInfo);
+        ArrayList<DividedTableInfo> removingObjects = new ArrayList<>();
+        for (DividedTableInfo dividedTableInfo : dividedTablesList) {
+            if (dividedTableInfo.pageNo == currentPageNo) {
+                tableOutputs.add(dividedTableInfo.tableList.poll());
+                if (dividedTableInfo.tableList.isEmpty()) {
+                    removingObjects.add(dividedTableInfo);
                 } else {
-                    splitTableInfo.pageNo++;
+                    dividedTableInfo.pageNo++;
                 }
             }
         }
 
-        for (InterimOutput.SplitTableInfo splitTableInfo : removingSplitTableInfos) {
-            splitTablesList.remove(splitTableInfo);
+        for (DividedTableInfo removeObject : removingObjects) {
+            dividedTablesList.remove(removeObject);
         }
         return tableOutputs;
     }
 
     public boolean hasDrawingControls() {
-        return !childControlsCrossingPage.isEmpty() || hasSplitTables();
+        return !childControlsCrossingPage.isEmpty() || hasDividedTables();
     }
 
-    private boolean hasSplitTables() {
-        for (SplitTableInfo splitTableInfo : splitTablesList) {
-            if (splitTableInfo.pageNo == currentPageNo + 1) {
+    private boolean hasDividedTables() {
+        for (DividedTableInfo dividedTableInfo : dividedTablesList) {
+            if (dividedTableInfo.pageNo == currentPageNo + 1) {
                 return true;
             }
         }
         return false;
     }
 
-    public class SplitTableInfo {
+    public class DividedTableInfo {
         int pageNo;
         Queue<TableOutput> tableList;
 
-        public SplitTableInfo(int pageNo, Queue<TableOutput> tableList) {
+        public DividedTableInfo(int pageNo, Queue<TableOutput> tableList) {
             this.pageNo = pageNo;
             this.tableList = tableList;
         }

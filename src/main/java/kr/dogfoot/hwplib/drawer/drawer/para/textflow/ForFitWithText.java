@@ -16,6 +16,7 @@ public class ForFitWithText {
         charInfos = new HashMap<>();
         fitWithTextAreas = new TreeSet<>();
     }
+
     public void add(CharInfoControl charInfo, Area areaWithOuterMargin) {
         charInfos.put(charInfo, areaWithOuterMargin);
         fitWithTextAreas.add(new FitWithTextArea(areaWithOuterMargin,
@@ -76,7 +77,7 @@ public class ForFitWithText {
         if (dividedAreas.size() == 0) {
             return new Result(null, offsetY(textLineArea), nextStartY(textLineArea), textLineArea);
         } else {
-            return new Result(dividedAreas.toArray(Area.Zero_Array), 0, nextStartY(textLineArea),  textLineArea);
+            return new Result(dividedAreas.toArray(Area.Zero_Array), 0, nextStartY(textLineArea), textLineArea);
         }
     }
 

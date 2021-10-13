@@ -2,7 +2,7 @@ package kr.dogfoot.hwplib.drawer.drawer.paralist;
 
 import kr.dogfoot.hwplib.drawer.drawer.BreakDrawingException;
 import kr.dogfoot.hwplib.drawer.drawer.RedrawException;
-import kr.dogfoot.hwplib.drawer.drawer.control.table.CellDrawInfo;
+import kr.dogfoot.hwplib.drawer.drawer.control.table.info.CellDrawInfo;
 import kr.dogfoot.hwplib.drawer.input.DrawingInput;
 import kr.dogfoot.hwplib.drawer.output.InterimOutput;
 import kr.dogfoot.hwplib.drawer.output.control.ControlOutput;
@@ -17,18 +17,18 @@ public class ParaListDrawerForCell extends ParaListDrawer {
     }
 
     public CellDrawInfo draw(ParagraphListInterface paraList,
-                                    Area textBoxArea,
-                                    boolean canSplit,
-                                    long topInPage,
-                                    long bottomMargin,
-                                    CharPosition fromPosition,
-                                    int startTextColumnIndex,
-                                    ControlOutput[] childControlsCrossingPage) throws Exception {
+                             Area textBoxArea,
+                             boolean canDivide,
+                             long topInPage,
+                             long bottomMargin,
+                             CharPosition fromPosition,
+                             int startTextColumnIndex,
+                             ControlOutput[] childControlsCrossingPage) throws Exception {
 
-        boolean split = fromPosition != null;
-        input.startCellParaList(textBoxArea, paraList, canSplit, topInPage, bottomMargin, split, startTextColumnIndex);
+        boolean divided = fromPosition != null;
+        input.startCellParaList(textBoxArea, paraList, canDivide, topInPage, bottomMargin, divided, startTextColumnIndex);
 
-        if (split) {
+        if (divided) {
             if (!input.currentColumnsInfo().isParallelMultiColumn()) {
                 input.currentColumnsInfo().processLikeDistributionMultiColumn(true);
                 output.nextRow(input.currentColumnsInfo());
@@ -56,8 +56,8 @@ public class ParaListDrawerForCell extends ParaListDrawer {
                     redraw = true;
                 } else if (e.type().isForOverPage()) {
                     cellDrawInfo
-                            .state(CellDrawInfo.State.Split)
-                            .splitPosition(e.position())
+                            .state(CellDrawInfo.State.Divided)
+                            .dividedPosition(e.position())
                             .startTextColumnIndex(e.columnIndex());
                     break;
                 } else {
@@ -66,10 +66,16 @@ public class ParaListDrawerForCell extends ParaListDrawer {
             }
         }
 
+        if (input.currentColumnsInfo().isNormalMultiColumn() &&
+                !input.currentColumnsInfo().isLastColumn() &&
+                input.currentParaListInfo().height() > textBoxArea.height()) {
+            input.currentColumnsInfo().processLikeDistributionMultiColumn(true);
+        }
+
         if (!output.hadRearrangedDistributionMultiColumn()) {
             if (!input.currentColumnsInfo().isLastColumn()) {
                 if (input.currentColumnsInfo().isDistributionMultiColumn()
-                        || input.currentColumnsInfo().processLikeDistributionMultiColumn()){
+                        || input.currentColumnsInfo().processLikeDistributionMultiColumn()) {
                     distributionMultiColumnRearranger.rearrangeFromCurrentColumn();
                 }
             }
@@ -77,7 +83,7 @@ public class ParaListDrawerForCell extends ParaListDrawer {
 
         if (input.currentColumnsInfo().isParallelMultiColumn()
                 && input.currentColumnsInfo().isFirstColumn()
-                && split) {
+                && divided) {
             input.parallelMultiColumnInfo()
                     .addParentInfo(output.currentOutput(), input.currentParaListInfo().cellInfo());
         }
@@ -89,7 +95,6 @@ public class ParaListDrawerForCell extends ParaListDrawer {
         }
 
         input.endCellParaList();
-
 
         cellDrawInfo
                 .cellOutput((CellOutput) output.currentOutput())

@@ -80,7 +80,7 @@ public class FontManager {
         if (font == null) {
             font = FontLoader.singleObject().load(faceName);
             if (font == null) {
-                if(defaultFont == null) {
+                if (defaultFont == null) {
                     defaultFont = FontLoader.singleObject().loadDefault();
                 }
                 font = defaultFont;

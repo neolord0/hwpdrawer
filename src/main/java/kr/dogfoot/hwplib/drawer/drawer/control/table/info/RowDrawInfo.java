@@ -1,4 +1,4 @@
-package kr.dogfoot.hwplib.drawer.drawer.control.table;
+package kr.dogfoot.hwplib.drawer.drawer.control.table.info;
 
 import java.util.ArrayList;
 
@@ -7,13 +7,13 @@ public class RowDrawInfo {
 
     private int rowIndex;
     private ArrayList<CellDrawInfo> cellDrawInfos;
-    private boolean split;
+    private boolean divided;
     private boolean overPage;
 
     public RowDrawInfo(int rowIndex) {
         this.rowIndex = rowIndex;
         cellDrawInfos = new ArrayList<>();
-        split = false;
+        divided = false;
         overPage = false;
     }
 
@@ -29,12 +29,12 @@ public class RowDrawInfo {
         return cellDrawInfos.toArray(CellDrawInfo.Zero_Array);
     }
 
-    public boolean split() {
-        return split;
+    public boolean divided() {
+        return divided;
     }
 
-    public void split(boolean split) {
-        this.split = split;
+    public void divided(boolean divided) {
+        this.divided = divided;
     }
 
     public boolean overPage() {

@@ -51,7 +51,7 @@ public abstract class ControlOutput extends Output implements Comparable<Control
         this.controlCharInfo = controlCharInfo;
     }
 
-    public boolean isSplitTable() {
-        return type().isTable() && ((TableOutput) this).split();
+    public boolean isDividedTable() {
+        return type().isTable() && ((TableOutput) this).divided();
     }
 }

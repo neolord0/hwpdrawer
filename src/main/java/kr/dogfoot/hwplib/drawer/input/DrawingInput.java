@@ -194,9 +194,9 @@ public class DrawingInput {
         return paraListInfo.height();
     }
 
-    public void startCellParaList(Area textBoxArea, ParagraphListInterface paraList, boolean canSplit, long topInPage, long bottomMargin, boolean split, int startTextColumnIndex) {
+    public void startCellParaList(Area textBoxArea, ParagraphListInterface paraList, boolean canDivide, long topInPage, long bottomMargin, boolean divided, int startTextColumnIndex) {
         ParagraphListInfo paraListInfo = new ParagraphListInfo(this, paraList)
-                .forCell(textBoxArea, canSplit, topInPage, bottomMargin, split, startTextColumnIndex);
+                .forCell(textBoxArea, canDivide, topInPage, bottomMargin, divided, startTextColumnIndex);
         paraListInfoStack.push(paraListInfo);
     }
 

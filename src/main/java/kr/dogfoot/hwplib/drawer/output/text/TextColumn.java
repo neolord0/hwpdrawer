@@ -3,8 +3,8 @@ package kr.dogfoot.hwplib.drawer.output.text;
 import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfoControl;
 import kr.dogfoot.hwplib.drawer.output.control.ControlOutput;
 import kr.dogfoot.hwplib.drawer.util.Area;
-import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
 import kr.dogfoot.hwplib.drawer.util.CharPosition;
+import kr.dogfoot.hwplib.drawer.util.MyStringBuilder;
 import kr.dogfoot.hwplib.object.bodytext.control.ctrlheader.gso.TextFlowMethod;
 
 import java.util.ArrayList;
@@ -41,7 +41,7 @@ public class TextColumn {
     }
 
     public void addTextLine(TextLine textLine) {
-     //   if (!textLine.empty())
+        //   if (!textLine.empty())
         {
             textLine
                     .index(textLines.size());
@@ -98,19 +98,19 @@ public class TextColumn {
     public TextLine deleteRedrawingTextLine(Area area) {
         TextLine firstTextLine = null;
         boolean overlapped = false;
-        ArrayList<TextLine> deletings = new ArrayList<>();
+        ArrayList<TextLine> removingObjects = new ArrayList<>();
         for (TextLine textLine : textLines()) {
             if (overlapped == false && textLine.area().overlap(area)) {
                 firstTextLine = textLine;
                 overlapped = true;
             }
             if (overlapped == true) {
-                deletings.add(textLine);
+                removingObjects.add(textLine);
             }
         }
 
-        for (TextLine deleting : deletings) {
-            textLines.remove(deleting);
+        for (TextLine removeObject : removingObjects) {
+            textLines.remove(removeObject);
         }
         return firstTextLine;
     }
@@ -256,7 +256,7 @@ public class TextColumn {
             return true;
         }
         return nonBehindChildOutputs.remove(controlOutput);
-     }
+    }
 
     public static class ResultDeleteTextLineIndex {
         private TextLine topLine;

@@ -4,7 +4,6 @@ import kr.dogfoot.hwplib.drawer.drawer.BreakDrawingException;
 import kr.dogfoot.hwplib.drawer.drawer.paralist.DistributionMultiColumnRearranger;
 import kr.dogfoot.hwplib.drawer.input.DrawingInput;
 import kr.dogfoot.hwplib.drawer.output.InterimOutput;
-import kr.dogfoot.hwplib.drawer.output.Output;
 import kr.dogfoot.hwplib.drawer.output.control.GsoOutput;
 import kr.dogfoot.hwplib.object.bodytext.paragraph.header.DivideSort;
 
