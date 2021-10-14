@@ -17,6 +17,11 @@ public class TableDividedByPage {
     }
 
     @Test
+    public void test_셀나누기_기본3() throws Exception {
+        HWPTester.testAndCompare("testingHWP" + File.separator + "표나누기" + File.separator + "셀나누기" + File.separator + "기본" + File.separator + "3");
+    }
+
+    @Test
     public void test_셀나누기_빈셀() throws Exception {
         HWPTester.testAndCompare("testingHWP" + File.separator + "표나누기" + File.separator + "셀나누기" + File.separator + "빈셀");
     }
@@ -29,6 +34,11 @@ public class TableDividedByPage {
     @Test
     public void test_셀나누기_병합된셀2() throws Exception {
         HWPTester.testAndCompare("testingHWP" + File.separator + "표나누기" + File.separator + "셀나누기" + File.separator + "병합된셀" + File.separator + "2");
+    }
+
+    @Test
+    public void test_셀나누기_병합된셀3() throws Exception {
+        HWPTester.testAndCompare("testingHWP" + File.separator + "표나누기" + File.separator + "셀나누기" + File.separator + "병합된셀" + File.separator + "3");
     }
 
     @Test

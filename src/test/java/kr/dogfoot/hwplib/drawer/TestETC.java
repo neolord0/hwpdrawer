@@ -5,6 +5,7 @@ import org.junit.Test;
 import java.io.File;
 
 public class TestETC {
+/*
     @Test
     public void test1() throws Exception {
         HWPTester.test("etc" + File.separator + "1");
@@ -20,4 +21,10 @@ public class TestETC {
         HWPTester.test("etc" + File.separator + "3");
     }
 
+    @Test
+    public void test4() throws Exception {
+        HWPTester.test("etc" + File.separator + "4");
+    }
+
+ */
 }
