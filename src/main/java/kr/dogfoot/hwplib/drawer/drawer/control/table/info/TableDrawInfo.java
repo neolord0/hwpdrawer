@@ -2,18 +2,22 @@ package kr.dogfoot.hwplib.drawer.drawer.control.table.info;
 
 import kr.dogfoot.hwplib.drawer.output.control.table.TableOutput;
 import kr.dogfoot.hwplib.object.bodytext.control.table.Cell;
+import kr.dogfoot.hwplib.object.bodytext.control.table.ListHeaderForCell;
 
 import java.util.*;
 
 public class TableDrawInfo {
-    private ArrayList<TableOutput> tableOutputs;
+    private final ArrayList<TableOutput> tableOutputs;
 
-    private Map<Cell, CellDrawInfo> cellDrawInfos;
+    private final Map<Cell, CellDrawInfo> cellDrawInfos;
+    private final Map<Cell, CellDrawInfo> oldCellDrawInfos;
+
     private int dividingStartRowIndex;
 
     public TableDrawInfo() {
         tableOutputs = new ArrayList<>();
         cellDrawInfos = new HashMap<>();
+        oldCellDrawInfos = new HashMap<>();
         dividingStartRowIndex = -1;
     }
 
@@ -47,7 +51,34 @@ public class TableDrawInfo {
         cellDrawInfos.put(cellDrawInfo.cell(), cellDrawInfo);
     }
 
-    public CellDrawInfo cellCellDrawInfo(Cell cell) {
-        return cellDrawInfos.get(cell);
+    public CellDrawInfo oldCellDrawInfo(Cell cell) {
+        return oldCellDrawInfos.get(cell);
+    }
+
+    public void correctStateOfCellWithSameRow() {
+        ArrayList<CellDrawInfo> dividedCellDrawInfos = new ArrayList<>();
+        for(CellDrawInfo cellDrawInfo1 : cellDrawInfos.values()) {
+            if (cellDrawInfo1.state() == CellDrawInfo.State.Divided) {
+                dividedCellDrawInfos.add(cellDrawInfo1);
+            }
+        }
+
+        for (CellDrawInfo dividedCellDrawInfo : dividedCellDrawInfos) {
+            for (CellDrawInfo cellDrawInfo1 : cellDrawInfos.values()) {
+                if (dividedCellDrawInfo != cellDrawInfo1 && cellDrawInfo1.state() != CellDrawInfo.State.Divided) {
+                    ListHeaderForCell lh = dividedCellDrawInfo.cell().getListHeader();
+                    ListHeaderForCell lh2 = cellDrawInfo1.cell().getListHeader();
+
+                    if (lh.getRowIndex() == lh2.getRowIndex() && lh.getRowSpan() == lh2.getRowSpan()) {
+                        cellDrawInfo1.state(CellDrawInfo.State.Divided);
+                    }
+                }
+            }
+        }
+    }
+
+    public void saveCellDrawInfo() {
+        oldCellDrawInfos.putAll(cellDrawInfos);
+        cellDrawInfos.clear();
     }
 }

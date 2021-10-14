@@ -33,6 +33,7 @@ public class CellDrawer {
     public CellDrawInfo draw(Cell cell, CharPosition fromPosition, int startTextColumnIndex, ControlOutput[] childControlsCrossingPage, boolean canDivide, long addingY) throws Exception {
         if (cell.getParagraphList() != null) {
             CellOutput cellOutput = output.startCell(cell);
+
             ListHeaderForCell lh = cell.getListHeader();
             setTextMarginAndVerticalAlignment(cellOutput, lh);
 
@@ -52,8 +53,8 @@ public class CellDrawer {
 
             checkCrossPageAndOverPage(cellDrawInfo, topInPage, lh);
             cellOutput.calculatedContentHeight(cellDrawInfo.height());
-            output.endCell();
 
+            output.endCell();
             return cellDrawInfo;
         } else {
             return new CellDrawInfo()

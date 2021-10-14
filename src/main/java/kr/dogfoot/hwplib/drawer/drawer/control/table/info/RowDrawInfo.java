@@ -1,5 +1,7 @@
 package kr.dogfoot.hwplib.drawer.drawer.control.table.info;
 
+import kr.dogfoot.hwplib.object.bodytext.control.table.ListHeaderForCell;
+
 import java.util.ArrayList;
 
 public class RowDrawInfo {

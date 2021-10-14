@@ -49,9 +49,10 @@ public class TableDrawerForDivide extends TableDrawer {
             } else {
                 rowDrawInfo = drawRow(rowIndex);
             }
-            columnStates.setStates(rowDrawInfo);
 
             addCellInRow(rowDrawInfo);
+            tableDrawInfo.correctStateOfCellWithSameRow();
+            columnStates.setStates(rowDrawInfo);
 
             if (rowDrawInfo.divided()) {
                 currentTableOutput.divided(true);
@@ -65,10 +66,12 @@ public class TableDrawerForDivide extends TableDrawer {
 
         setHeightAndCharInfo();
 
+        tableDrawInfo.saveCellDrawInfo();
         output.endTable();
     }
 
     private RowDrawInfo drawRowInDividedTable(int rowIndex) throws Exception {
+
         Row row = currentTableOutput.table().getRowList().get(rowIndex);
         RowDrawInfo rowDrawInfo = new RowDrawInfo(rowIndex);
         CellDrawInfo oldCellDrawInfo;
@@ -76,18 +79,29 @@ public class TableDrawerForDivide extends TableDrawer {
 
         for (Cell cell : row.getCellList()) {
             if (columnStates.canDraw(cell)) {
-                oldCellDrawInfo = tableDrawInfo.cellCellDrawInfo(cell);
-                if (oldCellDrawInfo != null) {
-                    if (oldCellDrawInfo.state().isNormal()) {
-                        break;
-                    } else {
-                        cell.getListHeader().setHeight(oldCellDrawInfo.nextPartHeight());
-                    }
+                cellDrawInfo = null;
 
-                    cellDrawInfo = cellDrawer.draw(oldCellDrawInfo.cell(),
-                            oldCellDrawInfo.dividedPosition(),
-                            oldCellDrawInfo.startTextColumnIndex(),
-                            oldCellDrawInfo.cellOutput().childControlsCrossingPage(), canDivideCell(table));
+                oldCellDrawInfo = tableDrawInfo.oldCellDrawInfo(cell);
+                if (oldCellDrawInfo != null) {
+                    if (!oldCellDrawInfo.state().isNormal()) {
+                        int skippedCellCount = columnStates.skippedCellCount(cell);
+                        if (skippedCellCount > 0) {
+                            cell = cell.clone();
+                            cell.getListHeader().setRowIndex(cell.getListHeader().getRowIndex() - skippedCellCount);
+                            cell.getListHeader().setRowSpan(cell.getListHeader().getRowSpan() + skippedCellCount);
+                            oldCellDrawInfo.cell(cell);
+                            columnStates.clearSkippedCellCount(cell);
+                        }
+
+                        cell.getListHeader().setHeight(oldCellDrawInfo.nextPartHeight());
+
+                        cellDrawInfo = cellDrawer.draw(oldCellDrawInfo.cell(),
+                                oldCellDrawInfo.dividedPosition(),
+                                oldCellDrawInfo.startTextColumnIndex(),
+                                oldCellDrawInfo.cellOutput().childControlsCrossingPage(), canDivideCell(table));
+                    } else {
+                        columnStates.increaseSkippedCellCount(cell);
+                    }
                 } else {
                     cellDrawInfo = cellDrawer.draw(cell,
                             null,
@@ -96,12 +110,14 @@ public class TableDrawerForDivide extends TableDrawer {
                             canDivideCell(table));
                 }
 
-                rowDrawInfo.addCellDrawInfo(cellDrawInfo);
+                if (cellDrawInfo != null) {
+                    rowDrawInfo.addCellDrawInfo(cellDrawInfo);
 
-                switch (cellDrawInfo.state()) {
-                    case Divided:
-                        rowDrawInfo.divided(true);
-                        break;
+                    switch (cellDrawInfo.state()) {
+                        case Divided:
+                            rowDrawInfo.divided(true);
+                            break;
+                    }
                 }
             }
         }
