@@ -95,6 +95,10 @@ public class CellDrawInfo {
         public boolean isNormal() {
             return this == Normal;
         }
+
+        public boolean isOverPage() {
+            return this == OverPage;
+        }
     }
 }
 

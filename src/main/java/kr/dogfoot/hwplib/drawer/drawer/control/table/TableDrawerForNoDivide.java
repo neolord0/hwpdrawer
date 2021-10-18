@@ -53,12 +53,6 @@ public class TableDrawerForNoDivide extends TableDrawer {
                     false);
 
             rowDrawInfo.addCellDrawInfo(cellDrawInfo);
-
-            switch (cellDrawInfo.state()) {
-                case Divided:
-                    rowDrawInfo.divided(true);
-                    break;
-            }
         }
         return rowDrawInfo;
     }

@@ -1,15 +1,18 @@
 package kr.dogfoot.hwplib.drawer.drawer.control.table;
 
 import kr.dogfoot.hwplib.drawer.drawer.charInfo.CharInfoControl;
-import kr.dogfoot.hwplib.drawer.drawer.control.table.info.CellDrawInfo;
-import kr.dogfoot.hwplib.drawer.drawer.control.table.info.ColumnStates;
-import kr.dogfoot.hwplib.drawer.drawer.control.table.info.RowDrawInfo;
-import kr.dogfoot.hwplib.drawer.drawer.control.table.info.RowDrawInfoList;
+import kr.dogfoot.hwplib.drawer.drawer.control.table.info.*;
+import kr.dogfoot.hwplib.drawer.drawer.paralist.ParaListDrawerForCell;
 import kr.dogfoot.hwplib.drawer.input.DrawingInput;
 import kr.dogfoot.hwplib.drawer.output.InterimOutput;
 import kr.dogfoot.hwplib.drawer.output.control.ControlOutput;
+import kr.dogfoot.hwplib.drawer.output.control.table.CellOutput;
 import kr.dogfoot.hwplib.drawer.output.control.table.TableOutput;
+import kr.dogfoot.hwplib.drawer.util.Area;
+import kr.dogfoot.hwplib.drawer.util.CharPosition;
+import kr.dogfoot.hwplib.object.bodytext.control.ControlTable;
 import kr.dogfoot.hwplib.object.bodytext.control.table.Cell;
+import kr.dogfoot.hwplib.object.bodytext.control.table.ListHeaderForCell;
 import kr.dogfoot.hwplib.object.bodytext.control.table.Row;
 
 import java.util.Queue;
@@ -26,18 +29,18 @@ public class TableDrawerForDivideByCell extends TableDrawer {
 
         rowDrawInfoList = new RowDrawInfoList(table);
 
-        drawInEachPage(false);
+        drawInEachPage(true);
         addCurrentTableOutputToTableDrawInfo();
         while (currentTableOutput.divided()) {
             setTableAreaToPageTop();
-            drawInEachPage(true);
+            drawInEachPage(false);
             addCurrentTableOutputToTableDrawInfo();
         }
 
         return tableDrawInfo.tableOutputQueue();
     }
 
-    private void drawInEachPage(boolean divided) throws Exception {
+    private void drawInEachPage(boolean firstDraw) throws Exception {
         columnStates = new ColumnStates(table.getTable().getColumnCount());
         rowDrawInfoList.clear();
 
@@ -47,7 +50,7 @@ public class TableDrawerForDivideByCell extends TableDrawer {
         boolean emptyTable = true;
 
         int rowSize = currentTableOutput.table().getRowList().size();
-        int rowStart = (divided) ? tableDrawInfo.dividingStartRowIndex() : 0;
+        int rowStart = (firstDraw) ? 0 : tableDrawInfo.dividingStartRowIndex();
         tableDrawInfo.dividingStartRowIndex(-1);
 
         for (int rowIndex = rowStart; rowIndex < rowSize; rowIndex++) {
@@ -98,7 +101,7 @@ public class TableDrawerForDivideByCell extends TableDrawer {
 
             rowDrawInfo.addCellDrawInfo(cellDrawInfo);
 
-            if (cellDrawInfo.state() == CellDrawInfo.State.OverPage) {
+            if (cellDrawInfo.state().isOverPage()) {
                 rowDrawInfo.overPage(true);
             }
         }
@@ -106,7 +109,7 @@ public class TableDrawerForDivideByCell extends TableDrawer {
     }
 
     private void addCellInRows(RowDrawInfo[] rowDrawInfos) {
-        for (RowDrawInfo rowDrawInfo : rowDrawInfos) {
+        for (RowDrawInfo rowDrawInfo : rowDrawInfos)  {
             addCellInRow(rowDrawInfo);
         }
     }

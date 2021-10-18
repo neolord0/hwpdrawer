@@ -25,7 +25,6 @@ public abstract class TableDrawer {
     protected TableOutput currentTableOutput;
     protected ColumnStates columnStates;
 
-
     protected TableDrawer(DrawingInput input, InterimOutput output, CellDrawer cellDrawer) {
         this.input = input;
         this.output = output;

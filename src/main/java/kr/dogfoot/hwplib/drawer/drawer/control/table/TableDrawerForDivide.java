@@ -15,6 +15,8 @@ import kr.dogfoot.hwplib.object.bodytext.control.table.Row;
 import java.util.Queue;
 
 public class TableDrawerForDivide extends TableDrawer {
+    protected boolean firstDraw;
+
     public TableDrawerForDivide(DrawingInput input, InterimOutput output, CellDrawer cellDrawer) {
         super(input, output, cellDrawer);
     }
@@ -22,35 +24,32 @@ public class TableDrawerForDivide extends TableDrawer {
     public Queue<TableOutput> draw(CharInfoControl controlCharInfo) throws Exception {
         init(controlCharInfo);
 
-        drawInEachPage(false);
+        drawInEachPage(true);
         addCurrentTableOutputToTableDrawInfo();
         while (currentTableOutput.divided()) {
             setTableAreaToPageTop();
-            drawInEachPage(true);
+            drawInEachPage(false);
             addCurrentTableOutputToTableDrawInfo();
         }
 
         return tableDrawInfo.tableOutputQueue();
     }
 
-    private void drawInEachPage(boolean divided) throws Exception {
+    private void drawInEachPage(boolean firstDraw) throws Exception {
+        this.firstDraw = firstDraw;
         columnStates = new ColumnStates(table.getTable().getColumnCount());
 
         currentTableOutput = output.startTable(table, areaWithoutOuterMargin);
         cellDrawer.currentTableOutput(currentTableOutput);
 
         int rowSize = currentTableOutput.table().getRowList().size();
-        int rowStart = (divided) ? tableDrawInfo.dividingStartRowIndex() : 0;
+        int rowStart = (firstDraw) ? 0 : tableDrawInfo.dividingStartRowIndex();
         tableDrawInfo.dividingStartRowIndex(-1);
         for (int rowIndex = rowStart; rowIndex < rowSize; rowIndex++) {
-            RowDrawInfo rowDrawInfo;
-            if (divided) {
-                rowDrawInfo = drawRowInDividedTable(rowIndex);
-            } else {
-                rowDrawInfo = drawRow(rowIndex);
-            }
+            RowDrawInfo rowDrawInfo = drawRow(rowIndex);
 
             addCellInRow(rowDrawInfo);
+
             tableDrawInfo.correctStateOfCellWithSameRow();
             columnStates.setStates(rowDrawInfo);
 
@@ -70,83 +69,71 @@ public class TableDrawerForDivide extends TableDrawer {
         output.endTable();
     }
 
-    private RowDrawInfo drawRowInDividedTable(int rowIndex) throws Exception {
-
+    private RowDrawInfo drawRow(int rowIndex) throws Exception {
         Row row = currentTableOutput.table().getRowList().get(rowIndex);
         RowDrawInfo rowDrawInfo = new RowDrawInfo(rowIndex);
-        CellDrawInfo oldCellDrawInfo;
-        CellDrawInfo cellDrawInfo;
 
         for (Cell cell : row.getCellList()) {
             if (columnStates.canDraw(cell)) {
-                cellDrawInfo = null;
-
-                oldCellDrawInfo = tableDrawInfo.oldCellDrawInfo(cell);
-                if (oldCellDrawInfo != null) {
-                    if (!oldCellDrawInfo.state().isNormal()) {
-                        int skippedCellCount = columnStates.skippedCellCount(cell);
-                        if (skippedCellCount > 0) {
-                            cell = cell.clone();
-                            cell.getListHeader().setRowIndex(cell.getListHeader().getRowIndex() - skippedCellCount);
-                            cell.getListHeader().setRowSpan(cell.getListHeader().getRowSpan() + skippedCellCount);
-                            oldCellDrawInfo.cell(cell);
-                            columnStates.clearSkippedCellCount(cell);
-                        }
-
-                        cell.getListHeader().setHeight(oldCellDrawInfo.nextPartHeight());
-
-                        cellDrawInfo = cellDrawer.draw(oldCellDrawInfo.cell(),
-                                oldCellDrawInfo.dividedPosition(),
-                                oldCellDrawInfo.startTextColumnIndex(),
-                                oldCellDrawInfo.cellOutput().childControlsCrossingPage(), canDivideCell(table));
-                    } else {
-                        columnStates.increaseSkippedCellCount(cell);
-                    }
-                } else {
-                    cellDrawInfo = cellDrawer.draw(cell,
-                            null,
-                            -1,
-                            ControlOutput.Zero_Array,
-                            canDivideCell(table));
-                }
-
+                CellDrawInfo cellDrawInfo = drawCell(cell);
                 if (cellDrawInfo != null) {
                     rowDrawInfo.addCellDrawInfo(cellDrawInfo);
 
-                    switch (cellDrawInfo.state()) {
-                        case Divided:
-                            rowDrawInfo.divided(true);
-                            break;
+                    if (cellDrawInfo.state().isDivided()) {
+                        rowDrawInfo.divided(true);
                     }
                 }
             }
+
         }
         return rowDrawInfo;
     }
 
-    private RowDrawInfo drawRow(int rowIndex) throws Exception {
-        Row row = currentTableOutput.table().getRowList().get(rowIndex);
-        RowDrawInfo rowDrawInfo = new RowDrawInfo(rowIndex);
-        CellDrawInfo cellDrawInfo;
+    private CellDrawInfo drawCell(Cell cell) throws Exception {
+        CellDrawInfo cellDrawInfo = null;
 
-        for (Cell cell : row.getCellList()) {
-            if (columnStates.canDraw(cell)) {
-                cellDrawInfo = cellDrawer.draw(cell,
-                        null,
-                        -1,
-                        ControlOutput.Zero_Array,
-                        canDivideCell(table));
-
-                rowDrawInfo.addCellDrawInfo(cellDrawInfo);
-
-                switch (cellDrawInfo.state()) {
-                    case Divided:
-                        rowDrawInfo.divided(true);
-                        break;
-                }
-            }
+        CellDrawInfo oldCellDrawInfo = null;
+        if (!firstDraw) {
+            oldCellDrawInfo = tableDrawInfo.oldCellDrawInfo(cell);
         }
-        return rowDrawInfo;
+
+        if (oldCellDrawInfo != null) {
+            changeOldCellDrawInfo(oldCellDrawInfo, cell);
+
+            if (oldCellDrawInfo.state().isDivided()) {
+                cellDrawInfo = cellDrawer.draw(oldCellDrawInfo.cell(),
+                        oldCellDrawInfo.dividedPosition(),
+                        oldCellDrawInfo.startTextColumnIndex(),
+                        oldCellDrawInfo.cellOutput().childControlsCrossingPage(),
+                        canDivideCell(table));
+            }
+        } else {
+            cellDrawInfo = cellDrawer.draw(cell,
+                    null,
+                    -1,
+                    ControlOutput.Zero_Array,
+                    canDivideCell(table));
+        }
+
+        return cellDrawInfo;
+    }
+
+    private void changeOldCellDrawInfo(CellDrawInfo oldCellDrawInfo, Cell cell) {
+        if (oldCellDrawInfo.state().isDivided()) {
+            int skippedRowCount = columnStates.skippedCellCount(cell);
+            if (skippedRowCount > 0) {
+                cell = cell.clone();
+                cell.getListHeader().setRowIndex(cell.getListHeader().getRowIndex() - skippedRowCount);
+                cell.getListHeader().setRowSpan(cell.getListHeader().getRowSpan() + skippedRowCount);
+                columnStates.clearSkippedCellCount(cell);
+
+                oldCellDrawInfo.cell(cell);
+            }
+
+            oldCellDrawInfo.cell().getListHeader().setHeight(oldCellDrawInfo.nextPartHeight());
+        } else {
+            columnStates.increaseSkippedCellCount(oldCellDrawInfo.cell());
+        }
     }
 
     private boolean canDivideCell(ControlTable table) {
