@@ -22,7 +22,7 @@ public class TableOutput extends ControlOutput {
         this.table = table;
         this.areaWithoutOuterMargin = new Area(areaWithoutOuterMargin);
 
-        this.cellOutputs = new CellOutput[table.getTable().getColumnCount()][table.getTable().getRowCount()];
+        this.cellOutputs = new CellOutput[table.getTable().getRowCount()][table.getTable().getColumnCount()];
 
         cellPositionCalculator = new CellPositionCalculator(table.getTable().getColumnCount(), table.getTable().getRowCount());
         divided = false;
@@ -30,7 +30,7 @@ public class TableOutput extends ControlOutput {
 
     public void addCell(CellOutput cellOutput) {
         ListHeaderForCell lh = cellOutput.cell().getListHeader();
-        cellOutputs[lh.getColIndex()][lh.getRowIndex()] = cellOutput;
+        cellOutputs[lh.getRowIndex()][lh.getColIndex()] = cellOutput;
 
         cellPositionCalculator.addInfo(
                 lh.getColIndex(),

@@ -223,6 +223,10 @@ public class ParaDrawer {
     }
 
     public void nextPage() throws Exception {
+        if (output.currentPage().empty()) {
+            return;
+        }
+
         if (distributionMultiColumnRearranger.testing()) {
             throw new BreakDrawingException(new CharPosition(input.paraIndex(), input.charIndex(), input.charPosition())).forNewPage();
         }

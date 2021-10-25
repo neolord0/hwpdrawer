@@ -212,6 +212,8 @@ public class TextPainter {
                 charIndex++;
             }
         }
+
+        painter.setStretch((short) 100);
     }
 
     private Area controlArea(TextPart part, CharInfoControl controlCharInfo) {

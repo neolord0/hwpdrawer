@@ -16,7 +16,7 @@ public class Convertor {
     }
 
     public static int fromHWPUnit(long hwpUnit) {
-        return (int) (hwpUnit * option.zoomRate() / 40f / 100);
+        return (int) (hwpUnit * option.zoomRate() / 4000.0f);
     }
 
     public static float fontSize(int baseSize) {

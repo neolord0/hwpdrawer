@@ -93,11 +93,9 @@ public class PainterForImage {
 
     public double setStretch(short ratios) {
         double rate = (double) (ratios) / 100d;
-
         AffineTransform stretch = new AffineTransform();
         stretch.concatenate(
                 AffineTransform.getScaleInstance(rate, 1d));
-
         graphics2D.setTransform(stretch);
         return rate;
     }
@@ -208,6 +206,7 @@ public class PainterForImage {
                     bottomBorder.getColor());
             line(cellArea.left(), cellArea.bottom(), cellArea.right(), cellArea.bottom());
         }
+
         return this;
     }
 }

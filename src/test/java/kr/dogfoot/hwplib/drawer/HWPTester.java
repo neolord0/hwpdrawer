@@ -12,13 +12,15 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 
 public class HWPTester {
+    private static String outputDirectory = "output";
+
     public static void testAndCompare(String path) throws Exception {
         long startTime = System.currentTimeMillis();
         HWPFile hwpFile = HWPReader.fromFile(path + "/test.hwp");
 
         int pageCount = HWPDrawer.draw(hwpFile,
                 new DrawingOption()
-                        .directoryToSave(path)
+                        .directoryToSave(outputDirectory)
                         .fontPath("font")
                         .zoomRate(80));
 
@@ -31,9 +33,10 @@ public class HWPTester {
     private static void comparePageImages(String path, int pageCount) {
         boolean succuess = true;
         int pageNo;
+
         for (pageNo = 1; pageNo <= pageCount; pageNo++) {
             String expectedPng = path + File.separator + osname() + File.separator + "ok_page" + pageNo + ".png";
-            String actualPng = path + File.separator + "page" + pageNo + ".png";
+            String actualPng = outputDirectory + File.separator + "page" + pageNo + ".png";
 
             BufferedImage expectedImage = ImageComparisonUtil.readImageFromResources(expectedPng);
             BufferedImage actualImage = ImageComparisonUtil.readImageFromResources(actualPng);
@@ -41,7 +44,7 @@ public class HWPTester {
             ImageComparisonResult result = new ImageComparison(expectedImage, actualImage).compareImages();
             if (result.getImageComparisonState() != ImageComparisonState.MATCH) {
                 System.out.println("not match page " + pageNo + " " + result.getImageComparisonState());
-                ImageComparisonUtil.saveImage(new File(path + File.separator + "error" + pageNo + ".png"), result.getResult());
+                ImageComparisonUtil.saveImage(new File(outputDirectory + File.separator + "error" + pageNo + ".png"), result.getResult());
                 succuess = false;
             } else {
                 System.out.println("match page " + pageNo);
@@ -68,13 +71,14 @@ public class HWPTester {
 
         int pageCount = HWPDrawer.draw(hwpFile,
                 new DrawingOption()
-                        .directoryToSave(path)
+                        .directoryToSave(outputDirectory)
                         .fontPath("font")
                         .zoomRate(80)
                         .auxiliaryLine(true));
 
 
         long endTime = System.currentTimeMillis();
+
         System.out.println(path + " : " + (endTime - startTime) + "ms, pageCount = " + pageCount);
     }
 
@@ -85,12 +89,13 @@ public class HWPTester {
         int pageCount = HWPDrawer.draw(hwpFile,
                 new DrawingOption()
                         .outputType(DrawingOption.OutputType.HTML)
-                        .directoryToSave(path)
+                        .directoryToSave(outputDirectory)
                         .fontPath("font")
                         .zoomRate(80)
                         .auxiliaryLine(false));
 
         long endTime = System.currentTimeMillis();
+
         System.out.println(path + " : " + (endTime - startTime) + "ms, pageCount = " + pageCount);
     }
 }

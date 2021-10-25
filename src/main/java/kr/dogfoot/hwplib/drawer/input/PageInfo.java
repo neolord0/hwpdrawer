@@ -26,8 +26,10 @@ public class PageInfo {
     }
 
     public void sectionDefine(ControlSectionDefine sectionDefine) {
-        this.sectionDefine = sectionDefine;
-        calculateArea();
+        if (sectionDefine != null) {
+            this.sectionDefine = sectionDefine;
+            calculateArea();
+        }
         evenHeader = null;
         oddHeader = null;
         evenFooter = null;

@@ -81,8 +81,16 @@ public class WordDrawer {
         reset();
     }
 
-    private void addSpaceChar(CharInfoNormal spaceCharInfo) {
+    private void addSpaceChar(CharInfoNormal spaceCharInfo) throws Exception {
         if (paraDrawer.drawingState().canAddChar() && spaceCharInfo != null && !wordSplitter.stopAddingChar()) {
+            if (textLineDrawer.noDrawingChar()) {
+                textLineDrawer.firstDrawingCharInfo(spaceCharInfo);
+                if (textLineDrawer.controlOutputCount() == 0) {
+                    textLineDrawer.firstCharInfo(spaceCharInfo);
+                }
+                paraDrawer.checkNewColumnAndPage();
+            }
+
             textLineDrawer.addChar(spaceCharInfo);
         }
     }
@@ -123,6 +131,7 @@ public class WordDrawer {
         textLineDrawer.justNewLine(false);
 
         if (paraDrawer.drawingState().canAddChar()) {
+
             if (textLineDrawer.noDrawingChar()) {
                 textLineDrawer.firstDrawingCharInfo(charInfo);
                 if (textLineDrawer.controlOutputCount() == 0) {
