@@ -7,5 +7,3 @@
 혼자하기엔 너무 방대하여 완성하지 못 했지만, 다른 분께 도움이 되고자 공개하였습니다.<br>
 
 * hwp 파일에 대한 라이브러리는 https://github.com/neolord0/hwplib 을 참조해 주세요
-* hwpx 파일에 대한 라이브러리는 https://github.com/neolord0/hwpxlib 을 참조해 주세요.
-* hwp파일을 hwpx파일로 변환하는 라이브러리는 https://github.com/neolord0/hwp2hwpx 을 참조해 주세요.
