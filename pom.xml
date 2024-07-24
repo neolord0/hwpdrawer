@@ -15,19 +15,13 @@
     </properties>
 
     <dependencies>
-        <dependency>
-            <scope>compile</scope>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi</artifactId>
-            <version>4.1.0</version>
-        </dependency>
 
         <dependency>
             <scope>system</scope>
             <groupId>custom</groupId>
             <artifactId>hwplib</artifactId>
-            <version>1.0.5</version>
-            <systemPath>${project.basedir}/lib/hwplib-1.0.5.jar</systemPath>
+            <version>1.1.6</version>
+            <systemPath>${project.basedir}/lib/hwplib-1.1.6.jar</systemPath>
         </dependency>
 
         <dependency>
@@ -53,13 +47,6 @@
             <artifactId>junit</artifactId>
             <version>4.12</version>
             <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.jetbrains</groupId>
-            <artifactId>annotations</artifactId>
-            <version>RELEASE</version>
-            <scope>compile</scope>
         </dependency>
 
     </dependencies>

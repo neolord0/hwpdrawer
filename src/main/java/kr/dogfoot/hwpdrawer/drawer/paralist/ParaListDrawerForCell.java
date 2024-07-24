@@ -1,0 +1,105 @@
+package kr.dogfoot.hwpdrawer.drawer.paralist;
+
+import kr.dogfoot.hwpdrawer.drawer.BreakDrawingException;
+import kr.dogfoot.hwpdrawer.drawer.RedrawException;
+import kr.dogfoot.hwpdrawer.drawer.control.table.info.CellDrawInfo;
+import kr.dogfoot.hwpdrawer.input.DrawingInput;
+import kr.dogfoot.hwpdrawer.output.InterimOutput;
+import kr.dogfoot.hwpdrawer.output.control.ControlOutput;
+import kr.dogfoot.hwpdrawer.output.control.table.CellOutput;
+import kr.dogfoot.hwpdrawer.util.Area;
+import kr.dogfoot.hwpdrawer.util.CharPosition;
+import kr.dogfoot.hwplib.object.bodytext.ParagraphListInterface;
+
+public class ParaListDrawerForCell extends ParaListDrawer {
+    public ParaListDrawerForCell(DrawingInput input, InterimOutput output) {
+        super(input, output);
+    }
+
+    public CellDrawInfo draw(ParagraphListInterface paraList,
+                             Area textBoxArea,
+                             boolean canDivide,
+                             long topInPage,
+                             long bottomMargin,
+                             CharPosition fromPosition,
+                             int startTextColumnIndex,
+                             ControlOutput[] childControlsCrossingPage) throws Exception {
+
+        boolean divided = fromPosition != null;
+        input.startCellParaList(textBoxArea, paraList, canDivide, topInPage, bottomMargin, divided, startTextColumnIndex);
+
+        if (divided) {
+            if (!input.currentColumnsInfo().isParallelMultiColumn()) {
+                input.currentColumnsInfo().processLikeDistributionMultiColumn(true);
+                output.nextRow(input.currentColumnsInfo());
+            }
+            input.gotoParaWithIgnoreNextPara(fromPosition);
+        }
+
+        CellDrawInfo cellDrawInfo = new CellDrawInfo();
+
+        boolean redraw = false;
+        while (redraw || input.nextPara()) {
+            try {
+                if (fromPosition != null && fromPosition.paraIndex() == input.paraIndex()) {
+                    paraDrawer().draw(redraw, fromPosition, childControlsCrossingPage);
+                } else {
+                    paraDrawer().draw(redraw);
+                }
+                redraw = false;
+            } catch (RedrawException e) {
+                redraw = true;
+            } catch (BreakDrawingException e) {
+                if (e.type().isForOverTextBoxArea()) {
+                    input.currentColumnsInfo().textBoxArea().bottom(input.pageInfo().bodyArea().bottom());
+                    paraDrawer().gotoStartCharOfCurrentRow();
+                    redraw = true;
+                } else if (e.type().isForOverPage()) {
+                    cellDrawInfo
+                            .state(CellDrawInfo.State.Divided)
+                            .dividedPosition(e.position())
+                            .startTextColumnIndex(e.columnIndex());
+                    break;
+                } else {
+                    throw e;
+                }
+            }
+        }
+
+        if (input.currentColumnsInfo().isNormalMultiColumn() &&
+                !input.currentColumnsInfo().isLastColumn() &&
+                input.currentParaListInfo().height() > textBoxArea.height()) {
+            input.currentColumnsInfo().processLikeDistributionMultiColumn(true);
+        }
+
+        if (!output.hadRearrangedDistributionMultiColumn()) {
+            if (!input.currentColumnsInfo().isLastColumn()) {
+                if (input.currentColumnsInfo().isDistributionMultiColumn()
+                        || input.currentColumnsInfo().processLikeDistributionMultiColumn()) {
+                    distributionMultiColumnRearranger.rearrangeFromCurrentColumn();
+                }
+            }
+        }
+
+        if (input.currentColumnsInfo().isParallelMultiColumn()
+                && input.currentColumnsInfo().isFirstColumn()
+                && divided) {
+            input.parallelMultiColumnInfo()
+                    .addParentInfo(output.currentOutput(), input.currentParaListInfo().cellInfo());
+        }
+
+
+        if (input.currentColumnsInfo().isParallelMultiColumn()) {
+            input.parallelMultiColumnInfo()
+                    .addParentInfo(output.currentOutput(), input.currentParaListInfo().cellInfo());
+        }
+
+        input.endCellParaList();
+
+        cellDrawInfo
+                .cellOutput((CellOutput) output.currentOutput())
+                .cell(((CellOutput) output.currentOutput()).cell())
+                .height(output.currentContent().height());
+        return cellDrawInfo;
+    }
+}
