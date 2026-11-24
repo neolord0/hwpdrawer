@@ -1,0 +1,13 @@
+# 빌드 결과
+target/
+
+# 폰트 (저작권 — 저장소에 넣지 않는다. 사용하는 쪽에서 준비)
+font/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# macOS
+.DS_Store

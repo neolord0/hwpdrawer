@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>kr.dogfoot</groupId>
+    <artifactId>hwpdrawer</artifactId>
+    <version>2.0.0</version>
+    <packaging>jar</packaging>
+
+    <properties>
+        <maven.compiler.source>9</maven.compiler.source>
+        <maven.compiler.target>9</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- 예제 실행: mvn -q test-compile exec:java -Dexec.args="문서.hwp out font"
+             (다른 main 은 -Dexec.mainClass=… 로 바꿔 실행한다) -->
+        <exec.mainClass>kr.dogfoot.hwpdrawer.examples.ConvertAllFormats</exec.mainClass>
+        <exec.classpathScope>test</exec.classpathScope>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <scope>system</scope>
+            <groupId>custom</groupId>
+            <artifactId>hwplib</artifactId>
+            <version>1.1.10</version>
+            <systemPath>${project.basedir}/lib/hwplib-1.1.10.jar</systemPath>
+        </dependency>
+
+        <dependency>
+            <groupId>com.twelvemonkeys.imageio</groupId>
+            <artifactId>imageio-core</artifactId>
+            <version>3.7.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.twelvemonkeys.imageio</groupId>
+            <artifactId>imageio-tiff</artifactId>
+            <version>3.7.0</version>
+        </dependency>
+
+        <!-- PDF 내보내기: PDFBox + Graphics2D 브리지 -->
+        <dependency>
+            <groupId>org.apache.pdfbox</groupId>
+            <artifactId>pdfbox</artifactId>
+            <version>3.0.8</version>
+        </dependency>
+
+        <dependency>
+            <groupId>de.rototor.pdfbox</groupId>
+            <artifactId>graphics2d</artifactId>
+            <version>3.0.5</version>
+        </dependency>
+
+        <!-- SVG/HTML 내보내기: Graphics2D → SVG (Apache Batik 생성기만 — DOM은 JDK, PNG 인코딩은 ImageIO) -->
+        <dependency>
+            <groupId>org.apache.xmlgraphics</groupId>
+            <artifactId>batik-svggen</artifactId>
+            <version>1.19</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.10.2</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- 테스트 전용: 내보낸 SVG를 래스터화해 PNG와 비교 -->
+        <dependency>
+            <groupId>org.apache.xmlgraphics</groupId>
+            <artifactId>batik-transcoder</artifactId>
+            <version>1.19</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- 테스트 전용: Batik이 SVG 안의 PNG(data URI) 그림을 읽는 데 필요 -->
+        <dependency>
+            <groupId>org.apache.xmlgraphics</groupId>
+            <artifactId>batik-codec</artifactId>
+            <version>1.19</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- examples/ 를 테스트 소스로 컴파일한다 — 라이브러리 jar 에는 들어가지 않는다 -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>3.6.1</version>
+                <executions>
+                    <execution>
+                        <id>add-examples</id>
+                        <phase>generate-test-sources</phase>
+                        <goals>
+                            <goal>add-test-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>examples/src</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.6.3</version>
+            </plugin>
+        </plugins>
+    </build>
+</project>
